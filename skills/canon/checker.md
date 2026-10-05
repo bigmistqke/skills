@@ -69,7 +69,7 @@ A bug names its issue on a line of its own, such as `Issue: #49`. With no `track
 - `tokenEnv`: the environment variable that holds the token. The default is `GITHUB_TOKEN` or `GITLAB_TOKEN`. The checker takes the token from the environment only, never from the project.
 
 1. A bare `#49` is an issue of the configured tracker. A URL names its own: `https://github.com/owner/name/issues/49`, or `https://gitlab.example.com/group/project/-/issues/49`.
-2. A public project needs no token. GitHub allows 60 anonymous calls an hour, so the checker reads many issues in pages of a hundred. It makes one call for each hundred issue numbers, whatever the number of issues the bugs name, and a missing issue of a public project is `missing-issue`.
+2. A public project needs no token. GitHub allows 60 anonymous calls an hour, so the checker reads many issues in pages of a hundred. It makes one call for each hundred issue numbers, whatever the number of issues the bugs name. A missing issue of a public project is `missing-issue`.
 3. A private project needs a token. On GitHub it needs the `repo` scope, or read access to Issues for a fine-grained token. On GitLab it needs `read_api`. A tracker answers a private project as if the issue were absent, so a call that fails for want of a token is `unreachable-tracker`, never `missing-issue`. A spent rate limit is `unreachable-tracker` too, and a token lifts it.
 4. `missing-issue` is an issue the tracker does not hold, or a number that belongs to a PR.
 5. `closed-issue` is a bug that names a closed issue. Either the fix landed and the bug goes, or the issue was closed too soon.
