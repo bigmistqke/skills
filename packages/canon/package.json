@@ -1,0 +1,45 @@
+{
+  "name": "@bigmistqke/canon",
+  "version": "0.1.0",
+  "description": "The checker for a project's canon: the derivation links between CANON.md, its tests and its code.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigmistqke/skills.git",
+    "directory": "packages/canon"
+  },
+  "type": "module",
+  "bin": { "canon": "./dist/cli.js" },
+  "exports": {
+    "./kinds": "./dist/kinds.js",
+    "./regions": "./dist/regions.js"
+  },
+  "files": ["dist"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "remark-parse": "^11.0.0",
+    "remark-retext": "^6.0.1",
+    "retext-english": "^5.0.0",
+    "retext-indefinite-article": "^5.0.0",
+    "retext-passive": "^5.0.0",
+    "retext-repeated-words": "^5.0.0",
+    "retext-simplify": "^8.0.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
+    "vfile": "^6.0.3",
+    "vfile-reporter": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "@types/nlcst": "^2.0.3",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  }
+}

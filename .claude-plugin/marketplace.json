@@ -1,11 +1,16 @@
 {
   "name": "bigmistqke",
   "owner": { "name": "bigmistqke" },
+  "metadata": {
+    "description": "Agent skills by bigmistqke."
+  },
   "plugins": [
     {
       "name": "canon",
-      "source": "./plugins/canon",
-      "description": "Keep a project's theory in a CANON.md of axioms, facts, specs and exceptions that the code and tests derive from and a checker holds closed."
+      "description": "Keep a project's theory in a CANON.md of axioms, facts, specs and exceptions that the code and tests derive from and a checker holds closed.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/canon", "./skills/grill-with-canon"]
     }
   ]
 }

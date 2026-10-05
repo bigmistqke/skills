@@ -35,7 +35,7 @@ Documentation goes out of date because nothing checks it. The canon cannot go ou
 This file holds what every session needs. Two files beside it hold the rest:
 
 - [`writing-units.md`](writing-units.md): how to write, place and test units. Read it before you add, change or move a unit.
-- [`checker.md`](checker.md): how to configure and run the checker.
+- [`checker.md`](checker.md): how to install, configure and run the checker.
 
 ## 1. Authority
 
@@ -51,19 +51,20 @@ This file holds what every session needs. Two files beside it hold the rest:
 
 ## 2. The session
 
-1. At the start, read the root axioms and the facts. Then read every unit that covers the area of your task.
-2. Use the canon for every choice you make in the system, internal ones included. An internal choice needs the canon most, because nothing outside the system checks it.
-3. When you face a choice, find the units that decide it. Choose the option they force, and cite them in your reasoning.
-4. When the units do not decide a choice, the canon lacks a value or a spec. Settle it with the owner of the design through the grill-with-canon skill, which writes the answer into the canon.
-5. Before you change code, answer three questions from the units that cover it. They are the three things that whoever holds the [theory](#terms) can do:
+1. If `package.json` has no `canon` field, the project has no checker yet. Ask the owner before you set it up as [`checker.md`](checker.md) describes.
+2. At the start, read the root axioms and the facts. Then read every unit that covers the area of your task.
+3. Use the canon for every choice you make in the system, internal ones included. An internal choice needs the canon most, because nothing outside the system checks it.
+4. When you face a choice, find the units that decide it. Choose the option they force, and cite them in your reasoning.
+5. When the units do not decide a choice, the canon lacks a value or a spec. Settle it with the owner of the design through the grill-with-canon skill, which writes the answer into the canon.
+6. Before you change code, answer three questions from the units that cover it. They are the three things that whoever holds the [theory](#terms) can do:
    1. What does this code match in the world of the people using the system?
    2. Why is each part the way it is? The derivation lines answer this.
    3. How does the requested change fit what is already there?
 
    If the canon lacks a claim you need, write the unit. If an answer needs a judgement the canon cannot give, ask the owner of the design.
-6. Before the session ends, write every decision you made into the canon. The next session knows only what the canon holds.
-7. Write each unit for a reader who has none of your context. That reader is the next session.
-8. End the session with `pnpm canon check` clean and `pnpm canon log` clean. Run `pnpm canon lint` on the text you wrote, and fix its findings.
+7. Before the session ends, write every decision you made into the canon. The next session knows only what the canon holds.
+8. Write each unit for a reader who has none of your context. That reader is the next session.
+9. End the session with `pnpm canon check` clean and `pnpm canon log` clean. Run `pnpm canon lint` on the text you wrote, and fix its findings.
 
 ## 3. Adding or changing behaviour
 

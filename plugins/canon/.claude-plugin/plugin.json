@@ -1,8 +1,0 @@
-{
-  "name": "canon",
-  "version": "0.1.0",
-  "description": "Keep a project's theory in a CANON.md of axioms, facts, specs and exceptions that the code and tests derive from and a checker holds closed.",
-  "author": { "name": "bigmistqke" },
-  "repository": "https://github.com/bigmistqke/skills",
-  "license": "MIT"
-}

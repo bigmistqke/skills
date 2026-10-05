@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 /**
- * `canon lint` — language checks on the prose of the canon documents and the
- * protocol. Reports passive voice, wordy phrasing, repeated
+ * `canon lint` — language checks on the prose of the canon documents.
+ * Reports passive voice, wordy phrasing, repeated
  * words, wrong indefinite articles, and sentences and paragraphs longer than
  * the limits below.
  *
  * Kept apart from `cli.ts`, which depends on nothing outside Node: this file
- * needs the unified and retext packages, installed as dev dependencies.
+ * needs the unified and retext packages.
  *
- * Usage: pnpm canon lint [file …], or node .claude/skills/canon/lint.ts [file …].
- * With no files, it reads the canon documents declared in package.json and
- * the protocol beside this file.
+ * Usage: canon lint [file …]. With no files, it reads the canon documents
+ * declared in package.json.
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -24,7 +23,7 @@ import retextIndefiniteArticle from 'retext-indefinite-article'
 import retextPassive from 'retext-passive'
 import retextRepeatedWords from 'retext-repeated-words'
 import retextSimplify from 'retext-simplify'
-import { unified } from 'unified'
+import { type Processor, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import { VFile } from 'vfile'
 import { reporter } from 'vfile-reporter'
@@ -103,7 +102,7 @@ const processor = unified()
       .use(retextSimplify, { ignore: [...VOCABULARY, 'it is'] })
       .use(retextRepeatedWords)
       .use(retextIndefiniteArticle)
-      .use(retextLength),
+      .use(retextLength) as unknown as Processor<NlcstRoot>,
   )
 
 /** The root of the project: the nearest directory with a `canon` field. */
@@ -118,17 +117,17 @@ function projectRoot(): string {
 }
 
 /**
- * Lint `paths`, or with none the canon documents declared in package.json and
- * the protocol beside this file. Prints the findings and returns how many
- * there were.
+ * Lint `paths`, or with none the canon documents declared in package.json.
+ * Prints the findings and returns how many there were.
  */
 export async function lint(paths: string[]): Promise<number> {
-  const root = projectRoot()
-  const protocol = join(dirname(fileURLToPath(import.meta.url)), 'SKILL.md')
-  const documents: string[] =
-    JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).canon.documents ?? ['CANON.md']
+  const root = paths.length > 0 ? process.cwd() : projectRoot()
   const targets =
-    paths.length > 0 ? paths.map((f) => resolve(f)) : [...documents.map((d) => join(root, d)), protocol]
+    paths.length > 0
+      ? paths.map((f) => resolve(f))
+      : ((JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).canon.documents ?? ['CANON.md']) as string[]).map(
+          (d) => join(root, d)
+        )
 
   const files: VFile[] = []
   for (const path of targets) {

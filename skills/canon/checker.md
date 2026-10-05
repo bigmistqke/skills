@@ -1,14 +1,20 @@
 # The checker
 
-How to configure and run the canon checker. [`SKILL.md`](SKILL.md) holds the protocol, and `pnpm canon --help` is the manual of the tool.
+How to install, configure and run the canon checker. [`SKILL.md`](SKILL.md) holds the protocol, and `pnpm canon --help` is the manual of the tool.
 
-## 1. Scope
+## 1. Install and scope
 
-Declare the scope in the `canon` field of `package.json`:
+The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependency:
+
+```bash
+pnpm add -D @bigmistqke/canon
+```
+
+Then add a script that runs it, and declare the scope in the `canon` field of `package.json`:
 
 ```json
 {
-  "scripts": { "canon": "node .claude/skills/canon/cli.ts" },
+  "scripts": { "canon": "canon" },
   "canon": {
     "documents": ["CANON.md"],
     "suites": "test/canon",
@@ -44,4 +50,4 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 2. `check` fails when a generated region is stale. To fix it, run `generate`. The generated regions are the index of each document and the kinds table in [`writing-units.md`](writing-units.md).
 3. Add the `toc:begin` and `toc:end` markers to each new canon document, once.
 4. `lint` reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
-5. `check`, `generate` and `tree` need Node 22.18 or later and nothing else. `lint` also needs the project's dev dependencies.
+5. The checker needs Node 22 or later.

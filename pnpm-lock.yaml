@@ -6,14 +6,10 @@ settings:
 
 importers:
 
-  .:
-    devDependencies:
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
-      '@types/nlcst':
-        specifier: ^2.0.3
-        version: 2.0.3
+  .: {}
+
+  packages/canon:
+    dependencies:
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
@@ -47,9 +43,22 @@ importers:
       vfile-reporter:
         specifier: ^8.1.1
         version: 8.1.1
+    devDependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      '@types/nlcst':
+        specifier: ^2.0.3
+        version: 2.0.3
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.5
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
       vitest:
         specifier: ^3.1.3
-        version: 3.2.7(@types/debug@4.1.13)
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)
 
 packages:
 
@@ -363,6 +372,9 @@ packages:
 
   '@types/nlcst@2.0.3':
     resolution: {integrity: sha512-vSYNSDe6Ix3q+6Z7ri9lyWqgGhJTmzRjZRqyq15N0Z/1/UnVsno9G/N40NBijoYx2seFDIl0+B2mgAb9mezUCA==}
+
+  '@types/node@22.20.5':
+    resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
 
   '@types/supports-color@8.1.3':
     resolution: {integrity: sha512-Hy6UMpxhE3j1tLpl27exp1XqHD7n8chAiNPzWfz16LPZoMMoSc4dzLl6w9qijkEb/r5O1ozdu1CWGA2L83ZeZg==}
@@ -706,6 +718,14 @@ packages:
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
@@ -1012,6 +1032,10 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
+  '@types/node@22.20.5':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/supports-color@8.1.3': {}
 
   '@types/unist@3.0.3': {}
@@ -1024,13 +1048,13 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.7(vite@7.3.6)':
+  '@vitest/mocker@3.2.7(vite@7.3.6(@types/node@22.20.5))':
     dependencies:
       '@vitest/spy': 3.2.7
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.6
+      vite: 7.3.6(@types/node@22.20.5)
 
   '@vitest/pretty-format@3.2.7':
     dependencies:
@@ -1518,6 +1542,10 @@ snapshots:
 
   trough@2.2.0: {}
 
+  typescript@5.9.3: {}
+
+  undici-types@6.21.0: {}
+
   unified@11.0.5:
     dependencies:
       '@types/unist': 3.0.3
@@ -1601,13 +1629,13 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-node@3.2.4:
+  vite-node@3.2.4(@types/node@22.20.5):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.3.6
+      vite: 7.3.6(@types/node@22.20.5)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -1622,7 +1650,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite@7.3.6:
+  vite@7.3.6(@types/node@22.20.5):
     dependencies:
       esbuild: 0.28.2
       fdir: 6.5.0(picomatch@4.0.7)
@@ -1631,13 +1659,14 @@ snapshots:
       rollup: 4.64.0
       tinyglobby: 0.2.17
     optionalDependencies:
+      '@types/node': 22.20.5
       fsevents: 2.3.3
 
-  vitest@3.2.7(@types/debug@4.1.13):
+  vitest@3.2.7(@types/debug@4.1.13)(@types/node@22.20.5):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.7
-      '@vitest/mocker': 3.2.7(vite@7.3.6)
+      '@vitest/mocker': 3.2.7(vite@7.3.6(@types/node@22.20.5))
       '@vitest/pretty-format': 3.2.7
       '@vitest/runner': 3.2.7
       '@vitest/snapshot': 3.2.7
@@ -1655,11 +1684,12 @@ snapshots:
       tinyglobby: 0.2.17
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.3.6
-      vite-node: 3.2.4
+      vite: 7.3.6(@types/node@22.20.5)
+      vite-node: 3.2.4(@types/node@22.20.5)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.13
+      '@types/node': 22.20.5
     transitivePeerDependencies:
       - jiti
       - less
