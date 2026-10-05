@@ -1,0 +1,11 @@
+{
+  "name": "bigmistqke",
+  "owner": { "name": "bigmistqke" },
+  "plugins": [
+    {
+      "name": "canon",
+      "source": "./plugins/canon",
+      "description": "Keep a project's theory in a CANON.md of axioms, facts, specs and exceptions that the code and tests derive from and a checker holds closed."
+    }
+  ]
+}
