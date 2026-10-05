@@ -34,6 +34,13 @@ pnpm generate     # rewrite that table from the checker's ruleset
 pnpm lint:prose   # the checker's language checks, on the skills
 ```
 
+Publish the checker from `packages/canon`, with an npm token in `NPM_TOKEN`:
+
+```
+pnpm bump
+pnpm publish
+```
+
 ## License
 
 MIT

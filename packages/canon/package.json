@@ -9,18 +9,25 @@
     "directory": "packages/canon"
   },
   "type": "module",
-  "bin": { "canon": "./dist/cli.js" },
+  "bin": {
+    "canon": "./dist/cli.js"
+  },
   "exports": {
     "./kinds": "./dist/kinds.js",
     "./regions": "./dist/regions.js"
   },
-  "files": ["dist"],
-  "engines": { "node": ">=22" },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "bump": "bumpp",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm test && pnpm build"
   },
   "dependencies": {
     "remark-parse": "^11.0.0",
@@ -39,7 +46,11 @@
     "@types/mdast": "^4.0.4",
     "@types/nlcst": "^2.0.3",
     "@types/node": "^22.0.0",
+    "bumpp": "^12.3.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
