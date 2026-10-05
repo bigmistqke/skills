@@ -8,7 +8,6 @@ pnpm add -D @bigmistqke/canon
 
 ```json
 {
-  "scripts": { "canon": "canon" },
   "canon": { "documents": ["CANON.md"], "suites": "test/canon", "sources": ["src", "test"] }
 }
 ```

@@ -10,11 +10,10 @@ The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependen
 pnpm add -D @bigmistqke/canon
 ```
 
-Then add a script that runs it, and declare the scope in the `canon` field of `package.json`:
+Then declare the scope in the `canon` field of `package.json`. `pnpm canon` runs the package's `canon` command, so the project needs no script for it:
 
 ```json
 {
-  "scripts": { "canon": "canon" },
   "canon": {
     "documents": ["CANON.md"],
     "suites": "test/canon",
