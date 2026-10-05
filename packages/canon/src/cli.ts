@@ -18,6 +18,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
+import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
 
 // ---------------------------------------------------------------------------
@@ -40,6 +41,11 @@ interface Config {
   references?: string[];
   /** How a reader runs this tool, for the advice in findings. */
   command?: string;
+  /**
+   * The issue tracker the bugs name their issues in. With it, `check` asks the
+   * tracker whether each issue exists and is open.
+   */
+  tracker?: TrackerConfig;
 }
 
 /**
@@ -745,6 +751,9 @@ type FindingName =
   | 'untracked-bug'
   | 'unpinned-bug'
   | 'fails-without-bug'
+  | 'missing-issue'
+  | 'closed-issue'
+  | 'unreachable-tracker'
   | 'stale-site';
 
 const MEANING: Record<FindingName, string> = {
@@ -763,8 +772,14 @@ const MEANING: Record<FindingName, string> = {
   'untracked-bug': 'bug that names no issue',
   'unpinned-bug': 'test citing a bug without being marked to fail — a bug is pinned by a test that fails until the fix',
   'fails-without-bug': 'test marked to fail that cites no bug or exception — an expected failure is a known defect, and the canon names it',
+  'missing-issue': 'bug naming an issue the tracker does not hold, or one that is a pull request',
+  'closed-issue': 'bug naming an issue that is closed — the fix landed and the bug goes, or the issue was closed too soon',
+  'unreachable-tracker': 'bug whose issue the tracker could not be asked about — no token, no access or no network',
   'stale-site': 'unit naming a code site that is not there, or naming it in its statement'
 };
+
+/** The findings that need the tracker, and so appear only when a project names one. */
+const TRACKER_FINDINGS: FindingName[] = ['missing-issue', 'closed-issue', 'unreachable-tracker'];
 
 interface Unit {
   doc: string;
@@ -793,6 +808,8 @@ interface Analysis {
    * reference. Further parents and nesting together are the derivation graph.
    */
   links: Map<string, Array<{ target: string; derives: boolean }>>;
+  /** The text of each bug, by `<doc>#<id>`, which names its issues. */
+  bugs: Map<string, string>;
 }
 
 /**
@@ -818,6 +835,9 @@ function analyse(write: boolean): Analysis {
     'untracked-bug': [],
     'unpinned-bug': [],
     'fails-without-bug': [],
+    'missing-issue': [],
+    'closed-issue': [],
+    'unreachable-tracker': [],
     'stale-site': []
   };
 
@@ -1442,8 +1462,10 @@ function analyse(write: boolean): Analysis {
   }
 
   // untracked-bug — a bug owes an issue, named in its own text.
+  const bugs = new Map<string, string>();
   for (const [key, unit] of units) {
     if (unit.kind !== 'bug-') continue;
+    bugs.set(key, unit.own ?? '');
     if (!/(?:^|[^\w&])#\d+\b|\/issues\/\d+/.test(unit.own ?? '')) {
       findings['untracked-bug'].push(key);
     }
@@ -1467,7 +1489,7 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  return { findings, units, suites: enforcedFiles.size, written, testsPer, links };
+  return { findings, units, suites: enforcedFiles.size, written, testsPer, links, bugs };
 }
 
 // ---------------------------------------------------------------------------
@@ -1484,7 +1506,9 @@ than hand-kept. check is the gate, generate is the writer, tree is the map,
 and lint reads the prose.
 
 Usage:
-  ${COMMAND} check                 report every finding; exit 1 if there is one
+  ${COMMAND} check [--offline]     report every finding; exit 1 if there is one. With a
+                                   "tracker" in the scope, also ask it about each bug's
+                                   issue; --offline skips that and needs no network
   ${COMMAND} generate              rewrite the generated regions
   ${COMMAND} tree [options]        print the derivation tree with test counts
   ${COMMAND} lint [file …]         check the language of the documents' prose; exit 1 on a finding
@@ -1497,7 +1521,7 @@ Options for tree:
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
 The protocol is the canon skill. The scope is the "canon" field of
-package.json: documents, suites, sources, references, command.
+package.json: documents, suites, sources, references, command, tracker.
 
 What check reports:
 ${(Object.keys(MEANING) as FindingName[])
@@ -1526,15 +1550,63 @@ Exit codes:
   1  check found something
   2  bad usage`;
 
-function check(): void {
-  const { findings, units, suites } = analyse(false);
+/**
+ * Hold each bug's issue to the tracker: it must exist, it must be open, and the
+ * tracker must be reachable to say so. An issue the tracker cannot be asked
+ * about is reported once for its project, not once for each bug that names it.
+ */
+async function holdToTracker(
+  tracker: TrackerConfig,
+  bugs: Map<string, string>,
+  findings: Record<FindingName, string[]>
+): Promise<void> {
+  const problems = trackerProblems(tracker);
+  if (problems.length > 0) {
+    findings['unreachable-tracker'].push(`package.json canon.tracker: ${problems.join('; ')}`);
+    return;
+  }
+  const named = new Map<string, IssueRef[]>();
+  for (const [key, text] of bugs) named.set(key, issueRefs(text, tracker));
+  const results = await lookupIssues([...named.values()].flat(), tracker, process.env);
+
+  const unreachable = new Map<string, string[]>();
+  for (const [key, refs] of named) {
+    for (const ref of refs) {
+      const result = results.get(refKey(ref));
+      if (result === undefined) continue;
+      if (result.problem !== undefined) {
+        unreachable.set(result.problem, [...(unreachable.get(result.problem) ?? []), key]);
+      } else if (result.state === 'missing') {
+        findings['missing-issue'].push(`${key} names ${ref.written}, which ${ref.project} does not hold`);
+      } else if (result.state === 'pull-request') {
+        findings['missing-issue'].push(`${key} names ${ref.written}, which is a pull request`);
+      } else if (result.state === 'closed') {
+        findings['closed-issue'].push(`${key} names ${ref.written}, which is closed`);
+      }
+    }
+  }
+  for (const [problem, keys] of unreachable) {
+    findings['unreachable-tracker'].push(`${problem} (${keys.length} bug(s), such as ${keys[0]})`);
+  }
+}
+
+async function check(offline: boolean): Promise<void> {
+  const { findings, units, suites, bugs } = analyse(false);
+  const tracker = CONFIG.tracker;
+  const asked = tracker !== undefined && !offline;
+  if (asked) await holdToTracker(tracker, bugs, findings);
 
   console.log(`canon check — ${ROOT}\n`);
   console.log(`scope: ${DOCS.length} document(s), ${suites} declared suite(s)`);
-  console.log(`units: ${units.size}\n`);
+  console.log(`units: ${units.size}`);
+  if (tracker !== undefined) {
+    console.log(`issues: ${asked ? `held to the ${tracker.kind} tracker` : 'not checked (--offline)'}`);
+  }
+  console.log('');
 
   let total = 0;
   for (const name of Object.keys(findings) as FindingName[]) {
+    if (TRACKER_FINDINGS.includes(name) && !asked) continue;
     const list = findings[name];
     total += list.length;
     console.log(`${name} — ${MEANING[name]}: ${list.length}`);
@@ -1650,6 +1722,7 @@ async function main(argv: string[]): Promise<void> {
         gaps: { type: 'boolean' },
         verbose: { type: 'boolean', short: 'v' },
         suspect: { type: 'string' },
+        offline: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' }
       }
     });
@@ -1692,7 +1765,7 @@ async function main(argv: string[]): Promise<void> {
 
   switch (command) {
     case 'check':
-      check();
+      await check(values.offline === true);
       return;
     case 'generate':
       generate();

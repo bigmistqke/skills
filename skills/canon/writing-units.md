@@ -87,7 +87,7 @@ This follows because a missing value sets nothing: …
 5. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
 6. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
 7. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
-8. A bug sits inside the spec it breaks, and names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims.
+8. A bug sits inside the spec it breaks, and names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
 9. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
 10. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
 11. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
