@@ -114,27 +114,83 @@ const hint = (ref: IssueRef, tracker: TrackerConfig, token: string | undefined):
   return token === undefined ? `no token in ${name}, and a private project answers as if the issue were absent` : `the token in ${name} may lack the access`;
 };
 
-/** GitHub: one request for each issue. */
-async function askGithub(ref: IssueRef, token: string | undefined, tracker: TrackerConfig): Promise<IssueResult> {
-  const api = ref.origin === 'https://github.com' ? 'https://api.github.com' : `${ref.origin}/api/v3`;
-  const response = await fetch(`${api}/repos/${ref.project}/issues/${ref.number}`, {
-    headers: {
-      accept: 'application/vnd.github+json',
-      'user-agent': 'canon',
-      ...(token ? { authorization: `Bearer ${token}` } : {})
+const githubApi = (origin: string): string => (origin === 'https://github.com' ? 'https://api.github.com' : `${origin}/api/v3`);
+
+const githubHeaders = (token: string | undefined): Record<string, string> => ({
+  accept: 'application/vnd.github+json',
+  'user-agent': 'canon',
+  ...(token ? { authorization: `Bearer ${token}` } : {})
+});
+
+/** Why GitHub refused, when it did: a spent rate limit is the usual reason without a token. */
+const refused = (response: Response, ref: IssueRef, tracker: TrackerConfig, token: string | undefined): string => {
+  if ((response.status === 403 || response.status === 429) && response.headers.get('x-ratelimit-remaining') === '0') {
+    return `${ref.project} answered ${response.status}: the rate limit is spent${token === undefined ? `. ${hint(ref, tracker, token)}` : ''}`;
+  }
+  return `${ref.project} answered ${response.status}: ${hint(ref, tracker, token)}`;
+};
+
+/**
+ * Whether a project is public. A tracker answers 404 for a private project and
+ * for a missing issue alike, so only a public project lets a 404 mean missing.
+ */
+async function isPublicGithub(ref: IssueRef): Promise<boolean> {
+  const response = await fetch(`${githubApi(ref.origin)}/repos/${ref.project}`, { headers: githubHeaders(undefined) });
+  if (response.status !== 200) return false;
+  return ((await response.json()) as { private?: boolean }).private === false;
+}
+
+/** GitHub, a few issues: one call for each. */
+async function askGithubEach(refs: IssueRef[], token: string | undefined, tracker: TrackerConfig): Promise<IssueResult[]> {
+  const results: IssueResult[] = [];
+  let publicProject: boolean | undefined;
+  for (const ref of refs) {
+    const response = await fetch(`${githubApi(ref.origin)}/repos/${ref.project}/issues/${ref.number}`, { headers: githubHeaders(token) });
+    if (response.status === 200) {
+      const body = (await response.json()) as { state?: string; pull_request?: unknown };
+      results.push({ ref, state: body.pull_request !== undefined ? 'pull-request' : body.state === 'closed' ? 'closed' : 'open' });
+    } else if (response.status === 404) {
+      // With a token a 404 is a missing issue. Without one, only a public project says so.
+      if (token === undefined) publicProject ??= await isPublicGithub(ref);
+      results.push(
+        token !== undefined || publicProject
+          ? { ref, state: 'missing' }
+          : { ref, problem: `${ref.project} answered 404: ${hint(ref, tracker, token)}` }
+      );
+    } else {
+      results.push({ ref, problem: refused(response, ref, tracker, token) });
     }
-  });
-  if (response.status === 200) {
-    const body = (await response.json()) as { state?: string; pull_request?: unknown };
-    if (body.pull_request !== undefined) return { ref, state: 'pull-request' };
-    return { ref, state: body.state === 'closed' ? 'closed' : 'open' };
   }
-  if (response.status === 404) {
-    return token === undefined
-      ? { ref, problem: `${ref.project} answered 404: ${hint(ref, tracker, token)}` }
-      : { ref, state: 'missing' };
+  return results;
+}
+
+/**
+ * GitHub, many issues: the project's issues in pages of a hundred. An issue and
+ * a pull request share one numbering, so the pages from the first reach number
+ * N after N/100 calls, however many issues are named. A number no page holds
+ * is missing, and a project that cannot be listed is unreachable.
+ */
+async function askGithubPages(refs: IssueRef[], token: string | undefined, tracker: TrackerConfig): Promise<IssueResult[]> {
+  const [first] = refs;
+  if (first === undefined) return [];
+  const highest = Math.max(...refs.map((r) => r.number));
+  const held = new Map<number, IssueState>();
+  for (let page = 1; ; page++) {
+    const response = await fetch(
+      `${githubApi(first.origin)}/repos/${first.project}/issues?state=all&sort=created&direction=asc&per_page=100&page=${page}`,
+      { headers: githubHeaders(token) }
+    );
+    if (response.status !== 200) {
+      const problem = response.status === 404 ? `${first.project} answered 404: ${hint(first, tracker, token)}` : refused(response, first, tracker, token);
+      return refs.map((ref) => ({ ref, problem }));
+    }
+    const issues = (await response.json()) as Array<{ number: number; state: string; pull_request?: unknown }>;
+    for (const issue of issues) {
+      held.set(issue.number, issue.pull_request !== undefined ? 'pull-request' : issue.state === 'closed' ? 'closed' : 'open');
+    }
+    if (issues.length < 100 || Math.max(...issues.map((i) => i.number)) >= highest) break;
   }
-  return { ref, problem: `${ref.project} answered ${response.status}: ${hint(ref, tracker, token)}` };
+  return refs.map((ref) => ({ ref, state: held.get(ref.number) ?? 'missing' }));
 }
 
 /** GitLab: many issues of one project in one request. */
@@ -195,15 +251,16 @@ export async function lookupIssues(
     }
   };
 
-  const queue = [...github];
-  await Promise.all(
-    Array.from({ length: Math.min(8, queue.length) }, async () => {
-      for (let ref = queue.shift(); ref !== undefined; ref = queue.shift()) {
-        const token = tokenFor(ref, tracker, env);
-        await guard([ref], async () => [await askGithub(ref, token, tracker)]);
-      }
-    })
-  );
+  const githubByProject = new Map<string, IssueRef[]>();
+  for (const ref of github) githubByProject.set(`${ref.origin} ${ref.project}`, [...(githubByProject.get(`${ref.origin} ${ref.project}`) ?? []), ref]);
+  for (const group of githubByProject.values()) {
+    const [first] = group;
+    if (first === undefined) continue;
+    const token = tokenFor(first, tracker, env);
+    // Listing in pages is cheaper once more issues are named than pages would be read.
+    const pages = Math.ceil(Math.max(...group.map((r) => r.number)) / 100);
+    await guard(group, () => (group.length > pages ? askGithubPages(group, token, tracker) : askGithubEach(group, token, tracker)));
+  }
   for (const group of gitlab.values()) {
     const [first] = group;
     if (first === undefined) continue;

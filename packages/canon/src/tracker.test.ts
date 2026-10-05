@@ -22,7 +22,7 @@ let origin: string;
 /** Every request the stub received, as `METHOD path` and the headers that matter. */
 let requests: Array<{ line: string; auth?: string; privateToken?: string }>;
 /** What the stub answers for a path, by exact `path?query`. */
-let routes: Record<string, { status: number; body?: unknown }>;
+let routes: Record<string, { status: number; body?: unknown; headers?: Record<string, string> }>;
 const DIRS: string[] = [];
 
 beforeEach(async () => {
@@ -35,7 +35,7 @@ beforeEach(async () => {
       privateToken: request.headers['private-token'] as string | undefined
     });
     const route = routes[request.url ?? ''] ?? { status: 404 };
-    response.writeHead(route.status, { 'content-type': 'application/json' });
+    response.writeHead(route.status, { 'content-type': 'application/json', ...route.headers });
     response.end(JSON.stringify(route.body ?? {}));
   });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -146,6 +146,45 @@ describe('a GitHub tracker', () => {
     const run = await check(['#6'], github({ tokenEnv: 'WORK_TOKEN' }), { env: { WORK_TOKEN: 'other' } });
     expect(run.out).toContain('clean');
     expect(requests[0]?.auth).toBe('Bearer other');
+  });
+});
+
+describe('a GitHub tracker without a token', () => {
+  const PAGE = '/api/v3/repos/acme/app/issues?state=all&sort=created&direction=asc&per_page=100&page=1';
+
+  it('lists a public project in pages when many issues are named, in one call', async () => {
+    routes[PAGE] = {
+      status: 200,
+      body: [
+        { number: 1, state: 'open' },
+        { number: 2, state: 'closed' },
+        { number: 3, state: 'open', pull_request: {} }
+      ]
+    };
+    const run = await check(['#1', '#2', '#3', '#4'], github());
+    expect(requests).toEqual([{ line: `GET ${PAGE}`, auth: undefined, privateToken: undefined }]);
+    expect(run.out).toContain('names #2, which is closed');
+    expect(run.out).toContain('names #3, which is a pull request');
+    expect(run.out).toContain('names #4, which acme/app does not hold');
+    expect(run.out).not.toMatch(/unreachable-tracker[^\n]*: [1-9]/);
+  });
+
+  it('reports a project it cannot list as unreachable, since a private project looks the same', async () => {
+    const run = await check(['#1', '#2', '#3'], github());
+    expect(run.out).toMatch(/unreachable-tracker[^\n]*: 1\n {2}· acme\/app answered 404: no token in GITHUB_TOKEN/);
+  });
+
+  it('calls a missing issue of a public project missing', async () => {
+    routes['/api/v3/repos/acme/app'] = { status: 200, body: { private: false } };
+    const run = await check(['#5'], github());
+    expect(run.out).toContain('names #5, which acme/app does not hold');
+    expect(run.out).not.toMatch(/unreachable-tracker[^\n]*: [1-9]/);
+  });
+
+  it('says so when the rate limit is spent', async () => {
+    routes['/api/v3/repos/acme/app/issues/6'] = { status: 403, headers: { 'x-ratelimit-remaining': '0' } };
+    const run = await check(['#6'], github());
+    expect(run.out).toMatch(/acme\/app answered 403: the rate limit is spent\. no token in GITHUB_TOKEN/);
   });
 });
 
