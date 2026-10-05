@@ -14,7 +14,7 @@ import { beginMarker } from "./regions.ts";
  * to `OWES` without a matching entry here, or cited by a name that is not one of
  * these, stops compiling instead of silently matching nothing.
  */
-export type Kind = 'axiom-' | 'fact-' | 'spec-' | 'exception-' | 'term-';
+export type Kind = 'axiom-' | 'fact-' | 'spec-' | 'exception-' | 'bug-' | 'term-';
 
 /**
  * kind → what a reader reaches for it for. Generated into `writing-units.md` beside
@@ -28,6 +28,8 @@ export const MEANS: Record<Kind, string> = {
   'spec-':
     'what the system does, stated so a test could contradict it, and optionally the place in the code that does it',
   'exception-': 'where a fact keeps a spec from holding fully',
+  'bug-':
+    'where the code breaks the spec it sits in: a known defect, with an issue and a test that fails until it is fixed',
   'term-':
     'a word of the project\'s language: what the thing it names is, in one sentence — never what it does'
 };
@@ -43,6 +45,7 @@ export const OWES: Record<Kind, Kind[][] | null> = {
   'fact-': null, // imposed by the platform — owes nothing
   'spec-': [['axiom-', 'spec-']],
   'exception-': [['spec-'], ['fact-']],
+  'bug-': [['spec-']],
   'term-': null // a definition, outside the derivation graph — owes nothing
 };
 
@@ -64,7 +67,13 @@ export const citable = (kind: Kind): Kind[] => [
 ];
 
 /** The kinds that make a claim a test can contradict, and so owe a test. */
-export const CLAIMS: Kind[] = ['spec-', 'exception-'];
+export const CLAIMS: Kind[] = ['spec-', 'exception-', 'bug-'];
+
+/**
+ * The kinds that refine the spec they sit in. A bug only marks where the code
+ * breaks its spec, so a spec holding bugs alone stays a leaf.
+ */
+export const REFINES: Kind[] = ['spec-', 'exception-'];
 
 export const PREFIXES = Object.keys(OWES) as Kind[];
 export const kindOf = (id: string): Kind | undefined =>

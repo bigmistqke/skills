@@ -1,6 +1,6 @@
 ---
 name: canon
-description: The methodology that governs all work on a project with a CANON.md — the document of axioms, facts, specs and exceptions that is the project itself, which the code and tests express and a checker holds closed. Load at the start of every session and before any work in such a project. Use it for every choice made in the system, internal ones included; before changing an area of the code (read the theory that covers it first); when adding or changing behaviour (place it against the specs it resembles, then derive it from an axiom before writing code); when fixing a bug (trace it up to the missing spec, axiom or fact before touching code); when writing a test; when editing CANON.md; before ending a session (write every decision back into the canon); and when running the canon checker. For a design question the canon does not decide, use the grill-with-canon skill.
+description: The methodology that governs all work on a project with a CANON.md — the document of axioms, facts, specs and exceptions that is the project itself, which the code and tests express and a checker holds closed. Load at the start of every session and before any work in such a project. Use it for every choice made in the system, internal ones included; before changing an area of the code (read the theory that covers it first); when adding or changing behaviour (place it against the specs it resembles, then derive it from an axiom before writing code); when fixing a bug (trace it up to the missing spec, axiom or fact before touching code); when writing a test; when editing CANON.md; before ending a session (write every decision back into the canon); when running the canon checker; and when writing the canon of an existing project that has none. For a design question the canon does not decide, use the grill-with-canon skill.
 ---
 
 # Canon
@@ -86,7 +86,10 @@ Tests cannot tell an extension from a patch, because many implementations pass t
 3. Find the spec that covers the situation. If none does, a spec is missing or states too much.
 4. Find the axiom or fact that decides the spec. If none does, one is missing. Ask the owner of the design.
 5. Write what is missing from the top down: axiom or fact, then spec. Make the test from step 2 cite the spec.
-6. Fix the code.
+6. If the fix waits, record the defect instead. Write a bug inside the spec, name its issue, and mark the test from step 2 to fail, citing the bug. [Writing units](writing-units.md#5-facts-exceptions-and-bugs) has the rules.
+7. Fix the code. If a bug recorded the defect, remove it, and make its test pass and cite the spec.
+8. Never narrow a spec so that the defect falls outside it. A defect points up, at a gap in the canon, and never down, at the claim it breaks. Only the owner of the design can rule that a claim was wrong.
+9. Pointing up can mean generalising a spec. The defect may show that a leaf spec stated one case of a wider claim. Then restate that spec as the wider claim, which makes it a parent. Under it, write one leaf spec for each case it covers, the defect's case included. The defect's test cites that leaf.
 
 ## 5. Exploring
 
@@ -100,3 +103,30 @@ Tests cannot tell an extension from a patch, because many implementations pass t
 1. In the message of every commit that changes the implementation, name the ids of the units that the commit serves or changes.
 2. Name units by id, such as `spec-a-write-is-visible-before-its-flush`. A commit that retires a unit names it too.
 3. `pnpm canon log` lists the commits that change the implementation without naming a unit. With no range, it checks the commits not yet pushed.
+
+## 7. Writing the canon of an existing project
+
+A project with code and tests but no canon gets its canon written backwards. The work starts from the tests, the code and the documents, and goes up to the theory. Follow the steps in order. Steps 3 to 6 settle the givens with the owner of the design. Step 7 repeats for each area of the code.
+
+1. Work on a branch of its own.
+2. Set up the checker as [`checker.md`](checker.md) describes, and create `CANON.md` with its index markers.
+3. Study the project before you write a unit. Read the code, the tests, the documents, the issues, the commit history and any notes that record a decision. Look for four things:
+   1. The values that recur across decisions, and the choice each one settled.
+   2. The facts of the platform that the code works around.
+   3. The words of the project's language.
+   4. The places where the code, the tests and the documents disagree.
+4. Write the terms and the facts. Check each fact against its source: a specification, the code of a library, or a reproduction.
+5. List the values as proposed axioms in an open-questions section of `CANON.md`. Give each one its evidence and the choice it decides. A proposal is not an axiom: only the owner of the design decides values.
+6. Settle the proposed axioms with the owner, one at a time, through the grill-with-canon skill. Write each axiom the moment the owner settles it, with a first spec and the tests that cite it.
+7. Go through the tests area by area. For each area:
+   1. Read the body of every test, not only its title.
+   2. Group the tests by the claim they check. A claim that several tests check is one spec.
+   3. Place each spec under the axiom that forces it, and nest a leaf for each case. Write the facts it relies on.
+   4. Tag each test with the leaf it checks, as [writing units](writing-units.md#8-tests) describes. A test that checks a parent's basic case needs a leaf for that case.
+   5. Run the tests, `pnpm canon check` and `pnpm canon lint`, and commit the area on its own.
+8. State the code as it behaves now. Where it does not hold an axiom, tell a departure from a defect.
+   1. A departure the code makes on purpose is an exception. Write the fact that forces it. If the fact is how a library the project follows behaves, state that behaviour as the fact.
+   2. A departure the owner has not ruled on is an exception too, and its question goes in an issue. When the owner rules, change the canon.
+   3. A defect is a claim the code breaks. Write the spec as the axiom forces it, and a bug inside it that names the defect's issue. Pin the bug with a test marked to fail, and leave the fix to [the defect procedure](#4-fixing-a-defect).
+9. Turn every gap you find into an issue: a defect, a unit with no test, a question the owner left open. Reproduce a defect before you open its issue. Link each issue from the open-questions section, and remove the entry when the issue closes.
+10. The canon is complete when every test cites a leaf and `pnpm canon check` is clean. Every leaf then has a test on every target it claims. Until then, the findings of the check are the work that remains.

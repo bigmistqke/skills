@@ -11,6 +11,7 @@ How to write, place and test the units of the canon. [`SKILL.md`](SKILL.md) hold
 | `@fact` | how the platform the project is built on is, whatever the project does | nothing |
 | `@spec` | what the system does, stated so a test could contradict it, and optionally the place in the code that does it | `@axiom` or `@spec` — may cite `@fact` |
 | `@exception` | where a fact keeps a spec from holding fully | `@spec` and `@fact` |
+| `@bug` | where the code breaks the spec it sits in: a known defect, with an issue and a test that fails until it is fixed | `@spec` |
 | `@term` | a word of the project's language: what the thing it names is, in one sentence — never what it does | nothing |
 <!-- kinds:end -->
 
@@ -72,11 +73,12 @@ This follows because a missing value sets nothing: …
 5. A leaf spec makes one claim, about one case. A spec that claims over several cases, with "every", "any", "each", "always" or a list of cases, is a parent. It names its cases, and holds one nested spec for each. Each nested spec states its case as a single claim, with a test of its own.
 6. A test of one case says nothing about the others. A spec that claims over cases and has tests for only some of them is a claim that nothing checks.
 7. A spec that follows from another spec without refining it sits under its axiom. It names the other spec on its `Derives from:` line.
-8. A parent spec owes a test of its own. Its nested specs do not cover it. For a spec that claims over cases, that test makes its cases meet in one scenario, and checks that they do not interfere.
-9. Use these heading levels: a root `##`, a nested axiom `###`, a spec `####`, its refinements and exceptions `#####`, one level more `######`.
-10. A unit that would sit deeper than six levels names its parent on its `Derives from:` line instead.
+8. Only a leaf owes a test. A parent spec is checked through its leaves, so a case the parent states and no leaf covers needs a leaf of its own. The basic case of a parent, the one its refinements differ from, is such a case.
+9. A spec whose only nested units are exceptions is a parent too. Give the part of its claim that holds a leaf of its own.
+10. Use these heading levels: a root `##`, a nested axiom `###`, a spec `####`, its refinements and exceptions `#####`, one level more `######`.
+11. A unit that would sit deeper than six levels names its parent on its `Derives from:` line instead.
 
-## 5. Facts and exceptions
+## 5. Facts, exceptions and bugs
 
 1. A fact is a root and holds no units.
 2. A spec or exception names each fact it relies on, on its `Derives from:` line.
@@ -84,6 +86,12 @@ This follows because a missing value sets nothing: …
 4. A carve-out that no fact forces is a choice. Write it as a spec nested in the spec it refines.
 5. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
 6. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
+7. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
+8. A bug sits inside the spec it breaks, and names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims.
+9. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
+10. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
+11. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
+12. When the fix lands, the test marked to fail starts passing and so fails the run. Remove its mark, make it cite the spec, remove the bug, and close the issue.
 
 ## 6. Terms
 
@@ -117,15 +125,18 @@ _Avoid_: current state, now
 
 ## 8. Tests
 
-1. Cite the narrowest spec or exception that the assertion could contradict.
+1. Cite the leaf spec or exception that the assertion could contradict. A test never cites a parent (`parent-cited`).
 2. Cite with a `@canon <id>` tag in the JSDoc of a leaf test. A `describe` block never cites.
 3. Cite the id alone, without the file. Ids are unique across all canon documents.
 4. Never cite an axiom or a fact (`missing-spec`). Write the missing spec instead.
-5. The checker cannot see when a test cites a parent spec where a nested spec states the claim. Catch that in review.
-6. A unit leaves the coverage backlog only when a test cites it directly.
+5. A leaf that claims a result on every target needs a test on every target. A test on one target says nothing about the others. A claim tested on some targets only goes unchecked on the rest.
+6. A leaf leaves the coverage backlog only when a test cites it directly, or cites a bug inside it.
+7. If a test needs a word of explanation, open its JSDoc with it, then leave a blank line before the tags. Move a line comment that explains a test into its JSDoc. A comment that heads a group of tests stays where it is.
 
 ```ts
 /**
+ * A listener that throws is caught where it runs, so the drain moves on.
+ *
  * @canon spec-drain-runs-each-listener-in-its-own-guard
  */
 test('a throwing listener does not stop the next one', () => {
@@ -134,7 +145,7 @@ test('a throwing listener does not stop the next one', () => {
 ## 9. Implementation
 
 1. Source code carries no citations and no links to the canon. The project tried a tag on each symbol and dropped the tags as too messy. Only a test credits a unit.
-2. Open each source file with a block comment: what the file is, how its parts fit, and which axiom it serves.
+2. A source file opens with no header. The JSDoc on each declaration says what it is. The canon says why it is that way, and a header that named an axiom would be a citation the checker cannot keep current.
 
 ## 10. Structure
 

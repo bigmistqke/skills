@@ -17,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES } from './kinds.ts';
+import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
 
 // ---------------------------------------------------------------------------
@@ -119,6 +119,8 @@ interface Element {
   parent?: string;
   label?: string;
   statement?: string;
+  /** The unit's own text, before its first nested heading. */
+  own?: string;
   /** The place in the code its "Site:" line names. */
   site?: string;
 }
@@ -284,6 +286,7 @@ function scanMarkdown(src: string): { withId: Element[]; anchors: Anchor[] } {
     unit.statement = STATEMENT.exec(body)?.[1]?.trim();
     // Only the unit's own text, before its first nested heading, names its site.
     const own = body.split(/^#{1,6}[ \t]/m)[0];
+    unit.own = own;
     unit.site = SITE.exec(own)?.[1]?.trim();
   }
   withId.push(...units);
@@ -415,6 +418,7 @@ const HUE: Record<Kind, string> = {
   'fact-': '1;34', // bold blue — a given, but not a chosen one
   'spec-': '36', // cyan
   'exception-': '33', // yellow — where the shoe does not fit should catch the eye
+  'bug-': '1;31', // bold red — a defect to fix
   'term-': '1;32' // bold green
 };
 
@@ -432,6 +436,7 @@ const DIM: Record<Kind, string> = {
   'fact-': '2;34',
   'spec-': '2;36',
   'exception-': '2;33',
+  'bug-': '2;31',
   'term-': '2;32'
 };
 
@@ -505,19 +510,19 @@ function treeOf(
       cellStatements.set(m[1], said.charAt(0).toUpperCase() + said.slice(1));
   }
   /**
-   * A spec or an exception owes a test of its own. A spec holding nested specs
-   * is not pinned by them: each refines one part of it, and together they need
-   * not cover it.
+   * A leaf spec or exception owes a test of its own. A claim holding nested
+   * claims is pinned through its leaves.
    */
   const owesTest = (id: string): boolean => {
     const kind = kindOf(id);
-    return kind !== undefined && CLAIMS.includes(kind);
+    if (kind === undefined || !CLAIMS.includes(kind)) return false;
+    return !headings.some(h => h.parent === id && REFINES.includes(kindOf(h.id ?? '') ?? ('axiom-' as Kind)));
   };
 
   const linked = new Map<string, Element[]>();
   for (const cell of withId.filter(u => u.tag === 'td' || u.tag === 'tr')) {
     const body = src.slice(cell.start, cell.end);
-    const target = /href="#((?:axiom|fact|spec|exception)-[\w-]+)"/.exec(body);
+    const target = /href="#((?:axiom|fact|spec|exception|bug)-[\w-]+)"/.exec(body);
     if (!target) continue;
     const list = linked.get(target[1]) ?? [];
     list.push(cell);
@@ -733,10 +738,13 @@ type FindingName =
   | 'dead'
   | 'missing-spec'
   | 'uncited'
-  | 'unjudgeable'
   | 'stale-toc'
   | 'unreachable'
   | 'untested'
+  | 'parent-cited'
+  | 'untracked-bug'
+  | 'unpinned-bug'
+  | 'fails-without-bug'
   | 'stale-site';
 
 const MEANING: Record<FindingName, string> = {
@@ -747,11 +755,14 @@ const MEANING: Record<FindingName, string> = {
   dead: 'unit nothing cites',
   'missing-spec': 'test citing an axiom or a fact rather than a spec',
   uncited: 'test with no citation — the hierarchy inverted',
-  unjudgeable: 'test shape the scanner cannot see — its citations go unread',
   'stale-toc': 'generated table of contents out of sync with the document',
   unreachable:
     'heading whose rendered anchor is not the id cited — a dead link',
-  untested: 'spec or exception no test pins — cited, but only from prose',
+  untested: 'leaf spec, exception or bug no test pins, directly or through a bug it holds — cited, but only from prose',
+  'parent-cited': 'test citing a spec that holds nested specs or exceptions — cite the leaf it checks',
+  'untracked-bug': 'bug that names no issue',
+  'unpinned-bug': 'test citing a bug without being marked to fail — a bug is pinned by a test that fails until the fix',
+  'fails-without-bug': 'test marked to fail that cites no bug or exception — an expected failure is a known defect, and the canon names it',
   'stale-site': 'unit naming a code site that is not there, or naming it in its statement'
 };
 
@@ -764,6 +775,8 @@ interface Unit {
   statement?: string;
   /** The place in the code its "Site:" line names. */
   site?: string;
+  /** The unit's own text, before its first nested heading. */
+  own?: string;
 }
 
 interface Analysis {
@@ -798,10 +811,13 @@ function analyse(write: boolean): Analysis {
     dead: [],
     'missing-spec': [],
     uncited: [],
-    unjudgeable: [],
     'stale-toc': [],
     unreachable: [],
     untested: [],
+    'parent-cited': [],
+    'untracked-bug': [],
+    'unpinned-bug': [],
+    'fails-without-bug': [],
     'stale-site': []
   };
 
@@ -809,6 +825,11 @@ function analyse(write: boolean): Analysis {
   const units = new Map<string, Unit>();
   /** every fragment cited from anywhere in scope, keyed `${file}#${frag}` */
   const citedTargets = new Set<string>();
+  /**
+   * The claims that hold nested claims. A test cites only a leaf: a parent is
+   * pinned through its leaves, and owes no test of its own.
+   */
+  const claimParents = new Set<string>();
   /**
    * What a SUITE cites, which `citedTargets` cannot answer.
    *
@@ -820,6 +841,14 @@ function analyse(write: boolean): Analysis {
   const testedTargets = new Set<string>();
 
   const testsPer = new Map<string, number>();
+
+  /**
+   * The spec each bug breaks: the one it sits in, or one its "Derives from:"
+   * line names. A bug's pin asserts that spec's claim, so it pins the spec too.
+   */
+  const bugSpecs = new Map<string, string[]>();
+  const addBugSpec = (bug: string, spec: string) =>
+    bugSpecs.set(bug, [...(bugSpecs.get(bug) ?? []), spec]);
 
   /**
    * The derivation graph, by `<doc>#<id>`: every unit's citations, its nesting
@@ -876,7 +905,8 @@ function analyse(write: boolean): Analysis {
           kind,
           cites: new Set(),
           statement: el.statement,
-          site: el.site
+          site: el.site,
+          own: el.own
         });
     }
 
@@ -892,6 +922,13 @@ function analyse(write: boolean): Analysis {
       units.get(`${rel}#${el.id}`)?.cites.add(parentKind);
       addEdge(edges, `${rel}#${el.id}`, `${rel}#${el.parent}`);
       citedTargets.add(`${rel}#${el.parent}`);
+      const ownKind = kindOf(el.id);
+      if (ownKind && REFINES.includes(ownKind) && CLAIMS.includes(parentKind)) {
+        claimParents.add(`${rel}#${el.parent}`);
+      }
+      if (ownKind === 'bug-' && parentKind === 'spec-') {
+        addBugSpec(`${rel}#${el.id}`, `${rel}#${el.parent}`);
+      }
 
       // Nesting is a citation, so sitting somewhere a unit may not cite is
       // one — `freelancing` misses it, because a prose link to the right kind
@@ -944,6 +981,9 @@ function analyse(write: boolean): Analysis {
         if (from !== to) {
           const derives = namesParent(docSource, a.at);
           if (derives) addEdge(edges, from, to);
+          if (derives && kindOf(from.split('#')[1] ?? '') === 'bug-' && kindOf(to.split('#')[1] ?? '') === 'spec-') {
+            addBugSpec(from, to);
+          }
           const list = links.get(from) ?? [];
           if (!list.some(l => l.target === to)) list.push({ target: to, derives });
           links.set(from, list);
@@ -1023,8 +1063,78 @@ function analyse(write: boolean): Analysis {
   // every child already carried. Neither adds a link that was missing, and the
   // first invents one that is not true. So the unit that owes a spec is the test
   // that asserts something.
-  const TEST_BLOCK =
-    /(?:^|\n)([ \t]*)(?:\/\*\*([\s\S]*?)\*\/\s*\n[ \t]*)?(?:it|test)(?:\.\w+)*\s*\(\s*(['"`])((?:\\.|(?!\3)[\s\S])*)\3/g;
+  const TEST_START =
+    /(?:^|\n)([ \t]*)(?:\/\*\*([\s\S]*?)\*\/\s*\n[ \t]*)?\b(?:it|test)\b/g;
+
+  /** The index just past the string, template or comment that starts at `i`. */
+  const skipLiteral = (src: string, i: number): number => {
+    const open = src[i];
+    if (open === '/' && src[i + 1] === '/') return src.indexOf('\n', i) === -1 ? src.length : src.indexOf('\n', i);
+    if (open === '/' && src[i + 1] === '*') return src.indexOf('*/', i + 2) === -1 ? src.length : src.indexOf('*/', i + 2) + 2;
+    let j = i + 1;
+    while (j < src.length && src[j] !== open) {
+      if (src[j] === '\\') j += 2;
+      else if (open === '`' && src[j] === '$' && src[j + 1] === '{') j = skipBalanced(src, j + 1);
+      else j++;
+    }
+    return j + 1;
+  };
+
+  /** The index just past the bracket that closes the one at `i`. */
+  function skipBalanced(src: string, i: number): number {
+    let depth = 0;
+    let j = i;
+    while (j < src.length) {
+      const c = src[j];
+      if (c === '"' || c === "'" || c === '`' || (c === '/' && (src[j + 1] === '/' || src[j + 1] === '*'))) {
+        j = skipLiteral(src, j);
+        continue;
+      }
+      if (c === '(' || c === '[' || c === '{') depth++;
+      else if (c === ')' || c === ']' || c === '}') {
+        depth--;
+        if (depth === 0) return j + 1;
+      }
+      j++;
+    }
+    return j;
+  }
+
+  /**
+   * Each test in a suite: its JSDoc, its title, the modifiers on its call, and
+   * where its call starts. A modifier's arguments are skipped by matching their
+   * brackets, so `it.each([[1, f(2)]])('title', fn)` reads as a test as well
+   * as `it.skipIf(cond)('title', fn)` and a tagged-template `` it.each`table` ``.
+   */
+  function testBlocks(src: string): { doc: string; title: string; modifiers: string[]; at: number }[] {
+    const found: { doc: string; title: string; modifiers: string[]; at: number }[] = [];
+    for (const m of src.matchAll(TEST_START)) {
+      const at = (m.index ?? 0) + m[0].length - (m[0].endsWith('test') ? 4 : 2);
+      const modifiers: string[] = [];
+      let j = at + (src.startsWith('test', at) ? 4 : 2);
+      for (;;) {
+        while (/\s/.test(src[j] ?? '')) j++;
+        if (src[j] === '.') {
+          const name = /^\.\s*(\w+)/.exec(src.slice(j));
+          if (!name) break;
+          modifiers.push(name[1]);
+          j += name[0].length;
+        } else if (src[j] === '`') {
+          j = skipLiteral(src, j);
+        } else if (src[j] === '(') {
+          let k = j + 1;
+          while (/\s/.test(src[k] ?? '')) k++;
+          if (src[k] === '"' || src[k] === "'" || src[k] === '`') {
+            const end = skipLiteral(src, k);
+            found.push({ doc: m[2] ?? '', title: src.slice(k + 1, end - 1), modifiers, at });
+            break;
+          }
+          j = skipBalanced(src, j);
+        } else break;
+      }
+    }
+    return found;
+  }
 
   /**
    * Every unit id, and the documents that declare it.
@@ -1087,31 +1197,9 @@ function analyse(write: boolean): Analysis {
       const rel = relative(ROOT, file);
       const src = readFileSync(file, 'utf8');
 
-      // TEST_BLOCK demands a quoted title right after the paren, so an
-      // `it.each([...])('title', fn)` or tagged-template `` it.each`table` `` is
-      // invisible to it: not judged for being uncited, and its citations —
-      // however correct the JSDoc above it — never read, so a spec kept alive
-      // only by one reports as dead. Rather than teach the scanner every shape,
-      // refuse the shape loudly where the file has claimed to participate: a
-      // declared suite uses plain `it`s, or this scanner learns the form first.
-      if (enforced) {
-        for (const each of src.matchAll(/\b(?:it|test)\.each\b/g)) {
-          const line = src.slice(0, each.index ?? 0).split('\n').length;
-          findings.unjudgeable.push(
-            `${rel}:${line} — \`${each[0]}\` in a declared suite; use plain it()s here, or extend TEST_BLOCK to read this shape`
-          );
-        }
-      }
-
-      for (const m of src.matchAll(TEST_BLOCK)) {
-        const doc = m[2] ?? '';
-        const title = m[4];
+      for (const { doc, title, modifiers, at } of testBlocks(src)) {
         // The reported line is the `it(` itself, not the top of its JSDoc.
-        const call =
-          /(?:it|test)(?:\.\w+)*\s*\(\s*['"`][\s\S]*$/.exec(m[0])?.[0] ?? m[0];
-        const line = src
-          .slice(0, (m.index ?? 0) + m[0].length - call.length)
-          .split('\n').length;
+        const line = src.slice(0, at).split('\n').length;
         const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
           x[1].startsWith('axiom-') ? x[1] : `axiom-${x[1]}`
         );
@@ -1142,9 +1230,23 @@ function analyse(write: boolean): Analysis {
           );
         }
 
+        // An expected failure is a known defect, and the canon names it as a
+        // bug; a bug is pinned by a test that fails until the fix.
+        const marksFailing = modifiers.includes('fails');
+        if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
+          findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
+        }
+        for (const s of specs) {
+          if (kindOf(s) === 'bug-' && !marksFailing) {
+            findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
+          }
+        }
         for (const s of [...specs, ...axioms]) {
           const key = resolveCitation(s, `${rel}:${line}`);
           if (key === undefined) continue;
+          if (claimParents.has(key)) {
+            findings['parent-cited'].push(`${rel}:${line} "${title}" — cites ${s}, which holds nested claims`);
+          }
           citedTargets.add(key);
           testedTargets.add(key);
           testsPer.set(key, (testsPer.get(key) ?? 0) + 1);
@@ -1154,7 +1256,7 @@ function analyse(write: boolean): Analysis {
   }
 
   /** A test file: `.test` or `.spec`, in TypeScript with or without JSX. */
-  const isSuite = (name: string): boolean => /\.(test|spec)\.tsx?$/.test(name);
+  const isSuite = (name: string): boolean => /\.(test|spec)(-d)?\.tsx?$/.test(name);
 
   /** Every suite under a tree, so a voluntary citation is still read. */
   function allSuites(dir: string, out: string[] = []): string[] {
@@ -1339,15 +1441,27 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  // untested — a claim no test pins.
+  // untracked-bug — a bug owes an issue, named in its own text.
+  for (const [key, unit] of units) {
+    if (unit.kind !== 'bug-') continue;
+    if (!/(?:^|[^\w&])#\d+\b|\/issues\/\d+/.test(unit.own ?? '')) {
+      findings['untracked-bug'].push(key);
+    }
+  }
+
+  // untested — a leaf claim no test pins.
   //
   // Only a spec and an exception: an axiom or a fact is reached through the
-  // specs that rely on it, and a test naming one is already reported. A spec
-  // holding nested specs is a claim of its own: each nested spec refines one
-  // part of it, and together they need not cover it, so it owes a test of its
-  // own.
+  // specs that rely on it, and a test naming one is already reported. A claim
+  // holding nested claims is pinned through its leaves, so only a leaf owes a
+  // test. A bug's pin asserts the claim of the spec the bug breaks, so it pins
+  // that spec as well as the bug.
+  for (const [bug, specs] of bugSpecs) {
+    if (testedTargets.has(bug)) for (const spec of specs) testedTargets.add(spec);
+  }
   for (const [key, unit] of units) {
     if (!CLAIMS.includes(unit.kind)) continue;
+    if (claimParents.has(key)) continue;
     if (!testedTargets.has(key)) {
       findings.untested.push(`${key} (${aNoun(unit.kind)})`);
     }
@@ -1441,7 +1555,7 @@ const IMPLEMENTATION = SOURCES.filter(
 );
 
 /** A unit id as it appears in prose: a kind prefix, then a hyphenated stem. */
-const UNIT_ID = /\b(?:axiom|fact|spec|exception)-[a-z0-9]+(?:-[a-z0-9]+)*/g;
+const UNIT_ID = /\b(?:axiom|fact|spec|exception|bug)-[a-z0-9]+(?:-[a-z0-9]+)*/g;
 
 const git = (...args: string[]): string =>
   execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
