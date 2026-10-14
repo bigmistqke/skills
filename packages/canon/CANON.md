@@ -194,6 +194,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-call-inside-a-test-is-no-test`](#spec-a-call-inside-a-test-is-no-test) — A call inside the body of a test is no test.
       - [`@spec a-name-the-module-declares-is-no-runner`](#spec-a-name-the-module-declares-is-no-runner) — A call whose name refers to a declaration of its own module that no runner marker marks, such as `const it = values[Symbol.iterator]()`, is no test.
       - [`@spec a-name-imported-from-no-runner-is-no-runner`](#spec-a-name-imported-from-no-runner-is-no-runner) — A call whose name is imported from neither a package of a runner nor a module that exports a marked declaration is no test.
+      - [`@spec a-name-imported-from-a-runner-leads-to-its-call`](#spec-a-name-imported-from-a-runner-leads-to-its-call) — A name imported from a runner's package leads to its call by name, as the default export, or through the namespace. Examples are `test` after `import test from 'node:test'`, and `nt.it` after `import * as nt from 'node:test'`.
       - [`@spec a-global-name-is-a-runner-only-where-a-runner-provides-globals`](#spec-a-global-name-is-a-runner-only-where-a-runner-provides-globals) — A call whose name no module declares or imports is a test only when a runner of the project provides that call as a global.
       - [`@spec a-call-takes-the-modifiers-of-its-own-runner`](#spec-a-call-takes-the-modifiers-of-its-own-runner) — A call reads its modifiers by the runner its name leads to, such as Playwright's `fail` only on Playwright's `test`.
       - [`@spec a-runner-set-in-the-settings-replaces-the-presets`](#spec-a-runner-set-in-the-settings-replaces-the-presets) — When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
@@ -1575,7 +1576,7 @@ Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the
 
 The setting `runners` lists the runners of a project, such as `runners: [vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing], from: [mocha], globals: true}` describes a runner with no preset. A project that sets no `runners` has every preset.
 
-A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`. A runner also names the packages a module imports its calls from, and says whether it provides its calls as globals.
+A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`. A runner also names the packages a module imports its calls from, the call those packages export as their default, if any, and says whether it provides its calls as globals.
 
 A runner marker is a line `@runner` in the JSDoc of a declaration in a suite or a source. It marks a helper that wraps `it`, or a `test` that `base.extend(...)` makes. The line `@runner fails` marks a declaration whose calls are expected failures. A line in an `@example` section or a fenced block of the JSDoc is no marker.
 
@@ -1756,13 +1757,13 @@ Jest provides its calls as globals, since its option `injectGlobals` defaults to
 
 The interface `TestType` in `types/test.d.ts` of `playwright` 1.64 lists the members. Its other members, such as `describe`, `step`, `use`, `extend` and the hooks, declare no test. `_currentSuite` in `lib/common/index.js` throws when no file is loading.
 
-A module imports `test` from `@playwright/test`, or from `playwright/test`, which the `exports` of `playwright` 1.64 list. Playwright provides no globals.
+A module imports `test` from `@playwright/test`, or from `playwright/test`, which the `exports` of `playwright` 1.64 list. `types/test.d.ts` exports `test` as the default export too, by `export default test`. Playwright provides no globals.
 
 ## @fact node-declares-a-test-with-it-or-test
 
 > Node's test runner declares a test with a call of `it` or `test` from `node:test`, with any of the modifiers `only`, `skip` and `todo` between. It has no modifier that marks an expected failure.
 
-The file `test.d.ts` of `@types/node` 26 declares these in the module `node:test`, the only name it has, and exports `test as it`. Node provides no globals.
+The file `test.d.ts` of `@types/node` 26 declares these in the module `node:test`, the only name it has, and exports `test as it`. It exports `test` as the module itself, by `export = test`, so a default import of `node:test` is `test`. Node provides no globals.
 
 ## @fact a-runner-takes-the-body-of-a-test-after-its-title
 
@@ -2774,6 +2775,14 @@ This follows because the name then holds the module's own value, not a runner's 
 > A call whose name is imported from neither a package of a runner nor a module that exports a marked declaration is no test.
 
 This follows because a name imported from elsewhere holds another library's function, such as a `check` that validates input.
+
+##### @spec a-name-imported-from-a-runner-leads-to-its-call
+
+> A name imported from a runner's package leads to its call by name, as the default export, or through the namespace. Examples are `test` after `import test from 'node:test'`, and `nt.it` after `import * as nt from 'node:test'`.
+
+Derives from: [`fact-playwright-declares-a-test-with-test`](#fact-playwright-declares-a-test-with-test), [`fact-node-declares-a-test-with-it-or-test`](#fact-node-declares-a-test-with-it-or-test)
+
+This follows because each form of import binds the same function of the runner. Node's test runner and Playwright export `test` as their default. Vitest and Jest export no default, so a default import of theirs leads to no call.
 
 ##### @spec a-global-name-is-a-runner-only-where-a-runner-provides-globals
 

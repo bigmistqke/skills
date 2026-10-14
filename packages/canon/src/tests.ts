@@ -81,6 +81,8 @@ export interface Resolution {
   runners: Runner[];
   /** Set when the name leads to a marked declaration: whether its calls are expected failures. */
   marked?: boolean;
+  /** The members of the call after the one it names, which must be modifiers: all of them, unless the name is a namespace. */
+  members: string[];
 }
 
 /** The file a relative import resolves to from `file`, with what it exports; undefined when it resolves to no file the checker reads. */
@@ -158,7 +160,8 @@ function markerLines(jsdoc: SourceComment): { word: string; at: number }[] {
   for (const raw of jsdoc.value.split('\n')) {
     const line = raw.replace(/^[ \t]*\*?[ \t]*/, '');
     if (line.startsWith('```')) fenced = !fenced;
-    else if (!fenced && line.startsWith('@')) example = /^@example\b/.test(line);
+    // A marker does not end an example: it is the code the example shows.
+    else if (!fenced && line.startsWith('@') && !/^@runner\b/.test(line)) example = /^@example\b/.test(line);
     const marker = /^@runner\b(.*)$/.exec(line);
     if (marker && !fenced && !example) {
       found.push({ word: (marker[1] as string).replace(/\*\/?\s*$/, '').trim(), at: offset + raw.indexOf('@runner') });
@@ -226,6 +229,8 @@ function readModule(syntax: Syntax): void {
     if (statement.type !== 'ImportDeclaration') continue;
     for (const specifier of statement.specifiers as Node[]) {
       syntax.sources.set(specifier, (statement.source as Node).value as string);
+      // periscopic 4 declares default and named imports, but no namespace.
+      if (specifier.type === 'ImportNamespaceSpecifier') top.declarations.set((specifier.local as Node).name as string, specifier as never);
     }
   }
   /** What a name of the module's top scope leads to. */
@@ -324,7 +329,7 @@ function titleOf(argument: Node, src: string): string {
   return src.slice(argument.start, argument.end);
 }
 
-/** What an imported name leads to: a runner of the package, or a marked declaration that a relative path exports. */
+/** What an imported name leads to: a runner of the package, by a call or its default, or a marked declaration that a relative path exports. */
 function resolveImport(
   file: string,
   source: string,
@@ -332,8 +337,10 @@ function resolveImport(
   runners: Runner[],
   lookup: ImportLookup,
   seen: Set<string>
-): Resolution | undefined {
-  const from = runners.filter(r => r.from.includes(source) && r.calls.includes(imported));
+): Omit<Resolution, 'members'> | undefined {
+  const from = runners.filter(
+    r => r.from.includes(source) && (imported === 'default' ? r.default !== undefined : r.calls.includes(imported))
+  );
   if (from.length > 0) return { runners: from };
   if (!source.startsWith('.')) return undefined;
   const found = lookup(file, source);
@@ -351,24 +358,43 @@ function resolveImport(
 }
 
 /**
- * What a name leads to in a module: the runners whose package the module
- * imports it from, a marked declaration it is or imports, or the runners that
- * provide it as a global.
+ * What a call's chain leads to in a module: the runners whose package the
+ * module imports its name from, a marked declaration it is or imports, or the
+ * runners that provide it as a global. The name of a namespace leads through
+ * its first member.
  */
-function resolveName(syntax: Syntax, file: string, name: string, scope: Scope, runners: Runner[], lookup: ImportLookup): Resolution | undefined {
+function resolveName(
+  syntax: Syntax,
+  file: string,
+  chain: { root: Node; members: string[] },
+  scope: Scope,
+  runners: Runner[],
+  lookup: ImportLookup
+): Resolution | undefined {
+  const name = chain.root.name as string;
+  const { members } = chain;
   const owner = scope.find_owner(name);
   if (owner === null) {
     const global = runners.filter(r => r.globals && r.calls.includes(name));
-    return global.length > 0 ? { runners: global } : undefined;
+    return global.length > 0 ? { runners: global, members } : undefined;
   }
   const declaration = owner.declarations.get(name) as Node | undefined;
   if (declaration === undefined) return undefined;
   const source = syntax.sources.get(declaration);
-  if (source !== undefined) return resolveImport(file, source, importedName(declaration), runners, lookup, new Set());
+  if (source !== undefined) {
+    const imported = importedName(declaration);
+    const [first, ...rest] = members;
+    if (imported === '*') {
+      const found = first === undefined ? undefined : resolveImport(file, source, first, runners, lookup, new Set());
+      return found && { ...found, members: rest };
+    }
+    const found = resolveImport(file, source, imported, runners, lookup, new Set());
+    return found && { ...found, members };
+  }
   // A parameter's declaration is its function: the name must be the function's own.
   if (declaration.type === 'FunctionDeclaration' && nameOf(declaration.id as Node) !== name) return undefined;
   const fails = syntax.marked.get(declaration);
-  return fails === undefined ? undefined : { runners, marked: fails };
+  return fails === undefined ? undefined : { runners, marked: fails, members };
 }
 
 /**
@@ -388,17 +414,17 @@ export function testsOf(syntax: Syntax, file: string, runners: Runner[], lookup:
       const args = node.arguments as Node[];
       const chain = chainOf(node.callee as Node);
       const resolution =
-        chain && hasBody(args) ? resolveName(syntax, file, chain.root.name as string, scope, runners, lookup) : undefined;
-      if (chain && resolution) {
+        chain && hasBody(args) ? resolveName(syntax, file, chain, scope, runners, lookup) : undefined;
+      if (resolution) {
         const modifiers = new Set(resolution.runners.flatMap(r => r.modifiers));
         const failing = new Set(resolution.runners.flatMap(r => r.fails));
-        if (chain.members.every(m => modifiers.has(m) || failing.has(m))) {
+        if (resolution.members.every(m => modifiers.has(m) || failing.has(m))) {
           const jsdoc = jsdocAbove(syntax, node.start);
           tests.push({
             doc: jsdoc ? jsdoc.value.slice(1) : '',
             span: jsdoc && [jsdoc.start, jsdoc.end],
             title: titleOf(args[0] as Node, src),
-            fails: resolution.marked === true || chain.members.some(m => failing.has(m)),
+            fails: resolution.marked === true || resolution.members.some(m => failing.has(m)),
             at: node.start
           });
           // The callee is the test's own chain, as in `it.each(table)`, and a

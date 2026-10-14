@@ -92,6 +92,16 @@ describe('where the name of a call leads', () => {
   });
 
   /**
+   * @canon spec-a-name-imported-from-a-runner-leads-to-its-call
+   */
+  it('reads a call imported from a package of a runner by its name, as its default export, or through its namespace', () => {
+    const rest = `import test from 'node:test';\nimport * as nt from 'node:test';\nimport pw from '@playwright/test';\ntest('a default import', () => {});\nnt.it.only('a member of a namespace', () => {});\npw('a default import of playwright', () => {});\n`;
+    expect(check(canon(LEAF), suite(rest))['uncited']).toBe(3);
+    const none = `import v from 'vitest';\nimport * as nt from 'node:test';\nv('vitest exports no default', () => {});\nnt.describe('a group', () => {});\nnt('a namespace is no call', () => {});\n`;
+    expect(check(canon(LEAF), suite(none))['uncited']).toBeUndefined();
+  });
+
+  /**
    * @canon spec-a-global-name-is-a-runner-only-where-a-runner-provides-globals
    */
   it('reads a global call as a test only where a runner of the project provides globals', () => {
@@ -144,6 +154,16 @@ describe('a runner marker', () => {
     const files = { ...HELPERS, 'test/canon/index.ts': `export { check as verify } from './helpers';\nexport * from './helpers';\n` };
     const tests = `import { verify as v, breaks as b } from './index';\n${made('v', 'spec-a-leaf-says-one-thing')}v('checks nothing', () => {});\n`;
     const found = check(canon(LEAF), tests, { files });
+    expect(found['untested']).toBeUndefined();
+    expect(found['uncited']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-call-of-a-marked-function-is-a-test
+   */
+  it('follows a namespace import to the marked function', () => {
+    const tests = `import * as h from './helpers';\n${made('h.check', 'spec-a-leaf-says-one-thing')}h.check('checks nothing', () => {});\n`;
+    const found = check(canon(LEAF), tests, { files: HELPERS });
     expect(found['untested']).toBeUndefined();
     expect(found['uncited']).toBe(1);
   });
@@ -211,10 +231,11 @@ describe('a runner marker', () => {
    */
   it('reads no marker in an example or a fenced block of a JSDoc', () => {
     const files = {
-      'test/canon/helpers.ts': `/**\n * A limit.\n *\n * @example\n * ${marker} fails\n */\nexport function twice(): void {}\n\n/**\n * \`\`\`ts\n * ${marker}\n * \`\`\`\n */\nconsole.log('loaded');\n`
+      'test/canon/helpers.ts': `/**\n * A limit.\n *\n * @example\n * ${marker} fails\n * ${marker} fail\n */\nexport function twice(name: string, fn: () => void): void {}\n\n/**\n * \`\`\`ts\n * ${marker}\n * \`\`\`\n */\nexport const thrice = (name: string, fn: () => void) => fn();\n`
     };
-    const found = check(canon(LEAF), `${tagged('spec-a-leaf-says-one-thing')}it('checks nothing', () => {});\n`, { files });
-    expect(found['untested']).toBeUndefined();
-    expect(found['uncited']).toBe(1);
+    const tests = `import { twice, thrice } from './helpers';\n${made('twice', 'spec-a-leaf-says-one-thing')}${made('thrice', 'spec-a-leaf-says-one-thing')}`;
+    const found = check(canon(LEAF), tests, { files });
+    expect(found['untested']).toBe(1);
+    expect(found['fails-without-bug']).toBeUndefined();
   });
 });

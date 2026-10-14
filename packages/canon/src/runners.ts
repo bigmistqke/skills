@@ -5,14 +5,16 @@
 
 /**
  * A runner: its calls, the modifiers that keep a call a test, those that also
- * mark it to fail, the packages a module imports its calls from, and whether
- * it provides its calls as globals.
+ * mark it to fail, the packages a module imports its calls from, the call
+ * those packages export as their default, and whether it provides its calls
+ * as globals.
  */
 export interface Runner {
   calls: string[];
   modifiers: string[];
   fails: string[];
   from: string[];
+  default?: string;
   globals: boolean;
 }
 
@@ -37,6 +39,7 @@ export const PRESETS: Record<string, Runner> = {
     modifiers: ['only', 'skip', 'fixme'],
     fails: ['fail'],
     from: ['@playwright/test', 'playwright/test'],
+    default: 'test',
     globals: false
   },
   node: {
@@ -44,6 +47,7 @@ export const PRESETS: Record<string, Runner> = {
     modifiers: ['only', 'skip', 'todo'],
     fails: [],
     from: ['node:test'],
+    default: 'test',
     globals: false
   }
 };
