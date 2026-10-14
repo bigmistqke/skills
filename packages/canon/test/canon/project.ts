@@ -36,9 +36,10 @@ const TAG = ['@', 'canon'].join('');
 /** A test file's body: one test whose tag names `unit`, written with `call`, such as `it.fails`. */
 export const tagged = (unit: string, call = 'it'): string => `/**\n * ${TAG} ${unit}\n */\n${call}('checks ${unit}', () => {});\n`;
 
-/** What else a project holds: `files` by their path, the documents beside CANON.md, and whether `generate` runs before the check. */
+/** What else a project holds: `files` by their path, the documents beside CANON.md, further settings of its canon field, and whether `generate` runs before the check. */
 export interface Extra {
   files?: Record<string, string>;
+  settings?: Record<string, unknown>;
   documents?: string[];
   generate?: boolean;
 }
@@ -48,7 +49,7 @@ function project(document: string, tests: string, tracker?: Record<string, unkno
   const dir = mkdtempSync(join(tmpdir(), 'canon-of-canon-'));
   DIRS.push(dir);
   mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md', ...(extra.documents ?? [])], suites: 'test/canon', sources: ['test'], command: 'canon', tracker } }));
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md', ...(extra.documents ?? [])], suites: 'test/canon', sources: ['test'], command: 'canon', tracker, ...extra.settings } }));
   writeFileSync(join(dir, 'CANON.md'), document);
   if (tests) writeFileSync(join(dir, 'test', 'canon', 'a.test.ts'), tests);
   for (const [path, text] of Object.entries(extra.files ?? {})) {

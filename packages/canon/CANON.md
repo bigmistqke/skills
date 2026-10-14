@@ -53,7 +53,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term adrift`](#term-adrift) — For every [test_1](#term-test): test_1 is adrift exactly when at least one of these holds: - [project](#term-project) [declares](#term-declare) test_1 and test_1 [carries](#term-carry) no [tag](#term-tag) - project declares test_1 and test_1 [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim) - test_1 checks a claim that is [refined](#term-refined)
 - [`@term test`](#term-test) — A test is a plain test or an expected failure.
 - [`@term project`](#term-project) — Project is the package whose canon field names the canon.
-- [`@term declare`](#term-declare) — Project declares each test in each suite that the canon field of the project names.
+- [`@term declare`](#term-declare) — Project declares each test in each file of the directory of suites that the canon field of the project names: a suite, or a helper module that a suite runs.
 - [`@term pointer`](#term-pointer) — A pointer is a file pointer or a fragment pointer.
 - [`@term file-pointer`](#term-file-pointer) — A file pointer is a pointer with no fragment: it names a [file](#term-file).
 - [`@term fragment-pointer`](#term-fragment-pointer) — A fragment pointer is a pointer with a fragment, after a `#`: it names the unit or the [section](#term-section) whose id the fragment holds, in the file its path names.
@@ -75,7 +75,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term tag`](#term-tag) — A tag is a line of the documentation comment of a test.
 - [`@term carry`](#term-carry) — A test carries each tag in the documentation comment of the test.
 - [`@term plain-test`](#term-plain-test) — A plain test is a test that passes when what it checks holds.
-- [`@term expected-failure`](#term-expected-failure) — An expected failure is a test that is marked to fail, with `it.fails` or `test.fails`: it fails until the defect it checks is fixed.
+- [`@term expected-failure`](#term-expected-failure) — An expected failure is a test that is marked to fail, with a modifier that a [runner](#term-runner) marks a failure with, such as `it.fails`: it fails until the defect it checks is fixed.
 - [`@term check`](#term-check) — For every [test_1](#term-test) and every [unit_1](#term-unit): test_1 checks unit_1 exactly when test_1 [carries](#term-carry) a [tag](#term-tag) that [names](#term-name) unit_1.
 - [`@term issue`](#term-issue) — An issue is an entry of the tracker of the project.
 - [`@term tracker`](#term-tracker) — Tracker is the issue tracker the scope of the project names.
@@ -92,6 +92,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
 - [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
 - [`@term setting`](#term-setting) — A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
+- [`@term runner`](#term-runner) — A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes.
 - [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
@@ -101,6 +102,11 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term extent`](#term-extent) — The extent of a unit is the part of the document from its heading up to the next heading of its level or above.
 - [`@term own-text`](#term-own-text) — The own text of a unit is the text between its heading and its first nested heading.
 - [`@term fence`](#term-fence) — A fence is a block of lines between two lines of backticks or tildes, which holds logic or a table of readings.
+- [`@fact vitest-declares-a-test-with-it-or-test`](#fact-vitest-declares-a-test-with-it-or-test) — Vitest 3 declares a test with a call of `it` or `test`, with any of the modifiers `concurrent`, `sequential`, `only`, `skip`, `todo`, `each`, `for`, `skipIf` and `runIf` between, and marks an expected failure with `fails`. It refuses a test declared inside the body of another test.
+- [`@fact jest-declares-a-test-with-it-or-test`](#fact-jest-declares-a-test-with-it-or-test) — Jest 30 declares a test with a call of `it`, `test`, `fit`, `xit` or `xtest`, with any of the modifiers `only`, `skip`, `todo`, `each` and `concurrent` between, and marks an expected failure with `failing`. It refuses a test declared inside the body of another test.
+- [`@fact playwright-declares-a-test-with-test`](#fact-playwright-declares-a-test-with-test) — Playwright 1.64 declares a test with a call of `test`, with any of the modifiers `only`, `skip` and `fixme` between, and marks an expected failure with `fail`. A call of `test.skip`, `test.fixme` or `test.fail` with no body after its first argument declares no test: it marks the tests around it. Playwright refuses a test declared after its file has loaded, so a test inside the body of another test.
+- [`@fact node-declares-a-test-with-it-or-test`](#fact-node-declares-a-test-with-it-or-test) — Node's test runner declares a test with a call of `it` or `test` from `node:test`, with any of the modifiers `only`, `skip` and `todo` between. It has no modifier that marks an expected failure.
+- [`@fact a-runner-takes-the-body-of-a-test-after-its-title`](#fact-a-runner-takes-the-body-of-a-test-after-its-title) — Vitest, Jest, Playwright and Node's test runner take the body of a test as a function after its title.
 - [`@axiom every-claim-says-what-it-follows-from`](#axiom-every-claim-says-what-it-follows-from) — All of these hold: - for every [unit_1](#term-unit): when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for unit_1 - for every unit_1: when unit_1 is [miscited](#term-miscited), checker reports a finding for unit_1 - for every unit_1: when unit_1 is [circular](#term-circular), checker reports a finding for unit_1.
   - [`@spec an-unfounded-unit-is-freelancing`](#spec-an-unfounded-unit-is-freelancing) — For every [unit_1](#term-unit): when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for unit_1.
     - [`@spec a-spec-cites-an-axiom-or-a-spec`](#spec-a-spec-cites-an-axiom-or-a-spec) — For every [spec_1](#term-spec): when spec_1 [cites](#term-cite) no [axiom](#term-axiom) and cites no spec, [checker](#term-checker) reports a [freelancing](#term-freelancing) for spec_1.
@@ -180,6 +186,14 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — For every [claim_1](#term-claim): when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) claim_1, [checker](#term-checker) reports no [untesting](#term-untesting) for claim_1.
       - [`@spec a-claim-an-undeclared-test-checks-is-not-untested`](#spec-a-claim-an-undeclared-test-checks-is-not-untested) — For every [claim_1](#term-claim): when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) claim_1, [checker](#term-checker) reports no [untesting](#term-untesting) for claim_1.
       - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — For every [spec_1](#term-spec): when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [sits in](#term-sit) spec_1, [checker](#term-checker) reports no [untesting](#term-untesting) for spec_1.
+    - [`@spec only-a-call-that-declares-a-test-is-a-test`](#spec-only-a-call-that-declares-a-test-is-a-test) — The checker reads a call as a test only when a [runner](#term-runner) of the project declares a test with it.
+      - [`@spec a-member-no-runner-names-is-no-test`](#spec-a-member-no-runner-names-is-no-test) — A call through a member that no runner of the project names, such as `test.beforeEach(fn)` or `test.extend({})`, is no test.
+      - [`@spec a-call-with-no-body-is-no-test`](#spec-a-call-with-no-body-is-no-test) — A call with no function after its first argument, such as `test.todo('name')` or `test.skip(condition, 'reason')`, is no test.
+      - [`@spec a-call-inside-a-test-is-no-test`](#spec-a-call-inside-a-test-is-no-test) — A call inside the body of a test is no test.
+      - [`@spec a-name-the-module-declares-is-no-runner`](#spec-a-name-the-module-declares-is-no-runner) — A call of `it` or `test` in a module that declares that name itself, such as `const it = values[Symbol.iterator]()`, is no test.
+      - [`@spec a-runner-set-in-the-settings-replaces-the-presets`](#spec-a-runner-set-in-the-settings-replaces-the-presets) — When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
+      - [`@spec a-runner-written-as-a-map-adds-its-calls`](#spec-a-runner-written-as-a-map-adds-its-calls) — A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists.
+      - [`@spec a-failure-modifier-of-a-runner-marks-an-expected-failure`](#spec-a-failure-modifier-of-a-runner-marks-an-expected-failure) — A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
   - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1 - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 asks for a [command](#term-command) that is not [available](#term-availability) - run_1 gets code 2 from a plugin then run_1 exits with code 2.
     - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1 - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
       - [`@spec a-document-with-no-plugins-list-asks-for-no-plugin`](#spec-a-document-with-no-plugins-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter) and the command line of a [run](#term-run) does not name document_1, [checker](#term-checker) does not run plugin_1 over document_1.
@@ -200,6 +214,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed_frontmatter_1](#term-flaw): unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated_frontmatter_1](#term-flaw): unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled_frontmatter_1](#term-flaw): doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+      - [`@spec a-runner-the-checker-does-not-know-is-refused`](#spec-a-runner-the-checker-does-not-know-is-refused) — A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers` and `fails`.
       - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling_frontmatter_1](#term-flaw): dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular_frontmatter_1](#term-flaw): circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray_frontmatter_1](#term-setting): stray_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
@@ -226,7 +241,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1
       - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
       - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — Generate leaves the frontmatter of a document as it was.
-    - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a module of the sources does not parse as TypeScript, the checker names the file, and the run exits with code 2.
+    - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
 <!-- toc:end -->
 
 ## Terms
@@ -923,9 +938,9 @@ Test: {1} is a [test] | {1} is not a [test]
 
 ### @term declare
 
-> Project declares each test in each suite that the canon field of the project names.
+> Project declares each test in each file of the directory of suites that the canon field of the project names: a suite, or a helper module that a suite runs.
 
-A test in a declared suite owes a tag. So does a test that a helper module in the directory of the declared suites makes, since a suite runs it. A test elsewhere in the sources may carry one, and the checker reads it.
+A test in a declared suite owes a tag, and so does a test that a helper module beside the suites makes. A test elsewhere in the sources may carry one, and the checker reads it.
 
 ```alloy vocabulary
 sig Declared in Test {}
@@ -1200,7 +1215,7 @@ PlainTest: {1} is a [plain test] | {1} is not a [plain test]
 
 ### @term expected-failure
 
-> An expected failure is a test that is marked to fail, with `it.fails` or `test.fails`: it fails until the defect it checks is fixed.
+> An expected failure is a test that is marked to fail, with a modifier that a [runner](#term-runner) marks a failure with, such as `it.fails`: it fails until the defect it checks is fixed.
 
 ```alloy vocabulary
 sig ExpectedFailure extends Test {}
@@ -1530,7 +1545,7 @@ Context.rel: {2} is [context] for {1} | {2} is not [context] for {1}
 
 > A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
 
-The checker has six settings of its own: `documents`, `suites`, `sources`, `references`, `command` and `tracker`. A plugin may define one more, under the key its configuration names. A value is a string, a list, or a map of keys and values. A setting that names a path names it from the folder of the document that holds it.
+The checker has seven settings of its own: `documents`, `suites`, `sources`, `references`, `command`, `tracker` and `runners`. A plugin may define one more, under the key its configuration names. A value is a string, a list, or a map of keys and values. A setting that names a path names it from the folder of the document that holds it.
 
 ```alloy vocabulary
 sig Stray in Frontmatter {}
@@ -1540,6 +1555,14 @@ sig Stray in Frontmatter {}
 noun Stray: [stray frontmatter]
 Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the entry document | {1} does not have the [flaw](#term-flaw) of a setting in a document that is not the entry document
 ```
+
+### @term runner
+
+> A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes.
+
+The setting `runners` lists the runners of a project, such as `runners: [vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing]}` describes a runner with no preset. A project that sets no `runners` has every preset.
+
+A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`.
 
 ### @term enter
 
@@ -1695,6 +1718,36 @@ UnitBlock: {1} has the role of the formula of its unit | {1} does not have the r
 Within.rel: {1} lies in the own text of {2} | {1} does not lie in the own text of {2}
 Blocks.rel: [checker](#term-checker) reads {2} as a block of {1} | [checker](#term-checker) does not read {2} as a block of {1}
 ```
+
+## @fact vitest-declares-a-test-with-it-or-test
+
+> Vitest 3 declares a test with a call of `it` or `test`, with any of the modifiers `concurrent`, `sequential`, `only`, `skip`, `todo`, `each`, `for`, `skipIf` and `runIf` between, and marks an expected failure with `fails`. It refuses a test declared inside the body of another test.
+
+The type `ChainableTestAPI` of `@vitest/runner` 3.2 lists the modifiers. `chunk-hooks.js` of the same package throws "Calling the test function inside another test function is not allowed". Its other members, such as `extend` and `scoped`, declare no test.
+
+## @fact jest-declares-a-test-with-it-or-test
+
+> Jest 30 declares a test with a call of `it`, `test`, `fit`, `xit` or `xtest`, with any of the modifiers `only`, `skip`, `todo`, `each` and `concurrent` between, and marks an expected failure with `failing`. It refuses a test declared inside the body of another test.
+
+The interface `TestFrameworkGlobals` of `@jest/types` 30.5 lists the calls, and `It`, `ItBase` and `ItConcurrent` list the modifiers. `jest-circus` throws "Tests cannot be nested".
+
+## @fact playwright-declares-a-test-with-test
+
+> Playwright 1.64 declares a test with a call of `test`, with any of the modifiers `only`, `skip` and `fixme` between, and marks an expected failure with `fail`. A call of `test.skip`, `test.fixme` or `test.fail` with no body after its first argument declares no test: it marks the tests around it. Playwright refuses a test declared after its file has loaded, so a test inside the body of another test.
+
+The interface `TestType` in `types/test.d.ts` of `playwright` 1.64 lists the members. Its other members, such as `describe`, `step`, `use`, `extend` and the hooks, declare no test. `_currentSuite` in `lib/common/index.js` throws when no file is loading.
+
+## @fact node-declares-a-test-with-it-or-test
+
+> Node's test runner declares a test with a call of `it` or `test` from `node:test`, with any of the modifiers `only`, `skip` and `todo` between. It has no modifier that marks an expected failure.
+
+The file `test.d.ts` of `@types/node` 26 declares these, and exports `test as it`.
+
+## @fact a-runner-takes-the-body-of-a-test-after-its-title
+
+> Vitest, Jest, Playwright and Node's test runner take the body of a test as a function after its title.
+
+The body can follow an options object, as in Vitest's `test(name, options, fn)`. A call with no function after its first argument runs no code of its own, such as `test.todo('name')` or Playwright's `test.skip(condition, 'reason')`.
 
 ## @axiom every-claim-says-what-it-follows-from
 
@@ -2651,6 +2704,56 @@ This follows because a test of a [bug](#term-bug) asserts what the spec the bug 
 all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting
 ```
 
+#### @spec only-a-call-that-declares-a-test-is-a-test
+
+> The checker reads a call as a test only when a [runner](#term-runner) of the project declares a test with it.
+
+Derives from: [`fact-vitest-declares-a-test-with-it-or-test`](#fact-vitest-declares-a-test-with-it-or-test), [`fact-jest-declares-a-test-with-it-or-test`](#fact-jest-declares-a-test-with-it-or-test), [`fact-playwright-declares-a-test-with-test`](#fact-playwright-declares-a-test-with-test), [`fact-node-declares-a-test-with-it-or-test`](#fact-node-declares-a-test-with-it-or-test), [`fact-a-runner-takes-the-body-of-a-test-after-its-title`](#fact-a-runner-takes-the-body-of-a-test-after-its-title)
+
+This follows because a finding about a test that is none is false. A hook, a fixture or a group owes no tag, and an uncitation for it asks for a tag that says nothing.
+
+##### @spec a-member-no-runner-names-is-no-test
+
+> A call through a member that no runner of the project names, such as `test.beforeEach(fn)` or `test.extend({})`, is no test.
+
+This follows because the runners declare a test only through the modifiers they name.
+
+##### @spec a-call-with-no-body-is-no-test
+
+> A call with no function after its first argument, such as `test.todo('name')` or `test.skip(condition, 'reason')`, is no test.
+
+This follows because such a call runs no code, so it checks nothing.
+
+##### @spec a-call-inside-a-test-is-no-test
+
+> A call inside the body of a test is no test.
+
+This follows because the runners refuse a test declared there, so a call there that looks like one is something else, such as Playwright's `test.fail(condition)`.
+
+##### @spec a-name-the-module-declares-is-no-runner
+
+> A call of `it` or `test` in a module that declares that name itself, such as `const it = values[Symbol.iterator]()`, is no test.
+
+This follows because the name then holds the module's own value, not a runner's function.
+
+##### @spec a-runner-set-in-the-settings-replaces-the-presets
+
+> When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
+
+This follows because a project that names its runners says which calls its tests are. A modifier of a runner the project does not use, such as Playwright's `fail` in a project of Vitest, then declares no test.
+
+##### @spec a-runner-written-as-a-map-adds-its-calls
+
+> A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists.
+
+This follows because a runner with no preset still declares its tests through calls, and the map names them.
+
+##### @spec a-failure-modifier-of-a-runner-marks-an-expected-failure
+
+> A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
+
+This follows because each runner marks an expected failure with a modifier of its own, such as `fails` in Vitest and `failing` in Jest.
+
 ### @axiom a-check-the-project-asked-for-is-never-dropped-silently
 
 <!-- statement-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
@@ -2949,6 +3052,12 @@ This follows because the two lists may differ, and the checker cannot tell which
 ```alloy
 all f: Doubled | f in Refused
 ```
+
+##### @spec a-runner-the-checker-does-not-know-is-refused
+
+> A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers` and `fails`.
+
+This follows because a misspelled runner, such as `vitset`, would change which calls are tests, and the author would trust a check of the wrong tests.
 
 ##### @spec a-path-that-names-no-document-is-refused
 
@@ -3298,6 +3407,6 @@ This follows because the block is the author's, and `generate` writes the region
 
 #### @spec a-source-the-checker-cannot-parse-fails-the-run
 
-> When a suite or a module of the sources does not parse as TypeScript, the checker names the file, and the run exits with code 2.
+> When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
 
 This follows because the checker reads the tests and the tags of a file from its syntax. A file it cannot parse holds tests and tags it cannot read, so the checks they ask for cannot run.

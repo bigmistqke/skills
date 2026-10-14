@@ -1,13 +1,15 @@
 /**
  * The tests and the comments of a TypeScript file, read from its syntax.
  *
- * A test is a call of `it` or `test`, with any modifiers between, such as
- * `it.fails('title', fn)`, `it.each(table)('title', fn)` or
- * `` it.each`table`('title', fn) ``. Text that only looks like one, inside a
+ * A test is a call that a runner of the project declares a test with: one of
+ * its calls, with any of its modifiers between, such as `it.fails('title', fn)`,
+ * `it.each(table)('title', fn)` or `` it.each`table`('title', fn) ``, and a
+ * function after the first argument. Text that only looks like one, inside a
  * string or a comment, is no test: the parser sees it for what it is.
  */
 import { Parser, type Comment } from 'acorn';
 import { tsPlugin } from '@sveltejs/acorn-typescript';
+import type { Vocabulary } from './runners.ts';
 
 /** One test: its JSDoc, its title, the modifiers on its call, and where its call starts. */
 export interface TestBlock {
@@ -47,24 +49,58 @@ interface Node {
 const isNode = (value: unknown): value is Node =>
   typeof value === 'object' && value !== null && typeof (value as Node).type === 'string';
 
-/** The modifiers of a callee that calls `it` or `test`, or undefined when it calls something else. */
-function modifiersOf(callee: Node): string[] | undefined {
+/**
+ * The modifiers of a callee that declares a test, or undefined when it does not:
+ * when it starts with no call of a runner, starts with a name the module
+ * declares itself, or goes through a member that no runner names.
+ */
+function modifiersOf(callee: Node, vocabulary: Vocabulary, own: Set<string>): string[] | undefined {
   switch (callee.type) {
-    case 'Identifier':
-      return callee.name === 'it' || callee.name === 'test' ? [] : undefined;
+    case 'Identifier': {
+      const name = callee.name as string;
+      return vocabulary.calls.has(name) && !own.has(name) ? [] : undefined;
+    }
     case 'MemberExpression': {
       const property = callee.property as Node;
       if (callee.computed || property.type !== 'Identifier') return undefined;
-      const modifiers = modifiersOf(callee.object as Node);
-      return modifiers && [...modifiers, property.name as string];
+      const name = property.name as string;
+      if (!vocabulary.modifiers.has(name) && !vocabulary.fails.has(name)) return undefined;
+      const modifiers = modifiersOf(callee.object as Node, vocabulary, own);
+      return modifiers && [...modifiers, name];
     }
     case 'CallExpression':
-      return modifiersOf(callee.callee as Node);
+      return modifiersOf(callee.callee as Node, vocabulary, own);
     case 'TaggedTemplateExpression':
-      return modifiersOf(callee.tag as Node);
+      return modifiersOf(callee.tag as Node, vocabulary, own);
     default:
       return undefined;
   }
+}
+
+/** Whether a call has a body: a function, or a name that may hold one, after its first argument. */
+const hasBody = (args: Node[]): boolean =>
+  args.slice(1).some(a => a.type === 'ArrowFunctionExpression' || a.type === 'FunctionExpression' || a.type === 'Identifier');
+
+/** The names a module declares itself, in a declaration or as a parameter; an import declares none. */
+function ownNames(program: Node): Set<string> {
+  const names = new Set<string>();
+  const add = (node: unknown): void => {
+    if (isNode(node) && node.type === 'Identifier') names.add(node.name as string);
+  };
+  const visit = (node: Node): void => {
+    if (node.type === 'VariableDeclarator') add(node.id);
+    if (node.type === 'FunctionDeclaration' || node.type === 'ClassDeclaration') add(node.id);
+    if (Array.isArray(node.params)) for (const param of node.params) add(param);
+    for (const value of Object.values(node)) {
+      if (Array.isArray(value)) {
+        for (const item of value) if (isNode(item)) visit(item);
+      } else if (isNode(value)) {
+        visit(value);
+      }
+    }
+  };
+  visit(program);
+  return names;
 }
 
 /** The title of a test, from its first argument. */
@@ -75,10 +111,11 @@ function titleOf(argument: Node, src: string): string {
 }
 
 /**
- * Parse `src` as TypeScript, with JSX when `jsx` is set. Throws a `SyntaxError`
- * when it does not parse.
+ * Parse `src` as TypeScript, with JSX when `jsx` is set, and read the tests
+ * that the runners of `vocabulary` declare. Throws a `SyntaxError` when it does
+ * not parse.
  */
-export function parseSource(src: string, jsx: boolean): ParsedSource {
+export function parseSource(src: string, jsx: boolean, vocabulary: Vocabulary): ParsedSource {
   const raw: Comment[] = [];
   const program = (jsx ? TSX : TS).parse(src, {
     ecmaVersion: 'latest',
@@ -88,22 +125,26 @@ export function parseSource(src: string, jsx: boolean): ParsedSource {
   const comments = raw.map(({ value, start, end }) => ({ value, start, end }));
   const jsdocs = comments.filter((c, i) => raw[i]?.type === 'Block' && c.value.startsWith('*'));
 
-  /** The JSDoc that ends right above `start`, with only white space between. */
+  /** The JSDoc that ends right above `start`, with only white space between: the last that ends before it, by a binary search. */
   const jsdocAbove = (start: number): SourceComment | undefined => {
-    let found: SourceComment | undefined;
-    for (const c of jsdocs) {
-      if (c.end > start) break;
-      found = c;
+    let low = 0;
+    let high = jsdocs.length;
+    while (low < high) {
+      const mid = (low + high) >> 1;
+      if ((jsdocs[mid] as SourceComment).end <= start) low = mid + 1;
+      else high = mid;
     }
+    const found = jsdocs[low - 1];
     return found && /^\s*$/.test(src.slice(found.end, start)) ? found : undefined;
   };
 
+  const own = ownNames(program);
   const tests: TestBlock[] = [];
   const visit = (node: Node): void => {
     if (node.type === 'CallExpression') {
       const args = node.arguments as Node[];
-      const modifiers = modifiersOf(node.callee as Node);
-      if (modifiers && args.length > 0) {
+      const modifiers = modifiersOf(node.callee as Node, vocabulary, own);
+      if (modifiers && hasBody(args)) {
         const jsdoc = jsdocAbove(node.start);
         tests.push({
           doc: jsdoc ? jsdoc.value.slice(1) : '',
@@ -112,8 +153,8 @@ export function parseSource(src: string, jsx: boolean): ParsedSource {
           modifiers,
           at: node.start
         });
-        // The callee is the test's own chain, as in `it.each(table)`: no test of its own.
-        for (const arg of args) visit(arg);
+        // The callee is the test's own chain, as in `it.each(table)`, and a
+        // call in its body is no test: the runners refuse a test declared there.
         return;
       }
     }

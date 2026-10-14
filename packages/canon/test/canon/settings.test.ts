@@ -202,3 +202,25 @@ describe('a source the checker cannot parse', () => {
     expect(code).toBe(2);
   });
 });
+
+describe('the setting runners', () => {
+  /**
+   * @canon spec-a-runner-the-checker-does-not-know-is-refused
+   */
+  it('refuses a runner that is no preset, and exits with code 2', () => {
+    const dir = write({ 'CANON.md': canon(['suites: checks', 'runners: [vitset]']), 'checks/a.test.ts': TEST });
+    const { out, code } = run(dir, '.', 'check', '--offline');
+    expect(out).toContain('vitset');
+    expect(code).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-runner-the-checker-does-not-know-is-refused
+   */
+  it('refuses a runner written as a map with a key it does not know, and exits with code 2', () => {
+    const dir = write({ 'CANON.md': canon(['suites: checks', 'runners: [{calls: [specify], hooks: [before]}]']), 'checks/a.test.ts': TEST });
+    const { out, code } = run(dir, '.', 'check', '--offline');
+    expect(out).toContain('hooks');
+    expect(code).toBe(2);
+  });
+});

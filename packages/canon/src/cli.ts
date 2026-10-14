@@ -26,6 +26,7 @@ import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
 import { parseSource, type ParsedSource } from './tests.ts';
+import { vocabularyOf, type Vocabulary } from './runners.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -47,6 +48,8 @@ interface Config {
   references?: string[];
   /** How a reader runs this tool, for the advice in findings. */
   command?: string;
+  /** The runners whose calls are tests: preset names, or maps of calls, modifiers and fails. */
+  runners?: unknown;
   /**
    * The issue tracker the bugs name their issues in. With it, `check` asks the
    * tracker whether each issue exists and is open.
@@ -130,6 +133,16 @@ const SOURCES = CONFIG.sources ?? ['src', 'test'];
 const REFERENCES = CONFIG.references ?? [];
 
 const COMMAND = CONFIG.command ?? 'pnpm canon';
+
+/** What the runners of the project declare a test with. A runner the checker does not know stops the run. */
+const VOCABULARY = ((): Vocabulary => {
+  try {
+    return vocabularyOf(CONFIG.runners);
+  } catch (error) {
+    console.error(`canon: ${(error as Error).message}`);
+    process.exit(2);
+  }
+})();
 
 // ---------------------------------------------------------------------------
 // A minimal element scanner: enough to know which element each anchor sits in.
@@ -1096,11 +1109,34 @@ function analyse(write: boolean): Analysis {
   // first invents one that is not true. So the unit that owes a spec is the test
   // that asserts something.
 
+  /** The line of each index of `src`, found by a binary search over where its lines start. */
+  function linesOf(src: string): (at: number) => number {
+    const starts = [0];
+    for (let i = src.indexOf('\n'); i !== -1; i = src.indexOf('\n', i + 1)) starts.push(i + 1);
+    return at => {
+      let low = 0;
+      let high = starts.length - 1;
+      while (low < high) {
+        const mid = (low + high + 1) >> 1;
+        if ((starts[mid] as number) <= at) low = mid;
+        else high = mid - 1;
+      }
+      return low + 1;
+    };
+  }
+
+  /** Resolve each `@canon` tag in `text`, which starts at `offset` in its file. */
+  function resolveTags(text: string, offset: number, rel: string, lineAt: (at: number) => number): void {
+    for (const m of text.matchAll(/@canon\s+(\S+)/g)) {
+      resolveCitation(m[1] as string, `${rel}:${lineAt(offset + (m.index ?? 0))}`);
+    }
+  }
+
   /** The tests and comments of a suite or a source; a file that does not parse stops the run. */
-  function parse(file: string): ParsedSource & { src: string } {
+  function parse(file: string): ParsedSource & { src: string; lineAt: (at: number) => number } {
     const src = readFileSync(file, 'utf8');
     try {
-      return { ...parseSource(src, file.endsWith('.tsx')), src };
+      return { ...parseSource(src, file.endsWith('.tsx'), VOCABULARY), src, lineAt: linesOf(src) };
     } catch (error) {
       console.error(`canon: ${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
       process.exit(2);
@@ -1163,14 +1199,13 @@ function analyse(write: boolean): Analysis {
    * the whole file in scope to capture those would demand a citation from the
    * other thirty, and the only way to supply thirty is to invent them.
    */
-  function readSuite(file: string, enforced: boolean): ParsedSource & { src: string } {
+  function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> {
     const rel = relative(ROOT, file);
     const parsed = parse(file);
-    const { src } = parsed;
 
     for (const { doc, title, modifiers, at } of parsed.tests) {
       // The reported line is the `it(` itself, not the top of its JSDoc.
-      const line = src.slice(0, at).split('\n').length;
+      const line = parsed.lineAt(at);
       const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
         x[1].startsWith('axiom-') ? x[1] : `axiom-${x[1]}`
       );
@@ -1203,7 +1238,7 @@ function analyse(write: boolean): Analysis {
 
       // An expected failure is a known defect, and the canon names it as a
       // bug; a bug is pinned by a test that fails until the fix.
-      const marksFailing = modifiers.includes('fails');
+      const marksFailing = modifiers.some(m => VOCABULARY.fails.has(m));
       if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
         findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
       }
@@ -1275,23 +1310,6 @@ function analyse(write: boolean): Analysis {
   }
 
   /**
-   * Check a module's `@canon` tags resolve, and nothing else.
-   *
-   * A citation is a true statement about a link wherever it is written, which is
-   * the same argument `readSuite` makes for reading an undeclared suite. It does
-   * NOT add to `citedTargets`: a unit mentioned in prose still owes a test, and
-   * `dead` is the list that says so.
-   */
-  function readModule(file: string): void {
-    const rel = relative(ROOT, file);
-    const src = readFileSync(file, 'utf8');
-    for (const m of src.matchAll(/@canon\s+(\S+)/g)) {
-      const line = src.slice(0, m.index ?? 0).split('\n').length;
-      resolveCitation(m[1], `${rel}:${line}`);
-    }
-  }
-
-  /**
    * Read a module of the sources: a test it holds is read as a test of an
    * undeclared suite, and every other `@canon` tag in a comment only resolves.
    * A tag in a string is no citation, the same as a test in a string is no test.
@@ -1305,14 +1323,13 @@ function analyse(write: boolean): Analysis {
    * there runs the tests it makes, so each of them owes a tag like the suite's.
    */
   function readSource(file: string, enforced = false): void {
-    const { tests, comments, src } = readSuite(file, enforced);
+    const { tests, comments, lineAt } = readSuite(file, enforced);
     const rel = relative(ROOT, file);
+    const docs = new Set(tests.flatMap(t => (t.span ? [t.span[0]] : [])));
+    // Resolve-only: a unit a comment names still owes a test, and `dead` is
+    // the list that says so.
     for (const comment of comments) {
-      if (tests.some(t => t.span?.[0] === comment.start)) continue;
-      for (const m of comment.value.matchAll(/@canon\s+(\S+)/g)) {
-        const line = src.slice(0, comment.start + 2 + (m.index ?? 0)).split('\n').length;
-        resolveCitation(m[1], `${rel}:${line}`);
-      }
+      if (!docs.has(comment.start)) resolveTags(comment.value, comment.start + 2, rel, lineAt);
     }
   }
 
@@ -1330,17 +1347,15 @@ function analyse(write: boolean): Analysis {
   /**
    * Check a reference's citations resolve, and nothing else.
    *
-   * The `@canon` tags `readModule` already reads, plus the markdown links prose
-   * cites with. Without this, a renamed unit leaves a dead link in the very
+   * Its `@canon` tags, plus the markdown links prose cites with. Without this, a renamed unit leaves a dead link in the very
    * document a reader learns the canon from, and nothing reports it.
    *
-   * Resolve-only, for `readModule`'s reason: a worked example must not discharge
-   * the test a unit owes.
+   * Resolve-only: a worked example must not discharge the test a unit owes.
    */
   function readReference(file: string): void {
-    readModule(file);
-    if (!file.endsWith('.md')) return;
     const rel = relative(ROOT, file);
+    const src = readFileSync(file, 'utf8');
+    resolveTags(src, 0, rel, linesOf(src));
     for (const a of scanFile(file).anchors) {
       if (/^(https?:|mailto:)/.test(a.href) || !a.href.includes('#')) continue;
       const [path, frag] = a.href.split('#');

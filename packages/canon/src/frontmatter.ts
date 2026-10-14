@@ -16,12 +16,13 @@
  *     tracker: {kind: github, repo: bigmistqke/skills}
  *     ---
  *
- * The core depends on nothing outside Node, so this reads a small part of
- * YAML and nothing else: keys whose values are a string, a list of strings
+ * This reads a small part of YAML and nothing else, so the core needs no YAML
+ * library: keys whose values are a string, a list of strings
  * written inline (`[a, "b"]`) or as lines that start with a dash, or a map
  * written between braces (`{a: b}`), which may nest. Everything it accepts is
  * also valid YAML, so other tools can read the same block.
  */
+import { vocabularyOf } from './runners.ts';
 
 /** The block at the top of a document, with its closing line. */
 export const FRONTMATTER = /^---[ \t]*\r?\n(?:[\s\S]*?\r?\n)?---[ \t]*(?:\r?\n|$)/;
@@ -41,6 +42,7 @@ export interface Frontmatter {
   references?: string[];
   command?: string;
   tracker?: { [key: string]: Value };
+  runners?: Value[];
   /** The keys that a plugin defines, which the reader accepts when its caller names them. */
   other?: { [key: string]: Value };
 }
@@ -49,7 +51,7 @@ export interface Frontmatter {
 const LISTS = ['plugins', 'extends', 'documents', 'sources', 'references'] as const;
 
 /** The keys of the project's settings. */
-export const SETTINGS = ['documents', 'suites', 'sources', 'references', 'command', 'tracker'] as const;
+export const SETTINGS = ['documents', 'suites', 'sources', 'references', 'command', 'tracker', 'runners'] as const;
 
 /** The keys the block may have of its own. */
 const KEYS = ['plugins', 'extends', ...SETTINGS] as const;
@@ -196,8 +198,8 @@ function value(raw: string, key: string): Value {
 
 const isStrings = (v: Value): v is string[] => Array.isArray(v) && v.every(x => typeof x === 'string');
 
-/** Check the type a setting has, and keep it. */
-function setting(result: Frontmatter, key: (typeof SETTINGS)[number], v: Value): void {
+/** Check the type a setting has, and keep it. `later` leaves the runners to a caller that checks the keys later. */
+function setting(result: Frontmatter, key: (typeof SETTINGS)[number], v: Value, later: boolean): void {
   const need = (what: string): never => {
     throw new Error(`the key "${key}" takes ${what}`);
   };
@@ -216,6 +218,12 @@ function setting(result: Frontmatter, key: (typeof SETTINGS)[number], v: Value):
     case 'tracker':
       if (typeof v !== 'object' || Array.isArray(v) || !Object.values(v).every(x => typeof x === 'string')) need('a map of strings, such as {kind: github, repo: owner/name}');
       result[key] = v as { [key: string]: Value };
+      return;
+    case 'runners':
+      if (!Array.isArray(v)) need('a list of runners, such as [vitest, playwright]');
+      // A runner the checker does not know would change which calls are tests.
+      if (!later) vocabularyOf(v);
+      result[key] = v as Value[];
   }
 }
 
@@ -267,7 +275,7 @@ export function readFrontmatter(src: string, pluginKeys: readonly string[] | tru
       read = items;
     }
     if (own === 'plugins' || own === 'extends') result[own] = read as string[];
-    else if (own !== undefined) setting(result, own as (typeof SETTINGS)[number], read);
+    else if (own !== undefined) setting(result, own as (typeof SETTINGS)[number], read, pluginKeys === true);
     else (result.other ??= {})[name] = read;
   }
   return result;
