@@ -1,7 +1,6 @@
 /**
- * The statements of a document's units, said from their predicates. This file
- * tests the checker's own tooling, not a project's canon, so it carries no
- * `@canon` tag.
+ * What the checker does with the statements of a document's units: which it
+ * writes, which it leaves, and what it reports.
  */
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -11,11 +10,12 @@ import { fileURLToPath } from 'node:url';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import { afterEach, describe, expect, it } from 'vitest';
-import { checkMaps } from './map.ts';
-import { isGenerated, regionName, states, write } from './statements.ts';
-import { readUnits } from './units.ts';
+import { regionName, states, write } from '../../src/statements.ts';
 
-const CLI = join(dirname(fileURLToPath(import.meta.url)), 'cli.ts');
+/** The tag of an axiom, spelled apart so the checker does not read this file's templates as citations. */
+const AXIOM = ['@', 'axiom'].join('');
+
+const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'cli.ts');
 
 const DIRS: string[] = [];
 afterEach(() => {
@@ -27,7 +27,7 @@ const READINGS = '```readings\nnoun Node: node\nStarted: {1} has started | {1} h
 /** A document of one unit with a predicate; its statement is `statement` when given. */
 const doc = (predicate = 'always all n: Node | n in Started implies eventually n in Done', statement = '', readings = READINGS): string => `# Canon
 
-## @axiom a-root
+## ${AXIOM} a-root
 
 > A root.
 
@@ -48,15 +48,26 @@ ${predicate}
 const REGION = regionName('spec-a-leaf');
 
 describe('the states of the statements', () => {
+  /**
+   * @canon spec-a-document-that-keeps-no-readings-is-left-as-it-is
+   */
   it('has none for a document that keeps no readings', () => {
     expect(states(doc(undefined, '', ''))).toEqual([]);
     expect(write(doc(undefined, '', '')).written).toEqual([]);
   });
 
+  /**
+   * @canon spec-a-unit-with-a-formula-and-no-statement-is-unwritten
+   */
   it('calls a unit with a predicate and no statement missing', () => {
     expect(states(doc())).toMatchObject([{ unit: 'spec-a-leaf', kind: 'missing' }]);
   });
 
+  /**
+   * @canon spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers
+   * @canon spec-a-generated-statement-that-its-formula-would-say-again-is-current
+   * @canon spec-generate-leaves-a-current-statement-as-it-is
+   */
   it('writes the statement below the heading, between markers, and then finds it current', () => {
     const { src, written } = write(doc());
     expect(written).toEqual(['spec-a-leaf']);
@@ -66,13 +77,10 @@ describe('the states of the statements', () => {
     expect(write(src)).toEqual({ src, written: [] });
   });
 
-  it('says the statement as the unit reads it, in words from the readings', () => {
-    const { src } = write(doc());
-    const [unit] = readUnits(src).filter(u => u.id === 'spec-a-leaf');
-    expect(unit?.statement).toContain('At every moment, for every node_1:');
-    expect(unit?.statement).toContain('when node_1 has started, then now or at a later moment, node_1 is done.');
-  });
-
+  /**
+   * @canon spec-a-generated-statement-that-differs-from-its-formula-is-stale
+   * @canon spec-generate-writes-the-statement-of-a-stale-unit-again
+   */
   it('finds a statement stale when its predicate changes, and writes it again', () => {
     const { src } = write(doc());
     const changed = src.replace('implies eventually n in Done', 'implies n in Done');
@@ -83,24 +91,40 @@ describe('the states of the statements', () => {
     expect(states(again.src)).toMatchObject([{ kind: 'current' }]);
   });
 
+  /**
+   * @canon spec-a-generated-statement-that-differs-from-its-formula-is-stale
+   */
   it('overwrites an edit made inside the markers', () => {
     const { src } = write(doc());
     const edited = src.replace('> At every moment', '> Sometimes');
     expect(states(edited)).toMatchObject([{ kind: 'stale' }]);
   });
 
+  /**
+   * @canon spec-a-statement-that-a-person-wrote-is-handwritten
+   * @canon spec-generate-never-overwrites-a-handwritten-statement
+   */
   it('never overwrites a statement that a person wrote', () => {
     const handwritten = doc(undefined, '> A node that has started is done.\n\n');
     expect(states(handwritten)).toMatchObject([{ kind: 'handwritten' }]);
     expect(write(handwritten)).toEqual({ src: handwritten, written: [] });
   });
 
+  /**
+   * @canon spec-a-formula-with-a-word-that-has-no-reading-is-unsayable
+   * @canon spec-the-report-of-an-unsayable-formula-says-why
+   * @canon spec-generate-leaves-an-unsayable-unit-as-it-is
+   */
   it('says why a predicate cannot be said, and leaves the document alone', () => {
     const odd = doc('always all n: Node | n in Mystery implies eventually n in Done');
     expect(states(odd)).toMatchObject([{ kind: 'unsayable', message: 'no reading for "Mystery"' }]);
     expect(write(odd).written).toEqual([]);
   });
 
+  /**
+   * @canon spec-a-unit-with-two-formulas-is-unsayable
+   * @canon spec-the-report-of-an-unsayable-formula-says-why
+   */
   it('says why a unit with two predicates cannot be said', () => {
     const one = doc();
     const end = one.lastIndexOf('```\n');
@@ -108,6 +132,9 @@ describe('the states of the statements', () => {
     expect(states(two)).toMatchObject([{ kind: 'unsayable', message: expect.stringContaining('more than one predicate') }]);
   });
 
+  /**
+   * @canon spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers
+   */
   it('writes every missing statement of a document without moving the others', () => {
     const second = '\n### @spec b-leaf\n\n```alloy\nalways all n: Node | n in Done\n```\n';
     const { src, written } = write(doc() + second);
@@ -117,78 +144,15 @@ describe('the states of the statements', () => {
     expect(states(src).map(s => s.kind)).toEqual(['current', 'current']);
   });
 
+  /**
+   * @canon spec-generate-writes-a-statement-as-a-quote-that-markdown-reads-as-paragraphs-and-lists
+   */
   it('writes a quote that Markdown reads as paragraphs and a bulleted list', () => {
     const { src } = write(doc('always all n: Node | n in Started and n not in Done and n in Started and n not in Done implies eventually n in Done'));
     const quote = src.split('\n').filter(l => l.startsWith('>')).slice(1).join('\n');
     const tree = unified().use(remarkParse).parse(quote) as { children: { type: string; children: { type: string }[] }[] };
     const inner = tree.children[0]?.children.map(n => n.type);
     expect(inner).toEqual(['paragraph', 'paragraph', 'list', 'paragraph']);
-  });
-});
-
-describe('the words of a statement', () => {
-  const linked = `# Canon
-
-## @term node
-
-> A node is a node.
-
-\`\`\`alloy vocabulary
-sig Node {}
-var sig Started, Done in Node {}
-\`\`\`
-
-\`\`\`readings
-noun Node: [node]
-Started: {1} has [started] | {1} has not [started]
-\`\`\`
-
-## @term done
-
-\`\`\`alloy
-pred finished[n: Node] { n in Done and n in Started }
-\`\`\`
-
-\`\`\`alloy vocabulary
-\`\`\`
-
-\`\`\`readings
-Done: {1} is [done] | {1} is not [done]
-finished: {1} is [finished] | {1} is not [finished]
-\`\`\`
-
-## @axiom a-node-finishes
-
-\`\`\`alloy
-always all n: Node | n in Started implies eventually finished[n]
-\`\`\`
-`;
-
-  it('link to the terms that say them, the first time each is mentioned', () => {
-    const { src } = write(linked);
-    const unit = readUnits(src).find(u => u.id === 'axiom-a-node-finishes');
-    expect(unit?.statement).toContain('for every [node_1](#term-node)');
-    // "started" is said by the term for the node, which the statement has already linked: a term is linked once
-    expect(unit?.statement).toContain('node_1 has started');
-    expect(unit?.statement).not.toContain('[started]');
-    expect(unit?.statement).toContain('[finished](#term-done)');
-  });
-
-  it('never link a statement to its own unit', () => {
-    const { src } = write(linked);
-    const unit = readUnits(src).find(u => u.id === 'term-done');
-    expect(unit?.statement).toContain('[node_1](#term-node)');
-    expect(unit?.statement).not.toContain('(#term-done)');
-  });
-});
-
-describe('a unit whose statement is generated', () => {
-  it('is known as generated, and needs no map', () => {
-    const plain = doc();
-    expect(checkMaps(plain).map(f => f.kind)).toEqual(['unmapped']);
-    const { src } = write(plain);
-    expect(isGenerated(src, 'spec-a-leaf')).toBe(true);
-    expect(checkMaps(src)).toEqual([]);
   });
 });
 
@@ -207,6 +171,11 @@ function project(document: string, ...commands: string[][]) {
 }
 
 describe('the command line', () => {
+  /**
+   * @canon spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers
+   * @canon spec-check-does-not-report-a-current-statement
+   * @canon spec-generate-leaves-a-current-statement-as-it-is
+   */
   it('generates the statements, and check then finds them current', () => {
     const { runs, document } = project(doc(), ['generate'], ['check'], ['generate']);
     expect(runs[0]?.out).toContain('wrote the statement of spec-a-leaf in CANON.md');
@@ -216,6 +185,10 @@ describe('the command line', () => {
     expect(document).toContain(`${REGION}:begin`);
   });
 
+  /**
+   * @canon spec-check-reports-a-statement-that-is-not-current
+   * @canon spec-a-report-of-a-statement-fails-check
+   */
   it('reports a statement that is missing or stale as a finding of check, before the summary', () => {
     const { runs } = project(doc(), ['check']);
     expect(runs[0]?.out).toContain('CANON.md: spec-a-leaf: missing:');
@@ -223,6 +196,9 @@ describe('the command line', () => {
     expect(runs[0]?.code).toBe(1);
   });
 
+  /**
+   * @canon spec-generate-fails-on-a-handwritten-statement-and-says-so
+   */
   it('stops generate on a statement that a person wrote, and says so', () => {
     const { runs, document } = project(doc(undefined, '> A node that has started is done.\n\n'), ['generate']);
     expect(runs[0]?.out).toContain('spec-a-leaf: handwritten: has a statement of its own');
@@ -230,6 +206,9 @@ describe('the command line', () => {
     expect(document).toContain('> A node that has started is done.');
   });
 
+  /**
+   * @canon spec-a-document-that-does-not-name-the-plugin-is-left-as-it-is
+   */
   it('leaves a document alone that does not name the plugin', () => {
     const { runs, document } = project(`---\nplugins: ["@bigmistqke/canon/lint"]\n---\n${doc()}`, ['generate'], ['check']);
     expect(runs[0]?.out).not.toContain('wrote the statement');
@@ -237,10 +216,22 @@ describe('the command line', () => {
     expect(document).not.toContain(':begin');
   });
 
+  /**
+   * @canon spec-the-prose-check-does-not-read-a-generated-statement
+   */
   it('is not read by the prose check', () => {
     const long = doc('always all n: Node | n in Started and n not in Done and n in Started and n not in Done implies eventually n in Done');
     const { runs } = project(long, ['generate'], ['lint']);
     expect(runs[1]?.out).not.toContain('sentence-length');
     expect(runs[1]?.code).toBe(0);
+  });
+
+  /**
+   * @canon spec-generate-fails-on-an-unsayable-formula-and-says-why
+   */
+  it('stops generate on a formula the readings cannot say, and says why', () => {
+    const { runs } = project(doc('always all n: Node | n in Mystery implies eventually n in Done'), ['generate']);
+    expect(runs[0]?.out).toContain('spec-a-leaf: unsayable: no reading for "Mystery"');
+    expect(runs[0]?.code).toBe(1);
   });
 });

@@ -63,19 +63,26 @@ function fieldNames(body: string): string[] {
   return names;
 }
 
+/** The words that the text of one model block declares, outside its comments. */
+export function declaredIn(body: string): { name: string; kind: WordKind }[] {
+  const found: { name: string; kind: WordKind }[] = [];
+  const text = strip(body);
+  for (const m of text.matchAll(/\bsig\s+([\w\s,]+?)(?:\s+(?:extends|in)\s+[\w\s+]+?)?\s*\{/g)) {
+    const { body: fields } = braced(text, (m.index ?? 0) + m[0].length - 1);
+    const names = (m[1] as string).split(',').map(n => n.trim());
+    for (const name of names) found.push({ name, kind: 'signature' });
+    if (names.length === 1) for (const field of fieldNames(fields)) found.push({ name: `${names[0]}.${field}`, kind: 'field' });
+  }
+  for (const m of text.matchAll(/\bpred\s+(\w+)/g)) found.push({ name: m[1] as string, kind: 'predicate' });
+  return found;
+}
+
 /** The words that the model blocks of a document declare, each with the unit that holds it. */
 export function declared(src: string): Word[] {
   const found: Word[] = [];
   for (const block of readBlocks(src, readUnits(src))) {
     if (block.lang !== 'alloy' || block.role === 'bounds' || block.role === 'scenario') continue;
-    const text = strip(block.body);
-    for (const m of text.matchAll(/\bsig\s+([\w\s,]+?)\s*(?:(?:extends|in)\s+[\w\s+]+?)?\s*\{/g)) {
-      const { body } = braced(text, (m.index ?? 0) + m[0].length - 1);
-      const names = (m[1] as string).split(',').map(n => n.trim());
-      for (const name of names) found.push({ name, kind: 'signature', unit: block.unit });
-      if (names.length === 1) for (const field of fieldNames(body)) found.push({ name: `${names[0]}.${field}`, kind: 'field', unit: block.unit });
-    }
-    for (const m of text.matchAll(/\bpred\s+(\w+)/g)) found.push({ name: m[1] as string, kind: 'predicate', unit: block.unit });
+    for (const word of declaredIn(block.body)) found.push({ ...word, unit: block.unit });
   }
   return found;
 }

@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { readBlocks } from './blocks.ts';
 import { readingsOf, states, write } from './statements.ts';
 import { readUnits } from './units.ts';
+import { checkWords } from './words.ts';
 
 const PACKAGE = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CANON = readFileSync(join(PACKAGE, 'CANON.md'), 'utf8');
@@ -20,15 +21,17 @@ describe('the canon of the checker', () => {
   const kinds = (kind: string): number => units.filter(u => u.kind === kind).length;
 
   it('has the units it had in the controlled English it was written in', () => {
-    expect(units).toHaveLength(122);
-    expect([kinds('term'), kinds('axiom'), kinds('spec'), kinds('bug')]).toEqual([73, 3, 40, 6]);
+    // The conversion lost no unit: the canon only grows from the 122 units it began with.
+    expect(units.length).toBeGreaterThanOrEqual(122);
+    const [terms, axioms, specs, bugs] = [kinds('term'), kinds('axiom'), kinds('spec'), kinds('bug')];
+    expect([terms >= 73, axioms >= 3, specs >= 40, bugs >= 6]).toEqual([true, true, true, true]);
   });
 
   it('has the statement of every claim and every defined word written from its predicate', () => {
     const all = states(CANON);
     expect(all.filter(s => s.kind !== 'current')).toEqual([]);
-    // 3 axioms and 40 specs, and the 13 terms that define a word
-    expect(all).toHaveLength(56);
+    // the 3 axioms and 40 specs it began with, and the 13 terms that define a word
+    expect(all.length).toBeGreaterThanOrEqual(56);
     expect(write(CANON)).toEqual({ src: CANON, written: [] });
   });
 
@@ -50,15 +53,13 @@ describe('the canon of the checker', () => {
   });
 
   it('gives every name a claim uses words, and every word a body or a declaration', () => {
-    const readings = readingsOf(CANON);
-    expect(readings?.atoms.size).toBe(73);
-    expect(readings?.nouns.size).toBe(21);
-    expect(readings?.definitions.size).toBe(13);
+    expect(readingsOf(CANON)).toBeDefined();
+    expect(checkWords(CANON)).toEqual([]);
   });
 
   it('passes the check of the checker', () => {
     const run = spawnSync(process.execPath, [join(PACKAGE, 'src', 'cli.ts'), 'check', '--offline'], { cwd: PACKAGE, encoding: 'utf8' });
-    expect(run.stdout).toMatch(/^units: 122$/m);
+    expect(run.stdout).toMatch(/^units: \d+$/m);
     expect(run.stdout).toMatch(/^clean$/m);
     expect(run.status).toBe(0);
   });

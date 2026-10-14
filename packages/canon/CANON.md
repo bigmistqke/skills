@@ -76,6 +76,18 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term paired`](#term-paired) — For every [conflict_1](#term-conflict): conflict_1 is paired exactly when conflict_1 [names](#term-name) a [unit](#term-unit) and names another unit.
 - [`@term hidden`](#term-hidden) — For every [unit_1](#term-unit): unit_1 is hidden exactly when unit_1 is one of these: - a [bug](#term-bug) that [names](#term-name) no [issue](#term-issue), names an issue that [tracker](#term-tracker) does not know, names an issue that tracker has closed or is not [tested](#term-tested) - a [conflict](#term-conflict) that names no issue, names an issue that tracker does not know, names an issue that tracker has closed or is not [paired](#term-paired)
 - [`@term misleading`](#term-misleading) — For every [test_1](#term-test): test_1 is misleading exactly when test_1 is one of these: - an [expected failure](#term-expected-failure) that [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception) - a [plain test](#term-plain-test) that checks a bug
+- [`@term plugin`](#term-plugin) — A plugin is a package that adds commands to the checker, and that a document asks for by the name of the package.
+- [`@term command`](#term-command) — A command is a word after `canon` on the command line, and asks the checker for one job.
+- [`@term frontmatter`](#term-frontmatter) — A frontmatter is the block between two lines of three dashes at the top of a document, which names the plugins the document asks for.
+- [`@term entry`](#term-entry) — An entry is one string of the list of plugins in a frontmatter.
+- [`@term list`](#term-list) — For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin): frontmatter_1 lists plugin_1 exactly when frontmatter_1 holds an [entry](#term-entry) that spells plugin_1.
+- [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
+- [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when at least one of these holds: - plugin_1 is a plugin inside the package of the [checker](#term-checker) and document_1 starts with no [listing frontmatter](#term-frontmatter) - document_1 starts with a listing frontmatter that [lists](#term-list) plugin_1
+- [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
+- [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when all of these hold: - run_1 asks for a [command](#term-command) that plugin_1 adds - plugin_1 is a plugin inside the package of the [checker](#term-checker) or [applies](#term-apply) to a [document](#term-document)
+- [`@term availability`](#term-availability) — For every [command_1](#term-command): command_1 is available exactly when at least one of these holds: - command_1 is a command that the [checker](#term-checker) has of its own - an [inside plugin](#term-plugin) adds command_1 - there are installed_plugin_1 and [document_1](#term-document) such that installed_plugin_1 [applies](#term-apply) to document_1 and adds command_1
+- [`@term statement`](#term-statement) — A statement is the quote under the heading of a unit that says in words what the unit claims.
+- [`@term word`](#term-word) — A word is a signature, a field of a signature or a predicate that a document declares in its model, and that its readings say.
 - [`@axiom every-claim-says-what-it-follows-from`](#axiom-every-claim-says-what-it-follows-from) — All of these hold: - for every [unit_1](#term-unit): when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for unit_1 - for every unit_1: when unit_1 is [miscited](#term-miscited), checker reports a finding for unit_1 - for every unit_1: when unit_1 is [circular](#term-circular), checker reports a finding for unit_1.
   - [`@spec an-unfounded-unit-is-freelancing`](#spec-an-unfounded-unit-is-freelancing) — For every [unit_1](#term-unit): when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for unit_1.
     - [`@spec a-spec-cites-an-axiom-or-a-spec`](#spec-a-spec-cites-an-axiom-or-a-spec) — For every [spec_1](#term-spec): when spec_1 [cites](#term-cite) no [axiom](#term-axiom) and cites no spec, [checker](#term-checker) reports a [freelancing](#term-freelancing) for spec_1.
@@ -125,6 +137,84 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec an-index-matches-its-document`](#spec-an-index-matches-its-document) — For every [document_1](#term-document): when document_1 [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) document_1, [checker](#term-checker) reports a [misindexing](#term-misindexing) for document_1.
   - [`@spec a-site-is-held-by-a-source`](#spec-a-site-is-held-by-a-source) — For every [claim_1](#term-claim): when claim_1 [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for claim_1.
     - [`@bug a-site-named-in-a-comment-is-held`](#bug-a-site-named-in-a-comment-is-held) — When a claim names a site that no source holds, and a comment names the site, checker reports no mislocation for the claim.
+- [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1 - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 asks for a [command](#term-command) that is not [available](#term-availability) - run_1 gets code 2 from a plugin then run_1 exits with code 2.
+  - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1 - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
+    - [`@spec a-document-with-no-plugins-list-gets-the-plugins-inside-the-package`](#spec-a-document-with-no-plugins-list-gets-the-plugins-inside-the-package) — For every [inside_plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter), [checker](#term-checker) runs inside_plugin_1 over document_1.
+    - [`@spec a-plugin-a-document-lists-runs-over-it`](#spec-a-plugin-a-document-lists-runs-over-it) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when document_1 starts with listing_frontmatter_1 and listing_frontmatter_1 [lists](#term-list) plugin_1, [checker](#term-checker) runs plugin_1 over document_1.
+    - [`@spec a-plugin-a-document-does-not-list-does-not-run-over-it`](#spec-a-plugin-a-document-does-not-list-does-not-run-over-it) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when all of these hold: - document_1 starts with listing_frontmatter_1 - listing_frontmatter_1 does not [list](#term-list) plugin_1 - the command line of a [run](#term-run) does not name document_1 then [checker](#term-checker) does not run plugin_1 over document_1.
+    - [`@spec an-empty-list-asks-for-no-plugin`](#spec-an-empty-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when all of these hold: - document_1 starts with listing_frontmatter_1 - listing_frontmatter_1 holds no [entry](#term-entry) - the command line of a [run](#term-run) does not name document_1 then [checker](#term-checker) does not run plugin_1 over document_1.
+    - [`@spec a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says`](#spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says) — For every [run_1](#term-run) and every [plugin_1](#term-plugin) and every given_document_1: when run_1 [calls](#term-call) plugin_1, [checker](#term-checker) runs plugin_1 over given_document_1.
+  - [`@spec a-frontmatter-lists-what-is-written-in-it`](#spec-a-frontmatter-lists-what-is-written-in-it) — For every [frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry): when frontmatter_1 holds entry_1, then all of these hold: - frontmatter_1 is a frontmatter with a plugins key - frontmatter_1 has entry_1 between its brackets or has entry_1 after a dash
+    - [`@spec an-inline-list-holds-the-entries-between-its-brackets`](#spec-an-inline-list-holds-the-entries-between-its-brackets) — For every [inline_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry): when inline_frontmatter_1 has entry_1 between its brackets, inline_frontmatter_1 holds entry_1.
+    - [`@spec a-dashed-list-holds-the-entries-after-its-dashes`](#spec-a-dashed-list-holds-the-entries-after-its-dashes) — For every [dashed_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry): when dashed_frontmatter_1 has entry_1 after a dash, dashed_frontmatter_1 holds entry_1.
+    - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — For every [entry_1](#term-entry) and every quoted_comma_1: entry_1 does not end at quoted_comma_1.
+    - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — For every [frontmatter_1](#term-frontmatter): when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
+  - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — For every [block_1](#term-frontmatter): when block_1 is a frontmatter, block_1 is a block that starts its [document](#term-document).
+  - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes - frontmatter_1 has the flaw of a key that the [checker](#term-checker) does not know - frontmatter_1 has the flaw of a list that is not closed - frontmatter_1 has the flaw of a string that is not closed - frontmatter_1 has the flaw of a key that appears twice then frontmatter_1 is a frontmatter that the checker cannot read.
+    - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted_frontmatter_1](#term-flaw): misquoted_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — For every [misquoted_frontmatter_1](#term-flaw): [checker](#term-checker) tells the author to write the name in quotes for misquoted_frontmatter_1.
+    - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign_frontmatter_1](#term-flaw): foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed_frontmatter_1](#term-flaw): unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated_frontmatter_1](#term-flaw): unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled_frontmatter_1](#term-flaw): doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+  - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
+    - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
+    - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run_1](#term-run): when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
+  - [`@spec a-plugin-the-project-lacks-fails-the-run`](#spec-a-plugin-the-project-lacks-fails-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1 and run_1 exits with code 2.
+    - [`@spec a-missing-plugin-is-reported`](#spec-a-missing-plugin-is-reported) — For every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1.
+    - [`@spec a-missing-plugin-stops-the-run`](#spec-a-missing-plugin-stops-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, run_1 exits with code 2.
+    - [`@spec the-report-of-a-missing-plugin-offers-the-plugins-inside`](#spec-the-report-of-a-missing-plugin-offers-the-plugins-inside) — For every [plugin_1](#term-plugin) and every inside_plugin_1: when [checker](#term-checker) reports that the project lacks plugin_1, checker offers inside_plugin_1 in place of plugin_1.
+  - [`@spec an-unknown-command-fails-the-run`](#spec-an-unknown-command-fails-the-run) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command and run_1 exits with code 2.
+    - [`@spec a-command-that-is-not-available-is-reported-as-unknown`](#spec-a-command-that-is-not-available-is-reported-as-unknown) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command.
+    - [`@spec a-command-that-is-not-available-stops-the-run`](#spec-a-command-that-is-not-available-stops-the-run) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), run_1 exits with code 2.
+    - [`@spec an-available-command-is-not-reported-as-unknown`](#spec-an-available-command-is-not-reported-as-unknown) — For every [command_1](#term-command): when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
+  - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): when run_1 [calls](#term-call) plugin_1, run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
+  - [`@spec a-run-exits-with-the-worst-code-of-its-plugins`](#spec-a-run-exits-with-the-worst-code-of-its-plugins) — For every [run_1](#term-run): all of these hold: - when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2 - when run_1 gets code 1 from a plugin and gets code 2 from no plugin, run_1 exits with code 1
+    - [`@spec a-plugin-that-could-not-run-stops-the-run`](#spec-a-plugin-that-could-not-run-stops-the-run) — For every [run_1](#term-run): when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2.
+    - [`@spec a-finding-fails-the-run`](#spec-a-finding-fails-the-run) — For every [run_1](#term-run): when run_1 gets code 1 from a [plugin](#term-plugin) and gets code 2 from no plugin, run_1 exits with code 1.
+    - [`@spec a-run-with-no-finding-succeeds`](#spec-a-run-with-no-finding-succeeds) — For every [run_1](#term-run): when there is no [plugin_1](#term-plugin) such that run_1 gets code 1 from plugin_1 or gets code 2 from plugin_1, run_1 exits with code 0.
+  - [`@spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document`](#spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1 - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
+    - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1
+    - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
+    - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — For every [document_1](#term-document) and every document_2: when [checker](#term-checker) generates document_2 from document_1, then for every [frontmatter_1](#term-frontmatter): all of these hold: - when document_1 starts with frontmatter_1, document_2 starts with frontmatter_1 - when document_2 starts with frontmatter_1, document_1 starts with frontmatter_1
+- [`@axiom a-statement-says-what-its-logic-says`](#axiom-a-statement-says-what-its-logic-says) — For every [document_1](#term-document) and every [unit_1](#term-unit): when all of these hold: - document_1 keeps readings - document_1 [holds](#term-hold) unit_1 - unit_1 holds a formula - the [statement](#term-statement) of unit_1 is not current then [checker](#term-checker) reports the statement of unit_1.
+  - [`@spec a-document-that-keeps-no-readings-is-left-as-it-is`](#spec-a-document-that-keeps-no-readings-is-left-as-it-is) — For every [document_1](#term-document) and every [unit_1](#term-unit): when document_1 [holds](#term-hold) unit_1 and keeps no readings, then all of these hold: - [checker](#term-checker) does not write the [statement](#term-statement) of unit_1 when it generates - checker does not report the statement of unit_1
+  - [`@spec a-document-that-does-not-name-the-plugin-is-left-as-it-is`](#spec-a-document-that-does-not-name-the-plugin-is-left-as-it-is) — For every [alloy_plugin_1](#term-plugin) and every [document_1](#term-document) and every [unit_1](#term-unit): when [checker](#term-checker) does not run alloy_plugin_1 over document_1 and document_1 [holds](#term-hold) unit_1, then all of these hold: - checker does not write the [statement](#term-statement) of unit_1 when it generates - checker does not report the statement of unit_1
+  - [`@spec a-unit-with-a-formula-and-no-statement-is-unwritten`](#spec-a-unit-with-a-formula-and-no-statement-is-unwritten) — For every [unit_1](#term-unit): when unit_1 holds a formula, has no [statement](#term-statement) and the formula of unit_1 can be said in words, the statement of unit_1 is unwritten.
+  - [`@spec a-generated-statement-that-differs-from-its-formula-is-stale`](#spec-a-generated-statement-that-differs-from-its-formula-is-stale) — For every [unit_1](#term-unit): when all of these hold: - unit_1 holds a formula - the [statement](#term-statement) of unit_1 sits between the markers of a generated region - the statement of unit_1 differs from what its formula says - the formula of unit_1 can be said in words then the statement of unit_1 is stale.
+  - [`@spec a-generated-statement-that-its-formula-would-say-again-is-current`](#spec-a-generated-statement-that-its-formula-would-say-again-is-current) — For every [unit_1](#term-unit): when all of these hold: - the [statement](#term-statement) of unit_1 sits between the markers of a generated region - the statement of unit_1 does not differ from what its formula says - the formula of unit_1 can be said in words then the statement of unit_1 is current.
+  - [`@spec a-statement-that-a-person-wrote-is-handwritten`](#spec-a-statement-that-a-person-wrote-is-handwritten) — For every [unit_1](#term-unit): when all of these hold: - unit_1 holds a formula - unit_1 has a [statement](#term-statement) - the statement of unit_1 does not sit between the markers of a generated region - the formula of unit_1 can be said in words then the statement of unit_1 is handwritten.
+  - [`@spec a-formula-that-the-readings-cannot-say-is-unsayable`](#spec-a-formula-that-the-readings-cannot-say-is-unsayable) — For every [unit_1](#term-unit): when the formula of unit_1 names a word that has no reading or unit_1 holds more than one formula, the formula of unit_1 cannot be said in words.
+    - [`@spec a-formula-with-a-word-that-has-no-reading-is-unsayable`](#spec-a-formula-with-a-word-that-has-no-reading-is-unsayable) — For every [unit_1](#term-unit): when the formula of unit_1 names a word that has no reading, the formula of unit_1 cannot be said in words.
+    - [`@spec a-unit-with-two-formulas-is-unsayable`](#spec-a-unit-with-two-formulas-is-unsayable) — For every [unit_1](#term-unit): when unit_1 holds more than one formula, the formula of unit_1 cannot be said in words.
+    - [`@spec the-report-of-an-unsayable-formula-says-why`](#spec-the-report-of-an-unsayable-formula-says-why) — For every [unit_1](#term-unit): when the formula of unit_1 cannot be said in words, [checker](#term-checker) says why the formula of unit_1 cannot be said.
+  - [`@spec generate-writes-what-is-not-current-and-nothing-else`](#spec-generate-writes-what-is-not-current-and-nothing-else) — For every [unit_1](#term-unit): all of these hold: - when [checker](#term-checker) writes the [statement](#term-statement) of unit_1 when it generates, the statement of unit_1 is unwritten or the statement of unit_1 is stale - when the statement of unit_1 is unwritten or the statement of unit_1 is stale, checker writes the statement of unit_1 when it generates
+    - [`@spec generate-writes-the-statement-of-an-unwritten-unit-between-markers`](#spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers) — For every [unit_1](#term-unit): when the [statement](#term-statement) of unit_1 is unwritten, then all of these hold: - [checker](#term-checker) writes the statement of unit_1 when it generates - checker writes the statement of unit_1 between markers, just below its heading
+    - [`@spec generate-writes-the-statement-of-a-stale-unit-again`](#spec-generate-writes-the-statement-of-a-stale-unit-again) — For every [unit_1](#term-unit): when the [statement](#term-statement) of unit_1 is stale, [checker](#term-checker) writes the statement of unit_1 when it generates.
+    - [`@spec generate-writes-a-statement-as-a-quote-that-markdown-reads-as-paragraphs-and-lists`](#spec-generate-writes-a-statement-as-a-quote-that-markdown-reads-as-paragraphs-and-lists) — For every [unit_1](#term-unit): when [checker](#term-checker) writes the [statement](#term-statement) of unit_1 when it generates, checker writes the statement of unit_1 as a quote that Markdown reads as paragraphs and lists.
+    - [`@spec generate-leaves-a-current-statement-as-it-is`](#spec-generate-leaves-a-current-statement-as-it-is) — For every [unit_1](#term-unit): when the [statement](#term-statement) of unit_1 is current, [checker](#term-checker) does not write the statement of unit_1 when it generates.
+    - [`@spec generate-never-overwrites-a-handwritten-statement`](#spec-generate-never-overwrites-a-handwritten-statement) — For every [unit_1](#term-unit): when the [statement](#term-statement) of unit_1 is handwritten, [checker](#term-checker) does not write the statement of unit_1 when it generates.
+    - [`@spec generate-leaves-an-unsayable-unit-as-it-is`](#spec-generate-leaves-an-unsayable-unit-as-it-is) — For every [unit_1](#term-unit): when the formula of unit_1 cannot be said in words, [checker](#term-checker) does not write the [statement](#term-statement) of unit_1 when it generates.
+  - [`@spec check-reports-a-statement-that-is-not-current`](#spec-check-reports-a-statement-that-is-not-current) — For every [document_1](#term-document) and every [unit_1](#term-unit): when all of these hold: - document_1 keeps readings - document_1 [holds](#term-hold) unit_1 - unit_1 holds a formula - the [statement](#term-statement) of unit_1 is not current then [checker](#term-checker) reports the statement of unit_1.
+  - [`@spec check-does-not-report-a-current-statement`](#spec-check-does-not-report-a-current-statement) — For every [unit_1](#term-unit): when the [statement](#term-statement) of unit_1 is current, [checker](#term-checker) does not report the statement of unit_1.
+  - [`@spec a-report-of-a-statement-fails-check`](#spec-a-report-of-a-statement-fails-check) — For every [run_1](#term-run) and every [check_command_1](#term-command) and every [unit_1](#term-unit): when run_1 asks for check_command_1 and [checker](#term-checker) reports the [statement](#term-statement) of unit_1, run_1 does not exit with code 0.
+  - [`@spec generate-fails-on-a-handwritten-statement-and-says-so`](#spec-generate-fails-on-a-handwritten-statement-and-says-so) — For every [run_1](#term-run) and every [generate_command_1](#term-command) and every [unit_1](#term-unit): when run_1 asks for generate_command_1 and the [statement](#term-statement) of unit_1 is handwritten, [checker](#term-checker) reports the statement of unit_1 and run_1 does not exit with code 0.
+  - [`@spec generate-fails-on-an-unsayable-formula-and-says-why`](#spec-generate-fails-on-an-unsayable-formula-and-says-why) — For every [run_1](#term-run) and every [generate_command_1](#term-command) and every [unit_1](#term-unit): when run_1 asks for generate_command_1 and the formula of unit_1 cannot be said in words, [checker](#term-checker) says why the formula of unit_1 cannot be said and run_1 does not exit with code 0.
+  - [`@spec the-prose-check-does-not-read-a-generated-statement`](#spec-the-prose-check-does-not-read-a-generated-statement) — For every [unit_1](#term-unit): when the [statement](#term-statement) of unit_1 sits between the markers of a generated region, the prose check does not read the statement of unit_1.
+  - [`@spec a-word-that-a-reading-says-and-nothing-declares-is-undeclared`](#spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared) — For every [word_1](#term-word): when all of these hold: - there is a [unit_1](#term-unit) such that a reading in unit_1 says word_1 - no unit declares word_1 then word_1 is a word that a reading says and nothing declares.
+  - [`@spec a-word-declared-outside-a-term-is-misplaced`](#spec-a-word-declared-outside-a-term-is-misplaced) — For every [unit_1](#term-unit) and every [word_1](#term-word): when unit_1 declares word_1 and is not a [term](#term-term), word_1 is a word declared in a unit that is not a term.
+  - [`@spec a-reading-apart-from-the-declaration-it-says-is-apart`](#spec-a-reading-apart-from-the-declaration-it-says-is-apart) — For every [unit_1](#term-unit) and every [word_1](#term-word): when a reading in unit_1 says word_1, a unit declares word_1 and unit_1 does not declare word_1, word_1 is a word whose reading is in another unit than its declaration.
+  - [`@spec a-declared-word-that-no-claim-uses-is-unused`](#spec-a-declared-word-that-no-claim-uses-is-unused) — For every [word_1](#term-word): when all of these hold: - a [unit](#term-unit) declares word_1 - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1 then word_1 is a word that no claim, definition or fact uses.
+  - [`@spec a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used`](#spec-a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used) — For every [unit_1](#term-unit) and every [word_1](#term-word): when a fact, a parent signature or a predicate in unit_1 names word_1, there is a unit_2 such that a claim, a definition or a fact of unit_2 uses word_1.
+  - [`@spec a-field-that-another-signature-shares-is-used-only-through-its-own-signature`](#spec-a-field-that-another-signature-shares-is-used-only-through-its-own-signature) — For every [unit_1](#term-unit) and every [word_1](#term-word): when all of these hold: - word_1 is a field whose name another signature gives to a field too - a claim, a definition or a fact of unit_1 uses word_1 then unit_1 uses word_1 through its own signature.
+  - [`@spec a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported`](#spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported) — For every [term_1](#term-term) and every [word_1](#term-word): when all of these hold: - term_1 declares word_1 - a reading in term_1 says word_1 - there is a [unit_1](#term-unit) such that a claim, a definition or a fact of unit_1 uses word_1 then all of these hold: - word_1 is not a word that a reading says and nothing declares - word_1 is not a word declared in a unit that is not a term - word_1 is not a word whose reading is in another unit than its declaration - word_1 is not a word that no claim, definition or fact uses - [checker](#term-checker) does not report the word word_1
+  - [`@spec a-document-that-keeps-no-readings-has-no-word-reported`](#spec-a-document-that-keeps-no-readings-has-no-word-reported) — For every [document_1](#term-document) and every [unit_1](#term-unit) and every [word_1](#term-word): when document_1 keeps no readings, [holds](#term-hold) unit_1 and unit_1 declares word_1, then all of these hold: - word_1 is not a word that a reading says and nothing declares - word_1 is not a word declared in a unit that is not a term - word_1 is not a word whose reading is in another unit than its declaration - word_1 is not a word that no claim, definition or fact uses - [checker](#term-checker) does not report the word word_1
+  - [`@spec a-signature-a-field-and-a-predicate-are-declared-words`](#spec-a-signature-a-field-and-a-predicate-are-declared-words) — For every [unit_1](#term-unit) and every [word_1](#term-word): when a model block of unit_1 writes the declaration of word_1, unit_1 declares word_1.
+  - [`@spec a-declaration-in-a-comment-declares-nothing`](#spec-a-declaration-in-a-comment-declares-nothing) — For every [unit_1](#term-unit) and every [word_1](#term-word): when only a comment in unit_1 writes the declaration of word_1, unit_1 does not declare word_1.
+  - [`@spec a-reading-is-keyed-by-a-field-alone-or-with-its-signature-or-as-a-primed-set`](#spec-a-reading-is-keyed-by-a-field-alone-or-with-its-signature-or-as-a-primed-set) — For every [unit_1](#term-unit) and every [word_1](#term-word): when a reading in unit_1 is keyed to word_1 by the field alone, with its signature, or as a primed set, a reading in unit_1 says word_1.
+  - [`@spec a-flagged-word-fails-check`](#spec-a-flagged-word-fails-check) — For every [run_1](#term-run) and every [check_command_1](#term-command) and every [word_1](#term-word): when run_1 asks for check_command_1 and [checker](#term-checker) reports the word word_1, run_1 does not exit with code 0.
+  - [`@spec check-reports-nothing-about-a-word-that-is-in-order`](#spec-check-reports-nothing-about-a-word-that-is-in-order) — For every [word_1](#term-word): when all of these hold: - word_1 is not a word that a reading says and nothing declares - word_1 is not a word declared in a unit that is not a term - word_1 is not a word whose reading is in another unit than its declaration - word_1 is not a word that no claim, definition or fact uses then [checker](#term-checker) does not report the word word_1.
+  - [`@spec check-reports-a-word-that-is-not-in-order`](#spec-check-reports-a-word-that-is-not-in-order) — For every [word_1](#term-word): when at least one of these holds: - word_1 is a word that a reading says and nothing declares - word_1 is a word declared in a unit that is not a term - word_1 is a word whose reading is in another unit than its declaration - word_1 is a word that no claim, definition or fact uses then [checker](#term-checker) reports the word word_1.
 <!-- toc:end -->
 
 ## Terms
@@ -133,7 +223,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 
 > Checker is the program the canon describes.
 
-The program `canon`, with its commands `check`, `generate`, `tree`, `lint` and `log`. A canon holds [units](#term-unit).
+The program `canon`, with its commands `check`, `generate`, `tree`, `lint`, `logic` and `log`, and the commands that its [plugins](#term-plugin) add. A canon holds [units](#term-unit).
 
 ```alloy bounds
 for 6
@@ -1218,6 +1308,337 @@ pred misleading[t: Test] {
 misleading: {1} is [misleading] | {1} is not [misleading]
 ```
 
+### @term plugin
+
+> A plugin is a package that adds commands to the checker, and that a document asks for by the name of the package.
+
+The plugins inside the package of the [checker](#term-checker) come with it. The others are packages the project has installed. The checker fetches nothing, so a plugin that is neither is missing: a name that stands for no package.
+
+```alloy vocabulary
+sig Plugin {}
+sig Inside, Installed, Missing, Unfound in Plugin {}
+one sig Alloy in Inside {}
+fact plugin_kinds { Plugin = Inside + Installed + Missing and no Inside & Installed and no Inside & Missing and no Installed & Missing }
+one sig Offer { rel: Plugin -> Plugin }
+```
+
+```readings
+noun Plugin: [plugin]
+noun Alloy: [alloy plugin]
+Alloy: {1} is the [plugin] that writes the statements of a document and checks its logic | {1} is not the [plugin] that writes the statements of a document and checks its logic
+noun Inside: [inside plugin]
+Inside: {1} is a [plugin] inside the package of the [checker](#term-checker) | {1} is not a [plugin] inside the package of the [checker](#term-checker)
+noun Installed: [installed plugin]
+Installed: {1} is a [plugin] that the project has installed | {1} is not a [plugin] that the project has installed
+noun Missing: [missing plugin]
+Missing: {1} is a [plugin] that the project lacks | {1} is not a [plugin] that the project lacks
+Unfound: [checker](#term-checker) reports that the project lacks {1} | [checker](#term-checker) does not report that the project lacks {1}
+Offer.rel: [checker](#term-checker) offers {2} in place of {1} | [checker](#term-checker) does not offer {2} in place of {1}
+```
+
+### @term command
+
+> A command is a word after `canon` on the command line, and asks the checker for one job.
+
+A command is the checker's own, or a [plugin](#term-plugin) adds it.
+
+```alloy vocabulary
+sig Command {}
+sig Core, Unknown in Command {}
+one sig GenerateCommand, CheckCommand in Command {}
+one sig Add { rel: Plugin -> Command }
+```
+
+```readings
+noun Command: [command]
+noun GenerateCommand: [generate command]
+noun CheckCommand: [check command]
+GenerateCommand: {1} is the [command] `generate` | {1} is not the [command] `generate`
+CheckCommand: {1} is the [command] `check` | {1} is not the [command] `check`
+Core: {1} is a [command] that the [checker](#term-checker) has of its own | {1} is not a [command] that the [checker](#term-checker) has of its own
+Unknown: [checker](#term-checker) reports {1} as an unknown [command] | [checker](#term-checker) does not report {1} as an unknown [command]
+Add.rel: {1} adds {2} | {1} does not add {2}
+```
+
+### @term frontmatter
+
+> A frontmatter is the block between two lines of three dashes at the top of a document, which names the plugins the document asks for.
+
+A [document](#term-document) that starts with a heading has none, and neither has one whose block comes later.
+
+```alloy vocabulary
+sig Block {}
+sig Frontmatter, Top in Block {}
+sig Listing, Inline, Dashed, Refused in Frontmatter {}
+sig Unreadable in Document {}
+one sig Head { rel: Document -> Frontmatter }
+one sig Bare { rel: Document -> Document }
+one sig Rewrite { rel: Document -> Document }
+```
+
+```readings
+noun Block: [block]
+noun Frontmatter: [frontmatter]
+Frontmatter: {1} is a [frontmatter] | {1} is not a [frontmatter]
+Top: {1} is a [block] that starts its [document](#term-document) | {1} is not a [block] that starts its [document](#term-document)
+noun Listing: [listing frontmatter]
+Listing: {1} is a [frontmatter] with a plugins key | {1} is not a [frontmatter] with a plugins key
+noun Inline: [inline frontmatter]
+Inline: {1} is a [frontmatter] whose list of plugins is written between brackets | {1} is not a [frontmatter] whose list of plugins is written between brackets
+noun Dashed: [dashed frontmatter]
+Dashed: {1} is a [frontmatter] whose list of plugins is written as lines that start with a dash | {1} is not a [frontmatter] whose list of plugins is written as lines that start with a dash
+noun Refused: [refused frontmatter]
+Refused: {1} is a [frontmatter] that the [checker](#term-checker) cannot read | {1} is not a [frontmatter] that the [checker](#term-checker) cannot read
+Unreadable: [checker](#term-checker) reports that {1} has a [frontmatter] it cannot read | [checker](#term-checker) does not report that {1} has a [frontmatter] it cannot read
+Head.rel: {1} starts with {2} | {1} does not start with {2}
+Bare.rel: {1} is {2} without its [frontmatter] | {1} is not {2} without its [frontmatter]
+Rewrite.rel: [checker](#term-checker) generates {2} from {1} | [checker](#term-checker) does not generate {2} from {1}
+```
+
+### @term entry
+
+> An entry is one string of the list of plugins in a frontmatter.
+
+An entry is plain or in quotes, and a comma ends it unless the comma is in quotes.
+
+```alloy vocabulary
+sig Entry {}
+sig Comma {}
+sig Quoted in Comma {}
+one sig Item { rel: Frontmatter -> Entry }
+one sig Spell { rel: Entry -> Plugin }
+one sig Between { rel: Frontmatter -> Entry }
+one sig Dash { rel: Frontmatter -> Entry }
+one sig Ends { rel: Entry -> Comma }
+```
+
+```readings
+noun Entry: [entry]
+noun Comma: [comma]
+noun Quoted: [quoted comma]
+Quoted: {1} is a [comma] inside quotes | {1} is not a [comma] inside quotes
+Item.rel: {1} holds {2} | {1} does not hold {2}
+Spell.rel: {1} spells {2} | {1} does not spell {2}
+Between.rel: {1} has {2} between its brackets | {1} does not have {2} between its brackets
+Dash.rel: {1} has {2} after a dash | {1} does not have {2} after a dash
+Ends.rel: {1} ends at {2} | {1} does not end at {2}
+```
+
+### @term list
+
+<!-- statement-term-list:begin — generated by `canon generate`; edits are overwritten -->
+> For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin):
+>
+> frontmatter_1 lists plugin_1 exactly when frontmatter_1 holds an [entry](#term-entry) that spells plugin_1.
+<!-- statement-term-list:end -->
+
+```alloy
+pred lists[f: Frontmatter, p: Plugin] { some e: Entry | f->e in Item.rel and e->p in Spell.rel }
+```
+
+```readings
+lists: {1} [lists] {2} | {1} does not [list] {2}
+```
+
+### @term flaw
+
+> A flaw is a mistake that makes a frontmatter unreadable.
+
+Five flaws make a frontmatter unreadable:
+
+- An entry with an at sign outside quotes.
+- A key the checker does not know.
+- A list with no end.
+- A string with no end.
+- A key that appears twice.
+
+The checker reads a small part of YAML and refuses the rest, so that a mistake cannot drop a check without a word.
+
+```alloy vocabulary
+sig Misquoted, Foreign, Unclosed, Unterminated, Doubled, Told in Frontmatter {}
+```
+
+```readings
+noun Misquoted: [misquoted frontmatter]
+Misquoted: {1} has the [flaw] of an entry that starts with an at sign outside quotes | {1} does not have the [flaw] of an entry that starts with an at sign outside quotes
+noun Foreign: [foreign frontmatter]
+Foreign: {1} has the [flaw] of a key that the [checker](#term-checker) does not know | {1} does not have the [flaw] of a key that the [checker](#term-checker) does not know
+noun Unclosed: [unclosed frontmatter]
+Unclosed: {1} has the [flaw] of a list that is not closed | {1} does not have the [flaw] of a list that is not closed
+noun Unterminated: [unterminated frontmatter]
+Unterminated: {1} has the [flaw] of a string that is not closed | {1} does not have the [flaw] of a string that is not closed
+noun Doubled: [doubled frontmatter]
+Doubled: {1} has the [flaw] of a key that appears twice | {1} does not have the [flaw] of a key that appears twice
+Told: [checker](#term-checker) tells the author to write the name in quotes for {1} | [checker](#term-checker) does not tell the author to write the name in quotes for {1}
+```
+
+### @term apply
+
+<!-- statement-term-apply:begin — generated by `canon generate`; edits are overwritten -->
+> For every [plugin_1](#term-plugin) and every [document_1](#term-document):
+>
+> plugin_1 applies to document_1 exactly when at least one of these holds:
+> - plugin_1 is a plugin inside the package of the [checker](#term-checker) and document_1 starts with no [listing frontmatter](#term-frontmatter)
+> - document_1 starts with a listing frontmatter that [lists](#term-list) plugin_1
+<!-- statement-term-apply:end -->
+
+```alloy
+pred applies[p: Plugin, d: Document] {
+  (p in Inside and (no f: Listing | d->f in Head.rel))
+  or (some f: Listing | d->f in Head.rel and lists[f, p])
+}
+```
+
+```readings
+applies: {1} [applies] to {2} | {1} does not [apply] to {2}
+```
+
+### @term run
+
+> A run is one call of the checker on the command line, with a command and the documents it names.
+
+A run asks for one [command](#term-command), and gets a code from each [plugin](#term-plugin) it calls. Code 0 means nothing is wrong, 1 a finding, and 2 a check that could not run. The run exits with one code.
+
+```alloy vocabulary
+sig Run {}
+sig Exits0, Exits1, Exits2 in Run {}
+sig Given in Document {}
+one sig Ask { rel: Run -> Command }
+one sig Return { code0: Run -> Plugin, code1: Run -> Plugin, code2: Run -> Plugin }
+one sig Over { rel: Plugin -> Document }
+```
+
+```readings
+noun Run: [run]
+Exits0: {1} exits with code 0 | {1} does not exit with code 0
+Exits1: {1} exits with code 1 | {1} does not exit with code 1
+Exits2: {1} exits with code 2 | {1} does not exit with code 2
+noun Given: [given document]
+Given: the command line of a [run](#term-run) names {1} | the command line of a [run](#term-run) does not name {1}
+Ask.rel: {1} asks for {2} | {1} does not ask for {2}
+Return.code0: {1} gets code 0 from {2} | {1} does not get code 0 from {2}
+Return.code1: {1} gets code 1 from {2} | {1} does not get code 1 from {2}
+Return.code2: {1} gets code 2 from {2} | {1} does not get code 2 from {2}
+Over.rel: [checker](#term-checker) runs {1} over {2} | [checker](#term-checker) does not run {1} over {2}
+```
+
+### @term call
+
+<!-- statement-term-call:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [plugin_1](#term-plugin):
+>
+> run_1 calls plugin_1 exactly when all of these hold:
+> - run_1 asks for a [command](#term-command) that plugin_1 adds
+> - plugin_1 is a plugin inside the package of the [checker](#term-checker) or [applies](#term-apply) to a [document](#term-document)
+<!-- statement-term-call:end -->
+
+```alloy
+pred calls[r: Run, p: Plugin] {
+  (some c: Command | r->c in Ask.rel and p->c in Add.rel)
+  and (p in Inside or (some d: Document | applies[p, d]))
+}
+```
+
+```readings
+calls: {1} [calls] {2} | {1} does not [call] {2}
+```
+
+### @term availability
+
+<!-- statement-term-availability:begin — generated by `canon generate`; edits are overwritten -->
+> For every [command_1](#term-command):
+>
+> command_1 is available exactly when at least one of these holds:
+> - command_1 is a command that the [checker](#term-checker) has of its own
+> - an [inside plugin](#term-plugin) adds command_1
+> - there are installed_plugin_1 and [document_1](#term-document) such that installed_plugin_1 [applies](#term-apply) to document_1 and adds command_1
+<!-- statement-term-availability:end -->
+
+```alloy
+pred available[c: Command] {
+  c in Core
+  or (some p: Inside | p->c in Add.rel)
+  or (some p: Installed, d: Document | applies[p, d] and p->c in Add.rel)
+}
+```
+
+```readings
+available: {1} is [available] | {1} is not [available]
+```
+
+### @term statement
+
+> A statement is the quote under the heading of a unit that says in words what the unit claims.
+
+A unit that holds a formula has its statement said from that formula, between the markers of a generated region. A person may write a statement instead, and the checker never overwrites it. A document keeps readings when it holds a table of them: only then does the checker say statements.
+
+```alloy vocabulary
+sig Logical, Stated, Generated, Differs, Unsayable, Wordless, Twofold, Skipped, Current, Stale, Unwritten, Handwritten, Reported, Rewritten, Explained, Marked, Layered in Unit {}
+sig Worded in Document {}
+```
+
+```readings
+Logical: {1} holds a formula | {1} holds no formula
+Stated: {1} has a [statement] | {1} has no [statement]
+Generated: the [statement] of {1} sits between the markers of a generated region | the [statement] of {1} does not sit between the markers of a generated region
+Differs: the [statement] of {1} differs from what its formula says | the [statement] of {1} does not differ from what its formula says
+Wordless: the formula of {1} names a word that has no reading | the formula of {1} names no word that has no reading
+Twofold: {1} holds more than one formula | {1} does not hold more than one formula
+Unsayable: the formula of {1} cannot be said in words | the formula of {1} can be said in words
+Current: the [statement] of {1} is current | the [statement] of {1} is not current
+Stale: the [statement] of {1} is stale | the [statement] of {1} is not stale
+Unwritten: the [statement] of {1} is unwritten | the [statement] of {1} is not unwritten
+Handwritten: the [statement] of {1} is handwritten | the [statement] of {1} is not handwritten
+Reported: [checker](#term-checker) reports the [statement] of {1} | [checker](#term-checker) does not report the [statement] of {1}
+Rewritten: [checker](#term-checker) writes the [statement] of {1} when it generates | [checker](#term-checker) does not write the [statement] of {1} when it generates
+Explained: [checker](#term-checker) says why the formula of {1} cannot be said | [checker](#term-checker) does not say why the formula of {1} cannot be said
+Marked: [checker](#term-checker) writes the [statement] of {1} between markers, just below its heading | [checker](#term-checker) does not write the [statement] of {1} between markers, just below its heading
+Layered: [checker](#term-checker) writes the [statement] of {1} as a quote that Markdown reads as paragraphs and lists | [checker](#term-checker) does not write the [statement] of {1} as a quote that Markdown reads as paragraphs and lists
+Skipped: the prose check does not read the [statement] of {1} | the prose check reads the [statement] of {1}
+Worded: {1} keeps readings | {1} keeps no readings
+```
+
+### @term word
+
+> A word is a signature, a field of a signature or a predicate that a document declares in its model, and that its readings say.
+
+A reading says a word in the language of the project. The words of a document are in order when three things hold. Each is declared in the term that names it. Its reading is beside its declaration. A claim, a definition or a fact uses it.
+
+```alloy vocabulary
+sig Word {}
+sig Signature, Field, Predicate, Undeclared, Misplaced, Apart, Unused, Shared, Flagged in Word {}
+fact word_kinds { Word = Signature + Field + Predicate }
+one sig Write { rel: Unit -> Word }
+one sig Remark { rel: Unit -> Word }
+one sig Introduce { rel: Unit -> Word }
+one sig Voice { rel: Unit -> Word }
+one sig Key { rel: Unit -> Word }
+one sig Rely { rel: Unit -> Word }
+one sig Mention { rel: Unit -> Word }
+one sig Own { rel: Unit -> Word }
+```
+
+```readings
+noun Word: [word]
+Signature: {1} is a signature | {1} is not a signature
+Field: {1} is a field of a signature | {1} is not a field of a signature
+Predicate: {1} is a predicate | {1} is not a predicate
+Undeclared: {1} is a [word] that a reading says and nothing declares | {1} is not a [word] that a reading says and nothing declares
+Misplaced: {1} is a [word] declared in a unit that is not a term | {1} is not a [word] declared in a unit that is not a term
+Apart: {1} is a [word] whose reading is in another unit than its declaration | {1} is not a [word] whose reading is in another unit than its declaration
+Unused: {1} is a [word] that no claim, definition or fact uses | {1} is not a [word] that no claim, definition or fact uses
+Shared: {1} is a field whose name another signature gives to a field too | {1} is not a field whose name another signature gives to a field too
+Flagged: [checker](#term-checker) reports the [word] {1} | [checker](#term-checker) does not report the [word] {1}
+Write.rel: a model block of {1} writes the declaration of {2} | a model block of {1} does not write the declaration of {2}
+Remark.rel: only a comment in {1} writes the declaration of {2} | no comment alone in {1} writes the declaration of {2}
+Introduce.rel: {1} declares {2} | {1} does not declare {2}
+Voice.rel: a reading in {1} says {2} | no reading in {1} says {2}
+Key.rel: a reading in {1} is keyed to {2} by the field alone, with its signature, or as a primed set | no reading in {1} is keyed to {2} in those ways
+Rely.rel: a claim, a definition or a fact of {1} uses {2} | no claim, definition or fact of {1} uses {2}
+Mention.rel: a fact, a parent signature or a predicate in {1} names {2} | no fact, parent signature or predicate in {1} names {2}
+Own.rel: {1} uses {2} through its own signature | {1} does not use {2} through its own signature
+```
+
 ## @axiom every-claim-says-what-it-follows-from
 
 <!-- statement-axiom-every-claim-says-what-it-follows-from:begin — generated by `canon generate`; edits are overwritten -->
@@ -1878,3 +2299,1251 @@ all c: Claim | (some s: Site | c->s in Name.site and (no r: Source | r->s in Hol
 The check of a site reads the whole text of the source. A symbol that the code no longer declares passes while a [comment](#term-comment) still holds its name. A comment that says what the symbol was renamed to is enough.
 
 Issue: #4
+
+## @axiom a-check-the-project-asked-for-is-never-dropped-silently
+
+<!-- statement-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run):
+>
+> when at least one of these holds:
+> - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1
+> - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read
+> - run_1 asks for a [command](#term-command) that is not [available](#term-availability)
+> - run_1 gets code 2 from a plugin
+>
+> then run_1 exits with code 2.
+<!-- statement-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+
+A project asks for its checks in its documents: the plugins a document names, and the command it runs. A check that the project asks for either runs, or the author hears that it could not. Otherwise a mistake as small as a misspelled key turns a check off, and the author trusts a canon that nothing has checked.
+
+So a [run](#term-run) that asks for what the checker cannot deliver exits with code 2. Code 2 stands above a finding and above success. Four things ask for too much. One is a [plugin](#term-plugin) the project lacks. Another is a [frontmatter](#term-frontmatter) the checker cannot read. The others are a [command](#term-command) that nothing adds, and a plugin that could not run.
+
+```alloy
+all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2
+```
+
+```alloy scenario
+some r: Run, p: Installed, d: Document, f: Listing | d->f in Head.rel and lists[f, p] and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1
+```
+
+```alloy scenario
+some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and r in Exits2
+```
+
+#### @spec a-document-gets-the-plugins-it-asks-for
+
+<!-- statement-spec-a-document-gets-the-plugins-it-asks-for:begin — generated by `canon generate`; edits are overwritten -->
+> For every [plugin_1](#term-plugin) and every [document_1](#term-document):
+>
+> all of these hold:
+> - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1
+> - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
+<!-- statement-spec-a-document-gets-the-plugins-it-asks-for:end -->
+
+This follows because the plugins a document names are the checks it asks for. It gets those and no others. A plugin it did not ask for adds no finding, and one it asked for is not left out. A document that names none gets the plugins inside the package, as every document did before documents could name plugins.
+
+```alloy
+all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d not in Given and p->d in Over.rel) implies applies[p, d])
+```
+
+##### @spec a-document-with-no-plugins-list-gets-the-plugins-inside-the-package
+
+<!-- statement-spec-a-document-with-no-plugins-list-gets-the-plugins-inside-the-package:begin — generated by `canon generate`; edits are overwritten -->
+> For every [inside_plugin_1](#term-plugin) and every [document_1](#term-document):
+>
+> when document_1 starts with no [listing frontmatter](#term-frontmatter), [checker](#term-checker) runs inside_plugin_1 over document_1.
+<!-- statement-spec-a-document-with-no-plugins-list-gets-the-plugins-inside-the-package:end -->
+
+This follows because such a document asks for nothing in particular. It still gets the checks that every document got before documents could ask.
+
+```alloy
+all p: Inside, d: Document | (no f: Listing | d->f in Head.rel) implies p->d in Over.rel
+```
+
+##### @spec a-plugin-a-document-lists-runs-over-it
+
+<!-- statement-spec-a-plugin-a-document-lists-runs-over-it:begin — generated by `canon generate`; edits are overwritten -->
+> For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter):
+>
+> when document_1 starts with listing_frontmatter_1 and listing_frontmatter_1 [lists](#term-list) plugin_1, [checker](#term-checker) runs plugin_1 over document_1.
+<!-- statement-spec-a-plugin-a-document-lists-runs-over-it:end -->
+
+This follows because a plugin that is listed is asked for.
+
+```alloy
+all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel
+```
+
+##### @spec a-plugin-a-document-does-not-list-does-not-run-over-it
+
+<!-- statement-spec-a-plugin-a-document-does-not-list-does-not-run-over-it:begin — generated by `canon generate`; edits are overwritten -->
+> For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter):
+>
+> when all of these hold:
+> - document_1 starts with listing_frontmatter_1
+> - listing_frontmatter_1 does not [list](#term-list) plugin_1
+> - the command line of a [run](#term-run) does not name document_1
+>
+> then [checker](#term-checker) does not run plugin_1 over document_1.
+<!-- statement-spec-a-plugin-a-document-does-not-list-does-not-run-over-it:end -->
+
+This follows because a list is the whole of what the document asks for.
+
+```alloy
+all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel
+```
+
+##### @spec an-empty-list-asks-for-no-plugin
+
+<!-- statement-spec-an-empty-list-asks-for-no-plugin:begin — generated by `canon generate`; edits are overwritten -->
+> For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter):
+>
+> when all of these hold:
+> - document_1 starts with listing_frontmatter_1
+> - listing_frontmatter_1 holds no [entry](#term-entry)
+> - the command line of a [run](#term-run) does not name document_1
+>
+> then [checker](#term-checker) does not run plugin_1 over document_1.
+<!-- statement-spec-an-empty-list-asks-for-no-plugin:end -->
+
+This follows because an empty list is an answer: the document asks for no plugin, and the commands of the checker are still there.
+
+```alloy
+all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel
+```
+
+##### @spec a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says
+
+<!-- statement-spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [plugin_1](#term-plugin) and every given_document_1:
+>
+> when run_1 [calls](#term-call) plugin_1, [checker](#term-checker) runs plugin_1 over given_document_1.
+<!-- statement-spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says:end -->
+
+This follows because naming a file on the command line asks for the check of that file.
+
+```alloy
+all r: Run, p: Plugin, d: Given | calls[r, p] implies p->d in Over.rel
+```
+
+#### @spec a-frontmatter-lists-what-is-written-in-it
+
+<!-- statement-spec-a-frontmatter-lists-what-is-written-in-it:begin — generated by `canon generate`; edits are overwritten -->
+> For every [frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry):
+>
+> when frontmatter_1 holds entry_1,
+>
+> then all of these hold:
+> - frontmatter_1 is a frontmatter with a plugins key
+> - frontmatter_1 has entry_1 between its brackets or has entry_1 after a dash
+<!-- statement-spec-a-frontmatter-lists-what-is-written-in-it:end -->
+
+This follows because a document asks for what it writes: the plugins its list names are the strings written there, and no others.
+
+```alloy
+all f: Frontmatter, e: Entry | f->e in Item.rel implies (f in Listing and (f->e in Between.rel or f->e in Dash.rel))
+```
+
+##### @spec an-inline-list-holds-the-entries-between-its-brackets
+
+<!-- statement-spec-an-inline-list-holds-the-entries-between-its-brackets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [inline_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry):
+>
+> when inline_frontmatter_1 has entry_1 between its brackets, inline_frontmatter_1 holds entry_1.
+<!-- statement-spec-an-inline-list-holds-the-entries-between-its-brackets:end -->
+
+This follows because an entry between the brackets, quoted or plain, is part of the list.
+
+```alloy
+all f: Inline, e: Entry | f->e in Between.rel implies f->e in Item.rel
+```
+
+##### @spec a-dashed-list-holds-the-entries-after-its-dashes
+
+<!-- statement-spec-a-dashed-list-holds-the-entries-after-its-dashes:begin — generated by `canon generate`; edits are overwritten -->
+> For every [dashed_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry):
+>
+> when dashed_frontmatter_1 has entry_1 after a dash, dashed_frontmatter_1 holds entry_1.
+<!-- statement-spec-a-dashed-list-holds-the-entries-after-its-dashes:end -->
+
+This follows because a list written as lines holds the entry after each dash.
+
+```alloy
+all f: Dashed, e: Entry | f->e in Dash.rel implies f->e in Item.rel
+```
+
+##### @spec a-comma-inside-quotes-ends-no-entry
+
+<!-- statement-spec-a-comma-inside-quotes-ends-no-entry:begin — generated by `canon generate`; edits are overwritten -->
+> For every [entry_1](#term-entry) and every quoted_comma_1:
+>
+> entry_1 does not end at quoted_comma_1.
+<!-- statement-spec-a-comma-inside-quotes-ends-no-entry:end -->
+
+This follows because a name in quotes is one string, whatever it holds.
+
+```alloy
+all e: Entry, c: Quoted | e->c not in Ends.rel
+```
+
+##### @spec a-frontmatter-with-no-plugins-key-holds-no-entry
+
+<!-- statement-spec-a-frontmatter-with-no-plugins-key-holds-no-entry:begin — generated by `canon generate`; edits are overwritten -->
+> For every [frontmatter_1](#term-frontmatter):
+>
+> when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
+<!-- statement-spec-a-frontmatter-with-no-plugins-key-holds-no-entry:end -->
+
+This follows because a block with no key asks for nothing, and so it leaves the document with the plugins inside the package.
+
+```alloy
+all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)
+```
+
+#### @spec only-a-block-at-the-top-is-a-frontmatter
+
+<!-- statement-spec-only-a-block-at-the-top-is-a-frontmatter:begin — generated by `canon generate`; edits are overwritten -->
+> For every [block_1](#term-frontmatter):
+>
+> when block_1 is a frontmatter, block_1 is a block that starts its [document](#term-document).
+<!-- statement-spec-only-a-block-at-the-top-is-a-frontmatter:end -->
+
+This follows because a block lower in a document is part of its text, and a document that starts with a heading asks for nothing.
+
+```alloy
+all b: Block | b in Frontmatter implies b in Top
+```
+
+#### @spec a-flawed-frontmatter-is-refused
+
+<!-- statement-spec-a-flawed-frontmatter-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [frontmatter_1](#term-frontmatter):
+>
+> when at least one of these holds:
+> - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
+> - frontmatter_1 has the flaw of a key that the [checker](#term-checker) does not know
+> - frontmatter_1 has the flaw of a list that is not closed
+> - frontmatter_1 has the flaw of a string that is not closed
+> - frontmatter_1 has the flaw of a key that appears twice
+>
+> then frontmatter_1 is a frontmatter that the checker cannot read.
+<!-- statement-spec-a-flawed-frontmatter-is-refused:end -->
+
+This follows because the checker reads a small part of YAML and nothing else. A block it misreads would drop a check without a word, so it refuses a block with a flaw.
+
+```alloy
+all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled) implies f in Refused
+```
+
+##### @spec a-misquoted-entry-is-refused
+
+<!-- statement-spec-a-misquoted-entry-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [misquoted_frontmatter_1](#term-flaw):
+>
+> misquoted_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-misquoted-entry-is-refused:end -->
+
+This follows because YAML does not read an unquoted entry with an at sign as a package name, and the author meant the package.
+
+```alloy
+all f: Misquoted | f in Refused
+```
+
+##### @spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes
+
+<!-- statement-spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes:begin — generated by `canon generate`; edits are overwritten -->
+> For every [misquoted_frontmatter_1](#term-flaw):
+>
+> [checker](#term-checker) tells the author to write the name in quotes for misquoted_frontmatter_1.
+<!-- statement-spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes:end -->
+
+This follows because the author needs only the quotes, and the checker knows it.
+
+```alloy
+all f: Misquoted | f in Told
+```
+
+##### @spec a-key-the-checker-does-not-know-is-refused
+
+<!-- statement-spec-a-key-the-checker-does-not-know-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [foreign_frontmatter_1](#term-flaw):
+>
+> foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-key-the-checker-does-not-know-is-refused:end -->
+
+This follows because a misspelled key would otherwise drop the list of plugins without a word.
+
+```alloy
+all f: Foreign | f in Refused
+```
+
+##### @spec a-list-that-is-not-closed-is-refused
+
+<!-- statement-spec-a-list-that-is-not-closed-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unclosed_frontmatter_1](#term-flaw):
+>
+> unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-list-that-is-not-closed-is-refused:end -->
+
+This follows because the end of the list is unknown, and so is what it names.
+
+```alloy
+all f: Unclosed | f in Refused
+```
+
+##### @spec a-string-that-is-not-closed-is-refused
+
+<!-- statement-spec-a-string-that-is-not-closed-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unterminated_frontmatter_1](#term-flaw):
+>
+> unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-string-that-is-not-closed-is-refused:end -->
+
+This follows because the end of the string is unknown, and so is the plugin it names.
+
+```alloy
+all f: Unterminated | f in Refused
+```
+
+##### @spec a-key-written-twice-is-refused
+
+<!-- statement-spec-a-key-written-twice-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [doubled_frontmatter_1](#term-flaw):
+>
+> doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-key-written-twice-is-refused:end -->
+
+This follows because the two lists may differ, and the checker cannot tell which one the author meant.
+
+```alloy
+all f: Doubled | f in Refused
+```
+
+#### @spec a-refused-frontmatter-fails-the-run
+
+<!-- statement-spec-a-refused-frontmatter-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter):
+>
+> when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
+<!-- statement-spec-a-refused-frontmatter-fails-the-run:end -->
+
+This follows because a refused frontmatter asks for checks that the checker cannot name, so the run must say it could not run them.
+
+```alloy
+all r: Run, d: Document, f: Refused | d->f in Head.rel implies (d in Unreadable and r in Exits2)
+```
+
+##### @spec a-document-with-a-refused-frontmatter-is-reported
+
+<!-- statement-spec-a-document-with-a-refused-frontmatter-is-reported:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter):
+>
+> when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
+<!-- statement-spec-a-document-with-a-refused-frontmatter-is-reported:end -->
+
+This follows because the author must find the document that holds the flaw.
+
+```alloy
+all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable
+```
+
+##### @spec a-report-of-an-unreadable-frontmatter-stops-the-run
+
+<!-- statement-spec-a-report-of-an-unreadable-frontmatter-stops-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run):
+>
+> when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
+<!-- statement-spec-a-report-of-an-unreadable-frontmatter-stops-the-run:end -->
+
+This follows because a check the author asked for cannot run when the checker cannot tell which one it is.
+
+```alloy
+all r: Run | (some d: Document | d in Unreadable) implies r in Exits2
+```
+
+#### @spec a-plugin-the-project-lacks-fails-the-run
+
+<!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin):
+>
+> when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1 and run_1 exits with code 2.
+<!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:end -->
+
+This follows because a name that stands for no package is a check that cannot run. A document may name only what the project already has, because the checker fetches and runs nothing new.
+
+```alloy
+all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and r in Exits2)
+```
+
+##### @spec a-missing-plugin-is-reported
+
+<!-- statement-spec-a-missing-plugin-is-reported:begin — generated by `canon generate`; edits are overwritten -->
+> For every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin):
+>
+> when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1.
+<!-- statement-spec-a-missing-plugin-is-reported:end -->
+
+This follows because the author must see which name stands for no package.
+
+```alloy
+all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound
+```
+
+##### @spec a-missing-plugin-stops-the-run
+
+<!-- statement-spec-a-missing-plugin-stops-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin):
+>
+> when frontmatter_1 [lists](#term-list) missing_plugin_1, run_1 exits with code 2.
+<!-- statement-spec-a-missing-plugin-stops-the-run:end -->
+
+This follows because a check the author asked for did not run.
+
+```alloy
+all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2
+```
+
+##### @spec the-report-of-a-missing-plugin-offers-the-plugins-inside
+
+<!-- statement-spec-the-report-of-a-missing-plugin-offers-the-plugins-inside:begin — generated by `canon generate`; edits are overwritten -->
+> For every [plugin_1](#term-plugin) and every inside_plugin_1:
+>
+> when [checker](#term-checker) reports that the project lacks plugin_1, checker offers inside_plugin_1 in place of plugin_1.
+<!-- statement-spec-the-report-of-a-missing-plugin-offers-the-plugins-inside:end -->
+
+This follows because the author who wrote a bare word meant a plugin of the package, and its name is the package's own.
+
+```alloy
+all p: Plugin, q: Inside | p in Unfound implies p->q in Offer.rel
+```
+
+#### @spec an-unknown-command-fails-the-run
+
+<!-- statement-spec-an-unknown-command-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [command_1](#term-command):
+>
+> when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command and run_1 exits with code 2.
+<!-- statement-spec-an-unknown-command-fails-the-run:end -->
+
+This follows because a command that nothing adds is a job that cannot run. The author must hear so, and not get a success.
+
+```alloy
+all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies (c in Unknown and r in Exits2)
+```
+
+##### @spec a-command-that-is-not-available-is-reported-as-unknown
+
+<!-- statement-spec-a-command-that-is-not-available-is-reported-as-unknown:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [command_1](#term-command):
+>
+> when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command.
+<!-- statement-spec-a-command-that-is-not-available-is-reported-as-unknown:end -->
+
+This follows because the author must see that the word was not understood.
+
+```alloy
+all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unknown
+```
+
+##### @spec a-command-that-is-not-available-stops-the-run
+
+<!-- statement-spec-a-command-that-is-not-available-stops-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [command_1](#term-command):
+>
+> when run_1 asks for command_1 and command_1 is not [available](#term-availability), run_1 exits with code 2.
+<!-- statement-spec-a-command-that-is-not-available-stops-the-run:end -->
+
+This follows because the job the author asked for did not run.
+
+```alloy
+all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Exits2
+```
+
+##### @spec an-available-command-is-not-reported-as-unknown
+
+<!-- statement-spec-an-available-command-is-not-reported-as-unknown:begin — generated by `canon generate`; edits are overwritten -->
+> For every [command_1](#term-command):
+>
+> when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
+<!-- statement-spec-an-available-command-is-not-reported-as-unknown:end -->
+
+This follows because a command of the package is there for a document that asks for no plugin too.
+
+```alloy
+all c: Command | available[c] implies c not in Unknown
+```
+
+#### @spec every-plugin-a-run-calls-runs
+
+<!-- statement-spec-every-plugin-a-run-calls-runs:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [plugin_1](#term-plugin):
+>
+> when run_1 [calls](#term-call) plugin_1, run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
+<!-- statement-spec-every-plugin-a-run-calls-runs:end -->
+
+This follows because a check that the project asks for and that does not run is dropped. All the plugins that add one command run, and none stands in for another.
+
+```alloy
+all r: Run, p: Plugin | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)
+```
+
+#### @spec a-run-exits-with-the-worst-code-of-its-plugins
+
+<!-- statement-spec-a-run-exits-with-the-worst-code-of-its-plugins:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run):
+>
+> all of these hold:
+> - when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2
+> - when run_1 gets code 1 from a plugin and gets code 2 from no plugin, run_1 exits with code 1
+<!-- statement-spec-a-run-exits-with-the-worst-code-of-its-plugins:end -->
+
+This follows because the exit code is how a script learns what happened. A success must not hide a finding, and a finding must not hide a check that could not run.
+
+```alloy
+all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1)
+```
+
+##### @spec a-plugin-that-could-not-run-stops-the-run
+
+<!-- statement-spec-a-plugin-that-could-not-run-stops-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run):
+>
+> when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2.
+<!-- statement-spec-a-plugin-that-could-not-run-stops-the-run:end -->
+
+This follows because code 2 stands above every other code.
+
+```alloy
+all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2
+```
+
+##### @spec a-finding-fails-the-run
+
+<!-- statement-spec-a-finding-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run):
+>
+> when run_1 gets code 1 from a [plugin](#term-plugin) and gets code 2 from no plugin, run_1 exits with code 1.
+<!-- statement-spec-a-finding-fails-the-run:end -->
+
+This follows because code 1 stands above success.
+
+```alloy
+all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1
+```
+
+##### @spec a-run-with-no-finding-succeeds
+
+<!-- statement-spec-a-run-with-no-finding-succeeds:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run):
+>
+> when there is no [plugin_1](#term-plugin) such that run_1 gets code 1 from plugin_1 or gets code 2 from plugin_1, run_1 exits with code 0.
+<!-- statement-spec-a-run-with-no-finding-succeeds:end -->
+
+This follows because a run that finds nothing wrong and could not fail to run has nothing to report.
+
+```alloy
+all r: Run | (no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0
+```
+
+#### @spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document
+
+<!-- statement-spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2:
+>
+> when document_1 is document_2 without its [frontmatter](#term-frontmatter),
+>
+> then all of these hold:
+> - for every [unit_1](#term-unit):
+>
+>   all of these hold:
+>   - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1
+>   - when document_1 holds unit_1, document_2 holds unit_1
+> - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1
+> - when checker reports a finding for document_1, checker reports a finding for document_2
+<!-- statement-spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document:end -->
+
+This follows because the block at the top asks for plugins and for nothing else: the document is what it was without it.
+
+```alloy
+all d, e: Document | d->e in Bare.rel implies ((all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units)) and (e in Finding implies d in Finding) and (d in Finding implies e in Finding))
+```
+
+##### @spec a-frontmatter-leaves-the-units-of-its-document-as-they-were
+
+<!-- statement-spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2:
+>
+> when document_1 is document_2 without its [frontmatter](#term-frontmatter),
+>
+> then for every [unit_1](#term-unit):
+>
+> all of these hold:
+> - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1
+> - when document_1 holds unit_1, document_2 holds unit_1
+<!-- statement-spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were:end -->
+
+This follows because a comment in the block is no heading, and the text after it stays where it was.
+
+```alloy
+all d, e: Document | d->e in Bare.rel implies (all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units))
+```
+
+##### @spec a-frontmatter-changes-no-finding
+
+<!-- statement-spec-a-frontmatter-changes-no-finding:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2:
+>
+> when document_1 is document_2 without its [frontmatter](#term-frontmatter),
+>
+> then all of these hold:
+> - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1
+> - when checker reports a finding for document_1, checker reports a finding for document_2
+<!-- statement-spec-a-frontmatter-changes-no-finding:end -->
+
+This follows because the checks read the document and not its block.
+
+```alloy
+all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Finding) and (d in Finding implies e in Finding))
+```
+
+##### @spec generate-keeps-the-frontmatter-of-a-document
+
+<!-- statement-spec-generate-keeps-the-frontmatter-of-a-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2:
+>
+> when [checker](#term-checker) generates document_2 from document_1,
+>
+> then for every [frontmatter_1](#term-frontmatter):
+>
+> all of these hold:
+> - when document_1 starts with frontmatter_1, document_2 starts with frontmatter_1
+> - when document_2 starts with frontmatter_1, document_1 starts with frontmatter_1
+<!-- statement-spec-generate-keeps-the-frontmatter-of-a-document:end -->
+
+This follows because the block is the author's, and `generate` writes the regions it owns and nothing else.
+
+```alloy
+all d, e: Document | d->e in Rewrite.rel implies (all f: Frontmatter | (d->f in Head.rel implies e->f in Head.rel) and (e->f in Head.rel implies d->f in Head.rel))
+```
+
+## @axiom a-statement-says-what-its-logic-says
+
+<!-- statement-axiom-a-statement-says-what-its-logic-says:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - document_1 keeps readings
+> - document_1 [holds](#term-hold) unit_1
+> - unit_1 holds a formula
+> - the [statement](#term-statement) of unit_1 is not current
+>
+> then [checker](#term-checker) reports the statement of unit_1.
+<!-- statement-axiom-a-statement-says-what-its-logic-says:end -->
+
+A reader of the canon learns what a unit claims from its statement. If a person writes the statement apart from the logic, the two drift, and the reader learns what the logic does not hold. So the checker says the statement of a unit that holds a formula from that formula, in the same words each time. It reports a statement that is not what the formula says.
+
+The words of the statements are the words of the logic. A reading of a word that nothing declares, or a word declared out of place, would let a statement say what the logic does not.
+
+```alloy
+all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported
+```
+
+```alloy scenario
+some u: Unit, d: Document | d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported
+```
+
+#### @spec a-document-that-keeps-no-readings-is-left-as-it-is
+
+<!-- statement-spec-a-document-that-keeps-no-readings-is-left-as-it-is:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every [unit_1](#term-unit):
+>
+> when document_1 [holds](#term-hold) unit_1 and keeps no readings,
+>
+> then all of these hold:
+> - [checker](#term-checker) does not write the [statement](#term-statement) of unit_1 when it generates
+> - checker does not report the statement of unit_1
+<!-- statement-spec-a-document-that-keeps-no-readings-is-left-as-it-is:end -->
+
+This follows because without readings the checker has no words to say a formula in, and the statement of a person stays what it is.
+
+```alloy
+all d: Document, u: Unit | (d->u in Hold.units and d not in Worded) implies (u not in Rewritten and u not in Reported)
+```
+
+#### @spec a-document-that-does-not-name-the-plugin-is-left-as-it-is
+
+<!-- statement-spec-a-document-that-does-not-name-the-plugin-is-left-as-it-is:begin — generated by `canon generate`; edits are overwritten -->
+> For every [alloy_plugin_1](#term-plugin) and every [document_1](#term-document) and every [unit_1](#term-unit):
+>
+> when [checker](#term-checker) does not run alloy_plugin_1 over document_1 and document_1 [holds](#term-hold) unit_1,
+>
+> then all of these hold:
+> - checker does not write the [statement](#term-statement) of unit_1 when it generates
+> - checker does not report the statement of unit_1
+<!-- statement-spec-a-document-that-does-not-name-the-plugin-is-left-as-it-is:end -->
+
+This follows because the statements are the work of one plugin, and a document that does not ask for it asks for no statements.
+
+```alloy
+all p: Alloy, d: Document, u: Unit | (p->d not in Over.rel and d->u in Hold.units) implies (u not in Rewritten and u not in Reported)
+```
+
+#### @spec a-unit-with-a-formula-and-no-statement-is-unwritten
+
+<!-- statement-spec-a-unit-with-a-formula-and-no-statement-is-unwritten:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when unit_1 holds a formula, has no [statement](#term-statement) and the formula of unit_1 can be said in words, the statement of unit_1 is unwritten.
+<!-- statement-spec-a-unit-with-a-formula-and-no-statement-is-unwritten:end -->
+
+This follows because a reader finds nothing under the heading, and the checker can say what the formula says.
+
+```alloy
+all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten
+```
+
+#### @spec a-generated-statement-that-differs-from-its-formula-is-stale
+
+<!-- statement-spec-a-generated-statement-that-differs-from-its-formula-is-stale:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - unit_1 holds a formula
+> - the [statement](#term-statement) of unit_1 sits between the markers of a generated region
+> - the statement of unit_1 differs from what its formula says
+> - the formula of unit_1 can be said in words
+>
+> then the statement of unit_1 is stale.
+<!-- statement-spec-a-generated-statement-that-differs-from-its-formula-is-stale:end -->
+
+This follows because the markers claim that the region is what the formula says. An edited region, or one whose formula changed, no longer is.
+
+```alloy
+all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale
+```
+
+#### @spec a-generated-statement-that-its-formula-would-say-again-is-current
+
+<!-- statement-spec-a-generated-statement-that-its-formula-would-say-again-is-current:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - the [statement](#term-statement) of unit_1 sits between the markers of a generated region
+> - the statement of unit_1 does not differ from what its formula says
+> - the formula of unit_1 can be said in words
+>
+> then the statement of unit_1 is current.
+<!-- statement-spec-a-generated-statement-that-its-formula-would-say-again-is-current:end -->
+
+This follows because a statement that is what the formula says has nothing to report.
+
+```alloy
+all u: Unit | (u in Generated and u not in Differs and u not in Unsayable) implies u in Current
+```
+
+#### @spec a-statement-that-a-person-wrote-is-handwritten
+
+<!-- statement-spec-a-statement-that-a-person-wrote-is-handwritten:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - unit_1 holds a formula
+> - unit_1 has a [statement](#term-statement)
+> - the statement of unit_1 does not sit between the markers of a generated region
+> - the formula of unit_1 can be said in words
+>
+> then the statement of unit_1 is handwritten.
+<!-- statement-spec-a-statement-that-a-person-wrote-is-handwritten:end -->
+
+This follows because a person's statement may say more or less than the formula, and only the person can say that the two agree.
+
+```alloy
+all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten
+```
+
+#### @spec a-formula-that-the-readings-cannot-say-is-unsayable
+
+<!-- statement-spec-a-formula-that-the-readings-cannot-say-is-unsayable:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the formula of unit_1 names a word that has no reading or unit_1 holds more than one formula, the formula of unit_1 cannot be said in words.
+<!-- statement-spec-a-formula-that-the-readings-cannot-say-is-unsayable:end -->
+
+This follows because the checker says only what the readings let it say, and would otherwise make words up.
+
+```alloy
+all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable
+```
+
+##### @spec a-formula-with-a-word-that-has-no-reading-is-unsayable
+
+<!-- statement-spec-a-formula-with-a-word-that-has-no-reading-is-unsayable:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the formula of unit_1 names a word that has no reading, the formula of unit_1 cannot be said in words.
+<!-- statement-spec-a-formula-with-a-word-that-has-no-reading-is-unsayable:end -->
+
+This follows because the checker has no words to use for a word without a reading.
+
+```alloy
+all u: Unit | u in Wordless implies u in Unsayable
+```
+
+##### @spec a-unit-with-two-formulas-is-unsayable
+
+<!-- statement-spec-a-unit-with-two-formulas-is-unsayable:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when unit_1 holds more than one formula, the formula of unit_1 cannot be said in words.
+<!-- statement-spec-a-unit-with-two-formulas-is-unsayable:end -->
+
+This follows because a statement says one formula, and the checker cannot tell which one.
+
+```alloy
+all u: Unit | u in Twofold implies u in Unsayable
+```
+
+##### @spec the-report-of-an-unsayable-formula-says-why
+
+<!-- statement-spec-the-report-of-an-unsayable-formula-says-why:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the formula of unit_1 cannot be said in words, [checker](#term-checker) says why the formula of unit_1 cannot be said.
+<!-- statement-spec-the-report-of-an-unsayable-formula-says-why:end -->
+
+This follows because the author can mend only what the checker names.
+
+```alloy
+all u: Unit | u in Unsayable implies u in Explained
+```
+
+#### @spec generate-writes-what-is-not-current-and-nothing-else
+
+<!-- statement-spec-generate-writes-what-is-not-current-and-nothing-else:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> all of these hold:
+> - when [checker](#term-checker) writes the [statement](#term-statement) of unit_1 when it generates, the statement of unit_1 is unwritten or the statement of unit_1 is stale
+> - when the statement of unit_1 is unwritten or the statement of unit_1 is stale, checker writes the statement of unit_1 when it generates
+<!-- statement-spec-generate-writes-what-is-not-current-and-nothing-else:end -->
+
+This follows because a statement is the checker's to write until a person writes it, and what is current needs no writing.
+
+```alloy
+all u: Unit | (u in Rewritten implies (u in Unwritten or u in Stale)) and ((u in Unwritten or u in Stale) implies u in Rewritten)
+```
+
+##### @spec generate-writes-the-statement-of-an-unwritten-unit-between-markers
+
+<!-- statement-spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the [statement](#term-statement) of unit_1 is unwritten,
+>
+> then all of these hold:
+> - [checker](#term-checker) writes the statement of unit_1 when it generates
+> - checker writes the statement of unit_1 between markers, just below its heading
+<!-- statement-spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers:end -->
+
+This follows because the markers tell the checker that the region is its own, and the heading is where a reader looks.
+
+```alloy
+all u: Unit | u in Unwritten implies (u in Rewritten and u in Marked)
+```
+
+##### @spec generate-writes-the-statement-of-a-stale-unit-again
+
+<!-- statement-spec-generate-writes-the-statement-of-a-stale-unit-again:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the [statement](#term-statement) of unit_1 is stale, [checker](#term-checker) writes the statement of unit_1 when it generates.
+<!-- statement-spec-generate-writes-the-statement-of-a-stale-unit-again:end -->
+
+This follows because a stale statement is the checker's own region, and it says what the formula does not.
+
+```alloy
+all u: Unit | u in Stale implies u in Rewritten
+```
+
+##### @spec generate-writes-a-statement-as-a-quote-that-markdown-reads-as-paragraphs-and-lists
+
+<!-- statement-spec-generate-writes-a-statement-as-a-quote-that-markdown-reads-as-paragraphs-and-lists:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when [checker](#term-checker) writes the [statement](#term-statement) of unit_1 when it generates, checker writes the statement of unit_1 as a quote that Markdown reads as paragraphs and lists.
+<!-- statement-spec-generate-writes-a-statement-as-a-quote-that-markdown-reads-as-paragraphs-and-lists:end -->
+
+This follows because a statement that Markdown folds into one paragraph is hard to read, and the statement is for readers.
+
+```alloy
+all u: Unit | u in Rewritten implies u in Layered
+```
+
+##### @spec generate-leaves-a-current-statement-as-it-is
+
+<!-- statement-spec-generate-leaves-a-current-statement-as-it-is:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the [statement](#term-statement) of unit_1 is current, [checker](#term-checker) does not write the statement of unit_1 when it generates.
+<!-- statement-spec-generate-leaves-a-current-statement-as-it-is:end -->
+
+This follows because writing what is already there changes nothing, and a second run must leave the document alone.
+
+```alloy
+all u: Unit | u in Current implies u not in Rewritten
+```
+
+##### @spec generate-never-overwrites-a-handwritten-statement
+
+<!-- statement-spec-generate-never-overwrites-a-handwritten-statement:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the [statement](#term-statement) of unit_1 is handwritten, [checker](#term-checker) does not write the statement of unit_1 when it generates.
+<!-- statement-spec-generate-never-overwrites-a-handwritten-statement:end -->
+
+This follows because the words of a person are not the checker's to replace. The person deletes the statement to let the checker write it.
+
+```alloy
+all u: Unit | u in Handwritten implies u not in Rewritten
+```
+
+##### @spec generate-leaves-an-unsayable-unit-as-it-is
+
+<!-- statement-spec-generate-leaves-an-unsayable-unit-as-it-is:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the formula of unit_1 cannot be said in words, [checker](#term-checker) does not write the [statement](#term-statement) of unit_1 when it generates.
+<!-- statement-spec-generate-leaves-an-unsayable-unit-as-it-is:end -->
+
+This follows because the checker has no statement to write, and a half statement would be worse than none.
+
+```alloy
+all u: Unit | u in Unsayable implies u not in Rewritten
+```
+
+#### @spec check-reports-a-statement-that-is-not-current
+
+<!-- statement-spec-check-reports-a-statement-that-is-not-current:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - document_1 keeps readings
+> - document_1 [holds](#term-hold) unit_1
+> - unit_1 holds a formula
+> - the [statement](#term-statement) of unit_1 is not current
+>
+> then [checker](#term-checker) reports the statement of unit_1.
+<!-- statement-spec-check-reports-a-statement-that-is-not-current:end -->
+
+This follows because a statement that is not current may say what the formula does not.
+
+```alloy
+all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported
+```
+
+#### @spec check-does-not-report-a-current-statement
+
+<!-- statement-spec-check-does-not-report-a-current-statement:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the [statement](#term-statement) of unit_1 is current, [checker](#term-checker) does not report the statement of unit_1.
+<!-- statement-spec-check-does-not-report-a-current-statement:end -->
+
+This follows because a statement that says what the formula says has nothing to report, and a report that cries wolf is not read.
+
+```alloy
+all u: Unit | u in Current implies u not in Reported
+```
+
+#### @spec a-report-of-a-statement-fails-check
+
+<!-- statement-spec-a-report-of-a-statement-fails-check:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [check_command_1](#term-command) and every [unit_1](#term-unit):
+>
+> when run_1 asks for check_command_1 and [checker](#term-checker) reports the [statement](#term-statement) of unit_1, run_1 does not exit with code 0.
+<!-- statement-spec-a-report-of-a-statement-fails-check:end -->
+
+This follows because a statement that is not current is a canon that may be out of date, and the check must not succeed.
+
+```alloy
+all r: Run, c: CheckCommand, u: Unit | (r->c in Ask.rel and u in Reported) implies r not in Exits0
+```
+
+#### @spec generate-fails-on-a-handwritten-statement-and-says-so
+
+<!-- statement-spec-generate-fails-on-a-handwritten-statement-and-says-so:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [generate_command_1](#term-command) and every [unit_1](#term-unit):
+>
+> when run_1 asks for generate_command_1 and the [statement](#term-statement) of unit_1 is handwritten, [checker](#term-checker) reports the statement of unit_1 and run_1 does not exit with code 0.
+<!-- statement-spec-generate-fails-on-a-handwritten-statement-and-says-so:end -->
+
+This follows because the checker cannot write that statement, and the author must know it left the statement.
+
+```alloy
+all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)
+```
+
+#### @spec generate-fails-on-an-unsayable-formula-and-says-why
+
+<!-- statement-spec-generate-fails-on-an-unsayable-formula-and-says-why:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [generate_command_1](#term-command) and every [unit_1](#term-unit):
+>
+> when run_1 asks for generate_command_1 and the formula of unit_1 cannot be said in words, [checker](#term-checker) says why the formula of unit_1 cannot be said and run_1 does not exit with code 0.
+<!-- statement-spec-generate-fails-on-an-unsayable-formula-and-says-why:end -->
+
+This follows because the checker cannot write that statement either, and the author can mend only what the checker names.
+
+```alloy
+all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Unsayable) implies (u in Explained and r not in Exits0)
+```
+
+#### @spec the-prose-check-does-not-read-a-generated-statement
+
+<!-- statement-spec-the-prose-check-does-not-read-a-generated-statement:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when the [statement](#term-statement) of unit_1 sits between the markers of a generated region, the prose check does not read the statement of unit_1.
+<!-- statement-spec-the-prose-check-does-not-read-a-generated-statement:end -->
+
+This follows because the words of a generated statement are the words of the readings, and a rule of style cannot mend them. The author mends the readings.
+
+```alloy
+all u: Unit | u in Generated implies u in Skipped
+```
+
+#### @spec a-word-that-a-reading-says-and-nothing-declares-is-undeclared
+
+<!-- statement-spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared:begin — generated by `canon generate`; edits are overwritten -->
+> For every [word_1](#term-word):
+>
+> when all of these hold:
+> - there is a [unit_1](#term-unit) such that a reading in unit_1 says word_1
+> - no unit declares word_1
+>
+> then word_1 is a word that a reading says and nothing declares.
+<!-- statement-spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared:end -->
+
+This follows because a reading of nothing says what the logic does not hold.
+
+```alloy
+all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared
+```
+
+#### @spec a-word-declared-outside-a-term-is-misplaced
+
+<!-- statement-spec-a-word-declared-outside-a-term-is-misplaced:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when unit_1 declares word_1 and is not a [term](#term-term), word_1 is a word declared in a unit that is not a term.
+<!-- statement-spec-a-word-declared-outside-a-term-is-misplaced:end -->
+
+This follows because a reader looks for a word in the term that names it, with its reading beside it.
+
+```alloy
+all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Misplaced
+```
+
+#### @spec a-reading-apart-from-the-declaration-it-says-is-apart
+
+<!-- statement-spec-a-reading-apart-from-the-declaration-it-says-is-apart:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when a reading in unit_1 says word_1, a unit declares word_1 and unit_1 does not declare word_1, word_1 is a word whose reading is in another unit than its declaration.
+<!-- statement-spec-a-reading-apart-from-the-declaration-it-says-is-apart:end -->
+
+This follows because a reading and its declaration are one thing, and a reader finds them together.
+
+```alloy
+all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart
+```
+
+#### @spec a-declared-word-that-no-claim-uses-is-unused
+
+<!-- statement-spec-a-declared-word-that-no-claim-uses-is-unused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [word_1](#term-word):
+>
+> when all of these hold:
+> - a [unit](#term-unit) declares word_1
+> - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1
+>
+> then word_1 is a word that no claim, definition or fact uses.
+<!-- statement-spec-a-declared-word-that-no-claim-uses-is-unused:end -->
+
+This follows because a word that nothing relies on is a part of the model that no claim holds, and the statements never say it.
+
+```alloy
+all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u: Unit | u->w in Rely.rel)) implies w in Unused
+```
+
+#### @spec a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used
+
+<!-- statement-spec-a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when a fact, a parent signature or a predicate in unit_1 names word_1, there is a unit_2 such that a claim, a definition or a fact of unit_2 uses word_1.
+<!-- statement-spec-a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used:end -->
+
+This follows because the model relies on such a word even where no claim names it.
+
+```alloy
+all u: Unit, w: Word | u->w in Mention.rel implies (some v: Unit | v->w in Rely.rel)
+```
+
+#### @spec a-field-that-another-signature-shares-is-used-only-through-its-own-signature
+
+<!-- statement-spec-a-field-that-another-signature-shares-is-used-only-through-its-own-signature:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when all of these hold:
+> - word_1 is a field whose name another signature gives to a field too
+> - a claim, a definition or a fact of unit_1 uses word_1
+>
+> then unit_1 uses word_1 through its own signature.
+<!-- statement-spec-a-field-that-another-signature-shares-is-used-only-through-its-own-signature:end -->
+
+This follows because a use of the field of another signature says nothing about this field.
+
+```alloy
+all u: Unit, w: Word | (w in Shared and u->w in Rely.rel) implies u->w in Own.rel
+```
+
+#### @spec a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported
+
+<!-- statement-spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported:begin — generated by `canon generate`; edits are overwritten -->
+> For every [term_1](#term-term) and every [word_1](#term-word):
+>
+> when all of these hold:
+> - term_1 declares word_1
+> - a reading in term_1 says word_1
+> - there is a [unit_1](#term-unit) such that a claim, a definition or a fact of unit_1 uses word_1
+>
+> then all of these hold:
+> - word_1 is not a word that a reading says and nothing declares
+> - word_1 is not a word declared in a unit that is not a term
+> - word_1 is not a word whose reading is in another unit than its declaration
+> - word_1 is not a word that no claim, definition or fact uses
+> - [checker](#term-checker) does not report the word word_1
+<!-- statement-spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported:end -->
+
+This follows because such a word is where it belongs, and nothing needs a report.
+
+```alloy
+all u: Term, w: Word | (u->w in Introduce.rel and u->w in Voice.rel and (some v: Unit | v->w in Rely.rel)) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)
+```
+
+#### @spec a-document-that-keeps-no-readings-has-no-word-reported
+
+<!-- statement-spec-a-document-that-keeps-no-readings-has-no-word-reported:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when document_1 keeps no readings, [holds](#term-hold) unit_1 and unit_1 declares word_1,
+>
+> then all of these hold:
+> - word_1 is not a word that a reading says and nothing declares
+> - word_1 is not a word declared in a unit that is not a term
+> - word_1 is not a word whose reading is in another unit than its declaration
+> - word_1 is not a word that no claim, definition or fact uses
+> - [checker](#term-checker) does not report the word word_1
+<!-- statement-spec-a-document-that-keeps-no-readings-has-no-word-reported:end -->
+
+This follows because the checker says words only in a document that has readings.
+
+```alloy
+all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units and u->w in Introduce.rel) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)
+```
+
+#### @spec a-signature-a-field-and-a-predicate-are-declared-words
+
+<!-- statement-spec-a-signature-a-field-and-a-predicate-are-declared-words:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when a model block of unit_1 writes the declaration of word_1, unit_1 declares word_1.
+<!-- statement-spec-a-signature-a-field-and-a-predicate-are-declared-words:end -->
+
+This follows because these are the three things of a model that a statement may say.
+
+```alloy
+all u: Unit, w: Word | u->w in Write.rel implies u->w in Introduce.rel
+```
+
+#### @spec a-declaration-in-a-comment-declares-nothing
+
+<!-- statement-spec-a-declaration-in-a-comment-declares-nothing:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when only a comment in unit_1 writes the declaration of word_1, unit_1 does not declare word_1.
+<!-- statement-spec-a-declaration-in-a-comment-declares-nothing:end -->
+
+This follows because a comment is not the model, and the claims never rely on it.
+
+```alloy
+all u: Unit, w: Word | u->w in Remark.rel implies u->w not in Introduce.rel
+```
+
+#### @spec a-reading-is-keyed-by-a-field-alone-or-with-its-signature-or-as-a-primed-set
+
+<!-- statement-spec-a-reading-is-keyed-by-a-field-alone-or-with-its-signature-or-as-a-primed-set:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit) and every [word_1](#term-word):
+>
+> when a reading in unit_1 is keyed to word_1 by the field alone, with its signature, or as a primed set, a reading in unit_1 says word_1.
+<!-- statement-spec-a-reading-is-keyed-by-a-field-alone-or-with-its-signature-or-as-a-primed-set:end -->
+
+This follows because an author writes a field both ways, and a set that holds the next moment as its primed name.
+
+```alloy
+all u: Unit, w: Word | u->w in Key.rel implies u->w in Voice.rel
+```
+
+#### @spec a-flagged-word-fails-check
+
+<!-- statement-spec-a-flagged-word-fails-check:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [check_command_1](#term-command) and every [word_1](#term-word):
+>
+> when run_1 asks for check_command_1 and [checker](#term-checker) reports the word word_1, run_1 does not exit with code 0.
+<!-- statement-spec-a-flagged-word-fails-check:end -->
+
+This follows because a word out of order means a statement that may drift from the logic, and the check must not succeed.
+
+```alloy
+all r: Run, c: CheckCommand, w: Word | (r->c in Ask.rel and w in Flagged) implies r not in Exits0
+```
+
+#### @spec check-reports-nothing-about-a-word-that-is-in-order
+
+<!-- statement-spec-check-reports-nothing-about-a-word-that-is-in-order:begin — generated by `canon generate`; edits are overwritten -->
+> For every [word_1](#term-word):
+>
+> when all of these hold:
+> - word_1 is not a word that a reading says and nothing declares
+> - word_1 is not a word declared in a unit that is not a term
+> - word_1 is not a word whose reading is in another unit than its declaration
+> - word_1 is not a word that no claim, definition or fact uses
+>
+> then [checker](#term-checker) does not report the word word_1.
+<!-- statement-spec-check-reports-nothing-about-a-word-that-is-in-order:end -->
+
+This follows because a report that cries wolf is not read.
+
+```alloy
+all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged
+```
+
+#### @spec check-reports-a-word-that-is-not-in-order
+
+<!-- statement-spec-check-reports-a-word-that-is-not-in-order:begin — generated by `canon generate`; edits are overwritten -->
+> For every [word_1](#term-word):
+>
+> when at least one of these holds:
+> - word_1 is a word that a reading says and nothing declares
+> - word_1 is a word declared in a unit that is not a term
+> - word_1 is a word whose reading is in another unit than its declaration
+> - word_1 is a word that no claim, definition or fact uses
+>
+> then [checker](#term-checker) reports the word word_1.
+<!-- statement-spec-check-reports-a-word-that-is-not-in-order:end -->
+
+This follows because a statement says only the words its readings give. A reading with no declaration, or a declaration out of place, lets a statement say what the logic does not hold.
+
+```alloy
+all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w in Flagged
+```
