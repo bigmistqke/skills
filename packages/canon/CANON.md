@@ -142,6 +142,8 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@axiom a-canon-cannot-go-out-of-date-unnoticed`](#axiom-a-canon-cannot-go-out-of-date-unnoticed) — All of these hold: - for every [claim_1](#term-claim): when claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1 - for every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), checker reports a finding for tag_1 - for every [test_1](#term-test): when test_1 is [adrift](#term-adrift), checker reports a finding for test_1 - for every [pointer_1](#term-pointer): when pointer_1 names no [target](#term-target), checker reports a finding for pointer_1 - for every unit_1: when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1 - for every unit_1: when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1 - for every [document_1](#term-document): when document_1 [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for document_1 - for every document_1: when document_1 holds an index that does not [match](#term-match) document_1, checker reports a finding for document_1 - for every claim_1: when claim_1 names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for claim_1 - for every unit_1: when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.
     - [`@spec an-unguarded-claim-is-untested`](#spec-an-unguarded-claim-is-untested) — For every [claim_1](#term-claim): when claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for claim_1.
     - [`@spec a-tag-names-a-unit`](#spec-a-tag-names-a-unit) — For every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for tag_1.
+    - [`@spec a-tag-in-any-comment-names-a-unit`](#spec-a-tag-in-any-comment-names-a-unit) — When a `@canon` tag in any comment of a suite or a source names no unit, the checker reports a [rotting](#term-rotting) for it.
+    - [`@spec a-tag-outside-a-test-tests-nothing`](#spec-a-tag-outside-a-test-tests-nothing) — A `@canon` tag in a comment that is not the documentation comment of a test makes no unit [tested](#term-tested).
     - [`@spec an-adrift-test-is-reported`](#spec-an-adrift-test-is-reported) — For every [test_1](#term-test): when test_1 is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for test_1.
       - [`@spec a-declared-test-carries-a-tag`](#spec-a-declared-test-carries-a-tag) — For every [test_1](#term-test): when [project](#term-project) [declares](#term-declare) test_1 and test_1 [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for test_1.
       - [`@spec a-declared-test-checks-only-claims`](#spec-a-declared-test-checks-only-claims) — For every [test_1](#term-test): when [project](#term-project) [declares](#term-declare) test_1 and test_1 [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for test_1.
@@ -2237,6 +2239,18 @@ This follows because a tag that names no unit checks nothing, and a [rotting](#t
 ```alloy
 all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Rotting
 ```
+
+#### @spec a-tag-in-any-comment-names-a-unit
+
+> When a `@canon` tag in any comment of a suite or a source names no unit, the checker reports a [rotting](#term-rotting) for it.
+
+This follows because such a tag points at a unit, as a [tag](#term-tag) of a test does. A unit that is renamed or removed leaves it pointing at nothing.
+
+#### @spec a-tag-outside-a-test-tests-nothing
+
+> A `@canon` tag in a comment that is not the documentation comment of a test makes no unit [tested](#term-tested).
+
+This follows because only a test can fail when a claim stops holding. A comment that names a spec checks nothing, so the spec still owes a test.
 
 #### @spec an-adrift-test-is-reported
 

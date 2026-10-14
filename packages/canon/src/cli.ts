@@ -1310,8 +1310,8 @@ function analyse(write: boolean): Analysis {
   }
 
   /**
-   * Read a module of the sources: a test it holds is read as a test of an
-   * undeclared suite, and every other `@canon` tag in a comment only resolves.
+   * Read a suite or a module of the sources: its tests, as `readSuite` does,
+   * and every other `@canon` tag in a comment, which only resolves.
    * A tag in a string is no citation, the same as a test in a string is no test.
    *
    * A module that turns a table of cases into tests, which a suite then runs,
@@ -1319,8 +1319,8 @@ function analyse(write: boolean): Analysis {
    * every leaf such a test checks reported untested, and the only way to quiet
    * that was to move working tests into the suite to suit the checker.
    *
-   * `enforced` is set for a helper module in the declared directory: a suite
-   * there runs the tests it makes, so each of them owes a tag like the suite's.
+   * `enforced` is set for every file in the declared directory: a suite, or a
+   * helper module whose tests a suite there runs, so each of them owes a tag.
    */
   function readSource(file: string, enforced = false): void {
     const { tests, comments, lineAt } = readSuite(file, enforced);
@@ -1338,7 +1338,7 @@ function analyse(write: boolean): Analysis {
   const enforcedFiles = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allSuites(join(ROOT, TESTS)) : []
   );
-  for (const file of enforcedFiles) readSuite(file, true);
+  for (const file of enforcedFiles) readSource(file, true);
   const enforcedModules = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allModules(join(ROOT, TESTS)) : []
   );
@@ -1379,7 +1379,7 @@ function analyse(write: boolean): Analysis {
     const abs = join(ROOT, root);
     if (!existsSync(abs)) continue;
     for (const file of allSuites(abs)) {
-      if (!enforcedFiles.has(file)) readSuite(file, false);
+      if (!enforcedFiles.has(file)) readSource(file);
     }
     for (const file of allModules(abs)) {
       if (!enforcedModules.has(file)) readSource(file);
