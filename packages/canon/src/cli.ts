@@ -4,7 +4,7 @@
  * the citations, and the writer that regenerates what the documents generate.
  * The protocol is the `canon` skill; this file's own `--help` is the manual.
  *
- * Depends on nothing outside Node, except `lint`.
+ * Depends on nothing outside Node.
  */
 import {
   existsSync,
@@ -14,15 +14,16 @@ import {
   writeFileSync
 } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
 import type { PluginContext } from './plugin.ts';
-import { documentsFor, findCommands } from './plugins.ts';
+import { configKeysOf, documentsFor, findCommands } from './plugins.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
+import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
 
 // ---------------------------------------------------------------------------
@@ -55,10 +56,32 @@ interface Config {
 }
 
 /**
- * The project root: the nearest directory, from where the tool was run, whose
- * `package.json` carries a `canon` field.
+ * The entry document: the nearest document named CANON.md, from where the tool
+ * was run upwards, whose frontmatter holds a setting. The settings of the
+ * project live in its frontmatter. A document whose frontmatter cannot be read
+ * is passed over here, and reported where the documents are read.
+ */
+const ENTRY = ((): string | undefined => {
+  for (let dir = resolve(process.cwd()); ; dir = dirname(dir)) {
+    const file = join(dir, 'CANON.md');
+    if (existsSync(file)) {
+      try {
+        if (hasSettings(readFrontmatter(readFileSync(file, 'utf8'), true))) return file;
+      } catch {
+        // Reported when the documents are read.
+      }
+    }
+    if (dirname(dir) === dir) return undefined;
+  }
+})();
+
+/**
+ * The project root: the folder of the entry document, or while no document
+ * holds a setting, the nearest directory whose `package.json` carries a
+ * `canon` field.
  */
 const ROOT = ((): string => {
+  if (ENTRY !== undefined) return dirname(ENTRY);
   for (let dir = resolve(process.cwd()); ; dir = dirname(dir)) {
     const manifest = join(dir, 'package.json');
     if (existsSync(manifest)) {
@@ -69,18 +92,23 @@ const ROOT = ((): string => {
     }
     if (dirname(dir) === dir) {
       console.error(
-        'canon: no package.json with a "canon" field between here and the filesystem root'
+        'canon: no CANON.md with settings in its frontmatter and no package.json with a "canon" field between here and the filesystem root'
       );
       process.exit(2);
     }
   }
 })();
 
-const CONFIG = (
-  JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
-    canon: Config;
-  }
-).canon;
+/** The settings of the entry document, as the `canon` field of a package would hold them. */
+function settingsOf(entry: string): Config {
+  const { plugins, extends: extended, other, documents, ...settings } = readFrontmatter(readFileSync(entry, 'utf8'), true) ?? {};
+  return { ...settings, documents: [...new Set([basename(entry), ...(documents ?? [])])], ...other } as Config;
+}
+
+const CONFIG: Config =
+  ENTRY !== undefined
+    ? settingsOf(ENTRY)
+    : (JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { canon: Config }).canon;
 
 const DOCS = CONFIG.documents ?? ['CANON.md'];
 
@@ -1505,8 +1533,7 @@ Every unit that makes a derived claim carries a machine-checkable link to what
 it derives from — its position under the unit it derives from, a link on a
 "Derives from:" line in a document, a @canon JSDoc tag in a test — and the
 documents' index and the table of kinds are generated from those links rather
-than hand-kept. check is the gate, generate is the writer, tree is the map,
-and lint reads the prose.
+than hand-kept. check is the gate, generate is the writer, and tree is the map.
 
 Usage:
   ${COMMAND} check [--offline]     report every finding; exit 1 if there is one. With a
@@ -1527,21 +1554,23 @@ Options for tree:
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
-The commands lint and logic come from plugins: @bigmistqke/canon/lint and
-@bigmistqke/canon/alloy. The Alloy plugin also adds to generate and check: a
+The commands lint and logic come from plugins: @bigmistqke/canon-lint and
+@bigmistqke/canon-alloy. The Alloy plugin also adds to generate and check: a
 document with a "readings" block has the statement of each unit with a
 predicate written from the predicate, and check reports one that is stale. It
 also reports the words of such a document that are undeclared, misplaced,
-apart from their declaration or unused. A document's frontmatter chooses which apply to it,
-each named by its package ("plugins: [\"@bigmistqke/canon/lint\"]"); with none,
-both do. Any other name is a package installed in the project, whose commands
-are added to these.
+apart from their declaration or unused. A document's frontmatter chooses which
+plugins apply to it, each named by its package ("plugins:
+[\"@bigmistqke/canon-lint\"]"); with none, none applies. Each is a package
+installed in the project, whose commands are added to these.
 
-logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" field
-of the scope gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
+logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" setting
+of the entry document gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
-The protocol is the canon skill. The scope is the "canon" field of
-package.json: documents, suites, sources, references, command, tracker.
+The protocol is the canon skill. The scope is the frontmatter of the entry
+document, the nearest CANON.md that holds a setting: documents, suites,
+sources, references, command, tracker. A project that keeps it in the "canon"
+field of package.json is served while no document holds a setting.
 
 What check reports:
 ${(Object.keys(MEANING) as FindingName[])
@@ -1784,6 +1813,34 @@ async function runPlugin(command: string, args: string[], options: PluginContext
   process.exit(code);
 }
 
+/**
+ * Refuse a frontmatter that holds what only the entry document may hold: a
+ * setting in another document the project checks, and a key that neither the
+ * tool nor a plugin the document lists defines. The documents the entry
+ * document extends are context, and are checked where they live.
+ */
+async function refuseSettings(): Promise<void> {
+  for (const doc of DOCS) {
+    const file = join(ROOT, doc);
+    if (!existsSync(file)) continue;
+    try {
+      const frontmatter = readFrontmatter(readFileSync(file, 'utf8'), true);
+      if (file !== ENTRY && hasSettings(frontmatter)) {
+        throw new Error(
+          `it holds a setting, but the settings of a project belong in its entry document${ENTRY === undefined ? '' : `, ${relative(ROOT, ENTRY)}`}. Move the setting there.`
+        );
+      }
+      const known = await configKeysOf(doc, ROOT);
+      for (const name of Object.keys(frontmatter?.other ?? {})) {
+        if (!known.includes(name)) readFrontmatter(`---\n${name}: x\n---\n`, known);
+      }
+    } catch (error) {
+      console.error(`canon: ${doc}: frontmatter: ${(error as Error).message}`);
+      process.exit(2);
+    }
+  }
+}
+
 async function main(argv: string[]): Promise<void> {
   let parsed: ReturnType<typeof parseArgs>;
   try {
@@ -1817,6 +1874,7 @@ async function main(argv: string[]): Promise<void> {
     console.log(HELP);
     return;
   }
+  await refuseSettings();
   if (!CORE_COMMANDS.has(command)) await runPlugin(command, rest, values);
   if (command === 'log') {
     if (rest.length > 1) {

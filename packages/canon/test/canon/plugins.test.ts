@@ -17,12 +17,6 @@ afterEach(() => {
   for (const dir of DIRS.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
-/** A sentence of 30 words, which the language check reports. */
-const LONG = `${Array.from({ length: 29 }, () => 'word').join(' ')} end.`;
-
-const LINT = '@bigmistqke/canon/lint';
-const ALLOY = '@bigmistqke/canon/alloy';
-
 const doc = (frontmatter: string | undefined, body = ''): string =>
   `${frontmatter === undefined ? '' : `---\n${frontmatter}\n---\n`}# Canon\n\n${body}\n`;
 
@@ -39,89 +33,23 @@ function project(documents: Record<string, string>, args: string[], extra: Recor
   return { out: `${run.stdout}${run.stderr}`, code: run.status };
 }
 
-describe('the documents a plugin inside this package applies to', () => {
-  /**
-   * @canon spec-a-document-with-no-plugins-list-gets-the-plugins-inside-the-package
-   */
-  it('applies every plugin inside this package to a document with no frontmatter', () => {
-    const { out, code } = project({ 'A.md': doc(undefined, LONG) }, ['lint']);
-    expect(out).toContain('A.md');
-    expect(out).toContain('sentence-length');
-    expect(code).toBe(1);
-  });
-
-  /**
-   * @canon spec-a-document-with-no-plugins-list-gets-the-plugins-inside-the-package
-   * @canon spec-a-plugin-a-document-does-not-list-does-not-run-over-it
-   */
-  it('applies the plugins a document names and no others', () => {
-    const { out, code } = project(
-      { 'A.md': doc(`plugins: ["${ALLOY}"]`, LONG), 'B.md': doc(undefined, LONG) },
-      ['lint']
-    );
-    expect(out).toContain('B.md');
-    expect(out).not.toContain('A.md');
-    expect(code).toBe(1);
-  });
-
-  /**
-   * @canon spec-an-empty-list-asks-for-no-plugin
-   * @canon spec-an-available-command-is-not-reported-as-unknown
-   * @canon spec-a-run-with-no-finding-succeeds
-   */
-  it('applies no plugin to a document that names an empty list, and still has the commands', () => {
-    const { out, code } = project({ 'A.md': doc('plugins: []', LONG) }, ['lint']);
-    expect(out).not.toContain('unknown command');
-    expect(code).toBe(0);
-  });
-
-  /**
-   * @canon spec-a-plugin-a-document-lists-runs-over-it
-   */
-  it('applies a plugin to a document that names it', () => {
-    const { out, code } = project({ 'A.md': doc(`plugins: ["${LINT}"]`, LONG) }, ['lint']);
-    expect(out).toContain('A.md');
-    expect(code).toBe(1);
-  });
-
-  /**
-   * @canon spec-a-missing-plugin-is-reported
-   * @canon spec-a-missing-plugin-stops-the-run
-   * @canon spec-the-report-of-a-missing-plugin-offers-the-plugins-inside
-   */
-  it('does not take a bare word for a plugin', () => {
-    const { out, code } = project({ 'A.md': doc('plugins: ["lint"]', LONG) }, ['fake']);
-    expect(out).toContain('the plugin "lint" is not installed in this project');
-    expect(out).toContain(LINT);
-    expect(code).toBe(2);
-  });
-
-  /**
-   * @canon spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says
-   */
-  it('checks a file named on the command line whatever its frontmatter says', () => {
-    const { out, code } = project({ 'A.md': doc('plugins: []', LONG) }, ['lint', 'A.md']);
-    expect(out).toContain('sentence-length');
-    expect(code).toBe(1);
-  });
-});
+const PLUGIN = {
+  'node_modules/canon-fake/package.json': JSON.stringify({ name: 'canon-fake', version: '1.0.0', main: 'index.js' }),
+  'node_modules/canon-fake/index.js': `exports.plugin = {
+name: 'fake',
+config: 'fake',
+commands: { fake(context) {
+  console.log(JSON.stringify({ args: context.args, documents: context.documents, config: context.config }));
+  return 0;
+} },
+};`
+};
 
 describe('a plugin the project has installed', () => {
-  const PLUGIN = {
-    'node_modules/canon-fake/package.json': JSON.stringify({ name: 'canon-fake', version: '1.0.0', main: 'index.js' }),
-    'node_modules/canon-fake/index.js': `exports.plugin = {
-  name: 'fake',
-  config: 'fake',
-  commands: { fake(context) {
-    console.log(JSON.stringify({ args: context.args, documents: context.documents, config: context.config }));
-    return 0;
-  } },
-};`
-  };
-
   /**
    * @canon spec-a-plugin-a-document-lists-runs-over-it
    * @canon spec-a-plugin-a-document-does-not-list-does-not-run-over-it
+   * @canon spec-a-document-with-no-plugins-list-asks-for-no-plugin
    */
   it('adds its command, over the documents that name it', () => {
     const { out, code } = project(
@@ -130,6 +58,35 @@ describe('a plugin the project has installed', () => {
       PLUGIN
     );
     expect(JSON.parse(out.trim())).toEqual({ args: ['one'], documents: ['A.md'] });
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-an-empty-list-asks-for-no-plugin
+   * @canon spec-an-available-command-is-not-reported-as-unknown
+   * @canon spec-a-run-with-no-finding-succeeds
+   */
+  it('applies no plugin to a document that names an empty list', () => {
+    const { out, code } = project(
+      { 'A.md': doc('plugins: []'), 'B.md': doc('plugins: ["canon-fake"]') },
+      ['fake'],
+      PLUGIN
+    );
+    expect(out).not.toContain('unknown command');
+    expect(JSON.parse(out.trim()).documents).toEqual(['B.md']);
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says
+   */
+  it('hands a plugin a file named on the command line whatever its frontmatter says', () => {
+    const { out, code } = project(
+      { 'A.md': doc('plugins: []'), 'B.md': doc('plugins: ["canon-fake"]') },
+      ['fake', 'A.md'],
+      PLUGIN
+    );
+    expect(JSON.parse(out.trim())).toMatchObject({ args: ['A.md'], documents: ['B.md'] });
     expect(code).toBe(0);
   });
 
@@ -145,12 +102,10 @@ describe('a plugin the project has installed', () => {
 
   /**
    * @canon spec-a-missing-plugin-stops-the-run
-   * @canon spec-the-report-of-a-missing-plugin-offers-the-plugins-inside
    */
   it('stops a command of this package when a document names a plugin that does not exist', () => {
     const { out, code } = project({ 'A.md': doc('plugins: ["@bigmistqke/canon/logic"]') }, ['logic']);
     expect(out).toContain('the plugin "@bigmistqke/canon/logic" is not installed in this project');
-    expect(out).toContain('@bigmistqke/canon/alloy');
     expect(code).toBe(2);
   });
 
@@ -170,7 +125,7 @@ describe('a plugin the project has installed', () => {
    * @canon spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes
    */
   it('says what is wrong with a frontmatter it cannot read', () => {
-    const { out, code } = project({ 'A.md': doc('plugins: [@x/y]') }, ['lint']);
+    const { out, code } = project({ 'A.md': doc('plugins: [@x/y]') }, ['fake']);
     expect(out).toContain('A.md: frontmatter:');
     expect(out).toContain('must be in quotes');
     expect(code).toBe(2);
@@ -206,19 +161,6 @@ describe('the same command from several plugins', () => {
     expect(code).toBe(2);
   });
 
-  /**
-   * @canon spec-every-plugin-a-run-calls-runs
-   */
-  it('runs a plugin that adds to lint next to the prose check', () => {
-    const { out, code } = project(
-      { 'A.md': doc(`plugins: ["${LINT}", "canon-a"]`, LONG) },
-      ['lint'],
-      adder('canon-a', 'lint', 'a linted', 0)
-    );
-    expect(out).toContain('sentence-length');
-    expect(out).toContain('a linted');
-    expect(code).toBe(1);
-  });
 });
 
 describe('check over a document with frontmatter', () => {
@@ -245,7 +187,7 @@ describe('check over a document with frontmatter', () => {
    * @canon spec-generate-keeps-the-frontmatter-of-a-document
    */
   it('reports what it reports without the frontmatter, and leaves the frontmatter as it was', () => {
-    const frontmatter = `---\nplugins: ["${LINT}"]\n---\n`;
+    const frontmatter = `---\nplugins: []\n---\n`;
     const without = checked(`# Canon\n\n${body}`);
     const withIt = checked(`${frontmatter}# Canon\n\n${body}`);
     expect(withIt.out).toBe(without.out);

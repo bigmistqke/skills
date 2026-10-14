@@ -8,8 +8,8 @@ import { spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { availableParallelism, tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { readBlocks, type Block } from './blocks.ts';
-import { readUnits } from './units.ts';
+import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
+import { readUnits } from '@bigmistqke/canon/units';
 import { declaredIn } from './words.ts';
 
 export interface AlloyOptions {

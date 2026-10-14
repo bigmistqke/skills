@@ -6,9 +6,9 @@
  * again. The check reads text only, and needs no solver.
  */
 import { createHash } from 'node:crypto';
-import { readBlocks, type Block } from './blocks.ts';
+import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { isGenerated } from './statements.ts';
-import { readUnits } from './units.ts';
+import { readUnits } from '@bigmistqke/canon/units';
 
 export type MapFindingKind = 'unmapped' | 'orphan' | 'malformed' | 'fragment' | 'target' | 'uncovered' | 'unreviewed' | 'stale';
 

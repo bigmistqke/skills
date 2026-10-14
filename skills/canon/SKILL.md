@@ -51,7 +51,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 
 ## 2. The session
 
-1. If `package.json` has no `canon` field, the project has no checker yet. Ask the owner before you set it up as [`checker.md`](checker.md) describes.
+1. If no `CANON.md` has settings in its frontmatter and `package.json` has no `canon` field, the project has no checker yet. Ask the owner before you set it up as [`checker.md`](checker.md) describes.
 2. At the start, read the root axioms and the facts. Then read every unit that covers the area of your task.
 3. Use the canon for every choice you make in the system, internal ones included. An internal choice needs the canon most, because nothing outside the system checks it.
 4. When you face a choice, find the units that decide it. Choose the option they force, and cite them in your reasoning.

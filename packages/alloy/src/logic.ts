@@ -6,9 +6,9 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { alloyProgram, checkAlloy, type AlloyOptions } from './alloy.ts';
-import { contextOf } from './extends.ts';
+import { contextOf } from '@bigmistqke/canon/extends';
 import { checkMaps, reviewMaps } from './map.ts';
-import type { Plugin } from './plugin.ts';
+import type { Plugin } from '@bigmistqke/canon/plugin';
 import * as statements from './statements.ts';
 import type { Context } from './statements.ts';
 import { checkWords } from './words.ts';

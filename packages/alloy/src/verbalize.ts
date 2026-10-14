@@ -71,11 +71,13 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
  * `key: positive | negative` for an atom, whose key is the name of a set
  * (`Ran`), a field (`on`), a relation (`Clock.older`), a primed set (`Throwing'`)
  * or a predicate (`dispose`). Blank lines and lines that start with `#` are skipped.
+ * A table held by another document has `base`, the path to that document: a
+ * link in it to a unit of its own document, `(#term-checker)`, goes through the path.
  */
-export function parseReadings(text: string, unit?: string): Readings {
+export function parseReadings(text: string, unit?: string, base?: string): Readings {
   const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map() };
   for (const raw of text.split('\n')) {
-    const line = raw.trim();
+    const line = (base === undefined ? raw : raw.replace(/\]\(#([^)\s]+)\)/g, `](${base}#$1)`)).trim();
     if (line === '' || line.startsWith('#')) continue;
     const noun = /^noun\s+(\w+)\s*:\s*(.+)$/.exec(line);
     if (noun) {
@@ -83,8 +85,8 @@ export function parseReadings(text: string, unit?: string): Readings {
       readings.nouns.set(noun[1] as string, written ? (written[2] as string) : (noun[2] as string).trim());
       if (written) readings.articles.set(noun[1] as string, written[1] as string);
       // The variables of the type link to its term only where the author marked the noun.
-      const marked = /\[([^\]]+)\](?:\(#([^)\s]+)\))?/.exec(noun[2] as string);
-      const target = marked === null ? undefined : (marked[2] ?? unit);
+      const marked = /\[([^\]]+)\](?:\(([^)\s]*#[^)\s]+)\))?/.exec(noun[2] as string);
+      const target = marked === null ? undefined : marked[2] === undefined ? unit : targetOf(marked[2]);
       if (target !== undefined) readings.nounUnits.set(noun[1] as string, target);
       balanced(line);
       continue;
@@ -103,7 +105,10 @@ const LINK = '\u0002';
 const LINK_MARK = /\u0002([^\u0002]*)\u0002([^\u0002]*)\u0002/g;
 
 /** A word in brackets, with the unit it points at when it says one. */
-const BRACKETED = /\[([^\]]+)\](?:\(#([^)\s]+)\))?/g;
+const BRACKETED = /\[([^\]]+)\](?:\(([^)\s]*#[^)\s]+)\))?/g;
+
+/** The unit a link in a reading points at: the id of a unit of this document, or the whole target of a unit in another, `../canon/CANON.md#term-unit`. */
+const targetOf = (href: string): string => (href.startsWith('#') ? href.slice(1) : href);
 
 function balanced(line: string): void {
   if (/[[\]]/.test(line.replace(BRACKETED, ''))) throw new Error(`a bracket in the line of readings has no partner: ${line}`);
@@ -111,8 +116,8 @@ function balanced(line: string): void {
 
 /** The words of a reading, where each word in brackets is marked as the name of a term: it links to the unit it points at, or else to the unit that holds the reading. */
 function mark(words: string, unit: string | undefined): string {
-  return words.replace(BRACKETED, (_, word: string, target: string | undefined) => {
-    const to = target ?? unit;
+  return words.replace(BRACKETED, (_, word: string, href: string | undefined) => {
+    const to = href === undefined ? unit : targetOf(href);
     return to === undefined ? word : `${LINK}${to}${LINK}${word}${LINK}`;
   });
 }

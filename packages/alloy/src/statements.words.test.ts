@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { checkMaps } from './map.ts';
 import { isGenerated, write } from './statements.ts';
-import { readUnits } from './units.ts';
+import { readUnits } from '@bigmistqke/canon/units';
 
 const READINGS = '```readings\nnoun Node: node\nStarted: {1} has started | {1} has not started\nDone: {1} is done | {1} is not done\n```';
 
