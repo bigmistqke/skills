@@ -71,6 +71,14 @@ describe('an adrift test', () => {
   });
 
   /**
+   * @canon spec-a-declared-test-carries-a-tag
+   */
+  it('reports an uncitation for a test that a helper module in the declared directory makes and carries no tag', () => {
+    const files = { 'test/canon/matrix.ts': `export function matrix(rows: string[]): void {\n  for (const row of rows) test(row, () => {});\n}\n` };
+    expect(check(canon(LEAF), tagged('spec-a-leaf-says-one-thing'), { files })['uncited']).toBe(1);
+  });
+
+  /**
    * @canon spec-a-declared-test-checks-only-claims
    */
   it('reports a misaiming for a declared test that checks an axiom', () => {

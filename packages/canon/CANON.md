@@ -925,7 +925,7 @@ Test: {1} is a [test] | {1} is not a [test]
 
 > Project declares each test in each suite that the canon field of the project names.
 
-A test in a declared suite owes a tag. A test elsewhere in the sources may carry one, and the checker reads it.
+A test in a declared suite owes a tag. So does a test that a helper module in the directory of the declared suites makes, since a suite runs it. A test elsewhere in the sources may carry one, and the checker reads it.
 
 ```alloy vocabulary
 sig Declared in Test {}

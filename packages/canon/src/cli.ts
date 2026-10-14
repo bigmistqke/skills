@@ -1300,9 +1300,12 @@ function analyse(write: boolean): Analysis {
    * holds tests as real as the suite's own. Crediting only a suite's tests left
    * every leaf such a test checks reported untested, and the only way to quiet
    * that was to move working tests into the suite to suit the checker.
+   *
+   * `enforced` is set for a helper module in the declared directory: a suite
+   * there runs the tests it makes, so each of them owes a tag like the suite's.
    */
-  function readSource(file: string): void {
-    const { tests, comments, src } = readSuite(file, false);
+  function readSource(file: string, enforced = false): void {
+    const { tests, comments, src } = readSuite(file, enforced);
     const rel = relative(ROOT, file);
     for (const comment of comments) {
       if (tests.some(t => t.span?.[0] === comment.start)) continue;
@@ -1319,6 +1322,10 @@ function analyse(write: boolean): Analysis {
     existsSync(join(ROOT, TESTS)) ? allSuites(join(ROOT, TESTS)) : []
   );
   for (const file of enforcedFiles) readSuite(file, true);
+  const enforcedModules = new Set<string>(
+    existsSync(join(ROOT, TESTS)) ? allModules(join(ROOT, TESTS)) : []
+  );
+  for (const file of enforcedModules) readSource(file, true);
 
   /**
    * Check a reference's citations resolve, and nothing else.
@@ -1359,7 +1366,9 @@ function analyse(write: boolean): Analysis {
     for (const file of allSuites(abs)) {
       if (!enforcedFiles.has(file)) readSuite(file, false);
     }
-    for (const file of allModules(abs)) readSource(file);
+    for (const file of allModules(abs)) {
+      if (!enforcedModules.has(file)) readSource(file);
+    }
   }
 
   for (const ref of REFERENCES)
