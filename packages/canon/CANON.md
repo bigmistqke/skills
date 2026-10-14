@@ -226,6 +226,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1
       - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
       - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — Generate leaves the frontmatter of a document as it was.
+    - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a module of the sources does not parse as TypeScript, the checker names the file, and the run exits with code 2.
 <!-- toc:end -->
 
 ## Terms
@@ -3294,3 +3295,9 @@ all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Findin
 
 This follows because the block is the author's, and `generate` writes the regions it owns and nothing else.
 
+
+#### @spec a-source-the-checker-cannot-parse-fails-the-run
+
+> When a suite or a module of the sources does not parse as TypeScript, the checker names the file, and the run exits with code 2.
+
+This follows because the checker reads the tests and the tags of a file from its syntax. A file it cannot parse holds tests and tags it cannot read, so the checks they ask for cannot run.

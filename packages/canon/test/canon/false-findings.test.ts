@@ -56,6 +56,14 @@ describe('a tested claim', () => {
   });
 
   /**
+   * @canon spec-a-claim-an-undeclared-test-checks-is-not-untested
+   */
+  it('reports no untesting for a leaf a test that a module builds checks, when the title of the test is no literal', () => {
+    const files = { 'test/matrix.ts': MATRIX.replace('`checks ${name}`', 'name') };
+    expect(check(canon(LEAF), '', { files })['untested']).toBeUndefined();
+  });
+
+  /**
    * @canon spec-a-spec-whose-bug-a-test-checks-is-not-untested
    */
   it('reports no untesting for a spec whose bug a test checks', () => {

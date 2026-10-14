@@ -30,6 +30,27 @@ describe('an unguarded claim', () => {
   it('reports an untesting for a leaf no test checks', () => {
     expect(check(canon(LEAF))['untested']).toBe(1);
   });
+
+  /**
+   * @canon spec-an-unguarded-claim-is-untested
+   */
+  it('reports an untesting for a leaf only the comment of a declaration in a module of the sources names', () => {
+    const tag = ['@', 'canon'].join('');
+    const module = `/** Says one thing. ${tag} spec-a-leaf-says-one-thing */\nexport function say(): void {}\n\n/**\n * ${tag} spec-a-leaf-says-another-thing\n */\ntest('checks another thing', () => {});\n`;
+    const files = { 'test/say.ts': module };
+    const document = canon(`${LEAF}\n### @spec a-leaf-says-another-thing\n\n> A leaf says another thing.\n`);
+    expect(check(document, '', { files })['untested']).toBe(1);
+  });
+
+  /**
+   * @canon spec-an-unguarded-claim-is-untested
+   */
+  it('reports an untesting for a leaf only a string in a module of the sources names', () => {
+    const tag = ['@', 'canon'].join('');
+    const module = `export const example = \`\n/**\n * ${tag} spec-a-leaf-says-one-thing\n */\ntest('checks one thing', () => {});\n\`;\n`;
+    const files = { 'test/example.ts': module };
+    expect(check(canon(LEAF), '', { files })['untested']).toBe(1);
+  });
 });
 
 describe('a tag', () => {

@@ -178,3 +178,27 @@ describe('the canon field of a package', () => {
     expect(code).toBe(0);
   });
 });
+
+describe('a source the checker cannot parse', () => {
+  /**
+   * @canon spec-a-source-the-checker-cannot-parse-fails-the-run
+   */
+  it('names a module of the sources that does not parse, and exits with code 2', () => {
+    const dir = write({ 'CANON.md': canon(['suites: checks', 'sources: [checks]']), 'checks/a.test.ts': TEST, 'checks/broken.ts': 'export const = ;\n' });
+    run(dir, '.', 'generate');
+    const { out, code } = run(dir, '.', 'check', '--offline');
+    expect(out).toContain('checks/broken.ts');
+    expect(code).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-source-the-checker-cannot-parse-fails-the-run
+   */
+  it('names a declared suite that does not parse, and exits with code 2', () => {
+    const dir = write({ 'CANON.md': canon(['suites: checks', 'sources: [checks]']), 'checks/a.test.ts': `${TEST}it('is broken', () => {\n` });
+    run(dir, '.', 'generate');
+    const { out, code } = run(dir, '.', 'check', '--offline');
+    expect(out).toContain('checks/a.test.ts');
+    expect(code).toBe(2);
+  });
+});

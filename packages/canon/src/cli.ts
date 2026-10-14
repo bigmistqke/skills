@@ -25,6 +25,7 @@ import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
+import { parseSource, type ParsedSource } from './tests.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -1094,79 +1095,16 @@ function analyse(write: boolean): Analysis {
   // every child already carried. Neither adds a link that was missing, and the
   // first invents one that is not true. So the unit that owes a spec is the test
   // that asserts something.
-  const TEST_START =
-    /(?:^|\n)([ \t]*)(?:\/\*\*([\s\S]*?)\*\/\s*\n[ \t]*)?\b(?:it|test)\b/g;
 
-  /** The index just past the string, template or comment that starts at `i`. */
-  const skipLiteral = (src: string, i: number): number => {
-    const open = src[i];
-    if (open === '/' && src[i + 1] === '/') return src.indexOf('\n', i) === -1 ? src.length : src.indexOf('\n', i);
-    if (open === '/' && src[i + 1] === '*') return src.indexOf('*/', i + 2) === -1 ? src.length : src.indexOf('*/', i + 2) + 2;
-    let j = i + 1;
-    while (j < src.length && src[j] !== open) {
-      if (src[j] === '\\') j += 2;
-      else if (open === '`' && src[j] === '$' && src[j + 1] === '{') j = skipBalanced(src, j + 1);
-      else j++;
+  /** The tests and comments of a suite or a source; a file that does not parse stops the run. */
+  function parse(file: string): ParsedSource & { src: string } {
+    const src = readFileSync(file, 'utf8');
+    try {
+      return { ...parseSource(src, file.endsWith('.tsx')), src };
+    } catch (error) {
+      console.error(`canon: ${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
+      process.exit(2);
     }
-    return j + 1;
-  };
-
-  /** The index just past the bracket that closes the one at `i`. */
-  function skipBalanced(src: string, i: number): number {
-    let depth = 0;
-    let j = i;
-    while (j < src.length) {
-      const c = src[j];
-      if (c === '"' || c === "'" || c === '`' || (c === '/' && (src[j + 1] === '/' || src[j + 1] === '*'))) {
-        j = skipLiteral(src, j);
-        continue;
-      }
-      if (c === '(' || c === '[' || c === '{') depth++;
-      else if (c === ')' || c === ']' || c === '}') {
-        depth--;
-        if (depth === 0) return j + 1;
-      }
-      j++;
-    }
-    return j;
-  }
-
-  /**
-   * Each test in a suite: its JSDoc, its title, the modifiers on its call, and
-   * where its call starts. A modifier's arguments are skipped by matching their
-   * brackets, so `it.each([[1, f(2)]])('title', fn)` reads as a test as well
-   * as `it.skipIf(cond)('title', fn)` and a tagged-template `` it.each`table` ``.
-   * `docAt` is where the JSDoc starts, or -1 when the test has none.
-   */
-  function testBlocks(src: string): { doc: string; docAt: number; title: string; modifiers: string[]; at: number }[] {
-    const found: { doc: string; docAt: number; title: string; modifiers: string[]; at: number }[] = [];
-    for (const m of src.matchAll(TEST_START)) {
-      const at = (m.index ?? 0) + m[0].length - (m[0].endsWith('test') ? 4 : 2);
-      const docAt = m[2] === undefined ? -1 : (m.index ?? 0) + m[0].indexOf('/**');
-      const modifiers: string[] = [];
-      let j = at + (src.startsWith('test', at) ? 4 : 2);
-      for (;;) {
-        while (/\s/.test(src[j] ?? '')) j++;
-        if (src[j] === '.') {
-          const name = /^\.\s*(\w+)/.exec(src.slice(j));
-          if (!name) break;
-          modifiers.push(name[1]);
-          j += name[0].length;
-        } else if (src[j] === '`') {
-          j = skipLiteral(src, j);
-        } else if (src[j] === '(') {
-          let k = j + 1;
-          while (/\s/.test(src[k] ?? '')) k++;
-          if (src[k] === '"' || src[k] === "'" || src[k] === '`') {
-            const end = skipLiteral(src, k);
-            found.push({ doc: m[2] ?? '', docAt, title: src.slice(k + 1, end - 1), modifiers, at });
-            break;
-          }
-          j = skipBalanced(src, j);
-        } else break;
-      }
-    }
-    return found;
   }
 
   /**
@@ -1225,67 +1163,67 @@ function analyse(write: boolean): Analysis {
    * the whole file in scope to capture those would demand a citation from the
    * other thirty, and the only way to supply thirty is to invent them.
    */
-  function readSuite(file: string, enforced: boolean): void {
-    {
-      const rel = relative(ROOT, file);
-      const src = readFileSync(file, 'utf8');
+  function readSuite(file: string, enforced: boolean): ParsedSource & { src: string } {
+    const rel = relative(ROOT, file);
+    const parsed = parse(file);
+    const { src } = parsed;
 
-      for (const { doc, title, modifiers, at } of testBlocks(src)) {
-        // The reported line is the `it(` itself, not the top of its JSDoc.
-        const line = src.slice(0, at).split('\n').length;
-        const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
-          x[1].startsWith('axiom-') ? x[1] : `axiom-${x[1]}`
+    for (const { doc, title, modifiers, at } of parsed.tests) {
+      // The reported line is the `it(` itself, not the top of its JSDoc.
+      const line = src.slice(0, at).split('\n').length;
+      const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
+        x[1].startsWith('axiom-') ? x[1] : `axiom-${x[1]}`
+      );
+      const specs = [...doc.matchAll(/@canon\s+(\S+)/g)].map(x => x[1]);
+
+      // A test owes a SPEC. Citing an axiom or a fact is not a different way
+      // of saying the same thing — it says the canon has no addressable spec
+      // for what is being asserted, which is a gap in the canon rather than in
+      // the test. Both the dedicated tag and an `@canon` that happens to name
+      // a given mean that, and only checking the tag let the second form
+      // through unnoticed.
+      const givenCitations = [
+        ...axioms,
+        ...specs.filter(s => {
+          const kind = kindOf(s);
+          return kind !== undefined && !CLAIMS.includes(kind);
+        })
+      ];
+      for (const a of enforced ? givenCitations : []) {
+        findings['missing-spec'].push(
+          `${rel}:${line} "${title}" — cites ${a} (the canon has no addressable spec for this)`
         );
-        const specs = [...doc.matchAll(/@canon\s+(\S+)/g)].map(x => x[1]);
+      }
 
-        // A test owes a SPEC. Citing an axiom or a fact is not a different way
-        // of saying the same thing — it says the canon has no addressable spec
-        // for what is being asserted, which is a gap in the canon rather than in
-        // the test. Both the dedicated tag and an `@canon` that happens to name
-        // a given mean that, and only checking the tag let the second form
-        // through unnoticed.
-        const givenCitations = [
-          ...axioms,
-          ...specs.filter(s => {
-            const kind = kindOf(s);
-            return kind !== undefined && !CLAIMS.includes(kind);
-          })
-        ];
-        for (const a of enforced ? givenCitations : []) {
-          findings['missing-spec'].push(
-            `${rel}:${line} "${title}" — cites ${a} (the canon has no addressable spec for this)`
-          );
-        }
+      if (enforced && axioms.length === 0 && specs.length === 0) {
+        findings.uncited.push(
+          `${rel}:${line} "${title}" — no @canon / @axiom`
+        );
+      }
 
-        if (enforced && axioms.length === 0 && specs.length === 0) {
-          findings.uncited.push(
-            `${rel}:${line} "${title}" — no @canon / @axiom`
-          );
-        }
-
-        // An expected failure is a known defect, and the canon names it as a
-        // bug; a bug is pinned by a test that fails until the fix.
-        const marksFailing = modifiers.includes('fails');
-        if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
-          findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
-        }
-        for (const s of specs) {
-          if (kindOf(s) === 'bug-' && !marksFailing) {
-            findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
-          }
-        }
-        for (const s of [...specs, ...axioms]) {
-          const key = resolveCitation(s, `${rel}:${line}`);
-          if (key === undefined) continue;
-          if (claimParents.has(key)) {
-            findings['parent-cited'].push(`${rel}:${line} "${title}" — cites ${s}, which holds nested claims`);
-          }
-          citedTargets.add(key);
-          testedTargets.add(key);
-          testsPer.set(key, (testsPer.get(key) ?? 0) + 1);
+      // An expected failure is a known defect, and the canon names it as a
+      // bug; a bug is pinned by a test that fails until the fix.
+      const marksFailing = modifiers.includes('fails');
+      if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
+        findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
+      }
+      for (const s of specs) {
+        if (kindOf(s) === 'bug-' && !marksFailing) {
+          findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
         }
       }
+      for (const s of [...specs, ...axioms]) {
+        const key = resolveCitation(s, `${rel}:${line}`);
+        if (key === undefined) continue;
+        if (claimParents.has(key)) {
+          findings['parent-cited'].push(`${rel}:${line} "${title}" — cites ${s}, which holds nested claims`);
+        }
+        citedTargets.add(key);
+        testedTargets.add(key);
+        testsPer.set(key, (testsPer.get(key) ?? 0) + 1);
+      }
     }
+    return parsed;
   }
 
   /** A test file: `.test` or `.spec`, in TypeScript with or without JSX. */
@@ -1342,14 +1280,12 @@ function analyse(write: boolean): Analysis {
    * A citation is a true statement about a link wherever it is written, which is
    * the same argument `readSuite` makes for reading an undeclared suite. It does
    * NOT add to `citedTargets`: a unit mentioned in prose still owes a test, and
-   * `dead` is the list that says so. `skip` leaves out the tags `readSource`
-   * has already read as a test's.
+   * `dead` is the list that says so.
    */
-  function readModule(file: string, skip: (at: number) => boolean = () => false): void {
+  function readModule(file: string): void {
     const rel = relative(ROOT, file);
     const src = readFileSync(file, 'utf8');
     for (const m of src.matchAll(/@canon\s+(\S+)/g)) {
-      if (skip(m.index ?? 0)) continue;
       const line = src.slice(0, m.index ?? 0).split('\n').length;
       resolveCitation(m[1], `${rel}:${line}`);
     }
@@ -1357,7 +1293,8 @@ function analyse(write: boolean): Analysis {
 
   /**
    * Read a module of the sources: a test it holds is read as a test of an
-   * undeclared suite, and every other `@canon` tag only resolves.
+   * undeclared suite, and every other `@canon` tag in a comment only resolves.
+   * A tag in a string is no citation, the same as a test in a string is no test.
    *
    * A module that turns a table of cases into tests, which a suite then runs,
    * holds tests as real as the suite's own. Crediting only a suite's tests left
@@ -1365,11 +1302,15 @@ function analyse(write: boolean): Analysis {
    * that was to move working tests into the suite to suit the checker.
    */
   function readSource(file: string): void {
-    readSuite(file, false);
-    const docs = testBlocks(readFileSync(file, 'utf8'))
-      .filter(t => t.docAt >= 0)
-      .map(t => [t.docAt, t.docAt + t.doc.length + 5] as const);
-    readModule(file, at => docs.some(([from, to]) => at >= from && at < to));
+    const { tests, comments, src } = readSuite(file, false);
+    const rel = relative(ROOT, file);
+    for (const comment of comments) {
+      if (tests.some(t => t.span?.[0] === comment.start)) continue;
+      for (const m of comment.value.matchAll(/@canon\s+(\S+)/g)) {
+        const line = src.slice(0, comment.start + 2 + (m.index ?? 0)).split('\n').length;
+        resolveCitation(m[1], `${rel}:${line}`);
+      }
+    }
   }
 
   // A project that has not written its first declared suite yet has no
