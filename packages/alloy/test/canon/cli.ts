@@ -23,8 +23,12 @@ export const NAMES_PLUGIN = '---\nplugins: ["@bigmistqke/canon-alloy"]\n---\n';
 /** A document that names the plugin, unless its frontmatter names plugins already. */
 export const named = (document: string): string => (document.startsWith('---') ? document : NAMES_PLUGIN + document);
 
-/** Link the plugin into a project, as a dependency of the project would be. */
+/** The prose checks, a package beside this one that a test may name next to the plugin. */
+export const LINT = join(PACKAGE, '..', 'lint');
+
+/** Link the plugin, and the prose checks, into a project, as dependencies of the project would be. */
 export function install(dir: string): void {
   mkdirSync(join(dir, 'node_modules', '@bigmistqke'), { recursive: true });
   symlinkSync(PACKAGE, join(dir, 'node_modules', '@bigmistqke', 'canon-alloy'), 'dir');
+  symlinkSync(LINT, join(dir, 'node_modules', '@bigmistqke', 'canon-lint'), 'dir');
 }

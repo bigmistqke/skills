@@ -14,6 +14,9 @@ importers:
       '@bigmistqke/canon-alloy':
         specifier: workspace:*
         version: link:packages/alloy
+      '@bigmistqke/canon-lint':
+        specifier: workspace:*
+        version: link:packages/lint
       turbo:
         specifier: ^2.11.7
         version: 2.11.7
@@ -23,6 +26,9 @@ importers:
       '@bigmistqke/canon':
         specifier: workspace:*
         version: link:../canon
+      '@bigmistqke/canon-lint':
+        specifier: workspace:*
+        version: link:../lint
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.5
@@ -40,6 +46,21 @@ importers:
         version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/canon:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.5
+      bumpp:
+        specifier: ^12.3.0
+        version: 12.3.0
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.1.3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1)
+
+  packages/lint:
     dependencies:
       remark-parse:
         specifier: ^11.0.0
@@ -75,6 +96,9 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
     devDependencies:
+      '@bigmistqke/canon':
+        specifier: workspace:*
+        version: link:../canon
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
@@ -84,9 +108,6 @@ importers:
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.5
-      bumpp:
-        specifier: ^12.3.0
-        version: 12.3.0
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

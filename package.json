@@ -8,11 +8,12 @@
     "generate": "node scripts/kinds.ts",
     "test": "turbo run test && node scripts/kinds.ts --check",
     "typecheck": "turbo run typecheck",
-    "lint:prose": "node packages/canon/src/lint.ts skills/canon/SKILL.md skills/canon/writing-units.md skills/canon/checker.md skills/grill-with-canon/SKILL.md"
+    "lint:prose": "cd packages/canon && node src/cli.ts lint ../../skills/canon/SKILL.md ../../skills/canon/writing-units.md ../../skills/canon/checker.md ../../skills/grill-with-canon/SKILL.md"
   },
   "devDependencies": {
     "@bigmistqke/canon": "workspace:*",
     "@bigmistqke/canon-alloy": "workspace:*",
+    "@bigmistqke/canon-lint": "workspace:*",
     "turbo": "^2.11.7"
   }
 }

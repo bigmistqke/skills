@@ -16,18 +16,18 @@ pnpm add -D @bigmistqke/canon
 
 ## Plugins
 
-The command `lint` comes from a plugin inside the package, and `logic` from [`@bigmistqke/canon-alloy`](../alloy), so the rest of `canon` depends on nothing outside Node: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
+The command `lint` comes from [`@bigmistqke/canon-lint`](../lint), and `logic` from [`@bigmistqke/canon-alloy`](../alloy), so `canon` depends on nothing outside Node: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
 
 ```md
 ---
-plugins: ["@bigmistqke/canon/lint", "@bigmistqke/canon-alloy"]
+plugins: ["@bigmistqke/canon-lint", "@bigmistqke/canon-alloy"]
 ---
 # Canon
 ```
 
-A document with no `plugins` key gets the plugins inside `canon`, which is `lint`. A document that names plugins gets those and no others, and `plugins: []` names none. A plugin's commands run over the documents that name it; a file named on the command line is always run. The command of a plugin inside `canon` exists whatever the documents name.
+A document gets the plugins it names and no others, and a document with no `plugins` key, or with `plugins: []`, names none. A plugin's commands run over the documents that name it; a file named on the command line is always run.
 
-Any other name is a package too. It is looked up from the project root, so it has to be a dependency of the project: a document can choose among the packages the project already has and cannot make `canon` fetch or run anything new. (The one inside `canon` is the exception: a package can name itself, so it resolves to the running copy.) The package exports a `plugin`, described by the types in `@bigmistqke/canon/plugin`:
+Any other name is a package too. It is looked up from the project root, so it has to be a dependency of the project: a document can choose among the packages the project already has and cannot make `canon` fetch or run anything new. The package exports a `plugin`, described by the types in `@bigmistqke/canon/plugin`:
 
 ```ts
 import type { Plugin } from '@bigmistqke/canon/plugin';

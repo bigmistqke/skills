@@ -272,7 +272,7 @@ describe('the command line', () => {
    * @canon spec-a-document-that-does-not-name-the-plugin-is-left-as-it-is
    */
   it('leaves a document alone that does not name the plugin', () => {
-    const { runs, document } = project(`---\nplugins: ["@bigmistqke/canon/lint"]\n---\n${doc()}`, ['generate'], ['check']);
+    const { runs, document } = project(`---\nplugins: []\n---\n${doc()}`, ['generate'], ['check']);
     expect(runs[0]?.out).not.toContain('wrote the statement');
     expect(runs[1]?.out).not.toContain('spec-a-leaf: ');
     expect(document).not.toContain(':begin');
@@ -283,7 +283,7 @@ describe('the command line', () => {
    */
   it('is not read by the prose check', () => {
     const long = doc('always all n: Node | n in Started and n not in Done and n in Started and n not in Done implies eventually n in Done');
-    const { runs } = project(long, ['generate'], ['lint']);
+    const { runs } = project(`---\nplugins: ["@bigmistqke/canon-alloy", "@bigmistqke/canon-lint"]\n---\n${long}`, ['generate'], ['lint']);
     expect(runs[1]?.out).not.toContain('sentence-length');
     expect(runs[1]?.code).toBe(0);
   });

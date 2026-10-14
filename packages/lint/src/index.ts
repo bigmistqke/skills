@@ -5,15 +5,12 @@
  * words, wrong indefinite articles, and sentences and paragraphs longer than
  * the limits below.
  *
- * Kept apart from `cli.ts`, which depends on nothing outside Node: this file
- * needs the unified and retext packages.
- *
- * Usage: canon lint [file …]. With no files, it reads the canon documents
- * declared in package.json.
+ * A plugin of the checker: a document names it in its frontmatter, as
+ * `plugins: ["@bigmistqke/canon-lint"]`, and `canon lint` runs over the
+ * documents that name it, or over the files named on the command line.
  */
-import { existsSync, readFileSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { readFileSync } from 'node:fs'
+import { join, relative, resolve } from 'node:path'
 import type { Root as MdastRoot } from 'mdast'
 import type { Paragraph, Root as NlcstRoot, Sentence } from 'nlcst'
 import remarkParse from 'remark-parse'
@@ -27,7 +24,7 @@ import { type Processor, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import { VFile } from 'vfile'
 import { reporter } from 'vfile-reporter'
-import type { Plugin } from './plugin.ts'
+import type { Plugin } from '@bigmistqke/canon/plugin'
 
 /**
  * The longest sentence allowed, in words. ASD-STE100, Simplified Technical
@@ -106,17 +103,6 @@ const processor = unified()
       .use(retextLength) as unknown as Processor<NlcstRoot>,
   )
 
-/** The root of the project: the nearest directory with a `canon` field. */
-function projectRoot(): string {
-  for (let dir = resolve(process.cwd()); ; dir = dirname(dir)) {
-    const manifest = join(dir, 'package.json')
-    if (existsSync(manifest) && JSON.parse(readFileSync(manifest, 'utf8')).canon !== undefined) {
-      return dir
-    }
-    if (dirname(dir) === dir) throw new Error('no package.json with a "canon" field')
-  }
-}
-
 /** Lint the documents at `targets`, reported relative to `root`. Prints the findings and returns how many there were. */
 async function lintFiles(targets: string[], root: string): Promise<number> {
   const files: VFile[] = []
@@ -130,30 +116,13 @@ async function lintFiles(targets: string[], root: string): Promise<number> {
   return files.reduce((n, f) => n + f.messages.length, 0)
 }
 
-/**
- * Lint `paths`, or with none the canon documents declared in package.json.
- * Prints the findings and returns how many there were.
- */
-export async function lint(paths: string[]): Promise<number> {
-  const root = paths.length > 0 ? process.cwd() : projectRoot()
-  const targets =
-    paths.length > 0
-      ? paths.map((f) => resolve(f))
-      : ((JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).canon.documents ?? ['CANON.md']) as string[]).map(
-          (d) => join(root, d)
-        )
-  return lintFiles(targets, root)
-}
-
 export const plugin: Plugin = {
   name: 'lint',
   commands: {
     // Files named on the command line are linted whatever their frontmatter says; with none, the documents that apply it.
-    lint: async ({ args, root, documents }) =>
-      (await (args.length > 0 ? lint(args) : lintFiles(documents.map((d) => join(root, d)), root))) === 0 ? 0 : 1,
+    lint: async ({ args, root, documents }) => {
+      const targets = args.length > 0 ? args.map((f) => resolve(f)) : documents.map((d) => join(root, d))
+      return (await lintFiles(targets, args.length > 0 ? process.cwd() : root)) === 0 ? 0 : 1
+    },
   },
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  process.exit((await lint(process.argv.slice(2))) === 0 ? 0 : 1)
 }

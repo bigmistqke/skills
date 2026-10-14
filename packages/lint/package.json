@@ -1,0 +1,54 @@
+{
+  "name": "@bigmistqke/canon-lint",
+  "version": "0.1.0",
+  "description": "The prose checks for @bigmistqke/canon: passive voice, wordy phrases, repeated words, wrong articles, and sentences and paragraphs that run too long.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigmistqke/skills.git",
+    "directory": "packages/lint"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm test && pnpm build"
+  },
+  "peerDependencies": {
+    "@bigmistqke/canon": "^0.2.1"
+  },
+  "dependencies": {
+    "remark-parse": "^11.0.0",
+    "remark-retext": "^6.0.1",
+    "retext-english": "^5.0.0",
+    "retext-indefinite-article": "^5.0.0",
+    "retext-passive": "^5.0.0",
+    "retext-repeated-words": "^5.0.0",
+    "retext-simplify": "^8.0.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
+    "vfile": "^6.0.3",
+    "vfile-reporter": "^8.1.1"
+  },
+  "devDependencies": {
+    "@bigmistqke/canon": "workspace:*",
+    "@types/mdast": "^4.0.4",
+    "@types/nlcst": "^2.0.3",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

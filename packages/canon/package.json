@@ -17,7 +17,6 @@
     "./extends": "./dist/extends.js",
     "./frontmatter": "./dist/frontmatter.js",
     "./kinds": "./dist/kinds.js",
-    "./lint": "./dist/lint.js",
     "./package.json": "./package.json",
     "./plugin": "./dist/plugin.js",
     "./regions": "./dist/regions.js",
@@ -36,22 +35,7 @@
     "test": "vitest run",
     "prepublishOnly": "pnpm test && pnpm build"
   },
-  "dependencies": {
-    "remark-parse": "^11.0.0",
-    "remark-retext": "^6.0.1",
-    "retext-english": "^5.0.0",
-    "retext-indefinite-article": "^5.0.0",
-    "retext-passive": "^5.0.0",
-    "retext-repeated-words": "^5.0.0",
-    "retext-simplify": "^8.0.0",
-    "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0",
-    "vfile": "^6.0.3",
-    "vfile-reporter": "^8.1.1"
-  },
   "devDependencies": {
-    "@types/mdast": "^4.0.4",
-    "@types/nlcst": "^2.0.3",
     "@types/node": "^22.0.0",
     "bumpp": "^12.3.0",
     "typescript": "^5.8.3",

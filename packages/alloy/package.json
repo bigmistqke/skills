@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@bigmistqke/canon": "workspace:*",
+    "@bigmistqke/canon-lint": "workspace:*",
     "@types/node": "^22.0.0",
     "remark-parse": "^11.0.0",
     "typescript": "^5.8.3",

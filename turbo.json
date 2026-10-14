@@ -37,7 +37,8 @@
     "@bigmistqke/canon-alloy#test": {
       "dependsOn": [
         "build",
-        "@bigmistqke/canon#build"
+        "@bigmistqke/canon#build",
+        "@bigmistqke/canon-lint#build"
       ],
       "env": [
         "CANON_ALLOY_JAR",

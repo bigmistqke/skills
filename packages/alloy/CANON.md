@@ -1,5 +1,5 @@
 ---
-plugins: ["@bigmistqke/canon/lint", "@bigmistqke/canon-alloy"]
+plugins: ["@bigmistqke/canon-lint", "@bigmistqke/canon-alloy"]
 extends: ["../canon/CANON.md"]
 suites: test/canon
 sources: [test]

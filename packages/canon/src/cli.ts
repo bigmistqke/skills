@@ -4,7 +4,7 @@
  * the citations, and the writer that regenerates what the documents generate.
  * The protocol is the `canon` skill; this file's own `--help` is the manual.
  *
- * Depends on nothing outside Node, except `lint`.
+ * Depends on nothing outside Node.
  */
 import {
   existsSync,
@@ -1533,8 +1533,7 @@ Every unit that makes a derived claim carries a machine-checkable link to what
 it derives from — its position under the unit it derives from, a link on a
 "Derives from:" line in a document, a @canon JSDoc tag in a test — and the
 documents' index and the table of kinds are generated from those links rather
-than hand-kept. check is the gate, generate is the writer, tree is the map,
-and lint reads the prose.
+than hand-kept. check is the gate, generate is the writer, and tree is the map.
 
 Usage:
   ${COMMAND} check [--offline]     report every finding; exit 1 if there is one. With a
@@ -1555,21 +1554,23 @@ Options for tree:
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
-The commands lint and logic come from plugins: @bigmistqke/canon/lint and
-@bigmistqke/canon/alloy. The Alloy plugin also adds to generate and check: a
+The commands lint and logic come from plugins: @bigmistqke/canon-lint and
+@bigmistqke/canon-alloy. The Alloy plugin also adds to generate and check: a
 document with a "readings" block has the statement of each unit with a
 predicate written from the predicate, and check reports one that is stale. It
 also reports the words of such a document that are undeclared, misplaced,
-apart from their declaration or unused. A document's frontmatter chooses which apply to it,
-each named by its package ("plugins: [\"@bigmistqke/canon/lint\"]"); with none,
-both do. Any other name is a package installed in the project, whose commands
-are added to these.
+apart from their declaration or unused. A document's frontmatter chooses which
+plugins apply to it, each named by its package ("plugins:
+[\"@bigmistqke/canon-lint\"]"); with none, none applies. Each is a package
+installed in the project, whose commands are added to these.
 
-logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" field
-of the scope gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
+logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" setting
+of the entry document gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
-The protocol is the canon skill. The scope is the "canon" field of
-package.json: documents, suites, sources, references, command, tracker.
+The protocol is the canon skill. The scope is the frontmatter of the entry
+document, the nearest CANON.md that holds a setting: documents, suites,
+sources, references, command, tracker. A project that keeps it in the "canon"
+field of package.json is served while no document holds a setting.
 
 What check reports:
 ${(Object.keys(MEANING) as FindingName[])
