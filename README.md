@@ -24,6 +24,8 @@ A project keeps its theory — how the program meets the world it serves, in the
 - [`skills/canon`](skills/canon/SKILL.md): the protocol for working in a project with a `CANON.md`.
 - [`skills/grill-with-canon`](skills/grill-with-canon/SKILL.md): settle a design question the canon does not decide by interviewing the owner of the design, and write each answer into the canon.
 - [`packages/canon`](packages/canon): the checker, published as `@bigmistqke/canon`. A project installs it as a dev dependency so it runs in CI too; [`checker.md`](skills/canon/checker.md) has the setup.
+- [`packages/lint`](packages/lint): the prose checks, published as `@bigmistqke/canon-lint`.
+- [`packages/alloy`](packages/alloy): the logic checks and the generated statements, published as `@bigmistqke/canon-alloy`.
 
 ## Development
 
