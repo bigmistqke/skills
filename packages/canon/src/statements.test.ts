@@ -69,8 +69,8 @@ describe('the states of the statements', () => {
   it('says the statement as the unit reads it, in words from the readings', () => {
     const { src } = write(doc());
     const [unit] = readUnits(src).filter(u => u.id === 'spec-a-leaf');
-    expect(unit?.statement).toContain('At every moment, for every node n:');
-    expect(unit?.statement).toContain('when n has started, then now or at a later moment, n is done.');
+    expect(unit?.statement).toContain('At every moment, for every node_1:');
+    expect(unit?.statement).toContain('when node_1 has started, then now or at a later moment, node_1 is done.');
   });
 
   it('finds a statement stale when its predicate changes, and writes it again', () => {
@@ -79,7 +79,7 @@ describe('the states of the statements', () => {
     expect(states(changed)).toMatchObject([{ kind: 'stale' }]);
     const again = write(changed);
     expect(again.written).toEqual(['spec-a-leaf']);
-    expect(again.src).toContain('when n has started, then n is done.');
+    expect(again.src).toContain('when node_1 has started, node_1 is done.');
     expect(states(again.src)).toMatchObject([{ kind: 'current' }]);
   });
 
@@ -118,7 +118,7 @@ describe('the states of the statements', () => {
   });
 
   it('writes a quote that Markdown reads as paragraphs and a bulleted list', () => {
-    const { src } = write(doc('always all n: Node | n in Started and n not in Done implies eventually n in Done'));
+    const { src } = write(doc('always all n: Node | n in Started and n not in Done and n in Started and n not in Done implies eventually n in Done'));
     const quote = src.split('\n').filter(l => l.startsWith('>')).slice(1).join('\n');
     const tree = unified().use(remarkParse).parse(quote) as { children: { type: string; children: { type: string }[] }[] };
     const inner = tree.children[0]?.children.map(n => n.type);
@@ -167,9 +167,9 @@ always all n: Node | n in Started implies eventually finished[n]
   it('link to the terms that say them, the first time each is mentioned', () => {
     const { src } = write(linked);
     const unit = readUnits(src).find(u => u.id === 'axiom-a-node-finishes');
-    expect(unit?.statement).toContain('for every [node](#term-node) n');
+    expect(unit?.statement).toContain('for every [node_1](#term-node)');
     // "started" is said by the term for the node, which the statement has already linked: a term is linked once
-    expect(unit?.statement).toContain('n has started');
+    expect(unit?.statement).toContain('node_1 has started');
     expect(unit?.statement).not.toContain('[started]');
     expect(unit?.statement).toContain('[finished](#term-done)');
   });
@@ -177,7 +177,7 @@ always all n: Node | n in Started implies eventually finished[n]
   it('never link a statement to its own unit', () => {
     const { src } = write(linked);
     const unit = readUnits(src).find(u => u.id === 'term-done');
-    expect(unit?.statement).toContain('[node](#term-node)');
+    expect(unit?.statement).toContain('[node_1](#term-node)');
     expect(unit?.statement).not.toContain('(#term-done)');
   });
 });

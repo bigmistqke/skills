@@ -24,7 +24,7 @@ interface Definition {
 export interface Readings {
   /** The noun for a signature: `Owner` is "owner". */
   nouns: Map<string, string>;
-  /** The unit that holds the line of a noun, which a word in brackets links to. */
+  /** The unit a variable of the type links to where it is introduced: the unit that holds a noun with a word in brackets, or the unit the bracket points at. */
   nounUnits: Map<string, string>;
   /** The article of a noun that was written with one, `noun Hour: an hour`: the default goes by the sound of the word, and a noun can say otherwise. */
   articles: Map<string, string>;
@@ -82,7 +82,10 @@ export function parseReadings(text: string, unit?: string): Readings {
       const written = /^(an?)\s+(.+)$/.exec((noun[2] as string).trim());
       readings.nouns.set(noun[1] as string, written ? (written[2] as string) : (noun[2] as string).trim());
       if (written) readings.articles.set(noun[1] as string, written[1] as string);
-      if (unit !== undefined) readings.nounUnits.set(noun[1] as string, unit);
+      // The variables of the type link to its term only where the author marked the noun.
+      const marked = /\[([^\]]+)\](?:\(#([^)\s]+)\))?/.exec(noun[2] as string);
+      const target = marked === null ? undefined : (marked[2] ?? unit);
+      if (target !== undefined) readings.nounUnits.set(noun[1] as string, target);
       balanced(line);
       continue;
     }
@@ -134,6 +137,21 @@ function resolveLinks(text: string, links: boolean, self: string | undefined): s
 /** Marks a variable in the words, so that a sentence is never started with a capital in place of the variable's own letter. */
 const VARIABLE = '\u0001';
 
+/**
+ * A variable stood in for while a clause is tried: the clause is said once with
+ * the hole in place of the variable, and the hole is then filled with a noun
+ * phrase if the variable turns out to be said once.
+ */
+const holeOf = (level: number): string => String.fromCharCode(3 + level);
+const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
+
+/** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
+const TIME_PHRASE = /^(?:now or at|at every|at the next|right after)\b/;
+
+/** The most that is said in a sentence, and not in a list, and how long it may be. */
+const INLINE_ITEMS = 3;
+const INLINE_LENGTH = 110;
+
 const ALL = 'all of these hold:';
 const ANY = 'at least one of these holds:';
 
@@ -178,12 +196,15 @@ class Verbalizer {
    * that are different never look like one in the words.
    */
   private readonly used: Set<string>;
+  /** How many variables are being tried for a noun phrase around this one: each has a hole of its own. */
+  private readonly level: number;
 
-  constructor(readings: Readings, bound: Map<string, string> = new Map(), chain: string[] = [], used: Set<string> = new Set()) {
+  constructor(readings: Readings, bound: Map<string, string> = new Map(), chain: string[] = [], used: Set<string> = new Set(), level = 0) {
     this.readings = readings;
     this.bound = bound;
     this.chain = chain;
     this.used = used;
+    this.level = level;
   }
 
   /** A variable of the formula: inside the body of a predicate, its parameter stands for the argument. */
@@ -229,11 +250,24 @@ class Verbalizer {
     return article === undefined ? undefined : `${article} `;
   }
 
-  private noun(type: Node): string {
-    const name = nameOf(type, 'the type of a quantified variable');
-    const noun = this.readings.nouns.get(name);
-    if (noun === undefined) throw new Error(`no noun for "${name}"`);
-    return mark(noun, this.readings.nounUnits.get(name));
+  /**
+   * A new variable of the type, named after its noun and the number it is: the
+   * first unit is unit_1 and the next is unit_2. The name says what the variable
+   * is wherever it is read, whatever the formula called it. Where it is
+   * introduced it links to the term for the type.
+   */
+  private fresh(type: Node): { name: string; shown: string; article: string } {
+    const typeName = nameOf(type, 'the type of a quantified variable');
+    const written = this.readings.nouns.get(typeName);
+    if (written === undefined) throw new Error(`no noun for "${typeName}"`);
+    const noun = written.replace(BRACKETED, (_, word: string) => word).trim();
+    const base = noun.replace(/\s+/g, '_');
+    let n = 1;
+    while (this.used.has(`${base}_${n}`)) n++;
+    const name = `${base}_${n}`;
+    this.used.add(name);
+    const unit = this.readings.nounUnits.get(typeName);
+    return { name, shown: unit === undefined ? name : `${LINK}${unit}${LINK}${name}${LINK}`, article: this.written(type) ?? articleFor(noun) };
   }
 
   /** A comparison, as the atoms it stands for: a union on the left or a difference on the right is spelled out. */
@@ -292,22 +326,21 @@ class Verbalizer {
   }
 
   private quantified(node: Extract<Node, { t: 'quant' }>): Doc {
+    const absorbed = this.absorbed(node);
+    if (absorbed !== undefined) return absorbed;
     const scope = new Map(this.bound);
     const vars = node.decls.flatMap(({ names, type }) =>
       names.map(name => {
-        let alias = name;
-        for (let n = 2; this.used.has(alias); n++) alias = `${name}${n}`;
-        this.used.add(alias);
-        scope.set(name, alias);
-        const noun = this.noun(type);
-        return { name: alias, noun, article: this.written(type) ?? articleFor(plain(noun)) };
+        const variable = this.fresh(type);
+        scope.set(name, variable.name);
+        return variable;
       })
     );
     const body = new Verbalizer(this.readings, scope, this.chain, this.used).doc(node.body);
     if (node.q === 'all') {
-      return { kind: 'block', intro: `for ${vars.map(v => `every ${v.noun} ${v.name}`).join(' and ')}:`, body };
+      return { kind: 'block', intro: `for ${vars.map(v => `every ${v.shown}`).join(' and ')}:`, body };
     }
-    const each = vars.map(v => `${v.noun} ${v.name}`);
+    const each = vars.map(v => v.shown);
     const head =
       node.q === 'some'
         ? `there ${vars.length === 1 ? 'is' : 'are'} ${vars.length === 1 ? (vars[0] as { article: string }).article : ''}${each.join(' and ')} such that`
@@ -351,22 +384,212 @@ class Verbalizer {
     return isList(doc) && doc.intro === intro ? doc.items : [doc];
   }
 
+  /** A node that says one fact in one clause, so that it can stand beside others in a sentence. */
+  private clause(node: Node): string | undefined {
+    const text = (doc: Doc): string | undefined => (typeof doc === 'string' ? doc : undefined);
+    const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff';
+    switch (node.t) {
+      case 'cmp':
+        return plainCmp(node) ? text(this.comparison(node, false)) : undefined;
+      case 'call':
+        return this.readings.atoms.has(node.name) ? text(this.call(node, false)) : undefined;
+      case 'mult':
+        return text(this.mult(node, false));
+      case 'not':
+        if (node.f.t === 'cmp') return plainCmp(node.f) ? text(this.comparison(node.f, true)) : undefined;
+        if (node.f.t === 'call') return this.readings.atoms.has(node.f.name) ? text(this.call(node.f, true)) : undefined;
+        return undefined;
+      case 'quant':
+        return this.absorbed(node);
+      default:
+        return undefined;
+    }
+  }
+
+  /** The items of an "and" or an "or" as one sentence, when there are few, they are short and flat, and none holds a comma. */
+  private inline(items: Node[], word: 'and' | 'or'): string | undefined {
+    if (items.length > INLINE_ITEMS) return undefined;
+    const said: string[] = [];
+    for (const item of items) {
+      const clause = this.clause(item);
+      // A comma inside an item makes a list of three read as a list of more.
+      if (clause === undefined || (clause.includes(',') && items.length > 2)) return undefined;
+      said.push(clause);
+    }
+    const clauses = shareSubject(said);
+    const text = clauses.length === 2 ? `${clauses[0]} ${word} ${clauses[1]}` : `${clauses.slice(0, -1).join(', ')} ${word} ${clauses[clauses.length - 1]}`;
+    return plain(text).replaceAll(VARIABLE, '').length <= INLINE_LENGTH ? text : undefined;
+  }
+
+  /**
+   * A "there is" or "there is no" over one variable that is said once, as a noun
+   * phrase in the place of that variable: "spec_1 cites no axiom" and not "there
+   * is no axiom_1 such that spec_1 cites axiom_1". The other conditions on the
+   * variable become a relative clause, "an issue that tracker does not know",
+   * and a comparison with another variable becomes "another unit". Undefined
+   * when it does not fit, and the quantifier is said in full.
+   */
+  private absorbed(node: Extract<Node, { t: 'quant' }>): string | undefined {
+    if (node.q !== 'some' && node.q !== 'no') return undefined;
+    if (node.decls.length > 1) {
+      // Variables of different kinds are said one inside the other: "a test checks a bug that sits in unit_1".
+      const [first, ...later] = node.decls as { names: string[]; type: Node }[];
+      return this.absorbed({ ...node, decls: [first as { names: string[]; type: Node }], body: { t: 'quant', q: 'some', decls: later, body: node.body } });
+    }
+    const decl = node.decls[0] as { names: string[]; type: Node };
+    try {
+      if (decl.names.length === 1) return this.absorb(node.q, decl.names[0] as string, decl.type, node.body);
+      if (decl.names.length === 2 && node.q === 'some') return this.absorbPair(decl.names as [string, string], decl.type, node.body);
+      return undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /** "there are unit a and unit b such that a is not b, c names a and c names b" as "c names a unit and another unit". */
+  private absorbPair([a, b]: [string, string], type: Node, body: Node): string | undefined {
+    const parts = body.t === 'and' ? body.items : [body];
+    const differ = parts.findIndex(p => p.t === 'cmp' && p.op === '!=' && p.l.t === 'name' && p.r.t === 'name' && new Set([p.l.name, p.r.name]).size === 2 && [p.l.name, p.r.name].includes(a) && [p.l.name, p.r.name].includes(b));
+    if (differ === -1) return undefined;
+    const mentions = (n: Node, v: string): boolean => JSON.stringify(n).includes(`"name":"${v}"`);
+    const rest = parts.filter((_, i) => i !== differ);
+    const ofA = rest.filter(p => mentions(p, a) && !mentions(p, b));
+    const ofB = rest.filter(p => mentions(p, b) && !mentions(p, a));
+    if (ofA.length === 0 || ofB.length === 0 || ofA.length + ofB.length !== rest.length) return undefined;
+    const all = (items: Node[]): Node => (items.length === 1 ? (items[0] as Node) : { t: 'and', items });
+    const first = this.absorb('some', a, type, all(ofA));
+    const second = this.absorb('some', b, type, all(ofB), true);
+    if (first === undefined || second === undefined) return undefined;
+    return shareSubject([first, second]).join(' and ');
+  }
+
+  private absorb(q: 'some' | 'no', x: string, type: Node, body: Node, another = false): string | undefined {
+    const typeName = nameOf(type, 'the type of a quantified variable');
+    const written = this.readings.nouns.get(typeName);
+    if (written === undefined) return undefined;
+    const parts = body.t === 'and' ? body.items : [body];
+    let other: string | undefined;
+    const rest: Node[] = [];
+    for (const part of parts) {
+      if (part.t === 'cmp' && part.op === '!=' && part.l.t === 'name' && part.r.t === 'name' && (part.l.name === x || part.r.name === x)) {
+        other = part.l.name === x ? part.r.name : part.l.name;
+      } else rest.push(part);
+    }
+    if (rest.length === 0 || (other !== undefined && q === 'no')) return undefined;
+    if (another) other = undefined;
+
+    // Say each condition with a hole in place of the variable. One of them is about the variable and something else; the rest are about the variable alone.
+    const hole = slotOf(this.level);
+    const probe = new Verbalizer(this.readings, new Map([...this.bound, [x, holeOf(this.level)]]), this.chain, this.used, this.level + 1);
+    const said: string[] = [];
+    for (const part of rest) {
+      const clause = probe.clause(part);
+      if (clause === undefined || clause.split(hole).length !== 2) return undefined;
+      said.push(clause);
+    }
+    // The main clause puts the variable beside something else, and preferably at the end: "test_1 carries a tag". The others say more of the variable.
+    const others = (s: string): boolean => (s.match(/\u0001[^\u0001]*\u0001/g) ?? []).length >= 2;
+    const at = said.findIndex(s => others(s) && s.endsWith(hole));
+    const index = at !== -1 ? at : said.findIndex(s => others(s) && s.startsWith(hole));
+    if (index === -1) return undefined;
+    const main = said[index] as string;
+    const relative = said.filter((_, i) => i !== index);
+
+    let suffix = '';
+    if (relative.length > 0) {
+      const asSubject = relative.filter(s => s.startsWith(hole));
+      if (asSubject.length === relative.length) {
+        const rests = asSubject.map(s => s.slice(hole.length));
+        const negations = rests.every(r => r.startsWith(' is not '));
+        suffix = ` that${negations ? ' is not ' : ' '}${coordinate(rests.map(r => (negations ? r.slice(' is not '.length) : r.trim())), negations ? 'or' : 'and')}`;
+      } else if (relative.length === 1 && (relative[0] as string).endsWith(hole)) {
+        suffix = ` that ${(relative[0] as string).slice(0, -hole.length).trim()}`;
+      } else return undefined;
+    }
+
+    const noun = mark(written, this.readings.nounUnits.get(typeName));
+    const nounText = written.replace(BRACKETED, (_, word: string) => word).trim();
+    const article = this.written(type) ?? articleFor(nounText);
+    let phrase: string;
+    if (q === 'no') phrase = `no ${noun}${suffix}`;
+    else if (another) phrase = `another ${noun}${suffix}`;
+    else if (other === undefined) phrase = `${article}${noun}${suffix}`;
+    else {
+      const shown = this.variable({ t: 'name', name: other }, 'the other variable');
+      phrase = new RegExp(`^${nounText.replace(/\s+/g, '_')}_\\d+$`).test(shown) ? `another ${noun}${suffix}` : `${article}${noun} other than ${VARIABLE}${shown}${VARIABLE}${suffix}`;
+    }
+    return main.replace(hole, phrase);
+  }
+
+  /**
+   * A definition by cases: its body is an "or" of alternatives, or one, that each begin
+   * by saying what kind of thing the parameter is. The alternatives are grouped
+   * by kind and said as noun phrases, one to a case: "unit_1 is unfounded exactly
+   * when unit_1 is one of these: a spec that cites no axiom and cites no spec; an
+   * exception that cites no spec or cites no fact". Undefined when the body is
+   * not of that shape, and it is said as it stands.
+   */
+  private cases(head: string, name: string, body: Node): Doc | undefined {
+    const subject = `${VARIABLE}${name}${VARIABLE}`;
+    /** What a clause says of the subject, without the subject: "cites no axiom". */
+    const predicate = (clause: string | undefined): string | undefined => {
+      if (clause === undefined || !clause.startsWith(`${subject} `)) return undefined;
+      const rest = clause.slice(subject.length + 1);
+      return /^(?:and|or)\b/.test(rest) ? undefined : rest;
+    };
+    const groups = new Map<string, { how: 'and' | 'or'; says: string[] }[]>();
+    for (const alternative of body.t === 'or' ? body.items : [body]) {
+      const parts = alternative.t === 'and' ? alternative.items : [alternative];
+      if (parts.length < 2) return undefined;
+      const guard = this.clause(parts[0] as Node);
+      const kind = guard?.startsWith(`${subject} is a`) ? guard.slice(subject.length + 4) : undefined;
+      if (kind === undefined || !/^an? /.test(kind)) return undefined;
+      const rest = parts.slice(1);
+      let said: { how: 'and' | 'or'; says: string[] };
+      if (rest.length === 1 && (rest[0] as Node).t === 'or') {
+        const options = ((rest[0] as Extract<Node, { t: 'or' }>).items).map(item => predicate(this.clause(item)));
+        if (options.some(option => option === undefined)) return undefined;
+        said = { how: 'or', says: options as string[] };
+      } else {
+        const conditions = rest.map(item => predicate(this.clause(item)));
+        if (conditions.some(condition => condition === undefined)) return undefined;
+        said = { how: 'and', says: conditions as string[] };
+      }
+      groups.set(kind, [...(groups.get(kind) ?? []), said]);
+    }
+    const cases: string[] = [];
+    for (const [kind, alternatives] of groups) {
+      // Several alternatives of one kind are "or"; one that is itself a run of "and" would be read two ways beside another.
+      if (alternatives.length > 1 && alternatives.some(a => a.how === 'and' && a.says.length > 1)) return undefined;
+      const says = alternatives.length === 1 ? (alternatives[0] as { how: 'and' | 'or'; says: string[] }) : { how: 'or' as const, says: alternatives.flatMap(a => a.says) };
+      if (says.says.some(s => s.includes(',')) && says.says.length > 2) return undefined;
+      cases.push(`${kind} that ${coordinate(says.says, says.how)}`);
+    }
+    if (cases.length === 1) return `${head} exactly when ${subject} is ${cases[0]}`;
+    return { kind: 'list', intro: `${head} exactly when ${subject} is one of these:`, items: cases };
+  }
+
   /**
    * A definition, said as "<what it names> exactly when <its body>", for every
    * value of its parameters. The words for what it names are its reading in the
    * table; its meaning is only its body.
    */
   definition(name: string, params: { name: string; type: string }[], body: Node): Doc {
-    for (const param of params) this.used.add(param.name);
-    const head = this.say(name, params.map(param => param.name), false);
-    const said = this.doc(body);
+    const vars = params.map(param => {
+      const variable = this.fresh({ t: 'name', name: param.type });
+      this.bound.set(param.name, variable.name);
+      return variable;
+    });
+    const head = this.say(name, vars.map(v => v.name), false);
+    const byCases = vars.length === 1 ? this.cases(head, vars[0]!.name, body) : undefined;
+    const said = byCases ?? this.doc(body);
     let sentence: Doc;
-    if (typeof said === 'string') sentence = `${head} exactly when ${said}`;
+    if (byCases !== undefined) sentence = byCases;
+    else if (typeof said === 'string') sentence = `${head} exactly when ${said}`;
     else if (isList(said)) sentence = { ...said, intro: `${head} exactly when ${said.intro}` };
     else throw new Error(`the definition of "${name}" is a rule or has a "for every", which has no words after "exactly when"`);
     if (params.length === 0) return sentence;
-    const vars = params.map(param => `every ${this.noun({ t: 'name', name: param.type })} ${param.name}`).join(' and ');
-    return { kind: 'block', intro: `for ${vars}:`, body: sentence };
+    return { kind: 'block', intro: `for ${vars.map(v => `every ${v.shown}`).join(' and ')}:`, body: sentence };
   }
 
   doc(node: Node): Doc {
@@ -382,10 +605,16 @@ class Verbalizer {
         return this.mult(node, false);
       case 'not':
         return this.negation(node.f);
-      case 'and':
+      case 'and': {
+        const inline = this.inline(node.items, 'and');
+        if (inline !== undefined) return inline;
         return { kind: 'list', intro: ALL, items: this.items(node.items, item => item.t === 'quant' && item.q === 'all').flatMap(item => this.spliced(item, ALL)) };
-      case 'or':
+      }
+      case 'or': {
+        const inline = this.inline(node.items, 'or');
+        if (inline !== undefined) return inline;
         return { kind: 'list', intro: ANY, items: this.items(node.items, () => true).flatMap(item => this.spliced(item, ANY)) };
+      }
       case 'implies':
         return { kind: 'rule', when: this.doc(node.l), then: this.doc(node.r) };
       case 'quant':
@@ -408,6 +637,30 @@ class Verbalizer {
   }
 }
 
+/**
+ * A clause that begins with the variable the clause before it begins with says
+ * it once: "test_1 is an expected failure, checks no bug and checks no
+ * exception". Not when the variable is the first of a pair, as in "unit_1 and
+ * unit_2 are different".
+ */
+function shareSubject(clauses: string[]): string[] {
+  const subjectOf = (clause: string): string | undefined => /^\u0001[^\u0001]*\u0001/.exec(clause)?.[0];
+  return clauses.map((clause, i) => {
+    const subject = subjectOf(clause);
+    const before = clauses[i - 1];
+    if (i === 0 || subject === undefined || before === undefined || subjectOf(before) !== subject) return clause;
+    const rest = clause.slice(subject.length + 1);
+    const pairLike = (c: string): boolean => /^(?:and|or)\b/.test(c.slice(subject.length + 1));
+    return pairLike(clause) || pairLike(before) ? clause : rest;
+  });
+}
+
+/** "a, b and c": the words of a coordination, with the word before the last. */
+function coordinate(words: string[], word: 'and' | 'or'): string {
+  if (words.length === 1) return words[0] as string;
+  return `${words.slice(0, -1).join(', ')} ${word} ${words[words.length - 1]}`;
+}
+
 /** "a failing cleanup c": the article before the first word of the noun, by the sound of the word: "a unit", "an owner". */
 function articleFor(phrase: string): string {
   if (/^(?:uni|use|usu|uti|eu|one|once)/i.test(phrase)) return 'a ';
@@ -428,7 +681,7 @@ function lines(doc: Doc): string[] {
   const when = lines(doc.when);
   const then = lines(doc.then);
   return [
-    `when ${when[0]}${when.length === 1 && then.length === 1 ? `, then ${then[0]}` : ''}`,
+    `when ${when[0]}${when.length === 1 && then.length === 1 ? `, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}` : ''}`,
     ...(when.length === 1 && then.length === 1 ? [] : [...when.slice(1), `then ${then[0]}`, ...then.slice(1).map(line => `     ${line}`)])
   ];
 }
@@ -453,7 +706,7 @@ function markdownLines(doc: Doc): string[] {
   if (doc.kind === 'block') return [doc.intro, '', ...markdownLines(doc.body)];
   const when = markdownLines(doc.when);
   const then = markdownLines(doc.then);
-  if (when.length === 1 && then.length === 1) return [`when ${when[0]}, then ${then[0]}`];
+  if (when.length === 1 && then.length === 1) return [`when ${when[0]}, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}`];
   return [`when ${when[0]}${when.length === 1 ? ',' : ''}`, ...when.slice(1), '', `then ${then[0]}`, ...then.slice(1)];
 }
 
