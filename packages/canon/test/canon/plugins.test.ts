@@ -21,7 +21,6 @@ afterEach(() => {
 const LONG = `${Array.from({ length: 29 }, () => 'word').join(' ')} end.`;
 
 const LINT = '@bigmistqke/canon/lint';
-const ALLOY = '@bigmistqke/canon/alloy';
 
 const doc = (frontmatter: string | undefined, body = ''): string =>
   `${frontmatter === undefined ? '' : `---\n${frontmatter}\n---\n`}# Canon\n\n${body}\n`;
@@ -56,10 +55,12 @@ describe('the documents a plugin inside this package applies to', () => {
    */
   it('applies the plugins a document names and no others', () => {
     const { out, code } = project(
-      { 'A.md': doc(`plugins: ["${ALLOY}"]`, LONG), 'B.md': doc(undefined, LONG) },
-      ['lint']
+      { 'A.md': doc('plugins: ["canon-a"]', LONG), 'B.md': doc(undefined, LONG) },
+      ['lint'],
+      adder('canon-a', 'lint', 'a linted', 0)
     );
     expect(out).toContain('B.md');
+    expect(out).toContain('a linted');
     expect(out).not.toContain('A.md');
     expect(code).toBe(1);
   });
@@ -150,7 +151,7 @@ describe('a plugin the project has installed', () => {
   it('stops a command of this package when a document names a plugin that does not exist', () => {
     const { out, code } = project({ 'A.md': doc('plugins: ["@bigmistqke/canon/logic"]') }, ['logic']);
     expect(out).toContain('the plugin "@bigmistqke/canon/logic" is not installed in this project');
-    expect(out).toContain('@bigmistqke/canon/alloy');
+    expect(out).toContain(LINT);
     expect(code).toBe(2);
   });
 

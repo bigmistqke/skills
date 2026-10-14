@@ -9,9 +9,9 @@
  * ones current, and neither touches a statement a person wrote: the person
  * deletes it to let it be generated.
  */
-import { readBlocks, type Block } from './blocks.ts';
-import { beginMarker, regionAt, replaceRegion } from './regions.ts';
-import { readUnits } from './units.ts';
+import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
+import { beginMarker, regionAt, replaceRegion } from '@bigmistqke/canon/regions';
+import { readUnits } from '@bigmistqke/canon/units';
 import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from './verbalize.ts';
 
 /** The name of the region that holds the generated statement of a unit. */
@@ -59,7 +59,7 @@ export function readingsOf(src: string, context: Context[] = []): Readings | und
   const merged = parseReadings('');
   for (const { path, blocks } of documents) {
     for (const block of blocks.filter(b => b.lang === 'readings')) {
-      const part = parseReadings(block.body, path === undefined ? block.unit : `${path}#${block.unit}`);
+      const part = parseReadings(block.body, path === undefined ? block.unit : `${path}#${block.unit}`, path);
       for (const [key, value] of part.nouns) merged.nouns.set(key, value);
       for (const [key, value] of part.nounUnits) merged.nounUnits.set(key, value);
       for (const [key, value] of part.articles) merged.articles.set(key, value);

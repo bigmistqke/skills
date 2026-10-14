@@ -6,8 +6,8 @@
  * that say it, and a word that nothing uses is a model element no claim relies
  * on. These checks read text only and need no solver.
  */
-import { readBlocks } from './blocks.ts';
-import { readUnits } from './units.ts';
+import { readBlocks } from '@bigmistqke/canon/blocks';
+import { readUnits } from '@bigmistqke/canon/units';
 
 export type WordKind = 'signature' | 'field' | 'predicate';
 

@@ -6,11 +6,10 @@
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { CLI, install, named } from './cli.ts';
 
-const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'cli.ts');
 const AXIOM = ['@', 'axiom'].join('');
 const DIRS: string[] = [];
 afterEach(() => {
@@ -66,7 +65,8 @@ function logic(document: string, withAnalyzer = true) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-logic-'));
   DIRS.push(dir);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
-  writeFileSync(join(dir, 'CANON.md'), document);
+  install(dir);
+  writeFileSync(join(dir, 'CANON.md'), named(document));
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
   const env = withAnalyzer ? process.env : { ...process.env, CANON_ALLOY_JAR: '' };
   const run = spawnSync(process.execPath, [CLI, 'logic'], { cwd: dir, encoding: 'utf8', env });

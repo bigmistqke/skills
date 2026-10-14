@@ -1,0 +1,52 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "agentGuidance": false,
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "build"
+      ],
+      "env": [
+        "CANON_ALLOY_JAR",
+        "CANON_JAVA"
+      ]
+    },
+    "@bigmistqke/canon#test": {
+      "dependsOn": [
+        "build",
+        "@bigmistqke/canon-alloy#build"
+      ],
+      "env": [
+        "CANON_ALLOY_JAR",
+        "CANON_JAVA"
+      ]
+    },
+    "@bigmistqke/canon-alloy#test": {
+      "dependsOn": [
+        "build",
+        "@bigmistqke/canon#build"
+      ],
+      "env": [
+        "CANON_ALLOY_JAR",
+        "CANON_JAVA"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/canon/CANON.md"
+      ]
+    }
+  }
+}

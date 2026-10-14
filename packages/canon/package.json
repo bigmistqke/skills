@@ -13,12 +13,12 @@
     "canon": "./dist/cli.js"
   },
   "exports": {
-    "./alloy": "./dist/logic.js",
     "./blocks": "./dist/blocks.js",
     "./extends": "./dist/extends.js",
     "./frontmatter": "./dist/frontmatter.js",
     "./kinds": "./dist/kinds.js",
     "./lint": "./dist/lint.js",
+    "./package.json": "./package.json",
     "./plugin": "./dist/plugin.js",
     "./regions": "./dist/regions.js",
     "./units": "./dist/units.js"

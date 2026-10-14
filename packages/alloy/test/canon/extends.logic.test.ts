@@ -8,10 +8,9 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { CLI, install } from './cli.ts';
 
-const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'cli.ts');
 /** The tags, spelled apart so the checker does not read this file's templates as citations. */
 const AXIOM = ['@', 'axiom'].join('');
 const TERM = ['@', 'term'].join('');
@@ -50,6 +49,7 @@ all n: Node | n in Done
 
 /** The document that extends it, with `claim` as the formula of its own axiom and `own` added to the end. */
 const child = (claim: string, own = ''): string => `---
+plugins: ["@bigmistqke/canon-alloy"]
 extends: ["../canon/CANON.md"]
 ---
 # Child
@@ -73,6 +73,7 @@ function project(files: Record<string, string>, command: string[]) {
   DIRS.push(dir);
   mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['alloy/CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
+  install(dir);
   for (const [name, text] of Object.entries(files)) {
     mkdirSync(dirname(join(dir, name)), { recursive: true });
     writeFileSync(join(dir, name), text);

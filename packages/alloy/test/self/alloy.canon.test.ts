@@ -10,26 +10,35 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { alloyProgram, checkAlloy } from './alloy.ts';
+import { CLI, CORE, PACKAGE } from '../canon/cli.ts';
+import { alloyProgram, checkAlloy } from '../../src/alloy.ts';
 
-const PACKAGE = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CANON = readFileSync(new URL('../CANON.md', import.meta.url), 'utf8');
+const CANON = readFileSync(join(CORE, 'CANON.md'), 'utf8');
 
 describe.skipIf(!process.env.CANON_ALLOY_JAR)('the canon of the checker', () => {
   // The analyzer is run to completion, which blocks this thread. The test runner answers its messages only when the event loop turns, so let it turn between tests.
   afterEach(() => new Promise(resolve => setTimeout(resolve, 0)));
 
-  // The whole canon takes longer to solve than the test runner waits for an answer from a blocked worker, so it is solved in a process of its own, which leaves this thread free.
-  it('holds together: the claims can all be true, with a clean canon, a bug kept in sight and a conflict kept in sight', { timeout: 300_000 }, async () => {
-    expect(alloyProgram(CANON).units.length).toBeGreaterThanOrEqual(43);
-    expect(alloyProgram(CANON).scenarios.length).toBeGreaterThanOrEqual(3);
-    const run = await new Promise<{ out: string; code: number | null }>(resolve => {
-      const child = spawn(process.execPath, [join(PACKAGE, 'src', 'cli.ts'), 'logic'], { cwd: PACKAGE });
+  // A whole canon takes longer to solve than the test runner waits for an answer from a blocked worker, so it is solved in a process of its own, which leaves this thread free.
+  const solved = (dir: string) =>
+    new Promise<{ out: string; code: number | null }>(resolve => {
+      const child = spawn(process.execPath, [CLI, 'logic'], { cwd: dir });
       let out = '';
       child.stdout.on('data', chunk => (out += chunk));
       child.stderr.on('data', chunk => (out += chunk));
       child.on('close', code => resolve({ out, code }));
     });
+
+  it('holds together: the claims can all be true, with a clean canon, a bug kept in sight and a conflict kept in sight', { timeout: 300_000 }, async () => {
+    expect(alloyProgram(CANON).units.length).toBeGreaterThanOrEqual(43);
+    expect(alloyProgram(CANON).scenarios.length).toBeGreaterThanOrEqual(3);
+    const run = await solved(CORE);
+    expect(run.out).toMatch(/^CANON\.md: \d+ units, \d+ scenarios$/m);
+    expect(run.code).toBe(0);
+  });
+
+  it('holds together for the Alloy plugin too, with the claims of the canon it extends', { timeout: 300_000 }, async () => {
+    const run = await solved(PACKAGE);
     expect(run.out).toMatch(/^CANON\.md: \d+ units, \d+ scenarios$/m);
     expect(run.code).toBe(0);
   });

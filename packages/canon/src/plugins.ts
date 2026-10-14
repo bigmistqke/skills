@@ -22,14 +22,12 @@ import type { Command, Plugin } from './plugin.ts';
  * package's own name and the path to the plugin. A package can always name
  * itself, so these resolve to the copy that is running, whether or not the
  * project lists canon as a dependency. Each lists its commands, so that
- * running one loads that plugin only: lint needs the retext packages and
- * the Alloy plugin needs a Java and the analyzer, which no other command does.
- * The Alloy plugin adds the `logic` command: the command is named for the
- * layer it checks, so that a plugin for another logic language can add to it.
+ * running one loads that plugin only: lint needs the retext packages, which no
+ * other command does. Any other plugin, such as the Alloy plugin in
+ * `@bigmistqke/canon-alloy`, is a package the project has installed.
  */
 const SELF: Record<string, { commands: string[]; load: () => Promise<{ plugin: Plugin }> }> = {
-  '@bigmistqke/canon/lint': { commands: ['lint'], load: () => import('./lint.ts') },
-  '@bigmistqke/canon/alloy': { commands: ['logic', 'generate', 'check'], load: () => import('./logic.ts') }
+  '@bigmistqke/canon/lint': { commands: ['lint'], load: () => import('./lint.ts') }
 };
 
 /** The plugins a document that names none gets: every plugin inside this package, as every document did before frontmatter existed. */

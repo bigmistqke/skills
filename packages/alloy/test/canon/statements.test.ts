@@ -5,17 +5,16 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import { afterEach, describe, expect, it } from 'vitest';
 import { regionName, states, write } from '../../src/statements.ts';
+import { CLI, install, named } from './cli.ts';
 
 /** The tag of an axiom, spelled apart so the checker does not read this file's templates as citations. */
 const AXIOM = ['@', 'axiom'].join('');
 
-const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'cli.ts');
 
 const DIRS: string[] = [];
 afterEach(() => {
@@ -224,7 +223,8 @@ function project(document: string, ...commands: string[][]) {
   DIRS.push(dir);
   mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
-  writeFileSync(join(dir, 'CANON.md'), document);
+  install(dir);
+  writeFileSync(join(dir, 'CANON.md'), named(document));
   const runs = commands.map(args => {
     const run = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8' });
     return { out: `${run.stdout}${run.stderr}`, code: run.status };

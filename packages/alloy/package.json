@@ -1,0 +1,55 @@
+{
+  "name": "@bigmistqke/canon-alloy",
+  "version": "0.1.0",
+  "description": "The Alloy plugin for @bigmistqke/canon: the logic of a canon said in words, and checked by the Alloy analyzer.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigmistqke/skills.git",
+    "directory": "packages/alloy"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm test && pnpm build"
+  },
+  "peerDependencies": {
+    "@bigmistqke/canon": "^0.2.1"
+  },
+  "devDependencies": {
+    "@bigmistqke/canon": "workspace:*",
+    "@types/node": "^22.0.0",
+    "remark-parse": "^11.0.0",
+    "typescript": "^5.8.3",
+    "unified": "^11.0.5",
+    "vitest": "^3.1.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "canon": {
+    "documents": [
+      "CANON.md"
+    ],
+    "suites": "test/canon",
+    "sources": [
+      "test"
+    ],
+    "command": "node ../canon/src/cli.ts",
+    "tracker": {
+      "kind": "github",
+      "repo": "bigmistqke/skills"
+    }
+  }
+}

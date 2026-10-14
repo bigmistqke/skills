@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseFormula } from '../../src/alloy-parse.ts';
-import { readBlocks } from '../../src/blocks.ts';
+import { readBlocks } from '@bigmistqke/canon/blocks';
 import { readingsOf } from '../../src/statements.ts';
 import { isDefinition, parseDefinitions, parseReadings, type Readings, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
 
@@ -506,6 +506,22 @@ describe('a word that names a term', () => {
    */
   it('links to the unit it points at when it says one', () => {
     expect(markdown('a in Told')).toBe('[Checker](#term-checker) tells a.');
+  });
+
+  /**
+   * @canon spec-a-word-of-an-extended-document-links-to-that-document
+   */
+  it('goes through the path of the document that holds a reading, for a link in it to a unit of that document', () => {
+    const other = parseReadings('Told: [checker](#term-checker) tells {1} | [checker](#term-checker) tells no one', 'canon/CANON.md#term-x', 'canon/CANON.md');
+    expect(verbalize('a in Told', other, 'markdown')).toBe('[Checker](canon/CANON.md#term-checker) tells a.');
+  });
+
+  /**
+   * @canon spec-a-reading-that-points-at-a-unit-links-to-it
+   */
+  it('links to a unit of another document by its whole target, when the reading points at one', () => {
+    const other = parseReadings('Told: [checker](../canon/CANON.md#term-checker) tells {1} | [checker](../canon/CANON.md#term-checker) tells no one', 'term-x');
+    expect(verbalize('a in Told', other, 'markdown')).toBe('[Checker](../canon/CANON.md#term-checker) tells a.');
   });
 
   /**

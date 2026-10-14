@@ -5,15 +5,14 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { checkWords, declared } from '../../src/words.ts';
+import { CLI, install, named } from './cli.ts';
 
 /** The tag of an axiom, spelled apart so the checker does not read this file's templates as citations. */
 const AXIOM = ['@', 'axiom'].join('');
 
-const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'cli.ts');
 const DIRS: string[] = [];
 afterEach(() => {
   for (const dir of DIRS.splice(0)) rmSync(dir, { recursive: true, force: true });
@@ -162,7 +161,8 @@ describe('the command line', () => {
     DIRS.push(dir);
     mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
     writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
-    writeFileSync(join(dir, 'CANON.md'), document);
+    install(dir);
+    writeFileSync(join(dir, 'CANON.md'), named(document));
     spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
     const run = spawnSync(process.execPath, [CLI, 'check'], { cwd: dir, encoding: 'utf8' });
     return { out: run.stdout, code: run.status };
