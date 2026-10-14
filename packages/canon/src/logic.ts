@@ -12,7 +12,7 @@ import * as statements from './statements.ts';
 import { checkWords } from './words.ts';
 
 /** Check each document's maps and alloy blocks; the exit code: 0 when the maps are current and every scenario can happen, 1 when not, 2 when a check could not run. */
-export function logic(documents: string[], root: string, options: AlloyOptions): number {
+export async function logic(documents: string[], root: string, options: AlloyOptions): Promise<number> {
   let code = 0;
   let checked = 0;
   for (const doc of documents) {
@@ -28,7 +28,7 @@ export function logic(documents: string[], root: string, options: AlloyOptions):
     const maps = checkMaps(src);
     if (maps.length > 0) code = 1;
     for (const finding of maps) console.log(`${doc}: ${finding.unit}: ${finding.kind}: ${finding.message}`);
-    const result = checkAlloy(src, options);
+    const result = await checkAlloy(src, options);
     if ('error' in result) {
       console.error(`canon: ${doc}: the Alloy analyzer did not run\n${result.error}`);
       return 2;
@@ -44,6 +44,8 @@ export function logic(documents: string[], root: string, options: AlloyOptions):
       );
       if (failure.unit !== undefined) {
         console.log(`    one of these has to change: ${failure.conflict.join(', ') || 'no single unit (several together)'}`);
+      } else {
+        console.log(`    these units cannot all hold: ${failure.conflict.join(', ')}`);
       }
     }
   }

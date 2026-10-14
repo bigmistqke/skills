@@ -1,9 +1,8 @@
 /**
- * The fenced blocks of a canon document. This file tests the checker's own
- * tooling, not a project's canon, so it carries no `@canon` tag.
+ * The fenced blocks of a canon document.
  */
 import { describe, expect, it } from 'vitest';
-import { readBlocks } from './blocks.ts';
+import { readBlocks } from '../../src/blocks.ts';
 
 const DOC = `# Canon
 
@@ -17,6 +16,10 @@ sig Owner {}
 
 \`\`\`alloy bounds
 for 3
+\`\`\`
+
+\`\`\`alloy scenario
+some Owner
 \`\`\`
 
 ### @spec a-leaf
@@ -43,20 +46,36 @@ no language, so prose
 describe('the blocks of a document', () => {
   const blocks = readBlocks(DOC);
 
+  /**
+   * @canon spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it
+   * @canon spec-a-fence-with-no-language-is-prose
+   * @canon spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary
+   * @canon spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds
+   * @canon spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario
+   * @canon spec-a-block-with-no-role-word-is-the-formula-of-its-unit
+   */
   it('reads each fenced block of a language, with the unit that holds it, its language and its role', () => {
     expect(blocks.map(b => [b.unit, b.lang, b.role])).toEqual([
       ['term-cluster', 'alloy', 'vocabulary'],
       ['term-cluster', 'alloy', 'bounds'],
+      ['term-cluster', 'alloy', 'scenario'],
       ['spec-a-leaf', 'alloy', 'unit'],
       ['spec-nested', 'smt', 'unit'],
     ]);
   });
 
+  /**
+   * @canon spec-the-body-of-a-block-is-the-lines-between-its-fences
+   * @canon spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document
+   */
   it('keeps the block\'s body apart from its fences, and says where in the document it starts', () => {
-    expect(blocks[0].body).toBe('sig Owner {}\n');
+    expect(blocks[0]?.body).toBe('sig Owner {}\n');
     expect(blocks.map(b => DOC.slice(b.at, b.at + b.body.length))).toEqual(blocks.map(b => b.body));
   });
 
+  /**
+   * @canon spec-a-nested-units-block-is-its-own
+   */
   it('gives a nested unit\'s block to the nested unit alone', () => {
     expect(blocks.filter(b => b.unit === 'spec-a-leaf')).toHaveLength(1);
   });

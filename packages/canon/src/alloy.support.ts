@@ -26,11 +26,11 @@ export const alone = (stem: string): [string, string[]] => [`spec-${stem}`, [`sp
 // One scenario on each of several units, so that one run of the analyzer answers for all of them, and the unit that holds a scenario says which it was.
 // Each scenario says which unit is expected to keep it out, and the analyzer is asked about leaving out that one alone: if the scenario can happen without it,
 // nothing else was keeping it out, and each question costs one run instead of one for every unit.
-export const answers = (scenarios: [stem: string, scenario: string, keeper?: string][]): unknown => {
+export const answers = async (scenarios: [stem: string, scenario: string, keeper?: string][]): Promise<unknown> => {
   // None of the scenarios takes more than five events, and fewer steps make the analyzer prove that something cannot happen much sooner.
   const shorter = LIFETIMES.replace('for 3 but 1..8 steps', 'for 3 but 1..6 steps');
   const leave = Object.fromEntries(scenarios.map(([stem, , keeper]) => [`spec-${stem}`, [`spec-${keeper ?? stem}`]]));
-  const result = checkAlloy(scenarios.reduce((src, [stem, scenario]) => withScenario(src, stem, scenario), shorter), { leave });
+  const result = await checkAlloy(scenarios.reduce((src, [stem, scenario]) => withScenario(src, stem, scenario), shorter), { leave });
   expect(result).toMatchObject({ ok: false });
   return 'failures' in result && Object.fromEntries(result.failures.map(f => [f.unit, f.conflict]));
 };

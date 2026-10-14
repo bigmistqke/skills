@@ -1,10 +1,11 @@
 /**
- * The reader every tool reads a canon document through. This file tests the
- * checker's own tooling, not a project's canon, so it lives outside any declared
- * suite directory and carries no `@canon` tag.
+ * The reader every tool reads a canon document through.
  */
 import { describe, expect, it } from 'vitest';
-import { readUnits } from './units.ts';
+import { readUnits } from '../../src/units.ts';
+
+/** The tag of an axiom, spelled apart so the checker does not read this file's templates as citations. */
+const AXIOM = ['@', 'axiom'].join('');
 
 const DOC = `# Canon
 
@@ -12,7 +13,7 @@ const DOC = `# Canon
 - [\`@spec in-the-index\`](#spec-in-the-index) — not a unit
 <!-- toc:end -->
 
-## @axiom a-program-means-one-thing
+## ${AXIOM} a-program-means-one-thing
 
 > A program means one thing. It means it
 > on every target.
@@ -42,20 +43,38 @@ describe('the units of a document', () => {
   const units = readUnits(DOC);
   const byId = Object.fromEntries(units.map(u => [u.id, u]));
 
+  /**
+   * @canon spec-a-heading-with-a-kind-and-a-stem-declares-a-unit
+   * @canon spec-a-heading-in-a-fenced-block-declares-no-unit
+   * @canon spec-a-heading-in-the-index-declares-no-unit
+   */
   it('reads each unit heading, and nothing in the index or a fenced block', () => {
     expect(units.map(u => u.id)).toEqual(['axiom-a-program-means-one-thing', 'spec-a-leaf', 'spec-after-a-section']);
     expect(byId['spec-a-leaf']).toMatchObject({ kind: 'spec', stem: 'a-leaf', level: 3 });
   });
 
+  /**
+   * @canon spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text
+   * @canon spec-every-line-of-the-blockquote-is-part-of-the-statement
+   */
   it('takes the statement from the blockquote opening the unit, every line of it', () => {
     expect(byId['axiom-a-program-means-one-thing'].statement).toBe('A program means one thing. It means it on every target.');
   });
 
+  /**
+   * @canon spec-a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading
+   * @canon spec-a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it
+   */
   it('finds the unit a unit sits in, and none across a plain section heading', () => {
     expect(byId['spec-a-leaf'].parent).toBe('axiom-a-program-means-one-thing');
     expect(byId['spec-after-a-section'].parent).toBeUndefined();
   });
 
+  /**
+   * @canon spec-a-unit-owns-only-the-text-before-its-first-nested-heading
+   * @canon spec-a-site-line-in-the-own-text-names-the-site-of-its-unit
+   * @canon spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above
+   */
   it('keeps a unit\'s own text apart from the units nested in it, and reads its site from there', () => {
     expect(byId['axiom-a-program-means-one-thing'].own).toContain('Prose about the axiom.');
     expect(byId['axiom-a-program-means-one-thing'].own).not.toContain('A leaf says one thing.');
