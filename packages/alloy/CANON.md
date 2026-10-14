@@ -1,6 +1,10 @@
 ---
 plugins: ["@bigmistqke/canon/lint", "@bigmistqke/canon-alloy"]
 extends: ["../canon/CANON.md"]
+suites: test/canon
+sources: [test]
+command: node ../canon/src/cli.ts
+tracker: {kind: github, repo: bigmistqke/skills}
 ---
 # Canon: the Alloy plugin
 

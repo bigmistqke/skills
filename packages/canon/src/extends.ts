@@ -13,7 +13,7 @@ import { readFrontmatter } from './frontmatter.ts';
 
 /** The documents a document lists, as absolute paths. Throws when a path names no document. */
 export function extendedBy(file: string, root: string): string[] {
-  const paths = readFrontmatter(readFileSync(file, 'utf8'))?.extends ?? [];
+  const paths = readFrontmatter(readFileSync(file, 'utf8'), true)?.extends ?? [];
   return paths.map(path => {
     const target = resolve(dirname(file), path);
     if (!existsSync(target)) throw new Error(`${relative(root, file)}: the path "${path}" names no document`);

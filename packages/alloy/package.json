@@ -37,19 +37,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "canon": {
-    "documents": [
-      "CANON.md"
-    ],
-    "suites": "test/canon",
-    "sources": [
-      "test"
-    ],
-    "command": "node ../canon/src/cli.ts",
-    "tracker": {
-      "kind": "github",
-      "repo": "bigmistqke/skills"
-    }
   }
 }

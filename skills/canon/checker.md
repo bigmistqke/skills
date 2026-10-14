@@ -10,28 +10,29 @@ The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependen
 pnpm add -D @bigmistqke/canon
 ```
 
-Then declare the scope in the `canon` field of `package.json`. `pnpm canon` runs the package's `canon` command, so the project needs no script for it:
+Then declare the scope in the frontmatter of the entry document, the `CANON.md` where you run the command or the nearest one above it. `pnpm canon` runs the package's `canon` command, so the project needs no script for it:
 
-```json
-{
-  "canon": {
-    "documents": ["CANON.md"],
-    "suites": "test/canon",
-    "sources": ["src", "test"],
-    "references": [],
-    "command": "pnpm canon",
-    "tracker": { "kind": "github", "repo": "owner/name" }
-  }
-}
+```yaml
+---
+documents: [OTHER.md]
+suites: test/canon
+sources: [src, test]
+references: []
+command: pnpm canon
+tracker: {kind: github, repo: owner/name}
+---
 ```
 
-- `documents`: the canon documents. Default `["CANON.md"]`.
+The frontmatter reads a small part of YAML: a string, a list written as `[a, b]` or as lines that start with a dash, and a map written between braces. Every key is optional. The entry document is the nearest `CANON.md` whose frontmatter holds a setting. Paths start from the folder of that document. A setting in any other document that the project checks is refused. A project that has not moved its settings can keep them in the `canon` field of `package.json`, which serves while no document holds a setting.
+
+- `documents`: the siblings of the entry document that are checked with it. The entry document is always checked. Default none.
 - `suites`: the declared suite directory. Every test in it must cite a unit. Default `test/canon`. Keep it flat: a suite answers to a claim, not to a module.
 - `sources`: the trees the checker reads for other citations and for the places specs name. Default `["src", "test"]`.
 - `references`: prose documents whose links must resolve but credit no unit. Default none.
 - A document that builds on another lists its path under `extends` in its frontmatter, such as `extends: ["../canon/CANON.md"]`. The other document is context: the checker reads its units and checks it where it lives. A path that names no document is refused.
 - `command`: how the project runs the checker, for the advice in findings.
 - `tracker`: the issue tracker the bugs and conflicts name their issues in. Default none. [Section 3](#3-issues) has the fields.
+- A plugin may define a key of its own, such as `logic: {alloy: {jar: tools/alloy.jar}}`. The checker accepts it once the document lists the plugin, and refuses any other key it does not know.
 
 ## 2. Commands
 
@@ -58,9 +59,9 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 
 A bug or a conflict names its issue on a line of its own, such as `Issue: #49`. With no `tracker` in the scope, `check` accepts any `#49` or issue URL. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
 
-```json
-{ "kind": "github", "repo": "owner/name" }
-{ "kind": "gitlab", "project": "group/subgroup/project", "host": "gitlab.example.com" }
+```yaml
+tracker: {kind: github, repo: owner/name}
+tracker: {kind: gitlab, project: group/subgroup/project, host: gitlab.example.com}
 ```
 
 - `kind`: `github` or `gitlab`.

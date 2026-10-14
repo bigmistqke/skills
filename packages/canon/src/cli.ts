@@ -14,15 +14,16 @@ import {
   writeFileSync
 } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
 import type { PluginContext } from './plugin.ts';
-import { documentsFor, findCommands } from './plugins.ts';
+import { configKeysOf, documentsFor, findCommands } from './plugins.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
+import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
 
 // ---------------------------------------------------------------------------
@@ -55,10 +56,32 @@ interface Config {
 }
 
 /**
- * The project root: the nearest directory, from where the tool was run, whose
- * `package.json` carries a `canon` field.
+ * The entry document: the nearest document named CANON.md, from where the tool
+ * was run upwards, whose frontmatter holds a setting. The settings of the
+ * project live in its frontmatter. A document whose frontmatter cannot be read
+ * is passed over here, and reported where the documents are read.
+ */
+const ENTRY = ((): string | undefined => {
+  for (let dir = resolve(process.cwd()); ; dir = dirname(dir)) {
+    const file = join(dir, 'CANON.md');
+    if (existsSync(file)) {
+      try {
+        if (hasSettings(readFrontmatter(readFileSync(file, 'utf8'), true))) return file;
+      } catch {
+        // Reported when the documents are read.
+      }
+    }
+    if (dirname(dir) === dir) return undefined;
+  }
+})();
+
+/**
+ * The project root: the folder of the entry document, or while no document
+ * holds a setting, the nearest directory whose `package.json` carries a
+ * `canon` field.
  */
 const ROOT = ((): string => {
+  if (ENTRY !== undefined) return dirname(ENTRY);
   for (let dir = resolve(process.cwd()); ; dir = dirname(dir)) {
     const manifest = join(dir, 'package.json');
     if (existsSync(manifest)) {
@@ -69,18 +92,23 @@ const ROOT = ((): string => {
     }
     if (dirname(dir) === dir) {
       console.error(
-        'canon: no package.json with a "canon" field between here and the filesystem root'
+        'canon: no CANON.md with settings in its frontmatter and no package.json with a "canon" field between here and the filesystem root'
       );
       process.exit(2);
     }
   }
 })();
 
-const CONFIG = (
-  JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as {
-    canon: Config;
-  }
-).canon;
+/** The settings of the entry document, as the `canon` field of a package would hold them. */
+function settingsOf(entry: string): Config {
+  const { plugins, extends: extended, other, documents, ...settings } = readFrontmatter(readFileSync(entry, 'utf8'), true) ?? {};
+  return { ...settings, documents: [...new Set([basename(entry), ...(documents ?? [])])], ...other } as Config;
+}
+
+const CONFIG: Config =
+  ENTRY !== undefined
+    ? settingsOf(ENTRY)
+    : (JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { canon: Config }).canon;
 
 const DOCS = CONFIG.documents ?? ['CANON.md'];
 
@@ -1784,6 +1812,34 @@ async function runPlugin(command: string, args: string[], options: PluginContext
   process.exit(code);
 }
 
+/**
+ * Refuse a frontmatter that holds what only the entry document may hold: a
+ * setting in another document the project checks, and a key that neither the
+ * tool nor a plugin the document lists defines. The documents the entry
+ * document extends are context, and are checked where they live.
+ */
+async function refuseSettings(): Promise<void> {
+  for (const doc of DOCS) {
+    const file = join(ROOT, doc);
+    if (!existsSync(file)) continue;
+    try {
+      const frontmatter = readFrontmatter(readFileSync(file, 'utf8'), true);
+      if (file !== ENTRY && hasSettings(frontmatter)) {
+        throw new Error(
+          `it holds a setting, but the settings of a project belong in its entry document${ENTRY === undefined ? '' : `, ${relative(ROOT, ENTRY)}`}. Move the setting there.`
+        );
+      }
+      const known = await configKeysOf(doc, ROOT);
+      for (const name of Object.keys(frontmatter?.other ?? {})) {
+        if (!known.includes(name)) readFrontmatter(`---\n${name}: x\n---\n`, known);
+      }
+    } catch (error) {
+      console.error(`canon: ${doc}: frontmatter: ${(error as Error).message}`);
+      process.exit(2);
+    }
+  }
+}
+
 async function main(argv: string[]): Promise<void> {
   let parsed: ReturnType<typeof parseArgs>;
   try {
@@ -1817,6 +1873,7 @@ async function main(argv: string[]): Promise<void> {
     console.log(HELP);
     return;
   }
+  await refuseSettings();
   if (!CORE_COMMANDS.has(command)) await runPlugin(command, rest, values);
   if (command === 'log') {
     if (rest.length > 1) {

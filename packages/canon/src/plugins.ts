@@ -38,12 +38,31 @@ function pluginsOf(document: string, root: string): string[] {
   const file = join(root, document);
   if (!existsSync(file)) return DEFAULT_PLUGINS;
   try {
-    const frontmatter = readFrontmatter(readFileSync(file, 'utf8'));
+    const frontmatter = readFrontmatter(readFileSync(file, 'utf8'), true);
     contextOf(file, root);
     return frontmatter?.plugins ?? DEFAULT_PLUGINS;
   } catch (error) {
     throw new Error(`${document}: frontmatter: ${(error as Error).message}`);
   }
+}
+
+/**
+ * The keys that the plugins a document names define, each by the field its
+ * plugin's `config` names. A plugin that cannot be loaded defines none here;
+ * the run reports it where it loads the plugins.
+ */
+export async function configKeysOf(document: string, root: string): Promise<string[]> {
+  const keys: string[] = [];
+  for (const name of pluginsOf(document, root)) {
+    if (name in SELF) continue;
+    try {
+      const { config } = await loadInstalled(name, root);
+      if (config !== undefined) keys.push(config);
+    } catch {
+      // Reported by the run that loads it.
+    }
+  }
+  return keys;
 }
 
 /** The documents a plugin applies to: those that name it. */

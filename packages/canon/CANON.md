@@ -1,5 +1,9 @@
 ---
 plugins: ["@bigmistqke/canon/lint", "@bigmistqke/canon-alloy"]
+suites: test/canon
+sources: [test]
+command: node src/cli.ts
+tracker: {kind: github, repo: bigmistqke/skills}
 ---
 # Canon: the canon checker
 
@@ -87,6 +91,8 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term list`](#term-list) — For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin): frontmatter_1 lists plugin_1 exactly when frontmatter_1 holds an [entry](#term-entry) that spells plugin_1.
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
 - [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
+- [`@term setting`](#term-setting) — A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
+- [`@term enter`](#term-enter) — For every [run_1](#term-run) and every [document_1](#term-document): run_1 enters document_1 exactly when all of these hold: - document_1 starts with a [frontmatter](#term-frontmatter) that holds a [setting](#term-setting) - document_1 is named CANON.md - there are folder_1 and folder_2 such that all of these hold: - run_1 is run in folder_1 - folder_1 is folder_2 or lies below folder_2 - document_1 lies in folder_2 - there is no combination of document_2 and folder_3 such that all of these hold: - document_2 starts with a frontmatter that holds a setting - document_2 is named CANON.md - document_2 lies in folder_3 - folder_1 is folder_3 or lies below folder_3 - folder_3 lies below folder_2
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when at least one of these holds: - plugin_1 is a plugin inside the package of the [checker](#term-checker) and document_1 starts with no [listing frontmatter](#term-frontmatter) - document_1 starts with a listing frontmatter that [lists](#term-list) plugin_1
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
 - [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when all of these hold: - run_1 asks for a [command](#term-command) that plugin_1 adds - plugin_1 is a plugin inside the package of the [checker](#term-checker) or [applies](#term-apply) to a [document](#term-document)
@@ -181,7 +187,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — For every [entry_1](#term-entry) and every quoted_comma_1: entry_1 does not end at quoted_comma_1.
     - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — For every [frontmatter_1](#term-frontmatter): when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
   - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — For every [block_1](#term-frontmatter): when block_1 is a frontmatter, block_1 is a block that starts its [document](#term-document).
-  - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes - frontmatter_1 has the flaw of a key that the [checker](#term-checker) does not know - frontmatter_1 has the flaw of a list that is not closed - frontmatter_1 has the flaw of a string that is not closed - frontmatter_1 has the flaw of a key that appears twice - frontmatter_1 has the flaw of a path that names no document - frontmatter_1 has the flaw of an extension that leads back to its own document then frontmatter_1 is a frontmatter that the checker cannot read.
+  - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes - frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines - frontmatter_1 has the flaw of a list that is not closed - frontmatter_1 has the flaw of a string that is not closed - frontmatter_1 has the flaw of a key that appears twice - frontmatter_1 has the flaw of a path that names no document - frontmatter_1 has the flaw of an extension that leads back to its own document - frontmatter_1 has the flaw of a setting in a document that is not the entry document then frontmatter_1 is a frontmatter that the checker cannot read.
     - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted_frontmatter_1](#term-flaw): misquoted_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — For every [misquoted_frontmatter_1](#term-flaw): [checker](#term-checker) tells the author to write the name in quotes for misquoted_frontmatter_1.
     - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign_frontmatter_1](#term-flaw): foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
@@ -190,6 +196,11 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled_frontmatter_1](#term-flaw): doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling_frontmatter_1](#term-flaw): dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular_frontmatter_1](#term-flaw): circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray_frontmatter_1](#term-setting): stray_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+  - [`@spec a-run-takes-its-settings-from-its-entry-document`](#spec-a-run-takes-its-settings-from-its-entry-document) — For every [run_1](#term-run) and every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [setting_1](#term-setting): when run_1 [enters](#term-enter) document_1, document_1 starts with frontmatter_1 and frontmatter_1 sets setting_1, run_1 takes setting_1.
+  - [`@spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document`](#spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document) — For every [setting_path_1](#term-setting) and every [path_1](#term-extension): when setting_path_1 names path_1, path_1 is read from the folder of the [document](#term-document) that lists it.
+  - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin) and every [plugin_key_1](#term-setting): when frontmatter_1 [lists](#term-list) plugin_1, plugin_1 defines plugin_key_1 and frontmatter_1 sets plugin_key_1, frontmatter_1 does not have the [flaw](#term-flaw) of a key that neither the [checker](#term-checker) nor a plugin that frontmatter_1 lists defines.
+  - [`@spec a-package-field-serves-a-run-that-enters-no-document`](#spec-a-package-field-serves-a-run-that-enters-no-document) — For every [run_1](#term-run) and every [field_setting_1](#term-setting): when run_1 [enters](#term-enter) no [document](#term-document), run_1 takes field_setting_1.
   - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
     - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
     - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run_1](#term-run): when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
@@ -1486,15 +1497,16 @@ lists: {1} [lists] {2} | {1} does not [list] {2}
 
 > A flaw is a mistake that makes a frontmatter unreadable.
 
-Seven flaws make a frontmatter unreadable:
+Eight flaws make a frontmatter unreadable:
 
 - An entry with an at sign outside quotes.
-- A key the checker does not know.
+- A key that neither the checker nor a plugin the document lists defines.
 - A list with no end.
 - A string with no end.
 - A key that appears twice.
 - A path in the extends list that names no document.
 - An extension that leads back to the document that lists it.
+- A setting in a document that the project checks, when the document is not the entry document.
 
 The checker reads a small part of YAML and refuses the rest, so that a mistake cannot drop a check without a word.
 
@@ -1506,7 +1518,7 @@ sig Misquoted, Foreign, Unclosed, Unterminated, Doubled, Dangling, Looping, Told
 noun Misquoted: [misquoted frontmatter]
 Misquoted: {1} has the [flaw] of an entry that starts with an at sign outside quotes | {1} does not have the [flaw] of an entry that starts with an at sign outside quotes
 noun Foreign: [foreign frontmatter]
-Foreign: {1} has the [flaw] of a key that the [checker](#term-checker) does not know | {1} does not have the [flaw] of a key that the [checker](#term-checker) does not know
+Foreign: {1} has the [flaw] of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that {1} lists defines | {1} does not have the [flaw] of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that {1} lists defines
 noun Unclosed: [unclosed frontmatter]
 Unclosed: {1} has the [flaw] of a list that is not closed | {1} does not have the [flaw] of a list that is not closed
 noun Unterminated: [unterminated frontmatter]
@@ -1547,6 +1559,85 @@ Leads.rel: the [path] {1} leads to {2} | the [path] {1} does not lead to {2}
 Extend.rel: {1} [extends] {2} | {1} does not [extend] {2}
 Context.rel: {2} is [context] for {1} | {2} is not [context] for {1}
 SameId.rel: {1} has the id of {2} | {1} does not have the id of {2}
+```
+
+### @term setting
+
+> A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
+
+The checker has six settings of its own: `documents`, `suites`, `sources`, `references`, `command` and `tracker`. A plugin may define one more, under the key its configuration names. A value is a string, a list, or a map of keys and values. A setting that names a path names it from the folder of the document that holds it.
+
+```alloy vocabulary
+sig Setting {}
+sig PluginKey, SettingPath in Setting {}
+sig Stray in Frontmatter {}
+sig CanonFile in Document {}
+sig Setter in Document {}
+sig Folder {}
+sig FieldSetting in Setting {}
+one sig Sets { rel: Frontmatter -> Setting }
+one sig Defines { rel: Plugin -> PluginKey }
+one sig Takes { rel: Run -> Setting }
+one sig Lies { rel: Document -> Folder }
+one sig Up { rel: Folder -> Folder }
+one sig Below { rel: Folder -> Folder }
+one sig Works { rel: Run -> Folder }
+one sig Names { rel: Setting -> Path }
+```
+
+```readings
+noun Setting: [setting]
+noun PluginKey: [plugin key]
+PluginKey: {1} is a [setting] under a key that a [plugin](#term-plugin) defines | {1} is not a [setting] under a key that a [plugin](#term-plugin) defines
+noun SettingPath: [setting path]
+SettingPath: {1} is a [setting] that names a [path](#term-extension) | {1} is not a [setting] that names a [path](#term-extension)
+noun Stray: [stray frontmatter]
+Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the entry document | {1} does not have the [flaw](#term-flaw) of a setting in a document that is not the entry document
+CanonFile: {1} is named CANON.md | {1} is not named CANON.md
+Setter: {1} starts with a [frontmatter](#term-frontmatter) that holds a [setting] | {1} does not start with a [frontmatter](#term-frontmatter) that holds a [setting]
+noun Folder: [folder]
+noun FieldSetting: [field setting]
+FieldSetting: {1} is a [setting] that the canon field of the package of the project holds | {1} is not a [setting] that the canon field of the package of the project holds
+Sets.rel: {1} sets {2} | {1} does not set {2}
+Defines.rel: {1} defines {2} | {1} does not define {2}
+Takes.rel: {1} takes {2} | {1} does not take {2}
+Lies.rel: {1} lies in {2} | {1} does not lie in {2}
+Up.rel: {1} is {2} or lies below {2} | {1} is not {2} and does not lie below {2}
+Below.rel: {1} lies below {2} | {1} does not lie below {2}
+Works.rel: {1} is run in {2} | {1} is not run in {2}
+Names.rel: {1} names {2} | {1} does not name {2}
+```
+
+### @term enter
+
+<!-- statement-term-enter:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [document_1](#term-document):
+>
+> run_1 enters document_1 exactly when all of these hold:
+> - document_1 starts with a [frontmatter](#term-frontmatter) that holds a [setting](#term-setting)
+> - document_1 is named CANON.md
+> - there are folder_1 and folder_2 such that all of these hold:
+>   - run_1 is run in folder_1
+>   - folder_1 is folder_2 or lies below folder_2
+>   - document_1 lies in folder_2
+>   - there is no combination of document_2 and folder_3 such that all of these hold:
+>     - document_2 starts with a frontmatter that holds a setting
+>     - document_2 is named CANON.md
+>     - document_2 lies in folder_3
+>     - folder_1 is folder_3 or lies below folder_3
+>     - folder_3 lies below folder_2
+<!-- statement-term-enter:end -->
+
+```alloy
+pred enters[r: Run, d: Document] {
+  d in Setter and d in CanonFile
+  and (some w: Folder, g: Folder | r->w in Works.rel and w->g in Up.rel and d->g in Lies.rel
+    and (no e: Document, h: Folder | e in Setter and e in CanonFile and e->h in Lies.rel and w->h in Up.rel and h->g in Below.rel))
+}
+```
+
+```readings
+enters: {1} [enters] {2} | {1} does not [enter] {2}
 ```
 
 ### @term apply
@@ -3004,12 +3095,13 @@ all b: Block | b in Frontmatter implies b in Top
 >
 > when at least one of these holds:
 > - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
-> - frontmatter_1 has the flaw of a key that the [checker](#term-checker) does not know
+> - frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines
 > - frontmatter_1 has the flaw of a list that is not closed
 > - frontmatter_1 has the flaw of a string that is not closed
 > - frontmatter_1 has the flaw of a key that appears twice
 > - frontmatter_1 has the flaw of a path that names no document
 > - frontmatter_1 has the flaw of an extension that leads back to its own document
+> - frontmatter_1 has the flaw of a setting in a document that is not the entry document
 >
 > then frontmatter_1 is a frontmatter that the checker cannot read.
 <!-- statement-spec-a-flawed-frontmatter-is-refused:end -->
@@ -3017,7 +3109,7 @@ all b: Block | b in Frontmatter implies b in Top
 This follows because the checker reads a small part of YAML and nothing else. A block it misreads would drop a check without a word, so it refuses a block with a flaw.
 
 ```alloy
-all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping) implies f in Refused
+all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused
 ```
 
 ##### @spec a-misquoted-entry-is-refused
@@ -3056,7 +3148,7 @@ all f: Misquoted | f in Told
 > foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-key-the-checker-does-not-know-is-refused:end -->
 
-This follows because a misspelled key would otherwise drop the list of plugins without a word.
+This follows because a misspelled key would otherwise drop a setting or a list of plugins without a word. The checker accepts a key that a plugin defines once the document lists that plugin.
 
 ```alloy
 all f: Foreign | f in Refused
@@ -3130,6 +3222,76 @@ This follows because a document that is its own context has no first reading, an
 
 ```alloy
 all f: Looping | f in Refused
+```
+
+##### @spec a-setting-outside-the-entry-document-is-refused
+
+<!-- statement-spec-a-setting-outside-the-entry-document-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [stray_frontmatter_1](#term-setting):
+>
+> stray_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-setting-outside-the-entry-document-is-refused:end -->
+
+This follows because the settings of a project come from its entry document alone. Another document that the project checks would ignore the setting without a word. The author would then trust a check that the project never asked for.
+
+```alloy
+all f: Stray | f in Refused
+```
+
+#### @spec a-run-takes-its-settings-from-its-entry-document
+
+<!-- statement-spec-a-run-takes-its-settings-from-its-entry-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [setting_1](#term-setting):
+>
+> when run_1 [enters](#term-enter) document_1, document_1 starts with frontmatter_1 and frontmatter_1 sets setting_1, run_1 takes setting_1.
+<!-- statement-spec-a-run-takes-its-settings-from-its-entry-document:end -->
+
+This follows because a project asks for its checks in the frontmatter of its entry document. A check that the project asked for is never dropped. The entry document is the nearest document named CANON.md that holds a setting, from the folder of the run upwards. A document with no setting is not an entry document. A canon with no settings can then lie beside a project that sets them elsewhere.
+
+```alloy
+all r: Run, d: Document, f: Frontmatter, s: Setting | (enters[r, d] and d->f in Head.rel and f->s in Sets.rel) implies r->s in Takes.rel
+```
+
+#### @spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document
+
+<!-- statement-spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [setting_path_1](#term-setting) and every [path_1](#term-extension):
+>
+> when setting_path_1 names path_1, path_1 is read from the folder of the [document](#term-document) that lists it.
+<!-- statement-spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document:end -->
+
+This follows because a setting lies next to the canon it describes and moves with it. A path that starts from the root of a project would name another file after the move.
+
+```alloy
+all s: SettingPath, p: Path | s->p in Names.rel implies p in FromFolder
+```
+
+#### @spec a-key-that-a-listed-plugin-defines-is-known
+
+<!-- statement-spec-a-key-that-a-listed-plugin-defines-is-known:begin — generated by `canon generate`; edits are overwritten -->
+> For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin) and every [plugin_key_1](#term-setting):
+>
+> when frontmatter_1 [lists](#term-list) plugin_1, plugin_1 defines plugin_key_1 and frontmatter_1 sets plugin_key_1, frontmatter_1 does not have the [flaw](#term-flaw) of a key that neither the [checker](#term-checker) nor a plugin that frontmatter_1 lists defines.
+<!-- statement-spec-a-key-that-a-listed-plugin-defines-is-known:end -->
+
+This follows because a plugin owns its options. The checker cannot know them before it loads the plugin. A key of a plugin that the document does not list stays unknown. The options of a plugin that does not run then cannot pass as a check.
+
+```alloy
+all f: Frontmatter, p: Plugin, k: PluginKey | (lists[f, p] and p->k in Defines.rel and f->k in Sets.rel) implies f not in Foreign
+```
+
+#### @spec a-package-field-serves-a-run-that-enters-no-document
+
+<!-- statement-spec-a-package-field-serves-a-run-that-enters-no-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run_1](#term-run) and every [field_setting_1](#term-setting):
+>
+> when run_1 [enters](#term-enter) no [document](#term-document), run_1 takes field_setting_1.
+<!-- statement-spec-a-package-field-serves-a-run-that-enters-no-document:end -->
+
+This follows because a project that keeps its settings in the canon field of its package still asks for its checks there. The settings of a document come first. The field serves while no document holds a setting.
+
+```alloy
+all r: Run, s: FieldSetting | (no d: Document | enters[r, d]) implies r->s in Takes.rel
 ```
 
 #### @spec a-refused-frontmatter-fails-the-run
