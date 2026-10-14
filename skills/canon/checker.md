@@ -32,7 +32,7 @@ The entry document is the nearest `CANON.md` whose frontmatter holds a setting. 
 
 - `documents`: the siblings of the entry document that are checked with it. The entry document is always checked. Default none.
 - `suites`: the declared suite directory. Every test in it must cite a unit. Default `test/canon`. Keep it flat: a suite answers to a claim, not to a module.
-- `sources`: the trees the checker reads for other citations and for the places specs name. Default `["src", "test"]`.
+- `sources`: the trees the checker reads for other citations and for the places specs name. Default `["src", "test"]`. A tagged test in any file here checks its units, such as a test that a module builds from a table of cases and a suite runs. Only a test in `suites` must carry a tag.
 - `references`: prose documents whose links must resolve but credit no unit. Default none.
 - A document that builds on another lists its path under `extends` in its frontmatter, such as `extends: ["../canon/CANON.md"]`. The other document is context: the checker reads its units and checks it where it lives. A path that names no document is refused.
 - `command`: how the project runs the checker, for the advice in findings.

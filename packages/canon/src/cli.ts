@@ -1136,11 +1136,13 @@ function analyse(write: boolean): Analysis {
    * where its call starts. A modifier's arguments are skipped by matching their
    * brackets, so `it.each([[1, f(2)]])('title', fn)` reads as a test as well
    * as `it.skipIf(cond)('title', fn)` and a tagged-template `` it.each`table` ``.
+   * `docAt` is where the JSDoc starts, or -1 when the test has none.
    */
-  function testBlocks(src: string): { doc: string; title: string; modifiers: string[]; at: number }[] {
-    const found: { doc: string; title: string; modifiers: string[]; at: number }[] = [];
+  function testBlocks(src: string): { doc: string; docAt: number; title: string; modifiers: string[]; at: number }[] {
+    const found: { doc: string; docAt: number; title: string; modifiers: string[]; at: number }[] = [];
     for (const m of src.matchAll(TEST_START)) {
       const at = (m.index ?? 0) + m[0].length - (m[0].endsWith('test') ? 4 : 2);
+      const docAt = m[2] === undefined ? -1 : (m.index ?? 0) + m[0].indexOf('/**');
       const modifiers: string[] = [];
       let j = at + (src.startsWith('test', at) ? 4 : 2);
       for (;;) {
@@ -1157,7 +1159,7 @@ function analyse(write: boolean): Analysis {
           while (/\s/.test(src[k] ?? '')) k++;
           if (src[k] === '"' || src[k] === "'" || src[k] === '`') {
             const end = skipLiteral(src, k);
-            found.push({ doc: m[2] ?? '', title: src.slice(k + 1, end - 1), modifiers, at });
+            found.push({ doc: m[2] ?? '', docAt, title: src.slice(k + 1, end - 1), modifiers, at });
             break;
           }
           j = skipBalanced(src, j);
@@ -1340,15 +1342,34 @@ function analyse(write: boolean): Analysis {
    * A citation is a true statement about a link wherever it is written, which is
    * the same argument `readSuite` makes for reading an undeclared suite. It does
    * NOT add to `citedTargets`: a unit mentioned in prose still owes a test, and
-   * `dead` is the list that says so.
+   * `dead` is the list that says so. `skip` leaves out the tags `readSource`
+   * has already read as a test's.
    */
-  function readModule(file: string): void {
+  function readModule(file: string, skip: (at: number) => boolean = () => false): void {
     const rel = relative(ROOT, file);
     const src = readFileSync(file, 'utf8');
     for (const m of src.matchAll(/@canon\s+(\S+)/g)) {
+      if (skip(m.index ?? 0)) continue;
       const line = src.slice(0, m.index ?? 0).split('\n').length;
       resolveCitation(m[1], `${rel}:${line}`);
     }
+  }
+
+  /**
+   * Read a module of the sources: a test it holds is read as a test of an
+   * undeclared suite, and every other `@canon` tag only resolves.
+   *
+   * A module that turns a table of cases into tests, which a suite then runs,
+   * holds tests as real as the suite's own. Crediting only a suite's tests left
+   * every leaf such a test checks reported untested, and the only way to quiet
+   * that was to move working tests into the suite to suit the checker.
+   */
+  function readSource(file: string): void {
+    readSuite(file, false);
+    const docs = testBlocks(readFileSync(file, 'utf8'))
+      .filter(t => t.docAt >= 0)
+      .map(t => [t.docAt, t.docAt + t.doc.length + 5] as const);
+    readModule(file, at => docs.some(([from, to]) => at >= from && at < to));
   }
 
   // A project that has not written its first declared suite yet has no
@@ -1397,7 +1418,7 @@ function analyse(write: boolean): Analysis {
     for (const file of allSuites(abs)) {
       if (!enforcedFiles.has(file)) readSuite(file, false);
     }
-    for (const file of allModules(abs)) readModule(file);
+    for (const file of allModules(abs)) readSource(file);
   }
 
   for (const ref of REFERENCES)
