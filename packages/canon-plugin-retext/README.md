@@ -1,16 +1,16 @@
-# @bigmistqke/canon-lint
+# @bigmistqke/canon-plugin-retext
 
 The prose checks for [`@bigmistqke/canon`](../canon): passive voice, wordy phrases, repeated words, wrong indefinite articles, sentences over 25 words and paragraphs over 5 sentences. The sentence limit follows ASD-STE100, Simplified Technical English.
 
 ```bash
-pnpm add -D @bigmistqke/canon @bigmistqke/canon-lint
+pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-retext
 ```
 
 A document names the plugin in its frontmatter:
 
 ```md
 ---
-plugins: ["@bigmistqke/canon-lint"]
+plugins: ["@bigmistqke/canon-plugin-retext"]
 ---
 # Canon
 ```

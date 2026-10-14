@@ -6,7 +6,7 @@
  * the limits below.
  *
  * A plugin of the checker: a document names it in its frontmatter, as
- * `plugins: ["@bigmistqke/canon-lint"]`, and `canon lint` runs over the
+ * `plugins: ["@bigmistqke/canon-plugin-retext"]`, and `canon lint` runs over the
  * documents that name it, or over the files named on the command line.
  */
 import { readFileSync } from 'node:fs'
@@ -71,7 +71,7 @@ function retextLength() {
       if (words > MAX_WORDS) {
         const message = file.message(
           `Sentence has ${words} words, more than ${MAX_WORDS}`,
-          { place: sentence.position, ruleId: 'sentence-length', source: 'canon-lint' },
+          { place: sentence.position, ruleId: 'sentence-length', source: 'canon-plugin-retext' },
         )
         message.fatal = false
       }
@@ -82,7 +82,7 @@ function retextLength() {
         file.message(`Paragraph has ${sentences} sentences, more than ${MAX_SENTENCES}`, {
           place: paragraph.position,
           ruleId: 'paragraph-length',
-          source: 'canon-lint',
+          source: 'canon-plugin-retext',
         })
       }
     })

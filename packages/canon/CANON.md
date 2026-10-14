@@ -1,5 +1,5 @@
 ---
-plugins: ["@bigmistqke/canon-lint", "@bigmistqke/canon-alloy"]
+plugins: ["@bigmistqke/canon-plugin-retext", "@bigmistqke/canon-plugin-alloy"]
 suites: test/canon
 sources: [test]
 command: node src/cli.ts

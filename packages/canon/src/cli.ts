@@ -1554,14 +1554,14 @@ Options for tree:
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
-The commands lint and logic come from plugins: @bigmistqke/canon-lint and
-@bigmistqke/canon-alloy. The Alloy plugin also adds to generate and check: a
+The commands lint and logic come from plugins: @bigmistqke/canon-plugin-retext and
+@bigmistqke/canon-plugin-alloy. The Alloy plugin also adds to generate and check: a
 document with a "readings" block has the statement of each unit with a
 predicate written from the predicate, and check reports one that is stale. It
 also reports the words of such a document that are undeclared, misplaced,
 apart from their declaration or unused. A document's frontmatter chooses which
 plugins apply to it, each named by its package ("plugins:
-[\"@bigmistqke/canon-lint\"]"); with none, none applies. Each is a package
+[\"@bigmistqke/canon-plugin-retext\"]"); with none, none applies. Each is a package
 installed in the project, whose commands are added to these.
 
 logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" setting

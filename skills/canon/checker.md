@@ -7,16 +7,16 @@ How to install, configure and run the canon checker. [`SKILL.md`](SKILL.md) hold
 The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependency:
 
 ```bash
-pnpm add -D @bigmistqke/canon @bigmistqke/canon-lint
+pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-retext
 ```
 
-The package `@bigmistqke/canon-lint` adds the command `lint`, and a project that does not check its prose can leave it out. `@bigmistqke/canon-alloy` adds `logic` and the generated statements.
+The package `@bigmistqke/canon-plugin-retext` adds the command `lint`, and a project that does not check its prose can leave it out. `@bigmistqke/canon-plugin-alloy` adds `logic` and the generated statements.
 
 Then declare the scope in the frontmatter of the entry document, the `CANON.md` where you run the command or the nearest one above it. `pnpm canon` runs the package's `canon` command, so the project needs no script for it:
 
 ```yaml
 ---
-plugins: ["@bigmistqke/canon-lint"]
+plugins: ["@bigmistqke/canon-plugin-retext"]
 documents: [OTHER.md]
 suites: test/canon
 sources: [src, test]
@@ -55,7 +55,7 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 1. `pnpm canon --help` lists every finding `check` reports.
 2. `check` fails when a generated region is stale. To fix it, run `generate`. The generated regions are the index of each document and the kinds table in [`writing-units.md`](writing-units.md).
 3. Add the `toc:begin` and `toc:end` markers to each new canon document, once.
-4. `lint` comes from `@bigmistqke/canon-lint`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
+4. `lint` comes from `@bigmistqke/canon-plugin-retext`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
 5. The checker needs Node 22 or later.
 
 ## 3. Issues

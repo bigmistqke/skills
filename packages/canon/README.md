@@ -16,11 +16,11 @@ pnpm add -D @bigmistqke/canon
 
 ## Plugins
 
-The command `lint` comes from [`@bigmistqke/canon-lint`](../lint), and `logic` from [`@bigmistqke/canon-alloy`](../alloy), so `canon` depends on nothing outside Node: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
+The command `lint` comes from [`@bigmistqke/canon-plugin-retext`](../canon-plugin-retext), and `logic` from [`@bigmistqke/canon-plugin-alloy`](../canon-plugin-alloy), so `canon` depends on nothing outside Node: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
 
 ```md
 ---
-plugins: ["@bigmistqke/canon-lint", "@bigmistqke/canon-alloy"]
+plugins: ["@bigmistqke/canon-plugin-retext", "@bigmistqke/canon-plugin-alloy"]
 ---
 # Canon
 ```
@@ -57,4 +57,4 @@ An extended document is context. Its units and its words are read with the docum
 
 ## The logic layer
 
-A canon can keep its claims as logic. [`@bigmistqke/canon-alloy`](../alloy) is the plugin that says them in words, one statement under each unit, and that asks the Alloy analyzer whether the claims of a canon can all be true. Install it and name it in the frontmatter of the documents that use it. A canon can extend another canon, `extends: ["../canon/CANON.md"]`, to use its words and its claims.
+A canon can keep its claims as logic. [`@bigmistqke/canon-plugin-alloy`](../canon-plugin-alloy) is the plugin that says them in words, one statement under each unit, and that asks the Alloy analyzer whether the claims of a canon can all be true. Install it and name it in the frontmatter of the documents that use it. A canon can extend another canon, `extends: ["../canon/CANON.md"]`, to use its words and its claims.
