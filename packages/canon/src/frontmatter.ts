@@ -22,7 +22,7 @@
  * written between braces (`{a: b}`), which may nest. Everything it accepts is
  * also valid YAML, so other tools can read the same block.
  */
-import { vocabularyOf } from './runners.ts';
+import { runnersOf } from './runners.ts';
 
 /** The block at the top of a document, with its closing line. */
 export const FRONTMATTER = /^---[ \t]*\r?\n(?:[\s\S]*?\r?\n)?---[ \t]*(?:\r?\n|$)/;
@@ -222,7 +222,7 @@ function setting(result: Frontmatter, key: (typeof SETTINGS)[number], v: Value, 
     case 'runners':
       if (!Array.isArray(v)) need('a list of runners, such as [vitest, playwright]');
       // A runner the checker does not know would change which calls are tests.
-      if (!later) vocabularyOf(v);
+      if (!later) runnersOf(v);
       result[key] = v as Value[];
   }
 }

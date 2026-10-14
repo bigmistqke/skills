@@ -245,23 +245,11 @@ describe('a runner marker the checker cannot read', () => {
   });
 
   /**
-   * @canon spec-a-runner-marker-on-no-function-is-refused
+   * @canon spec-a-runner-marker-on-no-declaration-is-refused
    */
-  it('refuses a marker above no function, and exits with code 2', () => {
-    const { out, code } = project({ 'checks/helpers.ts': `/** ${marker} */\nexport const limit = 3;\n` });
-    expect(out).toContain('checks/helpers.ts');
-    expect(code).toBe(2);
-  });
-
-  /**
-   * @canon spec-a-name-marked-both-plain-and-fails-is-refused
-   */
-  it('refuses a name that one file marks plain and another fails, and exits with code 2', () => {
-    const { out, code } = project({
-      'checks/one.ts': `/** ${marker} */\nexport const check = (name: string, fn: () => void) => it(name, fn);\n`,
-      'checks/two.ts': `/** ${marker} fails */\nexport const check = (name: string, fn: () => void) => it.fails(name, fn);\n`
-    });
-    expect(out).toContain('check');
+  it('refuses a marker above no declaration, and exits with code 2', () => {
+    const { out, code } = project({ 'checks/helpers.ts': `/** ${marker} */\nconsole.log('loaded');\n` });
+    expect(out).toContain('checks/helpers.ts:1 — the runner marker is above no declaration');
     expect(code).toBe(2);
   });
 });

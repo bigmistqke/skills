@@ -25,9 +25,8 @@ import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
-import { parseSource, testsOf, type Syntax } from './tests.ts';
-import { vocabularyOf, type Vocabulary } from './runners.ts';
-import type { TestBlock } from './tests.ts';
+import { parseSource, testsOf, type Exports, type Syntax, type TestBlock } from './tests.ts';
+import { runnersOf, type Runner } from './runners.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -49,7 +48,7 @@ interface Config {
   references?: string[];
   /** How a reader runs this tool, for the advice in findings. */
   command?: string;
-  /** The runners whose calls are tests: preset names, or maps of calls, modifiers and fails. */
+  /** The runners whose calls are tests: preset names, or maps of calls, modifiers, fails, from and globals. */
   runners?: unknown;
   /**
    * The issue tracker the bugs name their issues in. With it, `check` asks the
@@ -135,10 +134,10 @@ const REFERENCES = CONFIG.references ?? [];
 
 const COMMAND = CONFIG.command ?? 'pnpm canon';
 
-/** What the runners of the project declare a test with. A runner the checker does not know stops the run. */
-const VOCABULARY = ((): Vocabulary => {
+/** The runners of the project. A runner the checker does not know stops the run. */
+const RUNNERS = ((): Runner[] => {
   try {
-    return vocabularyOf(CONFIG.runners);
+    return runnersOf(CONFIG.runners);
   } catch (error) {
     console.error(`canon: ${(error as Error).message}`);
     process.exit(2);
@@ -1133,17 +1132,11 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  const parsed = new Map<string, Syntax & { lineAt: (at: number) => number }>();
-
-  /** The syntax of a suite or a source, parsed once; a file that does not parse stops the run. */
+  /** The syntax of a suite or a source; a file that does not parse stops the run. */
   function parse(file: string): Syntax & { lineAt: (at: number) => number } {
-    const known = parsed.get(file);
-    if (known !== undefined) return known;
     const src = readFileSync(file, 'utf8');
     try {
-      const syntax = { ...parseSource(src, file.endsWith('.tsx')), lineAt: linesOf(src) };
-      parsed.set(file, syntax);
-      return syntax;
+      return { ...parseSource(src, file.endsWith('.tsx')), lineAt: linesOf(src) };
     } catch (error) {
       console.error(`canon: ${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
       process.exit(2);
@@ -1208,7 +1201,14 @@ function analyse(write: boolean): Analysis {
    */
   function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> & { tests: TestBlock[] } {
     const rel = relative(ROOT, file);
-    const parsed = { ...parse(file), tests: testsOf(parse(file), vocabulary) };
+    const syntax = parse(file);
+    // A marker the checker cannot read would change which calls are tests.
+    for (const problem of syntax.problems) {
+      console.error(`canon: ${rel}:${syntax.lineAt(problem.at)} — ${problem.message}`);
+      process.exit(2);
+    }
+    exportsOf.set(file, syntax.exports);
+    const parsed = { ...syntax, tests: testsOf(syntax, file, RUNNERS, lookup) };
 
     for (const { doc, title, fails, at } of parsed.tests) {
       // The reported line is the `it(` itself, not the top of its JSDoc.
@@ -1245,12 +1245,11 @@ function analyse(write: boolean): Analysis {
 
       // An expected failure is a known defect, and the canon names it as a
       // bug; a bug is pinned by a test that fails until the fix.
-      const marksFailing = fails;
-      if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
+      if (fails && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
         findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
       }
       for (const s of specs) {
-        if (kindOf(s) === 'bug-' && !marksFailing) {
+        if (kindOf(s) === 'bug-' && !fails) {
           findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
         }
       }
@@ -1361,27 +1360,26 @@ function analyse(write: boolean): Analysis {
     for (const file of [...allSuites(abs), ...allModules(abs)]) if (!files.has(file)) files.set(file, false);
   }
 
-  // A function a runner marker marks is a call of a runner in every file, so
-  // the markers are read before any test.
-  const vocabulary: Vocabulary = { ...VOCABULARY, calls: new Set(VOCABULARY.calls), failCalls: new Set(VOCABULARY.failCalls) };
-  const markedIn = new Map<string, { fails: boolean; where: string }>();
-  for (const file of files.keys()) {
-    const syntax = parse(file);
-    const rel = relative(ROOT, file);
-    for (const problem of syntax.problems) {
-      console.error(`canon: ${rel}:${syntax.lineAt(problem.at)} — ${problem.message}`);
-      process.exit(2);
-    }
-    for (const marker of syntax.markers) {
-      const where = `${rel}:${syntax.lineAt(marker.at)}`;
-      const other = markedIn.get(marker.name);
-      if (other !== undefined && other.fails !== marker.fails) {
-        console.error(`canon: ${where} — "${marker.name}" is marked ${marker.fails ? '"@runner fails"' : '"@runner"'} here and ${other.fails ? '"@runner fails"' : '"@runner"'} at ${other.where}, so a call of it cannot say whether it is an expected failure`);
-        process.exit(2);
+  /** What each file read so far exports, so an import that leads to it is followed without parsing it again. */
+  const exportsOf = new Map<string, Exports>();
+
+  /**
+   * The file a relative import names, from the file that imports it, with what
+   * it exports. Only a suite or a source counts: a marker elsewhere is none.
+   */
+  function lookup(file: string, source: string): { file: string; exports: Exports } | undefined {
+    const base = resolve(dirname(file), source);
+    const stem = base.replace(/\.(m?js|jsx)$/, '');
+    for (const candidate of [base, `${stem}.ts`, `${stem}.tsx`, join(base, 'index.ts'), join(base, 'index.tsx')]) {
+      if (!files.has(candidate)) continue;
+      let exports = exportsOf.get(candidate);
+      if (exports === undefined) {
+        exports = parse(candidate).exports;
+        exportsOf.set(candidate, exports);
       }
-      markedIn.set(marker.name, { fails: marker.fails, where });
-      (marker.fails ? vocabulary.failCalls : vocabulary.calls).add(marker.name);
+      return { file: candidate, exports };
     }
+    return undefined;
   }
 
   for (const [file, enforced] of files) readSource(file, enforced);
