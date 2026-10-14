@@ -16,6 +16,28 @@ describe('the program of a document', () => {
     expect(program).not.toMatch(/^for 3 but/m);
   });
 
+  it('leaves a unit that holds only definitions out of the claims, and keeps its definitions in the model', () => {
+    const src = `# Canon
+
+## @term orphan
+
+\`\`\`alloy
+sig Node {}
+pred orphan[n: Node] { no m: Node | m != n }
+\`\`\`
+
+## @axiom a-node-exists
+
+\`\`\`alloy
+some Node
+\`\`\`
+`;
+    const { program, units } = alloyProgram(src);
+    expect(units).toEqual(['axiom-a-node-exists']);
+    expect(program).toContain('pred orphan[n: Node]');
+    expect(program).not.toContain('term_orphan');
+  });
+
   it('asks first only whether the scenarios can happen, and leaves the units out afterwards', () => {
     const asked = alloyProgram(LIFETIMES, 'check').program;
     expect(asked).toMatch(/^run consistent \{/m);

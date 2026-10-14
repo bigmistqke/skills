@@ -12,7 +12,7 @@
 import { readBlocks } from './blocks.ts';
 import { beginMarker, regionAt, replaceRegion } from './regions.ts';
 import { readUnits } from './units.ts';
-import { parseReadings, verbalize, withDefinitions, type Readings } from './verbalize.ts';
+import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from './verbalize.ts';
 
 /** The name of the region that holds the generated statement of a unit. */
 export const regionName = (unit: string): string => `statement-${unit}`;
@@ -42,8 +42,9 @@ export function readingsOf(src: string): Readings | undefined {
   const blocks = readBlocks(src);
   const table = blocks.filter(b => b.lang === 'readings');
   if (table.length === 0) return undefined;
-  const vocabulary = blocks.filter(b => b.lang === 'alloy' && b.role === 'vocabulary');
-  return withDefinitions(parseReadings(table.map(b => b.body).join('\n')), vocabulary.map(b => b.body).join('\n'));
+  // The predicates a document defines, in its vocabulary and in the units that define them.
+  const model = blocks.filter(b => b.lang === 'alloy' && b.role !== 'bounds' && b.role !== 'scenario');
+  return withDefinitions(parseReadings(table.map(b => b.body).join('\n')), model.map(b => b.body).join('\n'));
 }
 
 const quote = (words: string): string =>
@@ -73,7 +74,8 @@ export function states(src: string): StatementState[] {
     }
     let words: string;
     try {
-      words = quote(verbalize((predicates[0] as { body: string }).body, readings, 'markdown'));
+      const { body } = predicates[0] as { body: string };
+      words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown') : verbalize(body, readings, 'markdown'));
     } catch (error) {
       found.push({ unit: unit.id, kind: 'unsayable', message: (error as Error).message });
       continue;

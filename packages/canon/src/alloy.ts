@@ -71,7 +71,8 @@ export function alloyProgram(
 ): { program: string; units: string[]; scenarios: { name: string; unit: string }[] } {
   const blocks = readBlocks(src, readUnits(src)).filter(b => b.lang === 'alloy');
   const bounds = blocks.find(b => b.role === 'bounds')?.body.trim() ?? DEFAULT_BOUNDS;
-  const units = [...new Set(blocks.filter(b => b.role === 'unit').map(b => b.unit))];
+  // A unit that holds only definitions, such as a term that defines a predicate, is part of the model and not a claim to hold.
+  const units = [...new Set(blocks.filter(b => b.role === 'unit' && !PARAGRAPH.test(b.body)).map(b => b.unit))];
   const names = units.map(predicateName);
   const scenarios = blocks
     .filter(b => b.role === 'scenario')

@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { parseFormula } from './alloy-parse.ts';
 import { readBlocks } from './blocks.ts';
 import { readingsOf, states, write } from './statements.ts';
-import { parseDefinitions, parseReadings, type Readings, verbalize, withDefinitions } from './verbalize.ts';
+import { isDefinition, parseDefinitions, parseReadings, type Readings, verbalize, verbalizeDefinition, withDefinitions } from './verbalize.ts';
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', 'lifetimes');
 const read = (name: string): string => readFileSync(join(FIXTURE, name), 'utf8');
@@ -168,6 +168,36 @@ describe('a predicate with no reading of its own', () => {
     expect(say('registered_other[c]', readings)).toContain('a cleanup c2 such that');
   });
 
+  it('lets the alternatives of a list reuse a name, and keeps it taken for what follows', () => {
+    const readings = defined('pred p { (some c: Cleanup | c in Ran) or (some c: Cleanup | c in Registered) }');
+    expect(say('some c: Cleanup | p and c in Ran', readings)).toContain('- there is a cleanup c2 such that c2 has run\n      - there is a cleanup c2 such that code has registered c2');
+    expect(say('(some c: Cleanup | c in Ran) or (some c: Cleanup | c in Registered)', readings)).toBe(
+      ['At least one of these holds:', '  - there is a cleanup c such that c has run', '  - there is a cleanup c such that code has registered c'].join('\n')
+    );
+    expect(say('((some c: Cleanup | c in Ran) or (some c: Cleanup | c in Registered)) and (some c: Cleanup | c in Ran)', readings)).toContain('there is a cleanup c2 such that c2 has run');
+  });
+
+  it('lets the statements of a list each use the same names, and keeps joint conditions apart', () => {
+    const readings = parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\nRegistered: code has registered {1} | code has not registered {1}');
+    expect(say('(all c: Cleanup | c in Ran) and (all c: Cleanup | c in Registered)', readings)).toBe(
+      ['All of these hold:', '  - for every cleanup c:', '      c has run', '  - for every cleanup c:', '      code has registered c.'].join('\n')
+    );
+    expect(say('(some c: Cleanup | c in Ran) and (some c: Cleanup | c in Registered)', readings)).toContain('there is a cleanup c2 such that code has registered c2');
+  });
+
+  it('says "a unit" and "an owner", by the sound of the word', () => {
+    const readings = parseReadings('noun Unit: unit\nnoun Owner: owner\nRan: {1} has run | {1} has not run');
+    expect(say('some u: Unit | u in Ran', readings)).toBe('There is a unit u such that u has run.');
+    expect(say('some o: Owner | o in Ran', readings)).toBe('There is an owner o such that o has run.');
+  });
+
+  it('takes the article a noun is written with, when the sound of the word is not enough', () => {
+    const readings = parseReadings('noun Hour: an hour\nnoun Unit: a unit\nnoun Owner: owner\nRan: {1} has run | {1} has not run');
+    expect(say('some h: Hour | h in Ran', readings)).toBe('There is an hour h such that h has run.');
+    expect(say('all h: Hour | h in Ran', readings)).toBe('For every hour h:\n  h has run.');
+    expect(say('some o: Owner | o in Ran', readings)).toBe('There is an owner o such that o has run.');
+  });
+
   it('prefers the reading the table gives over the body', () => {
     const readings = defined('pred pending[x: Cleanup] { x in Registered }', 'noun Cleanup: cleanup\npending: {1} is waiting | {1} is not waiting');
     expect(say('pending[d]', readings)).toBe('d is waiting.');
@@ -190,6 +220,57 @@ describe('a predicate with no reading of its own', () => {
     expect(definitions.get('p')?.params).toEqual(['a', 'b', 'c']);
     expect(definitions.get('q')?.params).toEqual([]);
     expect(definitions.get('p')?.body.trim()).toBe('a in B  and { x }');
+  });
+});
+
+describe('a definition', () => {
+  const readings = parseReadings(
+    ['noun Unit: unit', 'noun Spec: spec', 'Spec: {1} is a spec | {1} is not a spec', 'Sits.rel: {1} sits in {2} | {1} does not sit in {2}', 'orphan: {1} is an orphan | {1} is not an orphan', 'pair: {1} and {2} are a pair | {1} and {2} are not a pair'].join('\n')
+  );
+
+  it('is recognized by its keyword', () => {
+    expect(isDefinition('pred orphan[u: Unit] { u in Spec }')).toBe(true);
+    expect(isDefinition('all u: Unit | u in Spec')).toBe(false);
+  });
+
+  it('says what it names exactly when its body holds, for every value of its parameters', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] { u in Spec and no v: Unit | u->v in Sits.rel }', readings)).toBe(
+      ['For every unit u:', '  u is an orphan exactly when all of these hold:', '    - u is a spec', '    - there is no unit v such that u sits in v'].join('\n')
+    );
+  });
+
+  it('says a body of one clause on one line', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] { u in Spec }', readings)).toBe('For every unit u:\n  u is an orphan exactly when u is a spec.');
+  });
+
+  it('says each parameter of several, with the noun of its type', () => {
+    expect(verbalizeDefinition('pred pair[a, b: Unit] { a->b in Sits.rel }', readings)).toBe(
+      'For every unit a and every unit b:\n  a and b are a pair exactly when a sits in b.'
+    );
+  });
+
+  it('is said in Markdown the way a formula is', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] { u in Spec or u in Spec }', readings, 'markdown')).toBe(
+      ['For every unit u:', '', 'u is an orphan exactly when at least one of these holds:', '- u is a spec', '- u is a spec'].join('\n')
+    );
+  });
+
+  it('needs the words for what it names, and says which are missing', () => {
+    expect(() => verbalizeDefinition('pred mystery[u: Unit] { u in Spec }', readings)).toThrow('no reading for "mystery"');
+  });
+
+  it('refuses text that is not a definition, a parameter with no type, and a body that is a rule', () => {
+    expect(() => verbalizeDefinition('u in Spec', readings)).toThrow('a definition is written');
+    expect(() => verbalizeDefinition('pred orphan[u] { u in Spec }', readings)).toThrow('has no type');
+    expect(() => verbalizeDefinition('pred orphan[u: Unit] { u in Spec implies u in Spec }', readings)).toThrow('no words after "exactly when"');
+  });
+});
+
+describe('two variables', () => {
+  it('are said to be different or the same', () => {
+    expect(say('a != b')).toBe('a and b are different.');
+    expect(say('not a != b')).toBe('a and b are the same.');
+    expect(say('a = b')).toBe('a and b are the same.');
   });
 });
 

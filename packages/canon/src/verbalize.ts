@@ -22,6 +22,8 @@ interface Definition {
 export interface Readings {
   /** The noun for a signature: `Owner` is "owner". */
   nouns: Map<string, string>;
+  /** The article of a noun that was written with one, `noun Hour: an hour`: the default goes by the sound of the word, and a noun can say otherwise. */
+  articles: Map<string, string>;
   /** The reading of a set, a field, a relation or a predicate, by its name. */
   atoms: Map<string, Reading>;
   /**
@@ -58,19 +60,22 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
 });
 
 /**
- * Read a table of readings. A line is `noun Name: words`, or
+ * Read a table of readings. A line is `noun Name: words`, which may start with
+ * the article the noun takes (`noun Hour: an hour`), or
  * `key: positive | negative` for an atom, whose key is the name of a set
  * (`Ran`), a field (`on`), a relation (`Clock.older`), a primed set (`Throwing'`)
  * or a predicate (`dispose`). Blank lines and lines that start with `#` are skipped.
  */
 export function parseReadings(text: string): Readings {
-  const readings: Readings = { nouns: new Map(), atoms: new Map(), definitions: new Map() };
+  const readings: Readings = { nouns: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map() };
   for (const raw of text.split('\n')) {
     const line = raw.trim();
     if (line === '' || line.startsWith('#')) continue;
     const noun = /^noun\s+(\w+)\s*:\s*(.+)$/.exec(line);
     if (noun) {
-      readings.nouns.set(noun[1] as string, (noun[2] as string).trim());
+      const written = /^(an?)\s+(.+)$/.exec((noun[2] as string).trim());
+      readings.nouns.set(noun[1] as string, written ? (written[2] as string) : (noun[2] as string).trim());
+      if (written) readings.articles.set(noun[1] as string, written[1] as string);
       continue;
     }
     const atom = /^([\w.']+)\s*:\s*(.+)$/.exec(line);
@@ -173,6 +178,12 @@ class Verbalizer {
     });
   }
 
+  /** The article a noun was written with, with the space that follows it. */
+  private written(type: Node): string | undefined {
+    const article = this.readings.articles.get(nameOf(type, 'the type of a quantified variable'));
+    return article === undefined ? undefined : `${article} `;
+  }
+
   private noun(type: Node): string {
     const name = nameOf(type, 'the type of a quantified variable');
     const noun = this.readings.nouns.get(name);
@@ -200,6 +211,10 @@ class Verbalizer {
       const slots = l.t === 'arrow' ? [this.variable(l.l, 'a side of "->"'), this.variable(l.r, 'a side of "->"')] : [this.variable(l, 'the left of "in"')];
       const key = r.t === 'join' ? `${nameOf(r.l, 'a relation')}.${nameOf(r.r, 'a relation')}` : nameOf(r, 'the right of "in"');
       return this.say(key, slots, flip);
+    }
+    // a = b, and a != b, between two variables
+    if (l.t === 'name' && r.t === 'name') {
+      return `${VARIABLE}${this.variable(l, 'the left of "="')}${VARIABLE} and ${VARIABLE}${this.variable(r, 'the right of "="')}${VARIABLE} are ${flip ? 'different' : 'the same'}`;
     }
     // x.f = y, in either order
     const [field, value] = l.t === 'join' ? [l, r] : r.t === 'join' ? [r, l] : [undefined, undefined];
@@ -239,7 +254,8 @@ class Verbalizer {
         for (let n = 2; this.used.has(alias); n++) alias = `${name}${n}`;
         this.used.add(alias);
         scope.set(name, alias);
-        return { name: alias, noun: this.noun(type) };
+        const noun = this.noun(type);
+        return { name: alias, noun, article: this.written(type) ?? articleFor(noun) };
       })
     );
     const body = new Verbalizer(this.readings, scope, this.chain, this.used).doc(node.body);
@@ -249,7 +265,7 @@ class Verbalizer {
     const each = vars.map(v => `${v.noun} ${v.name}`);
     const head =
       node.q === 'some'
-        ? `there ${vars.length === 1 ? 'is' : 'are'} ${vars.length === 1 ? articleFor(each[0] as string) : ''}${each.join(' and ')} such that`
+        ? `there ${vars.length === 1 ? 'is' : 'are'} ${vars.length === 1 ? (vars[0] as { article: string }).article : ''}${each.join(' and ')} such that`
         : node.q === 'no'
           ? `there is no ${vars.length === 1 ? '' : 'combination of '}${each.join(' and ')} such that`
           : (() => {
@@ -260,9 +276,52 @@ class Verbalizer {
     return { kind: 'block', intro: `${head}:`, body };
   }
 
+  /**
+   * The items of a list, said one by one, where `independent` says of an item
+   * that it stands on its own: each of those may use the names of variables
+   * that another uses, and the names stay taken for what comes after the list.
+   * The alternatives of an "at least one of these holds" all stand on their own,
+   * and so does a "for every" among the items of an "all of these hold", which
+   * is a statement of its own; a "there is" among them is a joint condition, and
+   * the variables of two of those must not read as one.
+   */
+  private items(items: Node[], independent: (item: Node) => boolean): Doc[] {
+    const before = [...this.used];
+    const introduced = new Set<string>();
+    const docs = items.map(item => {
+      if (!independent(item)) return this.doc(item);
+      this.used.clear();
+      for (const name of before) this.used.add(name);
+      const doc = this.doc(item);
+      for (const name of this.used) introduced.add(name);
+      return doc;
+    });
+    this.used.clear();
+    for (const name of [...before, ...introduced]) this.used.add(name);
+    return docs;
+  }
+
   /** The items of a list with the given intro, or the doc itself: a list inside a list of the same kind says nothing more. */
   private spliced(doc: Doc, intro: string): Doc[] {
     return isList(doc) && doc.intro === intro ? doc.items : [doc];
+  }
+
+  /**
+   * A definition, said as "<what it names> exactly when <its body>", for every
+   * value of its parameters. The words for what it names are its reading in the
+   * table; its meaning is only its body.
+   */
+  definition(name: string, params: { name: string; type: string }[], body: Node): Doc {
+    for (const param of params) this.used.add(param.name);
+    const head = this.say(name, params.map(param => param.name), false);
+    const said = this.doc(body);
+    let sentence: Doc;
+    if (typeof said === 'string') sentence = `${head} exactly when ${said}`;
+    else if (isList(said)) sentence = { ...said, intro: `${head} exactly when ${said.intro}` };
+    else throw new Error(`the definition of "${name}" is a rule or has a "for every", which has no words after "exactly when"`);
+    if (params.length === 0) return sentence;
+    const vars = params.map(param => `every ${this.noun({ t: 'name', name: param.type })} ${param.name}`).join(' and ');
+    return { kind: 'block', intro: `for ${vars}:`, body: sentence };
   }
 
   doc(node: Node): Doc {
@@ -279,9 +338,9 @@ class Verbalizer {
       case 'not':
         return this.negation(node.f);
       case 'and':
-        return { kind: 'list', intro: ALL, items: node.items.flatMap(item => this.spliced(this.doc(item), ALL)) };
+        return { kind: 'list', intro: ALL, items: this.items(node.items, item => item.t === 'quant' && item.q === 'all').flatMap(item => this.spliced(item, ALL)) };
       case 'or':
-        return { kind: 'list', intro: ANY, items: node.items.flatMap(item => this.spliced(this.doc(item), ANY)) };
+        return { kind: 'list', intro: ANY, items: this.items(node.items, () => true).flatMap(item => this.spliced(item, ANY)) };
       case 'implies':
         return { kind: 'rule', when: this.doc(node.l), then: this.doc(node.r) };
       case 'quant':
@@ -304,8 +363,9 @@ class Verbalizer {
   }
 }
 
-/** "a failing cleanup c": the article before the first word of the noun. */
+/** "a failing cleanup c": the article before the first word of the noun, by the sound of the word: "a unit", "an owner". */
 function articleFor(phrase: string): string {
+  if (/^(?:uni|use|usu|uti|eu|one|once)/i.test(phrase)) return 'a ';
   return /^[aeiou]/i.test(phrase) ? 'an ' : 'a ';
 }
 
@@ -354,7 +414,43 @@ function markdownLines(doc: Doc): string[] {
 
 /** The words for the formula in `source`, as lines of text. Throws an Error that names what cannot be said. */
 export function verbalize(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text'): string {
-  const doc = new Verbalizer(readings).doc(parseFormula(source));
+  return finish(new Verbalizer(readings).doc(parseFormula(source)), layout);
+}
+
+const DEFINITION = /^\s*pred\s+(\w+)\s*(?:\[([^\]]*)\])?\s*\{([\s\S]*)\}\s*$/;
+
+/** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
+export const isDefinition = (source: string): boolean => /^\s*pred\b/.test(source);
+
+/** The parameters of a definition, `a, b: T, c: U`, each with its type. */
+function parameters(text: string): { name: string; type: string }[] {
+  const found: { name: string; type: string }[] = [];
+  let pending: string[] = [];
+  for (const part of text.split(',').map(p => p.trim()).filter(p => p !== '')) {
+    const [names, type] = part.includes(':') ? part.split(':').map(p => p.trim()) : [part, undefined];
+    pending.push(names as string);
+    if (type !== undefined) {
+      found.push(...pending.map(name => ({ name, type })));
+      pending = [];
+    }
+  }
+  if (pending.length > 0) throw new Error(`the parameter "${pending[0]}" has no type`);
+  return found;
+}
+
+/**
+ * The words for a definition, `pred name[params] { body }`: what the predicate
+ * names, exactly when its body holds. Throws an Error that names what cannot be said.
+ */
+export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text'): string {
+  const m = DEFINITION.exec(source);
+  if (!m) throw new Error('a definition is written `pred name[parameters] { formula }`');
+  const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), parseFormula(m[3] as string));
+  return finish(doc, layout);
+}
+
+/** A doc as text: laid out, with a capital where the sentence starts with its own words and a period where it ends. */
+function finish(doc: Doc, layout: 'text' | 'markdown'): string {
   const out = layout === 'markdown' ? markdownLines(doc) : lines(doc);
   if (!(out[0] as string).startsWith(VARIABLE)) out[0] = (out[0] as string).replace(/^./, c => c.toUpperCase());
   const last = out.length - 1;

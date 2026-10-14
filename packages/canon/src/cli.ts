@@ -962,6 +962,8 @@ function analyse(write: boolean): Analysis {
       if (owner?.id && kindOf(owner.id) && targetKind) {
         const from = `${rel}#${owner.id}`;
         const to = `${targetRel}#${frag}`;
+        // A unit that derives from itself is a loop of one. Any other link to itself is a reference, which cites nothing.
+        if (from === to && namesParent(docSource, a.at)) addEdge(edges, from, to);
         if (from !== to) {
           const derives = namesParent(docSource, a.at);
           if (derives) addEdge(edges, from, to);
