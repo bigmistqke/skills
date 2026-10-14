@@ -20,6 +20,7 @@ import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
+import { maskFences, readUnits } from './units.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -46,6 +47,8 @@ interface Config {
    * tracker whether each issue exists and is open.
    */
   tracker?: TrackerConfig;
+  /** The logic layer: where the Alloy analyzer is, for `logic`. Paths are relative to the project root. */
+  logic?: { alloy?: { jar?: string; java?: string } };
 }
 
 /**
@@ -204,30 +207,6 @@ function scan(src: string): { withId: Element[]; anchors: Anchor[] } {
 // ---------------------------------------------------------------------------
 
 /**
- * Blank out fenced-code bodies and the generated index, keeping every byte
- * offset and every newline.
- *
- * The index has to go: it links every unit in the document, so leaving it
- * readable makes `dead` vacuous — every unit is cited by the table of contents
- * that was generated FROM it. A generated link is not evidence that anything
- * derives from a unit, which is the only thing `dead` is asking.
- */
-const maskFences = (src: string): string =>
-  src
-    .replace(/^(```+|~~~+)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, m =>
-      m.replace(/[^\n]/g, ' ')
-    )
-    .replace(/<!--[ \t]*toc:begin\b[^>]*-->[\s\S]*?<!-- toc:end -->/g, m =>
-      m.replace(/[^\n]/g, ' ')
-    );
-
-/**
- * A unit heading: `### @spec <stem> — <prose>`, whose id is `spec-<stem>`. The
- * stem is declared rather than slugged from the prose, so the sentence after the
- * em dash can be reworded without breaking a citation.
- */
-const UNIT_HEADING = /^(#{1,6})[ \t]+@([a-z]+)[ \t]+(\S+)[ \t]*$/gm;
-/**
  * A unit heading carrying anything past its stem. The heading is the identifier
  * and nothing else, because a renderer slugs the WHOLE heading: prose after the
  * stem lands in the anchor, so `#spec-x` resolves to nothing and every citation
@@ -236,20 +215,6 @@ const UNIT_HEADING = /^(#{1,6})[ \t]+@([a-z]+)[ \t]+(\S+)[ \t]*$/gm;
  * statement opens the body instead.
  */
 const OVERFULL_HEADING = /^#{1,6}[ \t]+@[a-z]+[ \t]+\S+[ \t]+\S.*$/gm;
-/**
- * A unit's statement — the blockquote opening its body, and its label in the
- * index. Declared by the line prefix rather than inferred from emphasis, so
- * marking a term inside it changes nothing about what is read out.
- */
-const STATEMENT = /^> (.+)$/m;
-/**
- * A spec's site — the one place in the code that does what it states, on a
- * line of its own in the body. The statement stays the claim alone, so a tree
- * shows what the system does rather than where.
- */
-const SITE = /^Site: (.+)$/m;
-/** Any heading, including a plain section one — it ends the unit above it. */
-const ANY_HEADING = /^(#{1,6})[ \t]+/gm;
 /** A `<tr>`/`<td>` unit in an HTML table the document kept. */
 const TABLE_UNIT = /<t([rd])\b[^>]*\bid="([^"]*)"[^>]*>/g;
 
@@ -258,44 +223,20 @@ function scanMarkdown(src: string): { withId: Element[]; anchors: Anchor[] } {
   const withId: Element[] = [];
   const anchors: Anchor[] = [];
 
-  const levels = [...md.matchAll(ANY_HEADING)].map(m => ({
-    level: m[1].length,
-    at: m.index ?? 0
-  }));
-
-  const units: Element[] = [];
-  for (const m of md.matchAll(UNIT_HEADING)) {
-    const start = m.index ?? 0;
-    const level = m[1].length;
-    // A plain section heading closes the unit above it: it is not a unit, but
-    // it is not part of one either.
-    const next = levels.find(h => h.at > start && h.level <= level);
-    units.push({
+  withId.push(
+    ...readUnits(src).map(u => ({
       tag: 'heading',
-      id: `${m[2]}-${m[3]}`,
-      start,
-      end: next ? next.at : md.length,
-      level,
-      label: `@${m[2]} ${m[3]}`
-    });
-  }
-  // Nesting IS the derivation link, so each unit records the unit it sits
-  // inside. A plain section heading between the two breaks the relation, which
-  // is why the enclosing unit is found by extent rather than by heading depth.
-  for (const unit of units) {
-    unit.parent = units
-      .filter(u => u !== unit && unit.start > u.start && unit.start < u.end)
-      .sort((a, b) => b.start - a.start)[0]?.id;
-  }
-  for (const unit of units) {
-    const body = md.slice(unit.start, unit.end).split('\n').slice(1).join('\n');
-    unit.statement = STATEMENT.exec(body)?.[1]?.trim();
-    // Only the unit's own text, before its first nested heading, names its site.
-    const own = body.split(/^#{1,6}[ \t]/m)[0];
-    unit.own = own;
-    unit.site = SITE.exec(own)?.[1]?.trim();
-  }
-  withId.push(...units);
+      id: u.id,
+      start: u.start,
+      end: u.end,
+      level: u.level,
+      label: `@${u.kind} ${u.stem}`,
+      parent: u.parent,
+      statement: u.statement,
+      own: u.own,
+      site: u.site
+    }))
+  );
 
   for (const m of md.matchAll(TABLE_UNIT)) {
     const start = m.index ?? 0;
@@ -1512,6 +1453,10 @@ Usage:
   ${COMMAND} generate              rewrite the generated regions
   ${COMMAND} tree [options]        print the derivation tree with test counts
   ${COMMAND} lint [file …]         check the language of the documents' prose; exit 1 on a finding
+  ${COMMAND} logic [file …]        check the alloy blocks of the documents together: whether each
+                                   scenario can happen while every unit holds, and whether each unit's
+                                   map from its statement to its predicate is current; exit 1 if not
+  ${COMMAND} logic --review <unit> mark the unit's map reviewed as it now stands (repeat for more units)
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
 
@@ -1519,6 +1464,9 @@ Options for tree:
   --gaps          only the branches leading to a claim no test pins
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
+
+logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" field
+of the scope gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
 The protocol is the canon skill. The scope is the "canon" field of
 package.json: documents, suites, sources, references, command, tracker.
@@ -1723,6 +1671,7 @@ async function main(argv: string[]): Promise<void> {
         verbose: { type: 'boolean', short: 'v' },
         suspect: { type: 'string' },
         offline: { type: 'boolean' },
+        review: { type: 'string', multiple: true },
         help: { type: 'boolean', short: 'h' }
       }
     });
@@ -1749,6 +1698,17 @@ async function main(argv: string[]): Promise<void> {
     // other command depends on nothing outside Node.
     const { lint } = await import('./lint.ts');
     process.exit((await lint(rest)) === 0 ? 0 : 1);
+  }
+  if (command === 'logic') {
+    // Loaded only here: it needs a Java and the analyzer, which no other command does.
+    const { logic, review } = await import('./logic.ts');
+    if (values.review !== undefined) process.exit(review(rest.length > 0 ? rest : DOCS, ROOT, values.review as string[]));
+    process.exit(
+      logic(rest.length > 0 ? rest : DOCS, ROOT, {
+        jar: CONFIG.logic?.alloy?.jar === undefined ? undefined : resolve(ROOT, CONFIG.logic.alloy.jar),
+        java: CONFIG.logic?.alloy?.java === undefined ? undefined : resolve(ROOT, CONFIG.logic.alloy.java)
+      })
+    );
   }
   if (command === 'log') {
     if (rest.length > 1) {

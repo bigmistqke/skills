@@ -14,7 +14,8 @@
   },
   "exports": {
     "./kinds": "./dist/kinds.js",
-    "./regions": "./dist/regions.js"
+    "./regions": "./dist/regions.js",
+    "./units": "./dist/units.js"
   },
   "files": [
     "dist"
