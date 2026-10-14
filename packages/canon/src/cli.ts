@@ -25,8 +25,8 @@ import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
-import { parseSource, type ParsedSource } from './tests.ts';
-import { vocabularyOf, type Vocabulary } from './runners.ts';
+import { parseSource, testsOf, type Exports, type Syntax, type TestBlock } from './tests.ts';
+import { runnersOf, type Runner } from './runners.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -48,7 +48,7 @@ interface Config {
   references?: string[];
   /** How a reader runs this tool, for the advice in findings. */
   command?: string;
-  /** The runners whose calls are tests: preset names, or maps of calls, modifiers and fails. */
+  /** The runners whose calls are tests: preset names, or maps of calls, modifiers, fails, from and globals. */
   runners?: unknown;
   /**
    * The issue tracker the bugs name their issues in. With it, `check` asks the
@@ -134,10 +134,10 @@ const REFERENCES = CONFIG.references ?? [];
 
 const COMMAND = CONFIG.command ?? 'pnpm canon';
 
-/** What the runners of the project declare a test with. A runner the checker does not know stops the run. */
-const VOCABULARY = ((): Vocabulary => {
+/** The runners of the project. A runner the checker does not know stops the run. */
+const RUNNERS = ((): Runner[] => {
   try {
-    return vocabularyOf(CONFIG.runners);
+    return runnersOf(CONFIG.runners);
   } catch (error) {
     console.error(`canon: ${(error as Error).message}`);
     process.exit(2);
@@ -1132,11 +1132,11 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  /** The tests and comments of a suite or a source; a file that does not parse stops the run. */
-  function parse(file: string): ParsedSource & { src: string; lineAt: (at: number) => number } {
+  /** The syntax of a suite or a source; a file that does not parse stops the run. */
+  function parse(file: string): Syntax & { lineAt: (at: number) => number } {
     const src = readFileSync(file, 'utf8');
     try {
-      return { ...parseSource(src, file.endsWith('.tsx'), VOCABULARY), src, lineAt: linesOf(src) };
+      return { ...parseSource(src, file.endsWith('.tsx')), lineAt: linesOf(src) };
     } catch (error) {
       console.error(`canon: ${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
       process.exit(2);
@@ -1199,11 +1199,18 @@ function analyse(write: boolean): Analysis {
    * the whole file in scope to capture those would demand a citation from the
    * other thirty, and the only way to supply thirty is to invent them.
    */
-  function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> {
+  function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> & { tests: TestBlock[] } {
     const rel = relative(ROOT, file);
-    const parsed = parse(file);
+    const syntax = parse(file);
+    // A marker the checker cannot read would change which calls are tests.
+    for (const problem of syntax.problems) {
+      console.error(`canon: ${rel}:${syntax.lineAt(problem.at)} — ${problem.message}`);
+      process.exit(2);
+    }
+    exportsOf.set(file, syntax.exports);
+    const parsed = { ...syntax, tests: testsOf(syntax, file, RUNNERS, lookup) };
 
-    for (const { doc, title, modifiers, at } of parsed.tests) {
+    for (const { doc, title, fails, at } of parsed.tests) {
       // The reported line is the `it(` itself, not the top of its JSDoc.
       const line = parsed.lineAt(at);
       const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
@@ -1238,12 +1245,11 @@ function analyse(write: boolean): Analysis {
 
       // An expected failure is a known defect, and the canon names it as a
       // bug; a bug is pinned by a test that fails until the fix.
-      const marksFailing = modifiers.some(m => VOCABULARY.fails.has(m));
-      if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
+      if (fails && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
         findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
       }
       for (const s of specs) {
-        if (kindOf(s) === 'bug-' && !marksFailing) {
+        if (kindOf(s) === 'bug-' && !fails) {
           findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
         }
       }
@@ -1338,11 +1344,45 @@ function analyse(write: boolean): Analysis {
   const enforcedFiles = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allSuites(join(ROOT, TESTS)) : []
   );
-  for (const file of enforcedFiles) readSource(file, true);
   const enforcedModules = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allModules(join(ROOT, TESTS)) : []
   );
-  for (const file of enforcedModules) readSource(file, true);
+  // Every suite and source, and whether it is declared. Every tree is swept,
+  // read but not judged — the distinction `readSuite` draws. A citation is a
+  // true statement about a link wherever it is written, so a spec pinned solely
+  // by an undeclared suite is not dead, and sweeping only the declared tree
+  // would report it as one: the exact misreading the `dead` list exists to
+  // prevent.
+  const files = new Map<string, boolean>([...enforcedFiles, ...enforcedModules].map(file => [file, true]));
+  for (const root of SOURCES) {
+    const abs = join(ROOT, root);
+    if (!existsSync(abs)) continue;
+    for (const file of [...allSuites(abs), ...allModules(abs)]) if (!files.has(file)) files.set(file, false);
+  }
+
+  /** What each file read so far exports, so an import that leads to it is followed without parsing it again. */
+  const exportsOf = new Map<string, Exports>();
+
+  /**
+   * The file a relative import names, from the file that imports it, with what
+   * it exports. Only a suite or a source counts: a marker elsewhere is none.
+   */
+  function lookup(file: string, source: string): { file: string; exports: Exports } | undefined {
+    const base = resolve(dirname(file), source);
+    const stem = base.replace(/\.(m?js|jsx)$/, '');
+    for (const candidate of [base, `${stem}.ts`, `${stem}.tsx`, join(base, 'index.ts'), join(base, 'index.tsx')]) {
+      if (!files.has(candidate)) continue;
+      let exports = exportsOf.get(candidate);
+      if (exports === undefined) {
+        exports = parse(candidate).exports;
+        exportsOf.set(candidate, exports);
+      }
+      return { file: candidate, exports };
+    }
+    return undefined;
+  }
+
+  for (const [file, enforced] of files) readSource(file, enforced);
 
   /**
    * Check a reference's citations resolve, and nothing else.
@@ -1370,21 +1410,6 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  // Every tree is swept, read but not judged — the distinction `readSuite`
-  // draws. A citation is a true statement about a link wherever it is written,
-  // so a spec pinned solely by an undeclared suite is not dead, and sweeping
-  // only the declared tree would report it as one: the exact misreading the
-  // `dead` list exists to prevent.
-  for (const root of SOURCES) {
-    const abs = join(ROOT, root);
-    if (!existsSync(abs)) continue;
-    for (const file of allSuites(abs)) {
-      if (!enforcedFiles.has(file)) readSource(file);
-    }
-    for (const file of allModules(abs)) {
-      if (!enforcedModules.has(file)) readSource(file);
-    }
-  }
 
   for (const ref of REFERENCES)
     for (const file of allReferences(join(ROOT, ref))) readReference(file);

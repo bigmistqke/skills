@@ -92,7 +92,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
 - [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
 - [`@term setting`](#term-setting) — A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
-- [`@term runner`](#term-runner) — A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes.
+- [`@term runner`](#term-runner) — A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes. A function that a runner marker marks is a call of a runner too.
 - [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
@@ -192,10 +192,19 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-member-no-runner-names-is-no-test`](#spec-a-member-no-runner-names-is-no-test) — A call through a member that no runner of the project names, such as `test.beforeEach(fn)` or `test.extend({})`, is no test.
       - [`@spec a-call-with-no-body-is-no-test`](#spec-a-call-with-no-body-is-no-test) — A call with no function after its first argument, such as `test.todo('name')` or `test.skip(condition, 'reason')`, is no test.
       - [`@spec a-call-inside-a-test-is-no-test`](#spec-a-call-inside-a-test-is-no-test) — A call inside the body of a test is no test.
-      - [`@spec a-name-the-module-declares-is-no-runner`](#spec-a-name-the-module-declares-is-no-runner) — A call of `it` or `test` in a module that declares that name itself, such as `const it = values[Symbol.iterator]()`, is no test.
+      - [`@spec a-name-the-module-declares-is-no-runner`](#spec-a-name-the-module-declares-is-no-runner) — A call whose name refers to a declaration of its own module that no runner marker marks, such as `const it = values[Symbol.iterator]()`, is no test.
+      - [`@spec a-name-imported-from-no-runner-is-no-runner`](#spec-a-name-imported-from-no-runner-is-no-runner) — A call whose name is imported from neither a package of a runner nor a module that exports a marked declaration is no test.
+      - [`@spec a-name-imported-from-a-runner-leads-to-its-call`](#spec-a-name-imported-from-a-runner-leads-to-its-call) — A name imported from a runner's package leads to its call by name, as the default export, or through the namespace. Examples are `test` after `import test from 'node:test'`, and `nt.it` after `import * as nt from 'node:test'`.
+      - [`@spec a-global-name-is-a-runner-only-where-a-runner-provides-globals`](#spec-a-global-name-is-a-runner-only-where-a-runner-provides-globals) — A call whose name no module declares or imports is a test only when a runner of the project provides that call as a global.
+      - [`@spec a-call-takes-the-modifiers-of-its-own-runner`](#spec-a-call-takes-the-modifiers-of-its-own-runner) — A call reads its modifiers by the runner its name leads to, such as Playwright's `fail` only on Playwright's `test`.
       - [`@spec a-runner-set-in-the-settings-replaces-the-presets`](#spec-a-runner-set-in-the-settings-replaces-the-presets) — When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
-      - [`@spec a-runner-written-as-a-map-adds-its-calls`](#spec-a-runner-written-as-a-map-adds-its-calls) — A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists.
+      - [`@spec a-runner-written-as-a-map-adds-its-calls`](#spec-a-runner-written-as-a-map-adds-its-calls) — A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists. Its calls come from the packages under `from`, or are globals when it sets `globals`.
       - [`@spec a-failure-modifier-of-a-runner-marks-an-expected-failure`](#spec-a-failure-modifier-of-a-runner-marks-an-expected-failure) — A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
+      - [`@spec a-call-of-a-marked-function-is-a-test`](#spec-a-call-of-a-marked-function-is-a-test) — A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there in the scope of the call, through an import of a relative path, or through a re-export.
+      - [`@spec only-a-relative-import-leads-to-a-marked-declaration`](#spec-only-a-relative-import-leads-to-a-marked-declaration) — An import of a package, or of a path that a `tsconfig` alias maps, leads to no marked declaration.
+      - [`@spec a-marker-in-an-example-is-no-marker`](#spec-a-marker-in-an-example-is-no-marker) — A line `@runner` in an `@example` section or a fenced block of a JSDoc marks nothing.
+      - [`@spec a-call-of-a-function-marked-fails-is-an-expected-failure`](#spec-a-call-of-a-function-marked-fails-is-an-expected-failure) — A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
+      - [`@spec a-call-inside-a-marked-function-is-no-test`](#spec-a-call-inside-a-marked-function-is-no-test) — A call inside the body of a function that a runner marker marks is no test.
   - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1 - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 asks for a [command](#term-command) that is not [available](#term-availability) - run_1 gets code 2 from a plugin then run_1 exits with code 2.
     - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1 - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
       - [`@spec a-document-with-no-plugins-list-asks-for-no-plugin`](#spec-a-document-with-no-plugins-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter) and the command line of a [run](#term-run) does not name document_1, [checker](#term-checker) does not run plugin_1 over document_1.
@@ -216,7 +225,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed_frontmatter_1](#term-flaw): unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated_frontmatter_1](#term-flaw): unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled_frontmatter_1](#term-flaw): doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec a-runner-the-checker-does-not-know-is-refused`](#spec-a-runner-the-checker-does-not-know-is-refused) — A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers` and `fails`.
+      - [`@spec a-runner-the-checker-does-not-know-is-refused`](#spec-a-runner-the-checker-does-not-know-is-refused) — A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
       - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling_frontmatter_1](#term-flaw): dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular_frontmatter_1](#term-flaw): circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray_frontmatter_1](#term-setting): stray_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
@@ -243,6 +252,9 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1
       - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
       - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — Generate leaves the frontmatter of a document as it was.
+    - [`@spec a-runner-marker-the-checker-cannot-read-stops-the-run`](#spec-a-runner-marker-the-checker-cannot-read-stops-the-run) — When a runner marker is one the checker cannot read, the checker names it, and the run exits with code 2.
+      - [`@spec a-runner-marker-with-a-word-other-than-fails-is-refused`](#spec-a-runner-marker-with-a-word-other-than-fails-is-refused) — A runner marker with a word after `@runner` other than `fails` is one the checker cannot read.
+      - [`@spec a-runner-marker-on-no-declaration-is-refused`](#spec-a-runner-marker-on-no-declaration-is-refused) — A runner marker that is not right above the declaration of a name with a value is one the checker cannot read.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
 <!-- toc:end -->
 
@@ -1560,11 +1572,13 @@ Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the
 
 ### @term runner
 
-> A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes.
+> A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes. A function that a runner marker marks is a call of a runner too.
 
-The setting `runners` lists the runners of a project, such as `runners: [vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing]}` describes a runner with no preset. A project that sets no `runners` has every preset.
+The setting `runners` lists the runners of a project, such as `runners: [vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing], from: [mocha], globals: true}` describes a runner with no preset. A project that sets no `runners` has every preset.
 
-A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`.
+A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`. A runner also names the packages a module imports its calls from, the call those packages export as their default, if any, and says whether it provides its calls as globals.
+
+A runner marker is a line `@runner` in the JSDoc of a declaration in a suite or a source. It marks a helper that wraps `it`, or a `test` that `base.extend(...)` makes. The line `@runner fails` marks a declaration whose calls are expected failures. A line in an `@example` section or a fenced block of the JSDoc is no marker.
 
 ### @term enter
 
@@ -1727,11 +1741,15 @@ Blocks.rel: [checker](#term-checker) reads {2} as a block of {1} | [checker](#te
 
 The type `ChainableTestAPI` of `@vitest/runner` 3.2 lists the modifiers. `chunk-hooks.js` of the same package throws "Calling the test function inside another test function is not allowed". Its other members, such as `extend` and `scoped`, declare no test.
 
+A module imports `it` and `test` from `vitest`. Vitest provides them as globals only when a project turns on its option `globals`, which defaults to `false`.
+
 ## @fact jest-declares-a-test-with-it-or-test
 
 > Jest 30 declares a test with a call of `it`, `test`, `fit`, `xit` or `xtest`, with any of the modifiers `only`, `skip`, `todo`, `each` and `concurrent` between, and marks an expected failure with `failing`. It refuses a test declared inside the body of another test.
 
 The interface `TestFrameworkGlobals` of `@jest/types` 30.5 lists the calls, and `It`, `ItBase` and `ItConcurrent` list the modifiers. `jest-circus` throws "Tests cannot be nested".
+
+Jest provides its calls as globals, since its option `injectGlobals` defaults to `true` in `jest-config` 30. A module can also import them from `@jest/globals`.
 
 ## @fact playwright-declares-a-test-with-test
 
@@ -1739,11 +1757,13 @@ The interface `TestFrameworkGlobals` of `@jest/types` 30.5 lists the calls, and 
 
 The interface `TestType` in `types/test.d.ts` of `playwright` 1.64 lists the members. Its other members, such as `describe`, `step`, `use`, `extend` and the hooks, declare no test. `_currentSuite` in `lib/common/index.js` throws when no file is loading.
 
+A module imports `test` from `@playwright/test`, or from `playwright/test`, which the `exports` of `playwright` 1.64 list. `types/test.d.ts` exports `test` as the default export too, by `export default test`. Playwright provides no globals.
+
 ## @fact node-declares-a-test-with-it-or-test
 
 > Node's test runner declares a test with a call of `it` or `test` from `node:test`, with any of the modifiers `only`, `skip` and `todo` between. It has no modifier that marks an expected failure.
 
-The file `test.d.ts` of `@types/node` 26 declares these, and exports `test as it`.
+The file `test.d.ts` of `@types/node` 26 declares these in the module `node:test`, the only name it has, and exports `test as it`. It exports `test` as the module itself, by `export = test`, so a default import of `node:test` is `test`. Node provides no globals.
 
 ## @fact a-runner-takes-the-body-of-a-test-after-its-title
 
@@ -2746,9 +2766,35 @@ This follows because the runners refuse a test declared there, so a call there t
 
 ##### @spec a-name-the-module-declares-is-no-runner
 
-> A call of `it` or `test` in a module that declares that name itself, such as `const it = values[Symbol.iterator]()`, is no test.
+> A call whose name refers to a declaration of its own module that no runner marker marks, such as `const it = values[Symbol.iterator]()`, is no test.
 
-This follows because the name then holds the module's own value, not a runner's function.
+This follows because the name then holds the module's own value, not a runner's function. The checker follows a name to its declaration in the scope of the call. A declaration in another block of the module does not count.
+
+##### @spec a-name-imported-from-no-runner-is-no-runner
+
+> A call whose name is imported from neither a package of a runner nor a module that exports a marked declaration is no test.
+
+This follows because a name imported from elsewhere holds another library's function, such as a `check` that validates input.
+
+##### @spec a-name-imported-from-a-runner-leads-to-its-call
+
+> A name imported from a runner's package leads to its call by name, as the default export, or through the namespace. Examples are `test` after `import test from 'node:test'`, and `nt.it` after `import * as nt from 'node:test'`.
+
+Derives from: [`fact-playwright-declares-a-test-with-test`](#fact-playwright-declares-a-test-with-test), [`fact-node-declares-a-test-with-it-or-test`](#fact-node-declares-a-test-with-it-or-test)
+
+This follows because each form of import binds the same function of the runner. Node's test runner and Playwright export `test` as their default. Vitest and Jest export no default, so a default import of theirs leads to no call.
+
+##### @spec a-global-name-is-a-runner-only-where-a-runner-provides-globals
+
+> A call whose name no module declares or imports is a test only when a runner of the project provides that call as a global.
+
+This follows because Playwright and Node's test runner give no globals. A global `test` in a project of theirs is no runner's call.
+
+##### @spec a-call-takes-the-modifiers-of-its-own-runner
+
+> A call reads its modifiers by the runner its name leads to, such as Playwright's `fail` only on Playwright's `test`.
+
+This follows because each runner declares a test only through its own modifiers. A call of a marked declaration takes the modifiers of every runner of the project.
 
 ##### @spec a-runner-set-in-the-settings-replaces-the-presets
 
@@ -2758,7 +2804,7 @@ This follows because a project that names its runners says which calls its tests
 
 ##### @spec a-runner-written-as-a-map-adds-its-calls
 
-> A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists.
+> A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists. Its calls come from the packages under `from`, or are globals when it sets `globals`.
 
 This follows because a runner with no preset still declares its tests through calls, and the map names them.
 
@@ -2767,6 +2813,36 @@ This follows because a runner with no preset still declares its tests through ca
 > A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
 
 This follows because each runner marks an expected failure with a modifier of its own, such as `fails` in Vitest and `failing` in Jest.
+
+##### @spec a-call-of-a-marked-function-is-a-test
+
+> A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there in the scope of the call, through an import of a relative path, or through a re-export.
+
+This follows because a helper that wraps a runner's call declares a test each time it is called. Its call site is where the test is, and where its tag says what it checks.
+
+##### @spec only-a-relative-import-leads-to-a-marked-declaration
+
+> An import of a package, or of a path that a `tsconfig` alias maps, leads to no marked declaration.
+
+This follows because the checker resolves a path only by the files beside it. A helper imported through an alias gives no credit, so the spec it tests stays untested, and the author sees it.
+
+##### @spec a-marker-in-an-example-is-no-marker
+
+> A line `@runner` in an `@example` section or a fenced block of a JSDoc marks nothing.
+
+This follows because such a line shows code to a reader, and the declaration under the JSDoc is not its subject.
+
+##### @spec a-call-of-a-function-marked-fails-is-an-expected-failure
+
+> A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
+
+This follows because such a helper wraps a failure modifier, such as `it.fails`, and the checker cannot see which modifier a helper uses.
+
+##### @spec a-call-inside-a-marked-function-is-no-test
+
+> A call inside the body of a function that a runner marker marks is no test.
+
+This follows because the test is declared where the function is called. The call in its body runs once for each of those tests, so it is none of its own.
 
 ### @axiom a-check-the-project-asked-for-is-never-dropped-silently
 
@@ -3069,7 +3145,7 @@ all f: Doubled | f in Refused
 
 ##### @spec a-runner-the-checker-does-not-know-is-refused
 
-> A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers` and `fails`.
+> A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
 
 This follows because a misspelled runner, such as `vitset`, would change which calls are tests, and the author would trust a check of the wrong tests.
 
@@ -3418,6 +3494,24 @@ all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Findin
 
 This follows because the block is the author's, and `generate` writes the regions it owns and nothing else.
 
+
+#### @spec a-runner-marker-the-checker-cannot-read-stops-the-run
+
+> When a runner marker is one the checker cannot read, the checker names it, and the run exits with code 2.
+
+This follows because a marker says which calls are tests, and one the checker cannot read would change them without a word.
+
+##### @spec a-runner-marker-with-a-word-other-than-fails-is-refused
+
+> A runner marker with a word after `@runner` other than `fails` is one the checker cannot read.
+
+This follows because a misspelled `@runner fail` would make a call that fails on purpose read as a plain test.
+
+##### @spec a-runner-marker-on-no-declaration-is-refused
+
+> A runner marker that is not right above the declaration of a name with a value is one the checker cannot read.
+
+This follows because such a marker names no call, so the checker cannot do what the author meant.
 
 #### @spec a-source-the-checker-cannot-parse-fails-the-run
 
