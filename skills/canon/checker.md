@@ -30,7 +30,7 @@ Then declare the scope in the `canon` field of `package.json`. `pnpm canon` runs
 - `sources`: the trees the checker reads for other citations and for the places specs name. Default `["src", "test"]`.
 - `references`: prose documents whose links must resolve but credit no unit. Default none.
 - `command`: how the project runs the checker, for the advice in findings.
-- `tracker`: the issue tracker the bugs name their issues in. Default none. [Section 3](#3-issues) has the fields.
+- `tracker`: the issue tracker the bugs and conflicts name their issues in. Default none. [Section 3](#3-issues) has the fields.
 
 ## 2. Commands
 
@@ -55,7 +55,7 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 
 ## 3. Issues
 
-A bug names its issue on a line of its own, such as `Issue: #49`. With no `tracker` in the scope, `check` accepts any `#49` or issue URL. With one, `check` asks the tracker about every issue the bugs name. A bug then cannot name an issue that does not exist, a PR or a closed issue.
+A bug or a conflict names its issue on a line of its own, such as `Issue: #49`. With no `tracker` in the scope, `check` accepts any `#49` or issue URL. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
 
 ```json
 { "kind": "github", "repo": "owner/name" }
@@ -72,6 +72,6 @@ A bug names its issue on a line of its own, such as `Issue: #49`. With no `track
 2. A public project needs no token. GitHub allows 60 anonymous calls an hour, so the checker reads many issues in pages of a hundred. It makes one call for each hundred issue numbers, whatever the number of issues the bugs name. A missing issue of a public project is `missing-issue`.
 3. A private project needs a token. On GitHub it needs the `repo` scope, or read access to Issues for a fine-grained token. On GitLab it needs `read_api`. A tracker answers a private project as if the issue were absent, so a call that fails for want of a token is `unreachable-tracker`, never `missing-issue`. A spent rate limit is `unreachable-tracker` too, and a token lifts it.
 4. `missing-issue` is an issue the tracker does not hold, or a number that belongs to a PR.
-5. `closed-issue` is a bug that names a closed issue. Either the fix landed and the bug goes, or the issue was closed too soon.
+5. `closed-issue` is a bug or a conflict that names a closed issue. Either the fix or the ruling landed and the unit goes, or the issue was closed too soon.
 6. `unreachable-tracker` is a tracker that could not be asked. It is reported once for each project, not once for each bug.
 7. `check --offline` skips the lookup and needs no network. Every other finding is still reported.

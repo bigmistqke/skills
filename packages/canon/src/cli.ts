@@ -19,7 +19,10 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
+import type { PluginContext } from './plugin.ts';
+import { documentsFor, findCommands } from './plugins.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
+import { maskFences, readUnits } from './units.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -46,6 +49,8 @@ interface Config {
    * tracker whether each issue exists and is open.
    */
   tracker?: TrackerConfig;
+  /** A plugin's options, under the field its `config` names. */
+  [plugin: string]: unknown;
 }
 
 /**
@@ -204,30 +209,6 @@ function scan(src: string): { withId: Element[]; anchors: Anchor[] } {
 // ---------------------------------------------------------------------------
 
 /**
- * Blank out fenced-code bodies and the generated index, keeping every byte
- * offset and every newline.
- *
- * The index has to go: it links every unit in the document, so leaving it
- * readable makes `dead` vacuous — every unit is cited by the table of contents
- * that was generated FROM it. A generated link is not evidence that anything
- * derives from a unit, which is the only thing `dead` is asking.
- */
-const maskFences = (src: string): string =>
-  src
-    .replace(/^(```+|~~~+)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, m =>
-      m.replace(/[^\n]/g, ' ')
-    )
-    .replace(/<!--[ \t]*toc:begin\b[^>]*-->[\s\S]*?<!-- toc:end -->/g, m =>
-      m.replace(/[^\n]/g, ' ')
-    );
-
-/**
- * A unit heading: `### @spec <stem> — <prose>`, whose id is `spec-<stem>`. The
- * stem is declared rather than slugged from the prose, so the sentence after the
- * em dash can be reworded without breaking a citation.
- */
-const UNIT_HEADING = /^(#{1,6})[ \t]+@([a-z]+)[ \t]+(\S+)[ \t]*$/gm;
-/**
  * A unit heading carrying anything past its stem. The heading is the identifier
  * and nothing else, because a renderer slugs the WHOLE heading: prose after the
  * stem lands in the anchor, so `#spec-x` resolves to nothing and every citation
@@ -236,20 +217,6 @@ const UNIT_HEADING = /^(#{1,6})[ \t]+@([a-z]+)[ \t]+(\S+)[ \t]*$/gm;
  * statement opens the body instead.
  */
 const OVERFULL_HEADING = /^#{1,6}[ \t]+@[a-z]+[ \t]+\S+[ \t]+\S.*$/gm;
-/**
- * A unit's statement — the blockquote opening its body, and its label in the
- * index. Declared by the line prefix rather than inferred from emphasis, so
- * marking a term inside it changes nothing about what is read out.
- */
-const STATEMENT = /^> (.+)$/m;
-/**
- * A spec's site — the one place in the code that does what it states, on a
- * line of its own in the body. The statement stays the claim alone, so a tree
- * shows what the system does rather than where.
- */
-const SITE = /^Site: (.+)$/m;
-/** Any heading, including a plain section one — it ends the unit above it. */
-const ANY_HEADING = /^(#{1,6})[ \t]+/gm;
 /** A `<tr>`/`<td>` unit in an HTML table the document kept. */
 const TABLE_UNIT = /<t([rd])\b[^>]*\bid="([^"]*)"[^>]*>/g;
 
@@ -258,44 +225,20 @@ function scanMarkdown(src: string): { withId: Element[]; anchors: Anchor[] } {
   const withId: Element[] = [];
   const anchors: Anchor[] = [];
 
-  const levels = [...md.matchAll(ANY_HEADING)].map(m => ({
-    level: m[1].length,
-    at: m.index ?? 0
-  }));
-
-  const units: Element[] = [];
-  for (const m of md.matchAll(UNIT_HEADING)) {
-    const start = m.index ?? 0;
-    const level = m[1].length;
-    // A plain section heading closes the unit above it: it is not a unit, but
-    // it is not part of one either.
-    const next = levels.find(h => h.at > start && h.level <= level);
-    units.push({
+  withId.push(
+    ...readUnits(src).map(u => ({
       tag: 'heading',
-      id: `${m[2]}-${m[3]}`,
-      start,
-      end: next ? next.at : md.length,
-      level,
-      label: `@${m[2]} ${m[3]}`
-    });
-  }
-  // Nesting IS the derivation link, so each unit records the unit it sits
-  // inside. A plain section heading between the two breaks the relation, which
-  // is why the enclosing unit is found by extent rather than by heading depth.
-  for (const unit of units) {
-    unit.parent = units
-      .filter(u => u !== unit && unit.start > u.start && unit.start < u.end)
-      .sort((a, b) => b.start - a.start)[0]?.id;
-  }
-  for (const unit of units) {
-    const body = md.slice(unit.start, unit.end).split('\n').slice(1).join('\n');
-    unit.statement = STATEMENT.exec(body)?.[1]?.trim();
-    // Only the unit's own text, before its first nested heading, names its site.
-    const own = body.split(/^#{1,6}[ \t]/m)[0];
-    unit.own = own;
-    unit.site = SITE.exec(own)?.[1]?.trim();
-  }
-  withId.push(...units);
+      id: u.id,
+      start: u.start,
+      end: u.end,
+      level: u.level,
+      label: `@${u.kind} ${u.stem}`,
+      parent: u.parent,
+      statement: u.statement,
+      own: u.own,
+      site: u.site
+    }))
+  );
 
   for (const m of md.matchAll(TABLE_UNIT)) {
     const start = m.index ?? 0;
@@ -425,6 +368,7 @@ const HUE: Record<Kind, string> = {
   'spec-': '36', // cyan
   'exception-': '33', // yellow — where the shoe does not fit should catch the eye
   'bug-': '1;31', // bold red — a defect to fix
+  'conflict-': '1;91', // bold bright red — a defect of the canon itself
   'term-': '1;32' // bold green
 };
 
@@ -443,6 +387,7 @@ const DIM: Record<Kind, string> = {
   'spec-': '2;36',
   'exception-': '2;33',
   'bug-': '2;31',
+  'conflict-': '2;91',
   'term-': '2;32'
 };
 
@@ -653,8 +598,21 @@ function treeOf(
     listGivens('fact-', true);
   }
 
+  // A conflict belongs to no unit and derives from none, so it is no part of
+  // the tree either. It is drawn as what it is, a warning, with its statement.
+  const conflicts = gapsOnly ? [] : headings.filter(u => kindOf(u.id ?? '') === 'conflict-');
+  if (conflicts.length > 0) out.push('');
+  for (const unit of conflicts) {
+    const [tag, ...word] = prose(unit.id ?? '').split(' ');
+    out.push(`${paint(DIM['conflict-'], tag)} ${paint(HUE['conflict-'], word.join(' '))}`);
+    if (unit.statement) {
+      const sill = ' '.repeat(tag.length + 1);
+      out.push(sill + paint(SAID, clip(unit.statement, sill.length)));
+    }
+  }
+
   for (const root of headings.filter(u => !u.parent || !byId.has(u.parent))) {
-    if (kindOf(root.id ?? '') === 'term-' || kindOf(root.id ?? '') === 'fact-') continue;
+    if (['term-', 'fact-', 'conflict-'].includes(kindOf(root.id ?? '') ?? '')) continue;
     if (!keep(root)) continue;
     const rootKind = kindOf(root.id ?? '') ?? 'axiom-';
     const [rootTag, ...rootLabel] = prose(root.id ?? '').split(' ');
@@ -751,6 +709,8 @@ type FindingName =
   | 'untracked-bug'
   | 'unpinned-bug'
   | 'fails-without-bug'
+  | 'untracked-conflict'
+  | 'lone-conflict'
   | 'missing-issue'
   | 'closed-issue'
   | 'unreachable-tracker'
@@ -772,9 +732,11 @@ const MEANING: Record<FindingName, string> = {
   'untracked-bug': 'bug that names no issue',
   'unpinned-bug': 'test citing a bug without being marked to fail — a bug is pinned by a test that fails until the fix',
   'fails-without-bug': 'test marked to fail that cites no bug or exception — an expected failure is a known defect, and the canon names it',
-  'missing-issue': 'bug naming an issue the tracker does not hold, or one that is a pull request',
-  'closed-issue': 'bug naming an issue that is closed — the fix landed and the bug goes, or the issue was closed too soon',
-  'unreachable-tracker': 'bug whose issue the tracker could not be asked about — no token, no access or no network',
+  'untracked-conflict': 'conflict that names no issue',
+  'lone-conflict': 'conflict whose "Between:" line names fewer than two units — a contradiction needs two sides',
+  'missing-issue': 'bug or conflict naming an issue the tracker does not hold, or one that is a pull request',
+  'closed-issue': 'bug or conflict naming an issue that is closed — the fix landed and the unit goes, or the issue was closed too soon',
+  'unreachable-tracker': 'bug or conflict whose issue the tracker could not be asked about — no token, no access or no network',
   'stale-site': 'unit naming a code site that is not there, or naming it in its statement'
 };
 
@@ -808,7 +770,7 @@ interface Analysis {
    * reference. Further parents and nesting together are the derivation graph.
    */
   links: Map<string, Array<{ target: string; derives: boolean }>>;
-  /** The text of each bug, by `<doc>#<id>`, which names its issues. */
+  /** The text of each bug and conflict, by `<doc>#<id>`, which names its issues. */
   bugs: Map<string, string>;
 }
 
@@ -835,6 +797,8 @@ function analyse(write: boolean): Analysis {
     'untracked-bug': [],
     'unpinned-bug': [],
     'fails-without-bug': [],
+    'untracked-conflict': [],
+    'lone-conflict': [],
     'missing-issue': [],
     'closed-issue': [],
     'unreachable-tracker': [],
@@ -1394,8 +1358,10 @@ function analyse(write: boolean): Analysis {
 
   // dead — a unit nothing cites. Last, after every suite has been read: a spec
   // kept alive by a test it has not reached yet would otherwise report dead,
-  // and the list would read as a canon full of unreachable units.
+  // and the list would read as a canon full of unreachable units. A conflict is
+  // no part of the theory, only a record of where it fails, so nothing cites it.
   for (const [key, unit] of units) {
+    if (unit.kind === 'conflict-') continue;
     if (!citedTargets.has(key))
       findings.dead.push(`${key} (${aNoun(unit.kind)})`);
   }
@@ -1461,13 +1427,31 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  // untracked-bug — a bug owes an issue, named in its own text.
+  // untracked-bug, untracked-conflict — a bug or a conflict owes an issue,
+  // named in its own text. Both wait on someone: a bug on its fix, a conflict on
+  // the owner's ruling. The issue is where that wait is tracked.
   const bugs = new Map<string, string>();
   for (const [key, unit] of units) {
-    if (unit.kind !== 'bug-') continue;
+    if (unit.kind !== 'bug-' && unit.kind !== 'conflict-') continue;
     bugs.set(key, unit.own ?? '');
     if (!/(?:^|[^\w&])#\d+\b|\/issues\/\d+/.test(unit.own ?? '')) {
-      findings['untracked-bug'].push(key);
+      findings[unit.kind === 'bug-' ? 'untracked-bug' : 'untracked-conflict'].push(key);
+    }
+  }
+
+  // lone-conflict — a conflict names, on its "Between:" line, the units that
+  // cannot all hold. A contradiction has at least two sides, and a conflict is
+  // never one of them.
+  for (const [key, unit] of units) {
+    if (unit.kind !== 'conflict-') continue;
+    const line = /^Between:(.*)$/m.exec(unit.own ?? '')?.[1] ?? '';
+    const sides = new Set(
+      [...line.matchAll(/\]\([^)#]*#([\w-]+)\)/g)]
+        .map(m => m[1] as string)
+        .filter(id => kindOf(id) !== undefined && kindOf(id) !== 'conflict-')
+    );
+    if (sides.size < 2) {
+      findings['lone-conflict'].push(`${key} (names ${sides.size} unit${sides.size === 1 ? '' : 's'})`);
     }
   }
 
@@ -1512,6 +1496,10 @@ Usage:
   ${COMMAND} generate              rewrite the generated regions
   ${COMMAND} tree [options]        print the derivation tree with test counts
   ${COMMAND} lint [file …]         check the language of the documents' prose; exit 1 on a finding
+  ${COMMAND} logic [file …]        check the alloy blocks of the documents together: whether each
+                                   scenario can happen while every unit holds, and whether each unit's
+                                   map from its statement to its predicate is current; exit 1 if not
+  ${COMMAND} logic --review <unit> mark the unit's map reviewed as it now stands (repeat for more units)
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
 
@@ -1519,6 +1507,17 @@ Options for tree:
   --gaps          only the branches leading to a claim no test pins
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
+
+The commands lint and logic come from plugins: @bigmistqke/canon/lint and
+@bigmistqke/canon/alloy. The Alloy plugin also adds to generate and check: a
+document with a "readings" block has the statement of each unit with a
+predicate written from the predicate, and check reports one that is stale. A document's frontmatter chooses which apply to it,
+each named by its package ("plugins: [\"@bigmistqke/canon/lint\"]"); with none,
+both do. Any other name is a package installed in the project, whose commands
+are added to these.
+
+logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" field
+of the scope gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
 The protocol is the canon skill. The scope is the "canon" field of
 package.json: documents, suites, sources, references, command, tracker.
@@ -1530,7 +1529,8 @@ ${(Object.keys(MEANING) as FindingName[])
 
 Terms come first in the tree, each with its definition and the number of units
 that link to it. Facts come next, each with its statement and the number of
-units that derive from it. The derivation tree of the axioms follows.
+units that derive from it. Conflicts follow, each with its statement. The
+derivation tree of the axioms comes last.
 
 Tree connectors:
   ├─ └─   nesting — the ordinary citation
@@ -1586,7 +1586,7 @@ async function holdToTracker(
     }
   }
   for (const [problem, keys] of unreachable) {
-    findings['unreachable-tracker'].push(`${problem} (${keys.length} bug(s), such as ${keys[0]})`);
+    findings['unreachable-tracker'].push(`${problem} (${keys.length} bug(s) or conflict(s), such as ${keys[0]})`);
   }
 }
 
@@ -1614,8 +1614,11 @@ async function check(offline: boolean): Promise<void> {
     console.log('');
   }
 
-  console.log(total === 0 ? 'clean' : `${total} finding(s)`);
-  process.exit(total === 0 ? 0 : 1);
+  // What plugins find that the core cannot see, printed before the summary that would otherwise say "clean".
+  const fromPlugins = (await runCommands('check', [], { offline })) ?? 0;
+  if (total === 0 && fromPlugins === 0) console.log('clean');
+  else console.log(total === 0 ? 'findings from plugins, above' : fromPlugins === 0 ? `${total} finding(s)` : `${total} finding(s), and findings from plugins above`);
+  process.exit(total === 0 && fromPlugins === 0 ? 0 : fromPlugins === 2 ? 2 : 1);
 }
 
 /**
@@ -1686,13 +1689,16 @@ function log(range: string | undefined): void {
   process.exit(unnamed.length === 0 ? 0 : 1);
 }
 
-function generate(): void {
+/** Write the generated regions; the exit code of the plugins that write their own, which run first so that the core sees what they wrote. */
+async function generate(): Promise<number> {
+  const fromPlugins = (await runCommands('generate', [], {})) ?? 0;
   const { written } = analyse(true);
   if (written.length === 0) {
     console.log('every generated region is already what the units say');
-    return;
+    return fromPlugins;
   }
   for (const rel of written) console.log(`wrote ${rel}`);
+  return fromPlugins;
 }
 
 function tree(options: {
@@ -1712,6 +1718,51 @@ function tree(options: {
   }
 }
 
+/** The commands the core runs itself; every other command is added by a plugin. */
+const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'log']);
+
+/**
+ * Run the command that plugins add, each over the documents that apply it, and
+ * return the worst of their codes; undefined when no plugin adds it. A plugin
+ * that cannot be found or loaded, or a frontmatter that cannot be read, stops
+ * the run before anything is checked.
+ */
+async function runCommands(command: string, args: string[], options: PluginContext['options']): Promise<number | undefined> {
+  let found: Awaited<ReturnType<typeof findCommands>>;
+  let applied: string[][];
+  try {
+    found = await findCommands(command, DOCS, ROOT);
+    applied = found.map(({ specifier }) => documentsFor(specifier, DOCS, ROOT));
+  } catch (error) {
+    console.error(`canon: ${(error as Error).message}`);
+    process.exit(2);
+  }
+  if (found.length === 0) return undefined;
+  let code = 0;
+  for (const [i, { plugin, run }] of found.entries()) {
+    const exit = await run({
+      args,
+      root: ROOT,
+      documents: applied[i] as string[],
+      config: plugin.config === undefined ? undefined : CONFIG[plugin.config],
+      options
+    });
+    // 2, a check that could not run, outranks 1, a finding, which outranks 0.
+    code = Math.max(code, exit);
+  }
+  return code;
+}
+
+/** Run a command that only plugins add, and exit with its code. */
+async function runPlugin(command: string, args: string[], options: PluginContext['options']): Promise<never> {
+  const code = await runCommands(command, args, options);
+  if (code === undefined) {
+    console.error(`canon: unknown command "${command}"\n\n${HELP}`);
+    process.exit(2);
+  }
+  process.exit(code);
+}
+
 async function main(argv: string[]): Promise<void> {
   let parsed: ReturnType<typeof parseArgs>;
   try {
@@ -1723,6 +1774,7 @@ async function main(argv: string[]): Promise<void> {
         verbose: { type: 'boolean', short: 'v' },
         suspect: { type: 'string' },
         offline: { type: 'boolean' },
+        review: { type: 'string', multiple: true },
         help: { type: 'boolean', short: 'h' }
       }
     });
@@ -1744,12 +1796,7 @@ async function main(argv: string[]): Promise<void> {
     console.log(HELP);
     return;
   }
-  if (command === 'lint') {
-    // Loaded only here: the language checks need the retext packages, and every
-    // other command depends on nothing outside Node.
-    const { lint } = await import('./lint.ts');
-    process.exit((await lint(rest)) === 0 ? 0 : 1);
-  }
+  if (!CORE_COMMANDS.has(command)) await runPlugin(command, rest, values);
   if (command === 'log') {
     if (rest.length > 1) {
       console.error(`canon: log takes at most one range\n\n${HELP}`);
@@ -1768,7 +1815,7 @@ async function main(argv: string[]): Promise<void> {
       await check(values.offline === true);
       return;
     case 'generate':
-      generate();
+      process.exitCode = await generate();
       return;
     case 'tree': {
       const suspect =

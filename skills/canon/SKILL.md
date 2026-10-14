@@ -45,7 +45,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 4. The owner changes the project through the canon too. When the owner asks for something the canon forbids, do not carry it out. Name the conflict and the units involved.
 5. When the code contradicts the canon, the code has a defect. Follow [section 4](#4-fixing-a-defect).
 6. When a test asserts something other than the spec it cites, the spec decides. Correct the test, unless the owner rules that the spec is wrong.
-7. When two units contradict each other, the canon is wrong. Ask the owner which one holds.
+7. When two units contradict each other, the canon is wrong. Ask the owner which one holds. If the ruling waits, record the contradiction as a conflict, as [writing units](writing-units.md#11-conflicts) describes.
 8. Change the project in one order: the canon first, then the tests, then the code. This holds when the owner confirms a change, and when you correct a canon that is wrong.
 9. No change enters the project unless the canon accounts for it.
 

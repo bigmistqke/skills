@@ -12,7 +12,8 @@ How to write, place and test the units of the canon. [`SKILL.md`](SKILL.md) hold
 | `@spec` | what the system does, stated so a test could contradict it, and optionally the place in the code that does it | `@axiom` or `@spec` — may cite `@fact` |
 | `@exception` | where a fact keeps a spec from holding fully | `@spec` and `@fact` |
 | `@bug` | where the code breaks the spec it sits in: a known defect, with an issue and a test that fails until it is fixed | `@spec` |
-| `@term` | a word of the project's language: what the thing it names is, in one sentence — never what it does | nothing |
+| `@conflict` | where units of the canon cannot all hold: a known contradiction, with an issue, that waits for the owner of the design to rule which unit holds | nothing |
+| `@term` | a word of the project's language: what the thing it names is — never what it does | nothing |
 <!-- kinds:end -->
 
 Tell the kinds apart with two questions:
@@ -159,3 +160,25 @@ test('a throwing listener does not stop the next one', () => {
 4. The canon is a program that you run when you make a decision. A stronger flow gives stronger guidance, in the canon and in the code that expresses it. Treat such a restructure as an optimisation, and look for chances to make one.
 5. A restructure removes no test. Each test that cites a moved or renamed unit cites its new id.
 6. A restructure changes no behaviour. If it shows a claim that the code breaks, follow [the defect procedure](SKILL.md#4-fixing-a-defect).
+
+## 11. Conflicts
+
+1. A conflict marks a place where units of the canon cannot all hold. It is a defect of the canon itself, as a bug is a defect of the code.
+2. Record a conflict only while the owner of the design has not ruled on it. When the owner rules, change the canon and remove the conflict.
+3. Write conflicts in the `## Conflicts` section of a canon document, as `### @conflict <stem>`. A conflict sits in no unit, and no unit sits in a conflict (`misnested`).
+4. Its statement names the case in which the units cannot all hold: what happens, and what each side claims of it.
+5. Name the units on a `Between:` line, right after the statement. Name at least two (`lone-conflict`). A link on that line is no derivation: a conflict follows from nothing.
+6. Name its issue on a line of its own, such as `Issue: #61` (`untracked-conflict`). The tracker holds a conflict's issue as it holds a bug's.
+7. A conflict owes no test. No test can pin it, because the code can hold at most one side.
+
+```md
+## Conflicts
+
+### @conflict a-commit-publishes-an-older-production
+
+> An action refreshes `x`, then a revision of `x` lands, then the action commits. The commit publishes the refresh's result over the revision's.
+
+Between: [`axiom-the-latest-production-wins`](#axiom-the-latest-production-wins), [`spec-a-refresh-in-an-action-reaches-committed-state-when-the-action-commits`](#spec-a-refresh-in-an-action-reaches-committed-state-when-the-action-commits)
+
+Issue: #61
+```

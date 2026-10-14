@@ -131,3 +131,49 @@ ${issue ? '\nIssue: #7\n' : ''}`;
     expect(found['fails-without-bug']).toBe(1);
   });
 });
+
+describe('a conflict', () => {
+  const SECOND = `
+### @spec a-leaf-says-another-thing
+
+> A leaf says another thing.
+`;
+  const CONFLICT = (between: string, issue: boolean) => `${LEAF}${SECOND}
+## Conflicts
+
+### @conflict the-leaves-disagree
+
+> The two leaves cannot both hold.
+
+Between: ${between}
+${issue ? '\nIssue: #9\n' : ''}`;
+  const BOTH =
+    '[`spec-a-leaf-says-one-thing`](#spec-a-leaf-says-one-thing), [`spec-a-leaf-says-another-thing`](#spec-a-leaf-says-another-thing)';
+  const TESTS = tagged('spec-a-leaf-says-one-thing') + tagged('spec-a-leaf-says-another-thing');
+
+  it('is clean when it names two units and an issue, and owes no test', () => {
+    expect(check(canon(CONFLICT(BOTH, true)), TESTS)).toEqual({});
+  });
+
+  it('is a finding when it names no issue', () => {
+    expect(check(canon(CONFLICT(BOTH, false)), TESTS)['untracked-conflict']).toBe(1);
+  });
+
+  it('is a finding when its "Between:" line names fewer than two units', () => {
+    const one = '[`spec-a-leaf-says-one-thing`](#spec-a-leaf-says-one-thing)';
+    expect(check(canon(CONFLICT(one, true)), TESTS)['lone-conflict']).toBe(1);
+  });
+
+  it('is a finding when it sits inside a unit', () => {
+    const nested = `${LEAF}${SECOND}
+#### @conflict the-leaves-disagree
+
+> The two leaves cannot both hold.
+
+Between: ${BOTH}
+
+Issue: #9
+`;
+    expect(check(canon(nested), TESTS)['misnested']).toBe(1);
+  });
+});
