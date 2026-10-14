@@ -33,6 +33,7 @@ const doc = (predicate = 'always all n: Node | n in Started implies eventually n
 \`\`\`alloy vocabulary
 sig Node {}
 var sig Started, Done in Node {}
+fact started { always Done in Started }
 \`\`\`
 
 ${readings}

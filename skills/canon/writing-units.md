@@ -31,9 +31,10 @@ Axioms state how the world should be. Facts state how the platform is. A spec, t
 2. Write the stem by hand. You may reword the statement at any time, because citations name the stem.
 3. Open the body with the statement as a blockquote. In a document that keeps readings, the checker writes the statement of a unit with a formula. Write the formula instead, as [units with logic](#12-units-with-logic) describes.
 4. Make every claim about the system a unit. Body text explains its unit's claim and adds no new claim.
-5. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
-6. Write in the present tense. History belongs in a decision record.
-7. Write a decision record only for a choice that is hard to reverse, surprising without its context, and the result of a real trade-off.
+5. State a claim as strongly as the project means it. Where the system falls short of it, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
+6. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
+7. Write in the present tense. History belongs in a decision record.
+8. Write a decision record only for a choice that is hard to reverse, surprising without its context, and the result of a real trade-off.
 
 ```md
 ### @spec a-write-is-visible-before-its-flush
@@ -192,8 +193,9 @@ A document that lists the Alloy plugin, `@bigmistqke/canon-plugin-alloy`, can st
 3. Give the words of the vocabulary in a `readings` block, in the term that declares them. A line gives the positive and the negative reading, with `{1}` and `{2}` for the variables: `Ran: {1} has run | {1} has not run`. A `noun` line gives the noun of a signature: `noun Owner: owner`. A word in brackets links to a term: `noun Unit: [unit]`.
 4. Do not write the statement of a unit with a formula. Run `pnpm canon generate`, and it writes the statement between two markers under the heading. `canon check` reports a statement that a person wrote, or one that is stale.
 5. When a statement reads badly, change the formula or the readings, not the statement. The statement says only what the formula says.
-6. Keep `pnpm canon logic` clean. A finding names the units that cannot all hold. Treat it as a contradiction in the canon: [section 11](#11-conflicts) says what to do while the owner has not ruled.
-7. `canon logic` needs Java 17 or later and the jar of the Alloy analyzer. Give their paths as `logic: {alloy: {jar: …, java: …}}` in the frontmatter of the entry document, or as `CANON_ALLOY_JAR` and `CANON_JAVA`.
+6. Write a formula only where the model can hold it against the others. A formula that uses a signature no other unit and no scenario names is lone, and `canon check` reports it (`lone`). No other formula can contradict it, so it looks checked and is not. Tie the signature to the model with a definition, a fact or a scenario that is true of it. Otherwise drop the formula and write the statement by hand, and let the test guard the unit.
+7. Keep `pnpm canon logic` clean. A finding names the units that cannot all hold. Treat it as a contradiction in the canon: [section 11](#11-conflicts) says what to do while the owner has not ruled.
+8. `canon logic` needs Java 17 or later and the jar of the Alloy analyzer. Give their paths as `logic: {alloy: {jar: …, java: …}}` in the frontmatter of the entry document, or as `CANON_ALLOY_JAR` and `CANON_JAVA`.
 
 ````md
 ### @spec a-started-node-is-done-eventually
