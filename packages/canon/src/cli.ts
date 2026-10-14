@@ -1468,7 +1468,9 @@ Options for tree:
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
 The commands lint and logic come from plugins: @bigmistqke/canon/lint and
-@bigmistqke/canon/alloy. A document's frontmatter chooses which apply to it,
+@bigmistqke/canon/alloy. The Alloy plugin also adds to generate and check: a
+document with a "readings" block has the statement of each unit with a
+predicate written from the predicate, and check reports one that is stale. A document's frontmatter chooses which apply to it,
 each named by its package ("plugins: [\"@bigmistqke/canon/lint\"]"); with none,
 both do. Any other name is a package installed in the project, whose commands
 are added to these.
@@ -1570,8 +1572,11 @@ async function check(offline: boolean): Promise<void> {
     console.log('');
   }
 
-  console.log(total === 0 ? 'clean' : `${total} finding(s)`);
-  process.exit(total === 0 ? 0 : 1);
+  // What plugins find that the core cannot see, printed before the summary that would otherwise say "clean".
+  const fromPlugins = (await runCommands('check', [], { offline })) ?? 0;
+  if (total === 0 && fromPlugins === 0) console.log('clean');
+  else console.log(total === 0 ? 'findings from plugins, above' : fromPlugins === 0 ? `${total} finding(s)` : `${total} finding(s), and findings from plugins above`);
+  process.exit(total === 0 && fromPlugins === 0 ? 0 : fromPlugins === 2 ? 2 : 1);
 }
 
 /**
@@ -1642,13 +1647,16 @@ function log(range: string | undefined): void {
   process.exit(unnamed.length === 0 ? 0 : 1);
 }
 
-function generate(): void {
+/** Write the generated regions; the exit code of the plugins that write their own, which run first so that the core sees what they wrote. */
+async function generate(): Promise<number> {
+  const fromPlugins = (await runCommands('generate', [], {})) ?? 0;
   const { written } = analyse(true);
   if (written.length === 0) {
     console.log('every generated region is already what the units say');
-    return;
+    return fromPlugins;
   }
   for (const rel of written) console.log(`wrote ${rel}`);
+  return fromPlugins;
 }
 
 function tree(options: {
@@ -1673,11 +1681,11 @@ const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'log']);
 
 /**
  * Run the command that plugins add, each over the documents that apply it, and
- * exit with the worst of their codes. A plugin that cannot be found or loaded,
- * or a frontmatter that cannot be read, stops the run before anything is
- * checked.
+ * return the worst of their codes; undefined when no plugin adds it. A plugin
+ * that cannot be found or loaded, or a frontmatter that cannot be read, stops
+ * the run before anything is checked.
  */
-async function runPlugin(command: string, args: string[], options: PluginContext['options']): Promise<never> {
+async function runCommands(command: string, args: string[], options: PluginContext['options']): Promise<number | undefined> {
   let found: Awaited<ReturnType<typeof findCommands>>;
   let applied: string[][];
   try {
@@ -1687,10 +1695,7 @@ async function runPlugin(command: string, args: string[], options: PluginContext
     console.error(`canon: ${(error as Error).message}`);
     process.exit(2);
   }
-  if (found.length === 0) {
-    console.error(`canon: unknown command "${command}"\n\n${HELP}`);
-    process.exit(2);
-  }
+  if (found.length === 0) return undefined;
   let code = 0;
   for (const [i, { plugin, run }] of found.entries()) {
     const exit = await run({
@@ -1702,6 +1707,16 @@ async function runPlugin(command: string, args: string[], options: PluginContext
     });
     // 2, a check that could not run, outranks 1, a finding, which outranks 0.
     code = Math.max(code, exit);
+  }
+  return code;
+}
+
+/** Run a command that only plugins add, and exit with its code. */
+async function runPlugin(command: string, args: string[], options: PluginContext['options']): Promise<never> {
+  const code = await runCommands(command, args, options);
+  if (code === undefined) {
+    console.error(`canon: unknown command "${command}"\n\n${HELP}`);
+    process.exit(2);
   }
   process.exit(code);
 }
@@ -1758,7 +1773,7 @@ async function main(argv: string[]): Promise<void> {
       await check(values.offline === true);
       return;
     case 'generate':
-      generate();
+      process.exitCode = await generate();
       return;
     case 'tree': {
       const suspect =

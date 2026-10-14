@@ -28,7 +28,7 @@ import type { Command, Plugin } from './plugin.ts';
  */
 const SELF: Record<string, { commands: string[]; load: () => Promise<{ plugin: Plugin }> }> = {
   '@bigmistqke/canon/lint': { commands: ['lint'], load: () => import('./lint.ts') },
-  '@bigmistqke/canon/alloy': { commands: ['logic'], load: () => import('./logic.ts') }
+  '@bigmistqke/canon/alloy': { commands: ['logic', 'generate', 'check'], load: () => import('./logic.ts') }
 };
 
 /** The plugins a document that names none gets: every plugin inside this package, as every document did before frontmatter existed. */

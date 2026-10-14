@@ -32,6 +32,10 @@ export interface Commands {
   lint?: Command;
   /** Checks of the logic layer, which may need a solver. */
   logic?: Command;
+  /** Writes what the plugin generates into its documents. Runs before the core writes its own regions, so the core sees the result. */
+  generate?: Command;
+  /** Reports what is wrong that the core cannot see. Runs as part of `canon check`, after the core's own findings. */
+  check?: Command;
   [name: string]: Command | undefined;
 }
 

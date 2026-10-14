@@ -43,7 +43,23 @@ export const plugin: Plugin = {
 
 A command gets the arguments, the project root, the documents that name the plugin and the plugin's own options, and returns an exit code: 0 when everything holds, 1 when there is a finding, 2 when a check could not run. The same command from several plugins runs them all, and the exit code is the highest. Its entry has to be reachable by `require`, through `main` or an `exports` entry with a `default` condition.
 
-The frontmatter reads a small part of YAML, all of it valid YAML: the key `plugins`, with a list of strings, inline (`["a", "b"]`) or as lines that start with a dash. A name that starts with `@` must be quoted. Any other key is an error, so a misspelled key cannot silently drop a check. `check` does not read the frontmatter beyond skipping it.
+The frontmatter reads a small part of YAML, all of it valid YAML: the key `plugins`, with a list of strings, inline (`["a", "b"]`) or as lines that start with a dash. A name that starts with `@` must be quoted. Any other key is an error, so a misspelled key cannot silently drop a check. `check` and `generate` run what the plugins add to them, and read the frontmatter only to know which plugins apply.
+
+## Statements said from predicates
+
+A document that keeps a `readings` block has the statement of each unit with an Alloy predicate written from that predicate, in the same words every time, so the statement cannot say anything the predicate does not. `canon generate` writes it between two markers below the unit's heading, and `canon check` reports it when it is missing or stale. No language model is involved.
+
+````md
+```readings
+noun Owner: owner
+Ran: {1} has run | {1} has not run
+dispose: pulse disposes {1} | pulse does not dispose {1}
+```
+````
+
+A line gives the positive and the negative reading of a set, a field, a relation or an event of the vocabulary, with `{1}`, `{2}` for the variables it is about, and `noun Name: words` gives the noun of a signature. A predicate of the vocabulary that has no line is said by its own body, with the arguments in place of its parameters. A name, a negation or a construct with no words is reported, never skipped, and a variable that is already in use gets a numbered name (`c2`) so that two different ones never read as one. [`fixtures/lifetimes/CANON.md`](fixtures/lifetimes/CANON.md) is an example: its readings, its predicates, and the statements said from them.
+
+The statement is the plugin's to write: `generate` never overwrites one that a person wrote, and says so; delete it to let it be generated. A unit whose statement is generated needs no `map` block. A document without a `readings` block is left as it is.
 
 ## The logic layer
 
@@ -56,7 +72,7 @@ A unit can hold fenced blocks next to its statement. `canon logic` hands the `al
 ```alloy              the unit's own predicate; a bare formula is named after the unit
 ````
 
-A unit with a predicate also holds a `map` block, whose lines say which words of the statement became which part of the predicate. A person reads it against both and marks it reviewed:
+A unit whose statement a person wrote and that has a predicate also holds a `map` block, whose lines say which words of the statement became which part of the predicate. A unit with a generated statement needs none. A person reads it against both and marks it reviewed:
 
 ````md
 ```map reviewed=3d2900e5d6b6

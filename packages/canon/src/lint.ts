@@ -52,7 +52,7 @@ const VOCABULARY = ['component', 'effect', 'function', 'interface', 'option', 'r
 function blankGenerated(src: string): string {
   const blank = (m: string): string => m.replace(/[^\n]/g, ' ')
   return src
-    .replace(/<!--[ \t]*(\w+):begin\b[\s\S]*?<!-- \1:end -->/g, blank)
+    .replace(/<!--[ \t]*([\w-]+):begin\b[\s\S]*?<!-- \1:end -->/g, blank)
     .replace(/<!--[\s\S]*?-->/g, blank)
     // A table's cells are not sentences. Without the GFM extension the parser
     // reads a table as one long paragraph, so its rows are blanked instead.

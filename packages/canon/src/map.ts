@@ -7,6 +7,7 @@
  */
 import { createHash } from 'node:crypto';
 import { readBlocks, type Block } from './blocks.ts';
+import { isGenerated } from './statements.ts';
 import { readUnits } from './units.ts';
 
 export type MapFindingKind = 'unmapped' | 'orphan' | 'malformed' | 'fragment' | 'target' | 'uncovered' | 'unreviewed' | 'stale';
@@ -43,7 +44,8 @@ function mapped(src: string): Mapped[] {
       predicate: blocks.filter(b => b.unit === unit.id && b.lang === 'alloy' && b.role === 'unit'),
       map: blocks.filter(b => b.unit === unit.id && b.lang === 'map')
     }))
-    .filter(m => m.predicate.length > 0 || m.map.length > 0);
+    // A statement said from its predicate needs no map from the one to the other.
+    .filter(m => (m.predicate.length > 0 || m.map.length > 0) && !(m.map.length === 0 && isGenerated(src, m.unit)));
 }
 
 const joined = (blocks: Block[]): string => blocks.map(b => b.body).join('\n');

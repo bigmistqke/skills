@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import { alloyProgram, checkAlloy, type AlloyOptions } from './alloy.ts';
 import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from './plugin.ts';
+import * as statements from './statements.ts';
 
 /** Check each document's maps and alloy blocks; the exit code: 0 when the maps are current and every scenario can happen, 1 when not, 2 when a check could not run. */
 export function logic(documents: string[], root: string, options: AlloyOptions): number {
@@ -67,6 +68,47 @@ export function review(documents: string[], root: string, units: string[]): numb
   return left.length === 0 ? 0 : 2;
 }
 
+const WHAT: Record<string, string> = {
+  stale: 'the statement is not what the predicate says; run `canon generate`',
+  missing: 'the statement is not written; run `canon generate`',
+  handwritten: 'has a statement of its own; delete it to let it be said from its predicate'
+};
+
+/** Write the statements of each document that keeps readings; the exit code: 0, or 1 when a statement cannot be written. */
+export function generateStatements(documents: string[], root: string): number {
+  let code = 0;
+  for (const doc of documents) {
+    const file = resolve(root, doc);
+    if (!existsSync(file)) continue;
+    const src = readFileSync(file, 'utf8');
+    for (const state of statements.states(src)) {
+      if (state.kind === 'unsayable') console.log(`${doc}: ${state.unit}: unsayable: ${state.message}`);
+      if (state.kind === 'unsayable' || state.kind === 'handwritten') code = 1;
+      if (state.kind === 'handwritten') console.log(`${doc}: ${state.unit}: handwritten: ${WHAT.handwritten}`);
+    }
+    const { src: next, written } = statements.write(src);
+    if (next === src) continue;
+    writeFileSync(file, next);
+    for (const unit of written) console.log(`wrote the statement of ${unit} in ${doc}`);
+  }
+  return code;
+}
+
+/** Report each statement that is not what its predicate says; the exit code: 0, or 1 when there is one. */
+export function checkStatements(documents: string[], root: string): number {
+  let code = 0;
+  for (const doc of documents) {
+    const file = resolve(root, doc);
+    if (!existsSync(file)) continue;
+    for (const state of statements.states(readFileSync(file, 'utf8'))) {
+      if (state.kind === 'current') continue;
+      code = 1;
+      console.log(`${doc}: ${state.unit}: ${state.kind}: ${state.kind === 'unsayable' ? state.message : WHAT[state.kind]}`);
+    }
+  }
+  return code;
+}
+
 /** The `logic` field of the scope: where the Alloy analyzer is. Paths are relative to the project root. */
 interface LogicConfig {
   alloy?: { jar?: string; java?: string };
@@ -76,6 +118,8 @@ export const plugin: Plugin = {
   name: 'alloy',
   config: 'logic',
   commands: {
+    generate: ({ root, documents }) => generateStatements(documents, root),
+    check: ({ root, documents }) => checkStatements(documents, root),
     logic: ({ args, root, documents, config, options }) => {
       const documentsToRead = args.length > 0 ? args : documents;
       if (options.review !== undefined) return review(documentsToRead, root, options.review as string[]);
