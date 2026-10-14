@@ -69,10 +69,11 @@ A unit whose statement a person wrote and that has a predicate also holds a `map
 
 The logic checks need the analyzer's jar and a Java 17 or later, which `canon` does not install:
 
-```json
-{
-  "canon": { "logic": { "alloy": { "jar": "tools/alloy.jar", "java": "/opt/homebrew/opt/openjdk@21/bin/java" } } }
-}
+```md
+---
+plugins: ["@bigmistqke/canon-plugin-alloy"]
+logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/java}}
+---
 ```
 
 `CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths. The result holds only within the bounds. See [`fixtures/lifetimes/CANON.md`](fixtures/lifetimes/CANON.md).
