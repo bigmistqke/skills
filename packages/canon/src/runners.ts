@@ -40,6 +40,8 @@ export interface Vocabulary {
   calls: Set<string>;
   modifiers: Set<string>;
   fails: Set<string>;
+  /** The calls whose every test is an expected failure: functions marked `@runner fails`. */
+  failCalls: Set<string>;
 }
 
 const KEYS = ['calls', 'modifiers', 'fails'] as const;
@@ -54,7 +56,7 @@ const isStrings = (v: unknown): v is string[] => Array.isArray(v) && v.every(x =
  */
 export function vocabularyOf(runners: unknown): Vocabulary {
   const entries: unknown[] = runners === undefined ? Object.keys(PRESETS) : Array.isArray(runners) ? runners : [runners];
-  const vocabulary: Vocabulary = { calls: new Set(), modifiers: new Set(), fails: new Set() };
+  const vocabulary: Vocabulary = { calls: new Set(), modifiers: new Set(), fails: new Set(), failCalls: new Set() };
   for (const entry of entries) {
     let runner: Runner;
     if (typeof entry === 'string') {

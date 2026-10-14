@@ -92,7 +92,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
 - [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
 - [`@term setting`](#term-setting) — A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
-- [`@term runner`](#term-runner) — A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes.
+- [`@term runner`](#term-runner) — A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes. A function that a runner marker marks is a call of a runner too.
 - [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
@@ -196,6 +196,9 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-runner-set-in-the-settings-replaces-the-presets`](#spec-a-runner-set-in-the-settings-replaces-the-presets) — When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
       - [`@spec a-runner-written-as-a-map-adds-its-calls`](#spec-a-runner-written-as-a-map-adds-its-calls) — A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists.
       - [`@spec a-failure-modifier-of-a-runner-marks-an-expected-failure`](#spec-a-failure-modifier-of-a-runner-marks-an-expected-failure) — A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
+      - [`@spec a-call-of-a-marked-function-is-a-test`](#spec-a-call-of-a-marked-function-is-a-test) — A call of a function that a runner marker marks is a test, by the rules for a call of a runner.
+      - [`@spec a-call-of-a-function-marked-fails-is-an-expected-failure`](#spec-a-call-of-a-function-marked-fails-is-an-expected-failure) — A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
+      - [`@spec a-call-inside-a-marked-function-is-no-test`](#spec-a-call-inside-a-marked-function-is-no-test) — A call inside the body of a function that a runner marker marks is no test.
   - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1 - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 asks for a [command](#term-command) that is not [available](#term-availability) - run_1 gets code 2 from a plugin then run_1 exits with code 2.
     - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1 - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
       - [`@spec a-document-with-no-plugins-list-asks-for-no-plugin`](#spec-a-document-with-no-plugins-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter) and the command line of a [run](#term-run) does not name document_1, [checker](#term-checker) does not run plugin_1 over document_1.
@@ -243,6 +246,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1
       - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
       - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — Generate leaves the frontmatter of a document as it was.
+    - [`@spec a-runner-marker-the-checker-cannot-read-stops-the-run`](#spec-a-runner-marker-the-checker-cannot-read-stops-the-run) — When a runner marker is one the checker cannot read, the checker names it, and the run exits with code 2.
+      - [`@spec a-runner-marker-with-a-word-other-than-fails-is-refused`](#spec-a-runner-marker-with-a-word-other-than-fails-is-refused) — A runner marker with a word after `@runner` other than `fails` is one the checker cannot read.
+      - [`@spec a-runner-marker-on-no-function-is-refused`](#spec-a-runner-marker-on-no-function-is-refused) — A runner marker that is not right above the declaration of a function, or of an alias such as `const check = it`, is one the checker cannot read.
+      - [`@spec a-name-marked-both-plain-and-fails-is-refused`](#spec-a-name-marked-both-plain-and-fails-is-refused) — A runner marker is one the checker cannot read when another file marks a function of the same name with the other word.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
 <!-- toc:end -->
 
@@ -1560,11 +1567,13 @@ Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the
 
 ### @term runner
 
-> A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes.
+> A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes. A function that a runner marker marks is a call of a runner too.
 
 The setting `runners` lists the runners of a project, such as `runners: [vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing]}` describes a runner with no preset. A project that sets no `runners` has every preset.
 
 A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`.
+
+A runner marker is a line `@runner` in the JSDoc of a function in a suite or a source, such as a helper that wraps `it`. The line `@runner fails` marks a function whose calls are expected failures.
 
 ### @term enter
 
@@ -2768,6 +2777,24 @@ This follows because a runner with no preset still declares its tests through ca
 
 This follows because each runner marks an expected failure with a modifier of its own, such as `fails` in Vitest and `failing` in Jest.
 
+##### @spec a-call-of-a-marked-function-is-a-test
+
+> A call of a function that a runner marker marks is a test, by the rules for a call of a runner.
+
+This follows because a helper that wraps a runner's call declares a test each time it is called. Its call site is where the test is, and where its tag says what it checks.
+
+##### @spec a-call-of-a-function-marked-fails-is-an-expected-failure
+
+> A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
+
+This follows because such a helper wraps a failure modifier, such as `it.fails`, and the checker cannot see which modifier a helper uses.
+
+##### @spec a-call-inside-a-marked-function-is-no-test
+
+> A call inside the body of a function that a runner marker marks is no test.
+
+This follows because the test is declared where the function is called. The call in its body runs once for each of those tests, so it is none of its own.
+
 ### @axiom a-check-the-project-asked-for-is-never-dropped-silently
 
 <!-- statement-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
@@ -3418,6 +3445,30 @@ all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Findin
 
 This follows because the block is the author's, and `generate` writes the regions it owns and nothing else.
 
+
+#### @spec a-runner-marker-the-checker-cannot-read-stops-the-run
+
+> When a runner marker is one the checker cannot read, the checker names it, and the run exits with code 2.
+
+This follows because a marker says which calls are tests, and one the checker cannot read would change them without a word.
+
+##### @spec a-runner-marker-with-a-word-other-than-fails-is-refused
+
+> A runner marker with a word after `@runner` other than `fails` is one the checker cannot read.
+
+This follows because a misspelled `@runner fail` would make a call that fails on purpose read as a plain test.
+
+##### @spec a-runner-marker-on-no-function-is-refused
+
+> A runner marker that is not right above the declaration of a function, or of an alias such as `const check = it`, is one the checker cannot read.
+
+This follows because such a marker names no call, so the checker cannot do what the author meant.
+
+##### @spec a-name-marked-both-plain-and-fails-is-refused
+
+> A runner marker is one the checker cannot read when another file marks a function of the same name with the other word.
+
+This follows because a call names the function by its name alone, so the checker cannot tell whether such a call is an expected failure.
 
 #### @spec a-source-the-checker-cannot-parse-fails-the-run
 

@@ -224,3 +224,44 @@ describe('the setting runners', () => {
     expect(code).toBe(2);
   });
 });
+
+describe('a runner marker the checker cannot read', () => {
+  const marker = ['@', 'runner'].join('');
+
+  /** A project whose suites directory holds `files` beside a suite that cites the spec. */
+  const project = (files: Record<string, string>) => {
+    const dir = write({ 'CANON.md': canon(['suites: checks', 'sources: [checks]']), 'checks/a.test.ts': TEST, ...files });
+    run(dir, '.', 'generate');
+    return run(dir, '.', 'check', '--offline');
+  };
+
+  /**
+   * @canon spec-a-runner-marker-with-a-word-other-than-fails-is-refused
+   */
+  it('refuses a marker with a word other than fails, and exits with code 2', () => {
+    const { out, code } = project({ 'checks/helpers.ts': `/** ${marker} fail */\nexport const check = (name: string, fn: () => void) => it(name, fn);\n` });
+    expect(out).toContain('checks/helpers.ts');
+    expect(code).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-runner-marker-on-no-function-is-refused
+   */
+  it('refuses a marker above no function, and exits with code 2', () => {
+    const { out, code } = project({ 'checks/helpers.ts': `/** ${marker} */\nexport const limit = 3;\n` });
+    expect(out).toContain('checks/helpers.ts');
+    expect(code).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-name-marked-both-plain-and-fails-is-refused
+   */
+  it('refuses a name that one file marks plain and another fails, and exits with code 2', () => {
+    const { out, code } = project({
+      'checks/one.ts': `/** ${marker} */\nexport const check = (name: string, fn: () => void) => it(name, fn);\n`,
+      'checks/two.ts': `/** ${marker} fails */\nexport const check = (name: string, fn: () => void) => it.fails(name, fn);\n`
+    });
+    expect(out).toContain('check');
+    expect(code).toBe(2);
+  });
+});

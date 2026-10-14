@@ -25,8 +25,9 @@ import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
-import { parseSource, type ParsedSource } from './tests.ts';
+import { parseSource, testsOf, type Syntax } from './tests.ts';
 import { vocabularyOf, type Vocabulary } from './runners.ts';
+import type { TestBlock } from './tests.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -1132,11 +1133,17 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  /** The tests and comments of a suite or a source; a file that does not parse stops the run. */
-  function parse(file: string): ParsedSource & { src: string; lineAt: (at: number) => number } {
+  const parsed = new Map<string, Syntax & { lineAt: (at: number) => number }>();
+
+  /** The syntax of a suite or a source, parsed once; a file that does not parse stops the run. */
+  function parse(file: string): Syntax & { lineAt: (at: number) => number } {
+    const known = parsed.get(file);
+    if (known !== undefined) return known;
     const src = readFileSync(file, 'utf8');
     try {
-      return { ...parseSource(src, file.endsWith('.tsx'), VOCABULARY), src, lineAt: linesOf(src) };
+      const syntax = { ...parseSource(src, file.endsWith('.tsx')), lineAt: linesOf(src) };
+      parsed.set(file, syntax);
+      return syntax;
     } catch (error) {
       console.error(`canon: ${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
       process.exit(2);
@@ -1199,11 +1206,11 @@ function analyse(write: boolean): Analysis {
    * the whole file in scope to capture those would demand a citation from the
    * other thirty, and the only way to supply thirty is to invent them.
    */
-  function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> {
+  function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> & { tests: TestBlock[] } {
     const rel = relative(ROOT, file);
-    const parsed = parse(file);
+    const parsed = { ...parse(file), tests: testsOf(parse(file), vocabulary) };
 
-    for (const { doc, title, modifiers, at } of parsed.tests) {
+    for (const { doc, title, fails, at } of parsed.tests) {
       // The reported line is the `it(` itself, not the top of its JSDoc.
       const line = parsed.lineAt(at);
       const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
@@ -1238,7 +1245,7 @@ function analyse(write: boolean): Analysis {
 
       // An expected failure is a known defect, and the canon names it as a
       // bug; a bug is pinned by a test that fails until the fix.
-      const marksFailing = modifiers.some(m => VOCABULARY.fails.has(m));
+      const marksFailing = fails;
       if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
         findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
       }
@@ -1338,11 +1345,46 @@ function analyse(write: boolean): Analysis {
   const enforcedFiles = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allSuites(join(ROOT, TESTS)) : []
   );
-  for (const file of enforcedFiles) readSource(file, true);
   const enforcedModules = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allModules(join(ROOT, TESTS)) : []
   );
-  for (const file of enforcedModules) readSource(file, true);
+  // Every suite and source, and whether it is declared. Every tree is swept,
+  // read but not judged — the distinction `readSuite` draws. A citation is a
+  // true statement about a link wherever it is written, so a spec pinned solely
+  // by an undeclared suite is not dead, and sweeping only the declared tree
+  // would report it as one: the exact misreading the `dead` list exists to
+  // prevent.
+  const files = new Map<string, boolean>([...enforcedFiles, ...enforcedModules].map(file => [file, true]));
+  for (const root of SOURCES) {
+    const abs = join(ROOT, root);
+    if (!existsSync(abs)) continue;
+    for (const file of [...allSuites(abs), ...allModules(abs)]) if (!files.has(file)) files.set(file, false);
+  }
+
+  // A function a runner marker marks is a call of a runner in every file, so
+  // the markers are read before any test.
+  const vocabulary: Vocabulary = { ...VOCABULARY, calls: new Set(VOCABULARY.calls), failCalls: new Set(VOCABULARY.failCalls) };
+  const markedIn = new Map<string, { fails: boolean; where: string }>();
+  for (const file of files.keys()) {
+    const syntax = parse(file);
+    const rel = relative(ROOT, file);
+    for (const problem of syntax.problems) {
+      console.error(`canon: ${rel}:${syntax.lineAt(problem.at)} — ${problem.message}`);
+      process.exit(2);
+    }
+    for (const marker of syntax.markers) {
+      const where = `${rel}:${syntax.lineAt(marker.at)}`;
+      const other = markedIn.get(marker.name);
+      if (other !== undefined && other.fails !== marker.fails) {
+        console.error(`canon: ${where} — "${marker.name}" is marked ${marker.fails ? '"@runner fails"' : '"@runner"'} here and ${other.fails ? '"@runner fails"' : '"@runner"'} at ${other.where}, so a call of it cannot say whether it is an expected failure`);
+        process.exit(2);
+      }
+      markedIn.set(marker.name, { fails: marker.fails, where });
+      (marker.fails ? vocabulary.failCalls : vocabulary.calls).add(marker.name);
+    }
+  }
+
+  for (const [file, enforced] of files) readSource(file, enforced);
 
   /**
    * Check a reference's citations resolve, and nothing else.
@@ -1370,21 +1412,6 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  // Every tree is swept, read but not judged — the distinction `readSuite`
-  // draws. A citation is a true statement about a link wherever it is written,
-  // so a spec pinned solely by an undeclared suite is not dead, and sweeping
-  // only the declared tree would report it as one: the exact misreading the
-  // `dead` list exists to prevent.
-  for (const root of SOURCES) {
-    const abs = join(ROOT, root);
-    if (!existsSync(abs)) continue;
-    for (const file of allSuites(abs)) {
-      if (!enforcedFiles.has(file)) readSource(file);
-    }
-    for (const file of allModules(abs)) {
-      if (!enforcedModules.has(file)) readSource(file);
-    }
-  }
 
   for (const ref of REFERENCES)
     for (const file of allReferences(join(ROOT, ref))) readReference(file);
