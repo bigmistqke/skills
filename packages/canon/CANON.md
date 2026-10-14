@@ -91,11 +91,14 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term formula`](#term-formula) — A formula is a piece of Alloy that states a claim, and that the checker says in words.
 - [`@term quantified-formula`](#term-quantified-formula) — A quantified formula is a formula that declares variables, and the checker names them and says their types.
 - [`@term quantifier`](#term-quantifier) — A quantifier is a formula that declares a variable and says something of it, which the checker may say as a noun phrase.
+- [`@term fit`](#term-fit) — For every [quantifier_1](#term-quantifier): quantifier_1 fits a noun phrase exactly when all of these hold: - quantifier_1 is not a quantifier whose reading says the variable twice - quantifier_1 is not a quantifier with no fact for its variable beside another thing - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition - quantifier_1 is not a quantifier whose condition is not about its variable
 - [`@term predicate-call`](#term-predicate-call) — A predicate call is a formula that names a predicate and gives its arguments.
 - [`@term parsed-formula`](#term-parsed-formula) — A parsed formula is a formula as the parser reads it: its operators, their operands and their grouping.
 - [`@term definition-passage`](#term-definition-passage) — A definition is a predicate with a body that the checker says as what its name means exactly when the body holds.
+- [`@term by-kind`](#term-by-kind) — For every [definition_1](#term-definition-passage): definition_1 can be said kind by kind exactly when all of these hold: - definition_1 is not a definition with an alternative that does not begin with its kind - definition_1 is not a definition with a run of and beside another alternative of its kind - definition_1 is not a definition with an alternative that says something about another unit
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
-- [`@term series`](#term-series) — A series is a run of clauses that the checker says as a sentence or as bullets.
+- [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides, that the checker says as a sentence, as bullets or on one line.
+- [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or has two clauses or fewer - list_1 fits a line when it is put in a sentence
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
 - [`@term scenario`](#term-scenario) — A scenario is a situation that a unit says must be possible while every unit of the canon holds.
 - [`@term search`](#term-search) — A search is one run of the analyzer over some units: it asks whether they can hold, with a scenario or without.
@@ -259,7 +262,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — For every [formula_1](#term-formula): when formula_1 is a formula that negates a comparison or a call, [checker](#term-checker) says formula_1 with the negative reading of the thing negated.
   - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — For every [formula_1](#term-formula): when formula_1 is a comparison with a union on its left, [checker](#term-checker) says formula_1 as one statement for each member of the union.
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — For every [formula_1](#term-formula): when formula_1 is a comparison with a difference on its right, [checker](#term-checker) says formula_1 as a statement that the left side is in the first part and not in the second.
-  - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [formula_1](#term-formula): when formula_1 is a rule whose two sides are each one clause, [checker](#term-checker) says formula_1 on one line, as "when" the first side, the second side.
+  - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [checker](#term-checker) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — For every [linked_formula_1](#term-linked-formula): when linked_formula_1 is a formula whose statement begins, [checker](#term-checker) says linked_formula_1 with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — For every [formula_1](#term-formula): when formula_1 is a formula that compares two variables, [checker](#term-checker) says formula_1 as "different" for a difference and "the same" for an equation.
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — For every [formula_1](#term-formula): when formula_1 is a formula that holds eventually, [checker](#term-checker) says formula_1 as "now or at a later moment".
@@ -292,10 +295,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec a-definition-with-a-body-of-one-clause-is-said-on-one-line`](#spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line) — For every [definition_1](#term-definition-passage): when definition_1 is a definition whose body is one clause, [checker](#term-checker) says definition_1 on one line after the "for every".
   - [`@spec a-definition-says-each-parameter-with-the-noun-of-its-type`](#spec-a-definition-says-each-parameter-with-the-noun-of-its-type) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with several parameters, [checker](#term-checker) says definition_1 with the noun of the type of each parameter.
   - [`@spec a-definition-is-said-in-markdown-the-way-a-formula-is`](#spec-a-definition-is-said-in-markdown-the-way-a-formula-is) — For every [definition_1](#term-definition-passage): when definition_1 is a definition said in the Markdown layout, [checker](#term-checker) says definition_1 with a blank line between its paragraphs.
-  - [`@spec a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind`](#spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind) — For every [definition_1](#term-definition-passage): when definition_1 is a definition whose alternatives each begin with the kind of the subject, [checker](#term-checker) says definition_1 as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
-  - [`@spec the-alternatives-of-one-kind-are-put-together-with-or`](#spec-the-alternatives-of-one-kind-are-put-together-with-or) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with two alternatives for one kind, [checker](#term-checker) says definition_1 as one noun phrase for that kind, with the alternatives joined by or.
-  - [`@spec the-options-of-an-or-inside-a-kind-are-one-coordination`](#spec-the-options-of-an-or-inside-a-kind-are-one-coordination) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an or inside one kind, [checker](#term-checker) says definition_1 as one run of clauses joined by commas and or.
-  - [`@spec a-definition-with-one-kind-is-one-sentence`](#spec-a-definition-with-one-kind-is-one-sentence) — For every [definition_1](#term-definition-passage): when definition_1 is a definition whose alternatives are of one kind, [checker](#term-checker) says definition_1 as one sentence.
+  - [`@spec a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind`](#spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind) — For every [definition_1](#term-definition-passage): when all of these hold: - definition_1 is a definition whose alternatives each begin with the kind of the subject - definition_1 can be said [kind by kind](#term-by-kind) then [checker](#term-checker) says definition_1 as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
+  - [`@spec the-alternatives-of-one-kind-are-put-together-with-or`](#spec-the-alternatives-of-one-kind-are-put-together-with-or) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with two alternatives for one kind and can be said [kind by kind](#term-by-kind), [checker](#term-checker) says definition_1 as one noun phrase for that kind, with the alternatives joined by or.
+  - [`@spec the-options-of-an-or-inside-a-kind-are-one-coordination`](#spec-the-options-of-an-or-inside-a-kind-are-one-coordination) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an or inside one kind and can be said [kind by kind](#term-by-kind), [checker](#term-checker) says definition_1 as one run of clauses joined by commas and or.
+  - [`@spec a-definition-with-one-kind-is-one-sentence`](#spec-a-definition-with-one-kind-is-one-sentence) — For every [definition_1](#term-definition-passage): when definition_1 is a definition whose alternatives are of one kind and can be said [kind by kind](#term-by-kind), [checker](#term-checker) says definition_1 as one sentence.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an alternative that does not begin with its kind, [checker](#term-checker) says definition_1 as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with a run of and beside another alternative of its kind, [checker](#term-checker) says definition_1 as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an alternative that says something about another unit, [checker](#term-checker) says definition_1 as a list of the alternatives as they stand.
@@ -307,23 +310,28 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec the-nouns-of-a-quantifier-link-and-the-article-follows-the-word`](#spec-the-nouns-of-a-quantifier-link-and-the-article-follows-the-word) — For every [linked_formula_1](#term-linked-formula): when linked_formula_1 is a quantifier over a type whose noun a unit holds, [checker](#term-checker) says linked_formula_1 with the noun linked, and with the article chosen by the word and not the bracket.
   - [`@spec a-sentence-starts-with-a-capital-on-the-word-and-not-on-the-bracket`](#spec-a-sentence-starts-with-a-capital-on-the-word-and-not-on-the-bracket) — For every [linked_formula_1](#term-linked-formula): when linked_formula_1 is a formula whose statement begins with a linked word, [checker](#term-checker) says linked_formula_1 with the capital on the first letter of the word, inside the link.
   - [`@spec a-reading-held-by-no-unit-has-plain-words`](#spec-a-reading-held-by-no-unit-has-plain-words) — For every [linked_formula_1](#term-linked-formula): when linked_formula_1 is a formula with a word whose reading no unit holds, [checker](#term-checker) says linked_formula_1 with the word plain, even in the Markdown layout.
-  - [`@spec a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase`](#spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable the sentence says once, [checker](#term-checker) says quantifier_1 as a noun phrase in the place of the variable, such as "sits in no unit".
-  - [`@spec a-noun-phrase-can-be-the-subject-of-a-sentence`](#spec-a-noun-phrase-can-be-the-subject-of-a-sentence) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable is the subject of the sentence, [checker](#term-checker) says quantifier_1 with the noun phrase as the subject, such as "a tag names unit_1".
-  - [`@spec what-else-is-true-of-the-variable-is-a-relative-clause`](#spec-what-else-is-true-of-the-variable-is-a-relative-clause) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has a further condition, [checker](#term-checker) says quantifier_1 with a relative clause, such as "a unit that is a spec".
-  - [`@spec several-negations-of-a-variable-are-one-negation`](#spec-several-negations-of-a-variable-are-one-negation) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has several negations, [checker](#term-checker) says quantifier_1 with one negation that lists the kinds.
-  - [`@spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another`](#spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable must differ from the other of its kind, [checker](#term-checker) says quantifier_1 with "another" before the noun.
-  - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier over variables of different kinds, [checker](#term-checker) says quantifier_1 as nested phrases, such as "a test checks a bug that sits in unit_1".
+  - [`@spec a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase`](#spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable the sentence says once and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 as a noun phrase in the place of the variable, such as "sits in no unit".
+  - [`@spec a-noun-phrase-can-be-the-subject-of-a-sentence`](#spec-a-noun-phrase-can-be-the-subject-of-a-sentence) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable is the subject of the sentence and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with the noun phrase as the subject, such as "a tag names unit_1".
+  - [`@spec what-else-is-true-of-the-variable-is-a-relative-clause`](#spec-what-else-is-true-of-the-variable-is-a-relative-clause) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has a further condition and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with a relative clause, such as "a unit that is a spec".
+  - [`@spec several-negations-of-a-variable-are-one-negation`](#spec-several-negations-of-a-variable-are-one-negation) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has several negations and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with one negation that lists the kinds.
+  - [`@spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another`](#spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable must differ from the other of its kind and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with "another" before the noun.
+  - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier over variables of different kinds and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 as nested phrases, such as "a test checks a bug that sits in unit_1".
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [checker](#term-checker) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with no fact for its variable beside another thing, [checker](#term-checker) says quantifier_1 in full, with "there is" and the numbered name.
-  - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [checker](#term-checker) says quantifier_1 in full, with "there is no" and the numbered name.
-  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [checker](#term-checker) says quantifier_1 in full, with the condition apart from the phrase.
-  - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — For every [list_1](#term-series): when list_1 is a list of three clauses or fewer, none longer than a clause, [checker](#term-checker) says list_1 in a sentence.
-  - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — For every [list_1](#term-series): when list_1 is a list of more than three clauses, or one with a comma in an item and more than two, [checker](#term-checker) says list_1 as bullets.
+  - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [checker](#term-checker) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [checker](#term-checker) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — For every [list_1](#term-series): when list_1 can be put in a [sentence](#term-sentenceable), [checker](#term-checker) says list_1 in a sentence.
+  - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — For every [list_1](#term-series): when list_1 is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [checker](#term-checker) says list_1 as bullets.
+    - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has more than three clauses, [checker](#term-checker) says list_1 as bullets.
+    - [`@spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets`](#spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has an item that holds a comma and has more than two clauses, [checker](#term-checker) says list_1 as bullets.
+    - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — For every [list_1](#term-series): when list_1 is longer than a line when it is put in a sentence, [checker](#term-checker) says list_1 as bullets.
+    - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list_1](#term-series): when list_1 has an item that is more than one clause, [checker](#term-checker) says list_1 as bullets.
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [checker](#term-checker) says list_1 as bullets that cannot be read two ways.
-  - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — For every [list_1](#term-series): when list_1 is a list of clauses that begin with the same subject, [checker](#term-checker) says list_1 with the subject once.
-  - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — For every [list_1](#term-series): when list_1 is a list with a clause about a pair of variables, [checker](#term-checker) says list_1 with the pair as it is, and not as a shared subject.
-  - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) — For every [list_1](#term-series): when list_1 is a rule whose second side begins with a time phrase, [checker](#term-checker) says list_1 with "then" before the time phrase.
-  - [`@spec a-rule-drops-its-then-before-anything-else`](#spec-a-rule-drops-its-then-before-anything-else) — For every [list_1](#term-series): when list_1 is a rule whose second side does not begin with a time phrase, [checker](#term-checker) says list_1 without "then".
+  - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — For every [list_1](#term-series): when list_1 has clauses that begin with the same subject and [checker](#term-checker) says list_1 in a sentence, checker says list_1 with the subject once.
+  - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — For every [list_1](#term-series): when list_1 has a clause about a pair of variables and [checker](#term-checker) says list_1 in a sentence, checker says list_1 with the pair as it is, and not as a shared subject.
+  - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause and is a rule whose second side begins with a time phrase, [checker](#term-checker) says list_1 with "then" before the time phrase.
+  - [`@spec a-rule-drops-its-then-before-anything-else`](#spec-a-rule-drops-its-then-before-anything-else) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose second side begins with a time phrase then [checker](#term-checker) says list_1 without "then".
+  - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [checker](#term-checker) says list_1 with "then" at the start of the second side, on a line of its own.
   - [`@spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text`](#spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text) — For every [unit_1](#term-unit): when the own text of unit_1 opens with a blockquote, unit_1 has a [statement](#term-statement).
   - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — For every [unit_1](#term-unit): when the blockquote of unit_1 runs over several lines, the [statement](#term-statement) of unit_1 holds every line of its blockquote, joined by a space.
   - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when fence_1 is a fence that names a language and lies in the own text of unit_1, [checker](#term-checker) reads fence_1 as a block of unit_1.
@@ -335,6 +343,11 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec the-body-of-a-block-is-the-lines-between-its-fences`](#spec-the-body-of-a-block-is-the-lines-between-its-fences) — For every [fence_1](#term-fence): when fence_1 is a fence that names a language, [checker](#term-checker) reads the body of fence_1 as the lines between its fences.
   - [`@spec the-offset-of-a-block-is-where-its-body-starts-in-the-document`](#spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document) — For every [fence_1](#term-fence): when fence_1 is a fence that names a language, [checker](#term-checker) says where the body of fence_1 starts in the document.
   - [`@spec a-nested-units-block-is-its-own`](#spec-a-nested-units-block-is-its-own) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when fence_1 lies in the own text of unit_1, [checker](#term-checker) reads fence_1 as a block of no unit that [sits in](#term-sit) unit_1.
+  - [`@spec a-scenario-gets-a-statement-that-says-it-must-be-possible`](#spec-a-scenario-gets-a-statement-that-says-it-must-be-possible) — For every [scenario_1](#term-scenario): when the formula of scenario_1 can be said in words, the statement of scenario_1 says that it must be possible.
+  - [`@spec the-statement-of-a-scenario-sits-just-above-its-block`](#spec-the-statement-of-a-scenario-sits-just-above-its-block) — For every [scenario_1](#term-scenario): when the statement of scenario_1 says that it must be possible, [checker](#term-checker) writes the statement of scenario_1 just above its block.
+  - [`@spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale`](#spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale) — For every [scenario_1](#term-scenario): when the statement of scenario_1 is not what its formula says and the formula of scenario_1 can be said in words, [checker](#term-checker) writes the statement of scenario_1 when it generates.
+  - [`@spec generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is`](#spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is) — For every [scenario_1](#term-scenario): when the statement of scenario_1 is what its formula says, [checker](#term-checker) does not write the statement of scenario_1 when it generates.
+  - [`@spec check-reports-a-statement-of-a-scenario-that-is-not-current`](#spec-check-reports-a-statement-of-a-scenario-that-is-not-current) — For every [scenario_1](#term-scenario): when the statement of scenario_1 is not what its formula says, [checker](#term-checker) reports the statement of scenario_1.
 - [`@axiom the-claims-of-a-canon-never-contradict-each-other`](#axiom-the-claims-of-a-canon-never-contradict-each-other) — All of these hold: - for every [unit_1](#term-unit): when unit_1 is held with units that cannot all hold, [checker](#term-checker) names unit_1 in its report of a contradiction - for every [scenario_1](#term-scenario): when scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen.
   - [`@spec a-formula-with-no-keyword-is-a-claim-to-hold`](#spec-a-formula-with-no-keyword-is-a-claim-to-hold) — For every [unit_1](#term-unit): when unit_1 holds a formula with no keyword, the analyzer is asked to hold the formula of unit_1.
   - [`@spec a-unit-that-holds-only-definitions-is-in-the-model-and-is-no-claim`](#spec-a-unit-that-holds-only-definitions-is-in-the-model-and-is-no-claim) — For every [unit_1](#term-unit): when unit_1 holds only definitions, the definitions of unit_1 are part of the model and the analyzer is not asked to hold the formula of unit_1.
@@ -373,19 +386,55 @@ The program `canon`, with its commands `check`, `generate`, `tree`, `lint`, `log
 for 6
 ```
 
-A canon the checker finds nothing wrong with must exist: an axiom, a spec that sits in it, a test that is declared and carries a tag that names the spec, and a document that holds both with an index that matches it.
+<!-- statement-scenario-1-term-checker:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [axiom_1](#term-axiom) and [spec_1](#term-spec) and [test_1](#term-test) and [tag_1](#term-tag) and [document_1](#term-document) and [index_1](#term-index) such that all of these hold:
+> - spec_1 [sits in](#term-sit) axiom_1
+> - [project](#term-project) [declares](#term-declare) test_1
+> - test_1 [carries](#term-carry) tag_1
+> - tag_1 [names](#term-name) spec_1
+> - document_1 [holds](#term-hold) axiom_1
+> - document_1 holds spec_1
+> - document_1 holds index_1
+> - index_1 [matches](#term-match) document_1
+> - for every [thing_1](#term-finding):
+>
+>   checker reports no finding for thing_1.
+<!-- statement-scenario-1-term-checker:end -->
 
 ```alloy scenario
-some a: Axiom, s: Spec, t: Test, g: Tag, d: Document, i: Index | s->a in Sit.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and no Finding
+some a: Axiom, s: Spec, t: Test, g: Tag, d: Document, i: Index | s->a in Sit.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and (all f: Thing | f not in Finding)
 ```
 
-A bug that is kept in sight must exist: it names an issue the tracker knows and has not closed, and an expected failure checks it.
+<!-- statement-scenario-2-term-checker:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [bug_1](#term-bug) and [expected_failure_1](#term-expected-failure) and [issue_1](#term-issue) such that all of these hold:
+> - bug_1 [names](#term-name) issue_1
+> - [tracker](#term-tracker) knows issue_1
+> - tracker has not closed issue_1
+> - expected_failure_1 [checks](#term-check) bug_1
+> - checker reports no [finding](#term-finding) for bug_1
+> - checker reports no finding for expected_failure_1
+<!-- statement-scenario-2-term-checker:end -->
 
 ```alloy scenario
 some b: Bug, x: ExpectedFailure, i: Issue | b->i in Name.issue and i in Known and i not in Closed and checks[x, b] and b not in Finding and x not in Finding
 ```
 
-A conflict that is kept in sight must exist: it names an open issue and sets two units against each other.
+<!-- statement-scenario-3-term-checker:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [conflict_1](#term-conflict) and [issue_1](#term-issue) and [unit_1](#term-unit) and unit_2 such that all of these hold:
+> - unit_1 and unit_2 are different
+> - conflict_1 [names](#term-name) issue_1
+> - [tracker](#term-tracker) knows issue_1
+> - tracker has not closed issue_1
+> - conflict_1 names unit_1
+> - conflict_1 names unit_2
+> - checker reports no [finding](#term-finding) for conflict_1
+<!-- statement-scenario-3-term-checker:end -->
 
 ```alloy scenario
 some c: Conflict, i: Issue, u, v: Unit | u != v and c->i in Name.issue and i in Known and i not in Closed and c->u in Name.between and c->v in Name.between and c not in Finding
@@ -562,6 +611,7 @@ fact finding_kinds { Finding = Freelancing + Misnesting + Untracking + Mistracki
 ```
 
 ```readings
+noun Thing: [thing]
 Finding: [checker](#term-checker) reports a [finding] for {1} | [checker](#term-checker) reports no [finding] for {1}
 ```
 
@@ -1798,7 +1848,7 @@ Own.rel: {1} uses {2} through its own signature | {1} does not use {2} through i
 ```alloy vocabulary
 sig Formula {}
 sig Gapped, Drifting, Negation, NegativeReading, UnionOnLeft, SpelledOutLeft in Formula {}
-sig DifferenceOnRight, SpelledOutRight, ShortRule, OneLine, Equation, DifferentOrSame in Formula {}
+sig DifferenceOnRight, SpelledOutRight, Equation, DifferentOrSame in Formula {}
 sig EventuallyUsed, NowOrLater, AfterUsed, NextMoment, UntilUsed, BeforeFirst in Formula {}
 sig NameNoReading, RefusesName, NoNegativeForm, RefusesNegative, TypeNoNoun, RefusesNoun in Formula {}
 sig SlotMissing, RefusesSlot, BeyondTheWords, RefusesConstruct in Formula {}
@@ -1814,8 +1864,6 @@ UnionOnLeft: {1} is a comparison with a union on its left | {1} is not a compari
 SpelledOutLeft: [checker](#term-checker) says {1} as one statement for each member of the union | [checker](#term-checker) does not say {1} as one statement for each member of the union
 DifferenceOnRight: {1} is a comparison with a difference on its right | {1} is not a comparison with a difference on its right
 SpelledOutRight: [checker](#term-checker) says {1} as a statement that the left side is in the first part and not in the second | [checker](#term-checker) does not say {1} as a statement that the left side is in the first part and not in the second
-ShortRule: {1} is a rule whose two sides are each one clause | {1} is not a rule whose two sides are each one clause
-OneLine: [checker](#term-checker) says {1} on one line, as "when" the first side, the second side | [checker](#term-checker) does not say {1} on one line, as "when" the first side, the second side
 Equation: {1} is a formula that compares two variables | {1} is not a formula that compares two variables
 DifferentOrSame: [checker](#term-checker) says {1} as "different" for a difference and "the same" for an equation | [checker](#term-checker) does not say {1} as "different" for a difference and "the same" for an equation
 EventuallyUsed: {1} is a formula that holds eventually | {1} is not a formula that holds eventually
@@ -1880,8 +1928,8 @@ JointApart: [checker](#term-checker) says {1} with a different name for the vari
 sig Quantifier {}
 sig VariableOnce, AsNounPhrase, VariableSubject, AsSubjectPhrase, VariableWithCondition, RelativeClause in Quantifier {}
 sig SeveralNegations, OneNegation, MustDiffer, SaysAnother, DifferentKinds, NestsPhrases in Quantifier {}
-sig VariableTwice, InFullTwice, NothingToAttach, InFullAlone, NoWithAnother, InFullNoAnother in Quantifier {}
-sig ConditionAside, InFullAside in Quantifier {}
+sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, InFull in Quantifier {}
+fact quantifier_wordings { no AsNounPhrase & InFull and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
 ```
 
 ```readings
@@ -1899,13 +1947,78 @@ SaysAnother: [checker](#term-checker) says {1} with "another" before the noun | 
 DifferentKinds: {1} is a quantifier over variables of different kinds | {1} is not a quantifier over variables of different kinds
 NestsPhrases: [checker](#term-checker) says {1} as nested phrases, such as "a test checks a bug that sits in unit_1" | [checker](#term-checker) does not say {1} as nested phrases, such as "a test checks a bug that sits in unit_1"
 VariableTwice: {1} is a quantifier whose reading says the variable twice | {1} is not a quantifier whose reading says the variable twice
-InFullTwice: [checker](#term-checker) says {1} in full, with "there is" and the numbered name | [checker](#term-checker) does not say {1} in full, with "there is" and the numbered name
 NothingToAttach: {1} is a quantifier with no fact for its variable beside another thing | {1} is not a quantifier with no fact for its variable beside another thing
-InFullAlone: [checker](#term-checker) says {1} in full, with "there is" and the numbered name | [checker](#term-checker) does not say {1} in full, with "there is" and the numbered name
 NoWithAnother: {1} is a quantifier that says no variable differs from another and holds a condition | {1} is not a quantifier that says no variable differs from another and holds a condition
-InFullNoAnother: [checker](#term-checker) says {1} in full, with "there is no" and the numbered name | [checker](#term-checker) does not say {1} in full, with "there is no" and the numbered name
 ConditionAside: {1} is a quantifier whose condition is not about its variable | {1} is not a quantifier whose condition is not about its variable
-InFullAside: [checker](#term-checker) says {1} in full, with the condition apart from the phrase | [checker](#term-checker) does not say {1} in full, with the condition apart from the phrase
+InFull: [checker](#term-checker) says {1} in full, with "there is" and the numbered name | [checker](#term-checker) does not say {1} in full, with "there is" and the numbered name
+```
+
+<!-- statement-scenario-1-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a quantifier_1 such that all of these hold:
+> - quantifier_1 is a quantifier whose variable the sentence says once
+> - quantifier_1 is a quantifier that says no variable differs from another and holds a condition
+<!-- statement-scenario-1-term-quantifier:end -->
+
+```alloy scenario
+some f: Quantifier | f in VariableOnce and f in NoWithAnother
+```
+
+<!-- statement-scenario-2-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a quantifier_1 such that all of these hold:
+> - quantifier_1 is a quantifier whose variable is the subject of the sentence
+> - quantifier_1 is a quantifier whose reading says the variable twice
+<!-- statement-scenario-2-term-quantifier:end -->
+
+```alloy scenario
+some f: Quantifier | f in VariableSubject and f in VariableTwice
+```
+
+<!-- statement-scenario-3-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a quantifier_1 such that all of these hold:
+> - quantifier_1 is a quantifier whose variable the sentence says once
+> - quantifier_1 is a quantifier whose condition is not about its variable
+<!-- statement-scenario-3-term-quantifier:end -->
+
+```alloy scenario
+some f: Quantifier | f in VariableOnce and f in ConditionAside
+```
+
+<!-- statement-scenario-4-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a quantifier_1 such that all of these hold:
+> - quantifier_1 is a quantifier whose variable has a further condition
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+<!-- statement-scenario-4-term-quantifier:end -->
+
+```alloy scenario
+some f: Quantifier | f in VariableWithCondition and f in NothingToAttach
+```
+
+### @term fit
+
+<!-- statement-term-fit:begin — generated by `canon generate`; edits are overwritten -->
+> For every [quantifier_1](#term-quantifier):
+>
+> quantifier_1 fits a noun phrase exactly when all of these hold:
+> - quantifier_1 is not a quantifier whose reading says the variable twice
+> - quantifier_1 is not a quantifier with no fact for its variable beside another thing
+> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+> - quantifier_1 is not a quantifier whose condition is not about its variable
+<!-- statement-term-fit:end -->
+
+```alloy
+pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside }
+```
+
+```readings
+fits: {1} [fits] a noun phrase | {1} does not [fit] a noun phrase
 ```
 
 ### @term predicate-call
@@ -1978,8 +2091,8 @@ sig NotDefinition, RefusesNotDefinition, ParameterUntyped, RefusesUntyped, BodyI
 sig DefinesNoReading, RefusesDefined, StartsPred, AsDefinition, DefinitionGiven, ExactlyWhen in Definition {}
 sig DefinitionShort, DefinitionOneLine, DefinitionSeveral, NounPerParameter, DefinitionInMarkdown, MarkdownLayout in Definition {}
 sig GuardedByKind, PhrasePerKind, SameKindTwice, JoinedWithOr, OrInsideKind, OneCoordination in Definition {}
-sig OneKind, OneSentenceKind, NoKindFirst, AsItStandsNoKind, AmbiguousAnd, AsItStandsAnd in Definition {}
-sig NotAboutSubject, AsItStandsSubject in Definition {}
+sig OneKind, OneSentenceKind, NoKindFirst, AmbiguousAnd, NotAboutSubject, AsItStands in Definition {}
+fact case_wordings { no PhrasePerKind & AsItStands and JoinedWithOr + OneCoordination + OneSentenceKind in PhrasePerKind and no GuardedByKind & NoKindFirst }
 ```
 
 ```readings
@@ -2011,11 +2124,64 @@ OneCoordination: [checker](#term-checker) says {1} as one run of clauses joined 
 OneKind: {1} is a definition whose alternatives are of one kind | {1} is not a definition whose alternatives are of one kind
 OneSentenceKind: [checker](#term-checker) says {1} as one sentence | [checker](#term-checker) does not say {1} as one sentence
 NoKindFirst: {1} is a definition with an alternative that does not begin with its kind | {1} is not a definition with an alternative that does not begin with its kind
-AsItStandsNoKind: [checker](#term-checker) says {1} as a list of the alternatives as they stand | [checker](#term-checker) does not say {1} as a list of the alternatives as they stand
 AmbiguousAnd: {1} is a definition with a run of and beside another alternative of its kind | {1} is not a definition with a run of and beside another alternative of its kind
-AsItStandsAnd: [checker](#term-checker) says {1} as a list of the alternatives as they stand | [checker](#term-checker) does not say {1} as a list of the alternatives as they stand
 NotAboutSubject: {1} is a definition with an alternative that says something about another unit | {1} is not a definition with an alternative that says something about another unit
-AsItStandsSubject: [checker](#term-checker) says {1} as a list of the alternatives as they stand | [checker](#term-checker) does not say {1} as a list of the alternatives as they stand
+AsItStands: [checker](#term-checker) says {1} as a list of the alternatives as they stand | [checker](#term-checker) does not say {1} as a list of the alternatives as they stand
+```
+
+<!-- statement-scenario-1-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a definition_1 such that all of these hold:
+> - definition_1 is a definition with two alternatives for one kind
+> - definition_1 is a definition with a run of and beside another alternative of its kind
+<!-- statement-scenario-1-term-definition-passage:end -->
+
+```alloy scenario
+some f: Definition | f in SameKindTwice and f in AmbiguousAnd
+```
+
+<!-- statement-scenario-2-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a definition_1 such that all of these hold:
+> - definition_1 is a definition whose alternatives are of one kind
+> - definition_1 is a definition with an alternative that says something about another unit
+<!-- statement-scenario-2-term-definition-passage:end -->
+
+```alloy scenario
+some f: Definition | f in OneKind and f in NotAboutSubject
+```
+
+<!-- statement-scenario-3-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a definition_1 such that all of these hold:
+> - definition_1 is a definition with an or inside one kind
+> - definition_1 is a definition with an alternative that does not begin with its kind
+<!-- statement-scenario-3-term-definition-passage:end -->
+
+```alloy scenario
+some f: Definition | f in OrInsideKind and f in NoKindFirst
+```
+
+### @term by-kind
+
+<!-- statement-term-by-kind:begin — generated by `canon generate`; edits are overwritten -->
+> For every [definition_1](#term-definition-passage):
+>
+> definition_1 can be said kind by kind exactly when all of these hold:
+> - definition_1 is not a definition with an alternative that does not begin with its kind
+> - definition_1 is not a definition with a run of and beside another alternative of its kind
+> - definition_1 is not a definition with an alternative that says something about another unit
+<!-- statement-term-by-kind:end -->
+
+```alloy
+pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject }
+```
+
+```readings
+byKind: {1} can be said [kind by kind] | {1} cannot be said [kind by kind]
 ```
 
 ### @term linked-formula
@@ -2053,31 +2219,114 @@ PlainLoose: [checker](#term-checker) says {1} with the word plain, even in the M
 
 ### @term series
 
-> A series is a run of clauses that the checker says as a sentence or as bullets.
+> A series is a run of clauses, or a rule of two sides, that the checker says as a sentence, as bullets or on one line.
+
+A list becomes a sentence only if four things hold. It has three clauses or fewer. Every item is one clause. No item holds a comma, unless the list has two clauses. The sentence fits a line. Any other list becomes bullets.
 
 ```alloy vocabulary
 sig Series {}
-sig ShortList, AsSentence, LongList, AsBullets, AndInOr, KeepsAndApart in Series {}
-sig SharedSubject, SubjectOnce, PairInList, PairKept, RuleThenTime, KeepsThen in Series {}
-sig RulePlain, DropsThen in Series {}
+sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr in Series {}
+sig AsSentence, AsBullets, KeepsAndApart, SharedSubject, SubjectOnce, PairInList, PairKept in Series {}
+sig OneLineRule, TimeSecond, OneLine, KeepsThen, DropsThen, ThenOwnLine in Series {}
+fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + SharedSubject + PairInList) in Items and (OneLineRule + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule }
 ```
 
 ```readings
 noun Series: [list]
-ShortList: {1} is a list of three clauses or fewer, none longer than a clause | {1} is not a list of three clauses or fewer, none longer than a clause
-AsSentence: [checker](#term-checker) says {1} in a sentence | [checker](#term-checker) does not say {1} in a sentence
-LongList: {1} is a list of more than three clauses, or one with a comma in an item and more than two | {1} is not a list of more than three clauses, or one with a comma in an item and more than two
-AsBullets: [checker](#term-checker) says {1} as bullets | [checker](#term-checker) does not say {1} as bullets
+Items: {1} is a run of clauses joined by and or by or | {1} is not a run of clauses joined by and or by or
+Rule: {1} is a rule with a first side and a second | {1} is not a rule with a first side and a second
+Few: {1} has three clauses or fewer | {1} has more than three clauses
+Many: {1} has more than three clauses | {1} has three clauses or fewer
+MoreThanTwo: {1} has more than two clauses | {1} has two clauses or fewer
+NotClause: {1} has an item that is more than one clause | {1} has only items that are one clause
+CommaItem: {1} has an item that holds a comma | {1} has no item that holds a comma
+TooLong: {1} is longer than a line when it is put in a sentence | {1} fits a line when it is put in a sentence
 AndInOr: {1} is a list of alternatives where one alternative holds an and | {1} is not a list of alternatives where one alternative holds an and
+AsSentence: [checker](#term-checker) says {1} in a sentence | [checker](#term-checker) does not say {1} in a sentence
+AsBullets: [checker](#term-checker) says {1} as bullets | [checker](#term-checker) does not say {1} as bullets
 KeepsAndApart: [checker](#term-checker) says {1} as bullets that cannot be read two ways | [checker](#term-checker) does not say {1} as bullets that cannot be read two ways
-SharedSubject: {1} is a list of clauses that begin with the same subject | {1} is not a list of clauses that begin with the same subject
+SharedSubject: {1} has clauses that begin with the same subject | {1} has no clauses that begin with the same subject
 SubjectOnce: [checker](#term-checker) says {1} with the subject once | [checker](#term-checker) does not say {1} with the subject once
-PairInList: {1} is a list with a clause about a pair of variables | {1} is not a list with a clause about a pair of variables
+PairInList: {1} has a clause about a pair of variables | {1} has no clause about a pair of variables
 PairKept: [checker](#term-checker) says {1} with the pair as it is, and not as a shared subject | [checker](#term-checker) does not say {1} with the pair as it is, and not as a shared subject
-RuleThenTime: {1} is a rule whose second side begins with a time phrase | {1} is not a rule whose second side begins with a time phrase
+OneLineRule: {1} is a rule whose two sides are each one clause | {1} is not a rule whose two sides are each one clause
+TimeSecond: {1} is a rule whose second side begins with a time phrase | {1} is not a rule whose second side begins with a time phrase
+OneLine: [checker](#term-checker) says {1} on one line, as "when" the first side, the second side | [checker](#term-checker) does not say {1} on one line, as "when" the first side, the second side
 KeepsThen: [checker](#term-checker) says {1} with "then" before the time phrase | [checker](#term-checker) does not say {1} with "then" before the time phrase
-RulePlain: {1} is a rule whose second side does not begin with a time phrase | {1} is not a rule whose second side does not begin with a time phrase
 DropsThen: [checker](#term-checker) says {1} without "then" | [checker](#term-checker) does not say {1} without "then"
+ThenOwnLine: [checker](#term-checker) says {1} with "then" at the start of the second side, on a line of its own | [checker](#term-checker) does not say {1} with "then" at the start of the second side, on a line of its own
+```
+
+<!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list_1 such that list_1 has three clauses or fewer, has an item that holds a comma and has more than two clauses.
+<!-- statement-scenario-1-term-series:end -->
+
+```alloy scenario
+some f: Series | f in Few and f in CommaItem and f in MoreThanTwo
+```
+
+<!-- statement-scenario-2-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list_1 such that list_1 has three clauses or fewer and is longer than a line when it is put in a sentence.
+<!-- statement-scenario-2-term-series:end -->
+
+```alloy scenario
+some f: Series | f in Few and f in TooLong
+```
+
+<!-- statement-scenario-3-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list_1 such that list_1 has clauses that begin with the same subject and has more than three clauses.
+<!-- statement-scenario-3-term-series:end -->
+
+```alloy scenario
+some f: Series | f in SharedSubject and f in Many
+```
+
+<!-- statement-scenario-4-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list_1 such that list_1 has a clause about a pair of variables and has an item that is more than one clause.
+<!-- statement-scenario-4-term-series:end -->
+
+```alloy scenario
+some f: Series | f in PairInList and f in NotClause
+```
+
+<!-- statement-scenario-5-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list_1 such that all of these hold:
+> - list_1 is a rule whose second side begins with a time phrase
+> - list_1 is not a rule whose two sides are each one clause
+<!-- statement-scenario-5-term-series:end -->
+
+```alloy scenario
+some f: Series | f in TimeSecond and f not in OneLineRule
+```
+
+### @term sentenceable
+
+<!-- statement-term-sentenceable:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> list_1 can be put in a sentence exactly when all of these hold:
+> - list_1 has three clauses or fewer
+> - list_1 has only items that are one clause
+> - list_1 has no item that holds a comma or has two clauses or fewer
+> - list_1 fits a line when it is put in a sentence
+<!-- statement-term-sentenceable:end -->
+
+```alloy
+pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong }
+```
+
+```readings
+sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 ```
 
 ### @term line
@@ -2105,7 +2354,7 @@ A scenario sits in the unit that holds it. It is possible when the analyzer find
 
 ```alloy vocabulary
 sig Scenario {}
-sig Possible, Impossible, Raised in Scenario {}
+sig Possible, Impossible, Raised, ScenarioUnsayable, WordedAsPossible, AboveBlock, ScenarioCurrent, ScenarioRewritten, ScenarioReported in Scenario {}
 one sig Probe { rel: Scenario -> Unit }
 one sig Frees { rel: Unit -> Scenario }
 one sig Blame { rel: Scenario -> Unit }
@@ -2116,6 +2365,12 @@ noun Scenario: [scenario]
 Possible: {1} is a [scenario] that can happen while every held unit holds | {1} is not a [scenario] that can happen while every held unit holds
 Impossible: {1} is a [scenario] that cannot happen while every held unit holds | {1} is not a [scenario] that cannot happen while every held unit holds
 Raised: [checker](#term-checker) reports that {1} cannot happen | [checker](#term-checker) does not report that {1} cannot happen
+ScenarioUnsayable: the formula of {1} cannot be said in words | the formula of {1} can be said in words
+WordedAsPossible: the statement of {1} says that it must be possible | the statement of {1} does not say that it must be possible
+AboveBlock: [checker](#term-checker) writes the statement of {1} just above its block | [checker](#term-checker) does not write the statement of {1} just above its block
+ScenarioCurrent: the statement of {1} is what its formula says | the statement of {1} is not what its formula says
+ScenarioRewritten: [checker](#term-checker) writes the statement of {1} when it generates | [checker](#term-checker) does not write the statement of {1} when it generates
+ScenarioReported: [checker](#term-checker) reports the statement of {1} | [checker](#term-checker) does not report the statement of {1}
 Probe.rel: the author asks about leaving out {2} for {1} | the author does not ask about leaving out {2} for {1}
 Frees.rel: leaving out {1} lets {2} happen | leaving out {1} does not let {2} happen
 Blame.rel: [checker](#term-checker) names {2} in its report of {1} | [checker](#term-checker) does not name {2} in its report of {1}
@@ -3076,9 +3331,30 @@ So a [run](#term-run) that asks for what the checker cannot deliver exits with c
 all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2
 ```
 
+<!-- statement-scenario-1-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [run_1](#term-run) and [installed_plugin_1](#term-plugin) and [document_1](#term-document) and [listing_frontmatter_1](#term-frontmatter) such that all of these hold:
+> - document_1 starts with listing_frontmatter_1
+> - listing_frontmatter_1 [lists](#term-list) installed_plugin_1
+> - [checker](#term-checker) runs installed_plugin_1 over document_1
+> - run_1 [calls](#term-call) installed_plugin_1
+> - run_1 gets code 1 from installed_plugin_1
+> - run_1 exits with code 1
+<!-- statement-scenario-1-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+
 ```alloy scenario
 some r: Run, p: Installed, d: Document, f: Listing | d->f in Head.rel and lists[f, p] and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1
 ```
+
+<!-- statement-scenario-2-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [run_1](#term-run) and [document_1](#term-document) and [refused_frontmatter_1](#term-frontmatter) such that all of these hold:
+> - document_1 starts with refused_frontmatter_1
+> - [checker](#term-checker) reports that document_1 has a frontmatter it cannot read
+> - run_1 exits with code 2
+<!-- statement-scenario-2-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
 
 ```alloy scenario
 some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and r in Exits2
@@ -3701,6 +3977,17 @@ The words of the statements are the words of the logic. A reading of a word that
 ```alloy
 all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported
 ```
+
+<!-- statement-scenario-1-axiom-a-statement-says-what-its-logic-says:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [unit_1](#term-unit) and [document_1](#term-document) such that all of these hold:
+> - document_1 keeps readings
+> - document_1 [holds](#term-hold) unit_1
+> - unit_1 holds a formula
+> - the [statement](#term-statement) of unit_1 is current
+> - [checker](#term-checker) does not report the statement of unit_1
+<!-- statement-scenario-1-axiom-a-statement-says-what-its-logic-says:end -->
 
 ```alloy scenario
 some u: Unit, d: Document | d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported
@@ -4585,15 +4872,15 @@ all f: Formula | f in DifferenceOnRight implies f in SpelledOutRight
 #### @spec a-rule-of-two-clauses-is-said-on-one-line
 
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:begin — generated by `canon generate`; edits are overwritten -->
-> For every [formula_1](#term-formula):
+> For every [list_1](#term-series):
 >
-> when formula_1 is a rule whose two sides are each one clause, [checker](#term-checker) says formula_1 on one line, as "when" the first side, the second side.
+> when list_1 is a rule whose two sides are each one clause, [checker](#term-checker) says list_1 on one line, as "when" the first side, the second side.
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:end -->
 
 This follows because a short rule is clearest as one sentence, "when this, that".
 
 ```alloy
-all f: Formula | f in ShortRule implies f in OneLine
+all f: Series | f in OneLineRule implies f in OneLine
 ```
 
 #### @spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words
@@ -5049,13 +5336,17 @@ all f: Definition | f in DefinitionInMarkdown implies f in MarkdownLayout
 <!-- statement-spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind:begin — generated by `canon generate`; edits are overwritten -->
 > For every [definition_1](#term-definition-passage):
 >
-> when definition_1 is a definition whose alternatives each begin with the kind of the subject, [checker](#term-checker) says definition_1 as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
+> when all of these hold:
+> - definition_1 is a definition whose alternatives each begin with the kind of the subject
+> - definition_1 can be said [kind by kind](#term-by-kind)
+>
+> then [checker](#term-checker) says definition_1 as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
 <!-- statement-spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind:end -->
 
 This follows because a reader takes in "a spec that cites no axiom" faster than a sentence about a unit that is a spec. The phrase says the same in fewer words.
 
 ```alloy
-all f: Definition | f in GuardedByKind implies f in PhrasePerKind
+all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKind
 ```
 
 #### @spec the-alternatives-of-one-kind-are-put-together-with-or
@@ -5063,13 +5354,13 @@ all f: Definition | f in GuardedByKind implies f in PhrasePerKind
 <!-- statement-spec-the-alternatives-of-one-kind-are-put-together-with-or:begin — generated by `canon generate`; edits are overwritten -->
 > For every [definition_1](#term-definition-passage):
 >
-> when definition_1 is a definition with two alternatives for one kind, [checker](#term-checker) says definition_1 as one noun phrase for that kind, with the alternatives joined by or.
+> when definition_1 is a definition with two alternatives for one kind and can be said [kind by kind](#term-by-kind), [checker](#term-checker) says definition_1 as one noun phrase for that kind, with the alternatives joined by or.
 <!-- statement-spec-the-alternatives-of-one-kind-are-put-together-with-or:end -->
 
 This follows because two alternatives for one kind are two ways to be that kind, and one phrase says so.
 
 ```alloy
-all f: Definition | f in SameKindTwice implies f in JoinedWithOr
+all f: Definition | (f in SameKindTwice and byKind[f]) implies f in JoinedWithOr
 ```
 
 #### @spec the-options-of-an-or-inside-a-kind-are-one-coordination
@@ -5077,13 +5368,13 @@ all f: Definition | f in SameKindTwice implies f in JoinedWithOr
 <!-- statement-spec-the-options-of-an-or-inside-a-kind-are-one-coordination:begin — generated by `canon generate`; edits are overwritten -->
 > For every [definition_1](#term-definition-passage):
 >
-> when definition_1 is a definition with an or inside one kind, [checker](#term-checker) says definition_1 as one run of clauses joined by commas and or.
+> when definition_1 is a definition with an or inside one kind and can be said [kind by kind](#term-by-kind), [checker](#term-checker) says definition_1 as one run of clauses joined by commas and or.
 <!-- statement-spec-the-options-of-an-or-inside-a-kind-are-one-coordination:end -->
 
 This follows because options in one kind read as one run of "names, names or is".
 
 ```alloy
-all f: Definition | f in OrInsideKind implies f in OneCoordination
+all f: Definition | (f in OrInsideKind and byKind[f]) implies f in OneCoordination
 ```
 
 #### @spec a-definition-with-one-kind-is-one-sentence
@@ -5091,13 +5382,13 @@ all f: Definition | f in OrInsideKind implies f in OneCoordination
 <!-- statement-spec-a-definition-with-one-kind-is-one-sentence:begin — generated by `canon generate`; edits are overwritten -->
 > For every [definition_1](#term-definition-passage):
 >
-> when definition_1 is a definition whose alternatives are of one kind, [checker](#term-checker) says definition_1 as one sentence.
+> when definition_1 is a definition whose alternatives are of one kind and can be said [kind by kind](#term-by-kind), [checker](#term-checker) says definition_1 as one sentence.
 <!-- statement-spec-a-definition-with-one-kind-is-one-sentence:end -->
 
 This follows because a list of one line is no list.
 
 ```alloy
-all f: Definition | f in OneKind implies f in OneSentenceKind
+all f: Definition | (f in OneKind and byKind[f]) implies f in OneSentenceKind
 ```
 
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind
@@ -5111,7 +5402,7 @@ all f: Definition | f in OneKind implies f in OneSentenceKind
 This follows because a phrase for a kind needs the kind first, and an alternative without it would lose what it says.
 
 ```alloy
-all f: Definition | f in NoKindFirst implies f in AsItStandsNoKind
+all f: Definition | f in NoKindFirst implies f in AsItStands
 ```
 
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways
@@ -5125,7 +5416,7 @@ all f: Definition | f in NoKindFirst implies f in AsItStandsNoKind
 This follows because a run of and beside another alternative of its kind could join to either, and the reader should not guess.
 
 ```alloy
-all f: Definition | f in AmbiguousAnd implies f in AsItStandsAnd
+all f: Definition | f in AmbiguousAnd implies f in AsItStands
 ```
 
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject
@@ -5139,7 +5430,7 @@ all f: Definition | f in AmbiguousAnd implies f in AsItStandsAnd
 This follows because a phrase for a kind is about the subject, and an alternative about something else would get the wrong words.
 
 ```alloy
-all f: Definition | f in NotAboutSubject implies f in AsItStandsSubject
+all f: Definition | f in NotAboutSubject implies f in AsItStands
 ```
 
 #### @spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown
@@ -5259,13 +5550,13 @@ all f: Linked | f in LooseReading implies f in PlainLoose
 <!-- statement-spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier whose variable the sentence says once, [checker](#term-checker) says quantifier_1 as a noun phrase in the place of the variable, such as "sits in no unit".
+> when quantifier_1 is a quantifier whose variable the sentence says once and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 as a noun phrase in the place of the variable, such as "sits in no unit".
 <!-- statement-spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase:end -->
 
 This follows because "sits in no unit" is one phrase. Spelled out with a numbered name, it takes twice the words.
 
 ```alloy
-all f: Quantifier | f in VariableOnce implies f in AsNounPhrase
+all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase
 ```
 
 #### @spec a-noun-phrase-can-be-the-subject-of-a-sentence
@@ -5273,13 +5564,13 @@ all f: Quantifier | f in VariableOnce implies f in AsNounPhrase
 <!-- statement-spec-a-noun-phrase-can-be-the-subject-of-a-sentence:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier whose variable is the subject of the sentence, [checker](#term-checker) says quantifier_1 with the noun phrase as the subject, such as "a tag names unit_1".
+> when quantifier_1 is a quantifier whose variable is the subject of the sentence and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with the noun phrase as the subject, such as "a tag names unit_1".
 <!-- statement-spec-a-noun-phrase-can-be-the-subject-of-a-sentence:end -->
 
 This follows because the thing the sentence is about may be the variable.
 
 ```alloy
-all f: Quantifier | f in VariableSubject implies f in AsSubjectPhrase
+all f: Quantifier | (f in VariableSubject and fits[f]) implies f in AsSubjectPhrase
 ```
 
 #### @spec what-else-is-true-of-the-variable-is-a-relative-clause
@@ -5287,13 +5578,13 @@ all f: Quantifier | f in VariableSubject implies f in AsSubjectPhrase
 <!-- statement-spec-what-else-is-true-of-the-variable-is-a-relative-clause:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier whose variable has a further condition, [checker](#term-checker) says quantifier_1 with a relative clause, such as "a unit that is a spec".
+> when quantifier_1 is a quantifier whose variable has a further condition and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with a relative clause, such as "a unit that is a spec".
 <!-- statement-spec-what-else-is-true-of-the-variable-is-a-relative-clause:end -->
 
 This follows because a condition on the variable is a part of the phrase that names it.
 
 ```alloy
-all f: Quantifier | f in VariableWithCondition implies f in RelativeClause
+all f: Quantifier | (f in VariableWithCondition and fits[f]) implies f in RelativeClause
 ```
 
 #### @spec several-negations-of-a-variable-are-one-negation
@@ -5301,13 +5592,13 @@ all f: Quantifier | f in VariableWithCondition implies f in RelativeClause
 <!-- statement-spec-several-negations-of-a-variable-are-one-negation:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier whose variable has several negations, [checker](#term-checker) says quantifier_1 with one negation that lists the kinds.
+> when quantifier_1 is a quantifier whose variable has several negations and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with one negation that lists the kinds.
 <!-- statement-spec-several-negations-of-a-variable-are-one-negation:end -->
 
 This follows because "that is not an axiom, a spec or a fact" is shorter and easier to read than three negations.
 
 ```alloy
-all f: Quantifier | f in SeveralNegations implies f in OneNegation
+all f: Quantifier | (f in SeveralNegations and fits[f]) implies f in OneNegation
 ```
 
 #### @spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another
@@ -5315,13 +5606,13 @@ all f: Quantifier | f in SeveralNegations implies f in OneNegation
 <!-- statement-spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier whose variable must differ from the other of its kind, [checker](#term-checker) says quantifier_1 with "another" before the noun.
+> when quantifier_1 is a quantifier whose variable must differ from the other of its kind and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 with "another" before the noun.
 <!-- statement-spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another:end -->
 
 This follows because "another unit" says what the logic compares, without a name to follow.
 
 ```alloy
-all f: Quantifier | f in MustDiffer implies f in SaysAnother
+all f: Quantifier | (f in MustDiffer and fits[f]) implies f in SaysAnother
 ```
 
 #### @spec variables-of-different-kinds-nest-as-phrases
@@ -5329,13 +5620,13 @@ all f: Quantifier | f in MustDiffer implies f in SaysAnother
 <!-- statement-spec-variables-of-different-kinds-nest-as-phrases:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier over variables of different kinds, [checker](#term-checker) says quantifier_1 as nested phrases, such as "a test checks a bug that sits in unit_1".
+> when quantifier_1 is a quantifier over variables of different kinds and [fits](#term-fit) a noun phrase, [checker](#term-checker) says quantifier_1 as nested phrases, such as "a test checks a bug that sits in unit_1".
 <!-- statement-spec-variables-of-different-kinds-nest-as-phrases:end -->
 
 This follows because a test that checks a bug that sits in a unit reads from left to right.
 
 ```alloy
-all f: Quantifier | f in DifferentKinds implies f in NestsPhrases
+all f: Quantifier | (f in DifferentKinds and fits[f]) implies f in NestsPhrases
 ```
 
 #### @spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full
@@ -5349,7 +5640,7 @@ all f: Quantifier | f in DifferentKinds implies f in NestsPhrases
 This follows because a phrase that says the variable in two places would hide that it is one thing.
 
 ```alloy
-all f: Quantifier | f in VariableTwice implies f in InFullTwice
+all f: Quantifier | f in VariableTwice implies f in InFull
 ```
 
 #### @spec a-quantifier-with-nothing-to-attach-to-is-said-in-full
@@ -5363,7 +5654,7 @@ all f: Quantifier | f in VariableTwice implies f in InFullTwice
 This follows because a phrase needs a place in the sentence, and a variable beside nothing else has none.
 
 ```alloy
-all f: Quantifier | f in NothingToAttach implies f in InFullAlone
+all f: Quantifier | f in NothingToAttach implies f in InFull
 ```
 
 #### @spec no-with-another-is-said-in-full
@@ -5371,13 +5662,13 @@ all f: Quantifier | f in NothingToAttach implies f in InFullAlone
 <!-- statement-spec-no-with-another-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [checker](#term-checker) says quantifier_1 in full, with "there is no" and the numbered name.
+> when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [checker](#term-checker) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-no-with-another-is-said-in-full:end -->
 
 This follows because "no" with "another" in one phrase would mean something else than the logic says, so the checker spells it out.
 
 ```alloy
-all f: Quantifier | f in NoWithAnother implies f in InFullNoAnother
+all f: Quantifier | f in NoWithAnother implies f in InFull
 ```
 
 #### @spec a-condition-that-is-not-about-the-variable-is-said-in-full
@@ -5385,13 +5676,13 @@ all f: Quantifier | f in NoWithAnother implies f in InFullNoAnother
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier whose condition is not about its variable, [checker](#term-checker) says quantifier_1 in full, with the condition apart from the phrase.
+> when quantifier_1 is a quantifier whose condition is not about its variable, [checker](#term-checker) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:end -->
 
 This follows because the phrase would put the condition in the wrong place.
 
 ```alloy
-all f: Quantifier | f in ConditionAside implies f in InFullAside
+all f: Quantifier | f in ConditionAside implies f in InFull
 ```
 
 #### @spec three-clauses-or-fewer-are-said-in-a-sentence
@@ -5399,13 +5690,13 @@ all f: Quantifier | f in ConditionAside implies f in InFullAside
 <!-- statement-spec-three-clauses-or-fewer-are-said-in-a-sentence:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a list of three clauses or fewer, none longer than a clause, [checker](#term-checker) says list_1 in a sentence.
+> when list_1 can be put in a [sentence](#term-sentenceable), [checker](#term-checker) says list_1 in a sentence.
 <!-- statement-spec-three-clauses-or-fewer-are-said-in-a-sentence:end -->
 
 This follows because a short list in a sentence is easier to read than bullets.
 
 ```alloy
-all f: Series | f in ShortList implies f in AsSentence
+all f: Series | sentenceable[f] implies f in AsSentence
 ```
 
 #### @spec a-longer-list-or-a-list-with-a-comma-is-bullets
@@ -5413,13 +5704,69 @@ all f: Series | f in ShortList implies f in AsSentence
 <!-- statement-spec-a-longer-list-or-a-list-with-a-comma-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a list of more than three clauses, or one with a comma in an item and more than two, [checker](#term-checker) says list_1 as bullets.
+> when list_1 is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [checker](#term-checker) says list_1 as bullets.
 <!-- statement-spec-a-longer-list-or-a-list-with-a-comma-is-bullets:end -->
 
-This follows because a sentence of four conditions loses the reader, and a comma inside an item would blur the separation.
+This follows because a sentence of many conditions loses the reader, and so does one with commas or items of more than a clause.
 
 ```alloy
-all f: Series | f in LongList implies f in AsBullets
+all f: Series | (f in Items and not sentenceable[f]) implies f in AsBullets
+```
+
+##### @spec a-list-of-more-than-three-clauses-is-bullets
+
+<!-- statement-spec-a-list-of-more-than-three-clauses-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 has more than three clauses, [checker](#term-checker) says list_1 as bullets.
+<!-- statement-spec-a-list-of-more-than-three-clauses-is-bullets:end -->
+
+This follows because a sentence of four conditions loses the reader.
+
+```alloy
+all f: Series | f in Many implies f in AsBullets
+```
+
+##### @spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets
+
+<!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 has an item that holds a comma and has more than two clauses, [checker](#term-checker) says list_1 as bullets.
+<!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:end -->
+
+This follows because a comma inside an item makes a list of three read as a list of more.
+
+```alloy
+all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets
+```
+
+##### @spec a-list-too-long-for-a-line-is-bullets
+
+<!-- statement-spec-a-list-too-long-for-a-line-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 is longer than a line when it is put in a sentence, [checker](#term-checker) says list_1 as bullets.
+<!-- statement-spec-a-list-too-long-for-a-line-is-bullets:end -->
+
+This follows because a sentence that runs past a line is hard to take in at once.
+
+```alloy
+all f: Series | f in TooLong implies f in AsBullets
+```
+
+##### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets
+
+<!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 has an item that is more than one clause, [checker](#term-checker) says list_1 as bullets.
+<!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:end -->
+
+This follows because an item with a quantifier or a list of its own cannot stand in a sentence beside others.
+
+```alloy
+all f: Series | f in NotClause implies f in AsBullets
 ```
 
 #### @spec an-and-inside-an-or-is-kept-apart
@@ -5441,13 +5788,13 @@ all f: Series | f in AndInOr implies f in KeepsAndApart
 <!-- statement-spec-a-subject-is-said-once-when-clauses-begin-with-it:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a list of clauses that begin with the same subject, [checker](#term-checker) says list_1 with the subject once.
+> when list_1 has clauses that begin with the same subject and [checker](#term-checker) says list_1 in a sentence, checker says list_1 with the subject once.
 <!-- statement-spec-a-subject-is-said-once-when-clauses-begin-with-it:end -->
 
 This follows because "unit_1 is a spec and sits in no unit" says it once, and repeating it adds nothing.
 
 ```alloy
-all f: Series | f in SharedSubject implies f in SubjectOnce
+all f: Series | (f in SharedSubject and f in AsSentence) implies f in SubjectOnce
 ```
 
 #### @spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
@@ -5455,13 +5802,13 @@ all f: Series | f in SharedSubject implies f in SubjectOnce
 <!-- statement-spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a list with a clause about a pair of variables, [checker](#term-checker) says list_1 with the pair as it is, and not as a shared subject.
+> when list_1 has a clause about a pair of variables and [checker](#term-checker) says list_1 in a sentence, checker says list_1 with the pair as it is, and not as a shared subject.
 <!-- statement-spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject:end -->
 
 This follows because "unit_1 and unit_2 are different" is about both, and cannot be the subject of another clause.
 
 ```alloy
-all f: Series | f in PairInList implies f in PairKept
+all f: Series | (f in PairInList and f in AsSentence) implies f in PairKept
 ```
 
 #### @spec a-rule-keeps-its-then-before-a-time-phrase
@@ -5469,13 +5816,13 @@ all f: Series | f in PairInList implies f in PairKept
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a rule whose second side begins with a time phrase, [checker](#term-checker) says list_1 with "then" before the time phrase.
+> when list_1 is a rule whose two sides are each one clause and is a rule whose second side begins with a time phrase, [checker](#term-checker) says list_1 with "then" before the time phrase.
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
 This follows because "when this, then now or at a later moment, that" reads better than two commas in a row.
 
 ```alloy
-all f: Series | f in RuleThenTime implies f in KeepsThen
+all f: Series | (f in OneLineRule and f in TimeSecond) implies f in KeepsThen
 ```
 
 #### @spec a-rule-drops-its-then-before-anything-else
@@ -5483,13 +5830,31 @@ all f: Series | f in RuleThenTime implies f in KeepsThen
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a rule whose second side does not begin with a time phrase, [checker](#term-checker) says list_1 without "then".
+> when all of these hold:
+> - list_1 is a rule whose two sides are each one clause
+> - list_1 is not a rule whose second side begins with a time phrase
+>
+> then [checker](#term-checker) says list_1 without "then".
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:end -->
 
-This follows because a "then" after every "when" fills the sentence with words that add nothing.
+This follows because a "then" after every "when" fills the one-line sentence with words that add nothing.
 
 ```alloy
-all f: Series | f in RulePlain implies f in DropsThen
+all f: Series | (f in OneLineRule and f not in TimeSecond) implies f in DropsThen
+```
+
+#### @spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own
+
+<!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [checker](#term-checker) says list_1 with "then" at the start of the second side, on a line of its own.
+<!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:end -->
+
+This follows because a rule whose side is a list cannot fit on a line, and "then" tells the reader where the second side starts.
+
+```alloy
+all f: Series | (f in Rule and f not in OneLineRule) implies f in ThenOwnLine
 ```
 
 #### @spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text
@@ -5646,6 +6011,76 @@ This follows because a unit nested in another says its own logic. The unit above
 all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v->u in Sit.rel and v->f in Blocks.rel)
 ```
 
+#### @spec a-scenario-gets-a-statement-that-says-it-must-be-possible
+
+<!-- statement-spec-a-scenario-gets-a-statement-that-says-it-must-be-possible:begin — generated by `canon generate`; edits are overwritten -->
+> For every [scenario_1](#term-scenario):
+>
+> when the formula of scenario_1 can be said in words, the statement of scenario_1 says that it must be possible.
+<!-- statement-spec-a-scenario-gets-a-statement-that-says-it-must-be-possible:end -->
+
+This follows because a scenario is a claim that something can happen, and a reader who sees only its formula would not know whether it states a rule or a possibility.
+
+```alloy
+all c: Scenario | c not in ScenarioUnsayable implies c in WordedAsPossible
+```
+
+#### @spec the-statement-of-a-scenario-sits-just-above-its-block
+
+<!-- statement-spec-the-statement-of-a-scenario-sits-just-above-its-block:begin — generated by `canon generate`; edits are overwritten -->
+> For every [scenario_1](#term-scenario):
+>
+> when the statement of scenario_1 says that it must be possible, [checker](#term-checker) writes the statement of scenario_1 just above its block.
+<!-- statement-spec-the-statement-of-a-scenario-sits-just-above-its-block:end -->
+
+This follows because a reader looks for the words of a formula where the formula is.
+
+```alloy
+all c: Scenario | c in WordedAsPossible implies c in AboveBlock
+```
+
+#### @spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale
+
+<!-- statement-spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale:begin — generated by `canon generate`; edits are overwritten -->
+> For every [scenario_1](#term-scenario):
+>
+> when the statement of scenario_1 is not what its formula says and the formula of scenario_1 can be said in words, [checker](#term-checker) writes the statement of scenario_1 when it generates.
+<!-- statement-spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale:end -->
+
+This follows because the checker says a scenario from its formula like any other claim, and a statement that is not what the formula says would mislead.
+
+```alloy
+all c: Scenario | (c not in ScenarioCurrent and c not in ScenarioUnsayable) implies c in ScenarioRewritten
+```
+
+#### @spec generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is
+
+<!-- statement-spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is:begin — generated by `canon generate`; edits are overwritten -->
+> For every [scenario_1](#term-scenario):
+>
+> when the statement of scenario_1 is what its formula says, [checker](#term-checker) does not write the statement of scenario_1 when it generates.
+<!-- statement-spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is:end -->
+
+This follows because writing what is already there changes nothing, and a second run must leave the document alone.
+
+```alloy
+all c: Scenario | c in ScenarioCurrent implies c not in ScenarioRewritten
+```
+
+#### @spec check-reports-a-statement-of-a-scenario-that-is-not-current
+
+<!-- statement-spec-check-reports-a-statement-of-a-scenario-that-is-not-current:begin — generated by `canon generate`; edits are overwritten -->
+> For every [scenario_1](#term-scenario):
+>
+> when the statement of scenario_1 is not what its formula says, [checker](#term-checker) reports the statement of scenario_1.
+<!-- statement-spec-check-reports-a-statement-of-a-scenario-that-is-not-current:end -->
+
+This follows because a statement that is not current may say what the formula does not.
+
+```alloy
+all c: Scenario | c not in ScenarioCurrent implies c in ScenarioReported
+```
+
 ## @axiom the-claims-of-a-canon-never-contradict-each-other
 
 <!-- statement-axiom-the-claims-of-a-canon-never-contradict-each-other:begin — generated by `canon generate`; edits are overwritten -->
@@ -5665,6 +6100,16 @@ The same goes for a situation that the canon says must be possible and that one 
 ```alloy
 (all u: Unit | u in Contradicting implies u in Named) and (all c: Scenario | c in Impossible implies c in Raised)
 ```
+
+<!-- statement-scenario-1-axiom-the-claims-of-a-canon-never-contradict-each-other:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [scenario_1](#term-scenario) and [unit_1](#term-unit) such that all of these hold:
+> - scenario_1 is a scenario that cannot happen while every held unit holds
+> - [checker](#term-checker) reports that scenario_1 cannot happen
+> - leaving out unit_1 lets scenario_1 happen
+> - checker names unit_1 in its report of scenario_1
+<!-- statement-scenario-1-axiom-the-claims-of-a-canon-never-contradict-each-other:end -->
 
 ```alloy scenario
 some c: Scenario, u: Unit | c in Impossible and c in Raised and u->c in Frees.rel and c->u in Blame.rel

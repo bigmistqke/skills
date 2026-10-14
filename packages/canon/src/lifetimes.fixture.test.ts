@@ -13,8 +13,8 @@ const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', 
 const src = readFileSync(join(FIXTURE, 'CANON.md'), 'utf8');
 
 describe('the units of the lifetimes fixture', () => {
-  it('has the statement of all six specs written from their predicates, as the document has them', () => {
-    expect(states(src).map(s => s.kind)).toEqual(Array(6).fill('current'));
+  it('has the statement of all six specs and of its scenario written from their formulas, as the document has them', () => {
+    expect(states(src).map(s => s.kind)).toEqual(Array(7).fill('current'));
     expect(write(src)).toEqual({ src, written: [] });
   });
 

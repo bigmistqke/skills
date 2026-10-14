@@ -637,11 +637,37 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
-   * @canon spec-a-longer-list-or-a-list-with-a-comma-is-bullets
+   * @canon spec-a-list-of-more-than-three-clauses-is-bullets
+   * @canon spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets
    */
   it('are a list when there are more, or when one holds a comma and there are more than two', () => {
     expect(said('u in Spec and u in Axiom and u in Fact and u not in Spec').split('\n')[0]).toBe('all of these hold:');
     expect(said('u in Spec and u in Axiom and (some v: Unit | u->v in Sit.rel and v not in Spec and v not in Axiom and v not in Fact)').split('\n')[0]).toBe('all of these hold:');
+  });
+
+  /**
+   * @canon spec-a-list-too-long-for-a-line-is-bullets
+   */
+  it('are a list when the sentence would run past a line', () => {
+    const long = parseReadings(['noun Unit: unit', 'Long: {1} is a unit with a name that is long enough to be a trouble for the line | {1} is not that'].join('\n'));
+    expect(verbalize('all u: Unit | u in Long and u in Long and u in Long', long).split('\n')[1]).toBe('  all of these hold:');
+  });
+
+  /**
+   * @canon spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets
+   */
+  it('are a list when an item is more than one clause', () => {
+    expect(said('u in Spec and (all v: Unit | u->v in Sit.rel) and u in Axiom').split('\n')[0]).toBe('all of these hold:');
+  });
+
+  /**
+   * @canon spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own
+   */
+  it('put the "then" of a rule on a line of its own when a side is a list, whatever follows it', () => {
+    const rule = said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies u in Axiom');
+    expect(rule.split('\n')[0]).toBe('when all of these hold:');
+    expect(rule.split('\n').at(-1)?.trim()).toBe('then unit_1 is an axiom.');
+    expect(said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies eventually u in Axiom').split('\n').at(-1)?.trim()).toBe('then now or at a later moment, unit_1 is an axiom.');
   });
 
   /**

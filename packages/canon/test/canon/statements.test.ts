@@ -156,6 +156,68 @@ describe('the states of the statements', () => {
   });
 });
 
+describe('the statements of scenarios', () => {
+  /** The document with a scenario in its leaf; the scenario says `formula`. */
+  const scened = (formula = 'some n: Node | n in Started'): string => `${doc()}\n\`\`\`alloy scenario\n${formula}\n\`\`\`\n`;
+  const KEY = 'scenario-1-spec-a-leaf';
+  const stateOf = (src: string) => states(src).find(s => s.unit === KEY);
+
+  /**
+   * @canon spec-a-scenario-gets-a-statement-that-says-it-must-be-possible
+   * @canon spec-the-statement-of-a-scenario-sits-just-above-its-block
+   * @canon spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale
+   */
+  it('writes the statement of a scenario just above its block, as something that must be possible', () => {
+    expect(stateOf(scened())).toMatchObject({ kind: 'missing' });
+    const { src, written } = write(scened());
+    expect(written).toContain(KEY);
+    expect(src).toContain(`<!-- ${regionName(KEY)}:end -->\n\n\`\`\`alloy scenario`);
+    expect(src).toContain('> It must be possible that:');
+    expect(src).toContain('> There is a node_1 such that node_1 has started.');
+    expect(stateOf(src)).toMatchObject({ kind: 'current' });
+  });
+
+  /**
+   * @canon spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is
+   */
+  it('leaves a scenario statement that is current as it is', () => {
+    const { src } = write(scened());
+    expect(write(src)).toEqual({ src, written: [] });
+  });
+
+  /**
+   * @canon spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale
+   * @canon spec-check-reports-a-statement-of-a-scenario-that-is-not-current
+   */
+  it('finds a scenario statement stale when its formula changes, and writes it again', () => {
+    const { src } = write(scened());
+    const changed = src.replace('some n: Node | n in Started', 'some n: Node | n in Done');
+    expect(stateOf(changed)).toMatchObject({ kind: 'stale' });
+    const again = write(changed);
+    expect(again.written).toContain(KEY);
+    expect(again.src).toContain('> There is a node_1 such that node_1 is done.');
+  });
+
+  /**
+   * @canon spec-check-reports-a-statement-of-a-scenario-that-is-not-current
+   */
+  it('reports a scenario statement that is missing, in the findings of check', () => {
+    const { runs } = project(scened(), ['check']);
+    expect(runs[0]?.out).toContain(`CANON.md: ${KEY}: missing:`);
+    expect(runs[0]?.code).toBe(1);
+  });
+
+  /**
+   * @canon spec-check-reports-a-statement-of-a-scenario-that-is-not-current
+   * @canon spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale
+   */
+  it('says why a scenario cannot be said, and leaves the document alone', () => {
+    const odd = scened('some n: Node | n in Mystery');
+    expect(stateOf(odd)).toMatchObject({ kind: 'unsayable', message: 'no reading for "Mystery"' });
+    expect(write(odd).written).not.toContain(KEY);
+  });
+});
+
 /** A project of one document; runs the command line over it and returns what it printed, its code and the document. */
 function project(document: string, ...commands: string[][]) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-statements-'));

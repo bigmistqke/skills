@@ -9,7 +9,7 @@
  * ones current, and neither touches a statement a person wrote: the person
  * deletes it to let it be generated.
  */
-import { readBlocks } from './blocks.ts';
+import { readBlocks, type Block } from './blocks.ts';
 import { beginMarker, regionAt, replaceRegion } from './regions.ts';
 import { readUnits } from './units.ts';
 import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from './verbalize.ts';
@@ -94,7 +94,32 @@ export function states(src: string): StatementState[] {
     if (at !== undefined) found.push({ unit: unit.id, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
     else found.push({ unit: unit.id, kind: unit.statement === undefined ? 'missing' : 'handwritten', quote: words });
   }
+  for (const { key, unit, body } of scenarios(src, blocks)) {
+    let words: string;
+    try {
+      words = quote(`It must be possible that:\n\n${verbalize(body, readings, 'markdown', unit)}`);
+    } catch (error) {
+      found.push({ unit: key, kind: 'unsayable', message: (error as Error).message });
+      continue;
+    }
+    const region = regionName(key);
+    const at = regionAt(src, region, endMarker(region));
+    if (at === undefined) found.push({ unit: key, kind: 'missing', quote: words });
+    else found.push({ unit: key, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
+  }
   return found;
+}
+
+/** The scenarios of a document, each with the key its statement goes by: its place among the scenarios of its unit, and the unit. */
+function scenarios(src: string, blocks = readBlocks(src, readUnits(src))): { key: string; unit: string; body: string; block: Block }[] {
+  const counted = new Map<string, number>();
+  return blocks
+    .filter(b => b.lang === 'alloy' && b.role === 'scenario')
+    .map(block => {
+      const nth = (counted.get(block.unit) ?? 0) + 1;
+      counted.set(block.unit, nth);
+      return { key: `scenario-${nth}-${block.unit}`, unit: block.unit, body: block.body, block };
+    });
 }
 
 /**
@@ -109,16 +134,21 @@ export function write(src: string): { src: string; written: string[] } {
     const region = regionName(unit);
     text = replaceRegion(text, region, endMarker(region), words as string) ?? text;
   }
-  // The missing ones go in from the last heading to the first, so that no insertion moves one still to come.
-  const missing = todo.filter(s => s.kind === 'missing');
+  // The missing ones go in from the last place to the first, so that no insertion moves one still to come: a unit's below its heading, and a scenario's just above its block.
   const starts = new Map(readUnits(text).map(u => [u.id, u.start]));
-  for (const { unit, quote: words } of [...missing].sort((a, b) => (starts.get(b.unit) ?? 0) - (starts.get(a.unit) ?? 0))) {
-    const start = starts.get(unit);
-    if (start === undefined) continue;
-    const eol = text.indexOf('\n', start);
-    const at = eol === -1 ? text.length : eol + 1;
-    const region = regionName(unit);
-    text = `${text.slice(0, at)}\n${beginMarker(region)}\n${words}\n${endMarker(region)}\n${text.slice(at)}`;
-  }
+  const fences = new Map(scenarios(text).map(({ key, block }) => [key, text.lastIndexOf('\n', block.info.at - 1) + 1]));
+  const inserts = todo
+    .filter(s => s.kind === 'missing')
+    .flatMap(({ unit, quote: words }) => {
+      const region = regionName(unit);
+      const fence = fences.get(unit);
+      if (fence !== undefined) return [{ at: fence, text: `${beginMarker(region)}\n${words}\n${endMarker(region)}\n\n` }];
+      const start = starts.get(unit);
+      if (start === undefined) return [];
+      const eol = text.indexOf('\n', start);
+      return [{ at: eol === -1 ? text.length : eol + 1, text: `\n${beginMarker(region)}\n${words}\n${endMarker(region)}\n` }];
+    })
+    .sort((a, b) => b.at - a.at);
+  for (const { at, text: inserted } of inserts) text = `${text.slice(0, at)}${inserted}${text.slice(at)}`;
   return { src: text, written: todo.map(s => s.unit) };
 }

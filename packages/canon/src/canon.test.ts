@@ -40,7 +40,8 @@ describe('the canon of the checker', () => {
     expect(statements.get('term-unfounded')).toContain('[cites](#term-cite)');
     expect(statements.get('term-unfounded')).toContain('[spec](#term-spec)');
     expect(statements.get('spec-a-spec-cites-an-axiom-or-a-spec')).toContain('[checker](#term-checker) reports a [freelancing](#term-freelancing)');
-    const generated = states(CANON).map(s => s.unit);
+    // the statements of units; a scenario has a statement of its own, which no unit holds
+    const generated = states(CANON).map(s => s.unit).filter(id => statements.has(id));
     for (const id of generated) expect(statements.get(id)).not.toContain(`(#${id})`);
     // every link of a statement leads to a term that the document declares
     const terms = new Set(units.filter(u => u.kind === 'term').map(u => u.id));

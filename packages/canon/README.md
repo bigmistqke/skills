@@ -65,6 +65,8 @@ A line gives the positive and the negative reading of a set, a field, a relation
 
 `canon check` also checks the words of such a document, with no Java. The terms are where the words are named, so the declaration of a word and the readings that say it belong in its term. It reports a reading of a word that nothing declares (`undeclared`), a declaration that is not in a term (`misplaced`), a reading in another unit than the declaration it says (`apart`), and a word that no claim, definition or fact uses (`unused`).
 
+A scenario, a block that says a situation must be possible, is said the same way, just above its block, under the words "It must be possible that:", so that a reader sees a possibility claim and not a rule. Its statement goes by the place of the scenario among the scenarios of its unit, `scenario-1-term-checker`, and `check` reports it when it is missing, stale or cannot be said.
+
 The statement is the plugin's to write: `generate` never overwrites one that a person wrote, and says so; delete it to let it be generated. A unit whose statement is generated needs no `map` block. A document without a `readings` block is left as it is.
 
 ## The logic layer
