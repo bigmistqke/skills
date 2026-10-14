@@ -25,6 +25,8 @@ import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
+import { parseSource, type ParsedSource } from './tests.ts';
+import { vocabularyOf, type Vocabulary } from './runners.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -46,6 +48,8 @@ interface Config {
   references?: string[];
   /** How a reader runs this tool, for the advice in findings. */
   command?: string;
+  /** The runners whose calls are tests: preset names, or maps of calls, modifiers and fails. */
+  runners?: unknown;
   /**
    * The issue tracker the bugs name their issues in. With it, `check` asks the
    * tracker whether each issue exists and is open.
@@ -129,6 +133,16 @@ const SOURCES = CONFIG.sources ?? ['src', 'test'];
 const REFERENCES = CONFIG.references ?? [];
 
 const COMMAND = CONFIG.command ?? 'pnpm canon';
+
+/** What the runners of the project declare a test with. A runner the checker does not know stops the run. */
+const VOCABULARY = ((): Vocabulary => {
+  try {
+    return vocabularyOf(CONFIG.runners);
+  } catch (error) {
+    console.error(`canon: ${(error as Error).message}`);
+    process.exit(2);
+  }
+})();
 
 // ---------------------------------------------------------------------------
 // A minimal element scanner: enough to know which element each anchor sits in.
@@ -1094,77 +1108,39 @@ function analyse(write: boolean): Analysis {
   // every child already carried. Neither adds a link that was missing, and the
   // first invents one that is not true. So the unit that owes a spec is the test
   // that asserts something.
-  const TEST_START =
-    /(?:^|\n)([ \t]*)(?:\/\*\*([\s\S]*?)\*\/\s*\n[ \t]*)?\b(?:it|test)\b/g;
 
-  /** The index just past the string, template or comment that starts at `i`. */
-  const skipLiteral = (src: string, i: number): number => {
-    const open = src[i];
-    if (open === '/' && src[i + 1] === '/') return src.indexOf('\n', i) === -1 ? src.length : src.indexOf('\n', i);
-    if (open === '/' && src[i + 1] === '*') return src.indexOf('*/', i + 2) === -1 ? src.length : src.indexOf('*/', i + 2) + 2;
-    let j = i + 1;
-    while (j < src.length && src[j] !== open) {
-      if (src[j] === '\\') j += 2;
-      else if (open === '`' && src[j] === '$' && src[j + 1] === '{') j = skipBalanced(src, j + 1);
-      else j++;
-    }
-    return j + 1;
-  };
-
-  /** The index just past the bracket that closes the one at `i`. */
-  function skipBalanced(src: string, i: number): number {
-    let depth = 0;
-    let j = i;
-    while (j < src.length) {
-      const c = src[j];
-      if (c === '"' || c === "'" || c === '`' || (c === '/' && (src[j + 1] === '/' || src[j + 1] === '*'))) {
-        j = skipLiteral(src, j);
-        continue;
+  /** The line of each index of `src`, found by a binary search over where its lines start. */
+  function linesOf(src: string): (at: number) => number {
+    const starts = [0];
+    for (let i = src.indexOf('\n'); i !== -1; i = src.indexOf('\n', i + 1)) starts.push(i + 1);
+    return at => {
+      let low = 0;
+      let high = starts.length - 1;
+      while (low < high) {
+        const mid = (low + high + 1) >> 1;
+        if ((starts[mid] as number) <= at) low = mid;
+        else high = mid - 1;
       }
-      if (c === '(' || c === '[' || c === '{') depth++;
-      else if (c === ')' || c === ']' || c === '}') {
-        depth--;
-        if (depth === 0) return j + 1;
-      }
-      j++;
-    }
-    return j;
+      return low + 1;
+    };
   }
 
-  /**
-   * Each test in a suite: its JSDoc, its title, the modifiers on its call, and
-   * where its call starts. A modifier's arguments are skipped by matching their
-   * brackets, so `it.each([[1, f(2)]])('title', fn)` reads as a test as well
-   * as `it.skipIf(cond)('title', fn)` and a tagged-template `` it.each`table` ``.
-   */
-  function testBlocks(src: string): { doc: string; title: string; modifiers: string[]; at: number }[] {
-    const found: { doc: string; title: string; modifiers: string[]; at: number }[] = [];
-    for (const m of src.matchAll(TEST_START)) {
-      const at = (m.index ?? 0) + m[0].length - (m[0].endsWith('test') ? 4 : 2);
-      const modifiers: string[] = [];
-      let j = at + (src.startsWith('test', at) ? 4 : 2);
-      for (;;) {
-        while (/\s/.test(src[j] ?? '')) j++;
-        if (src[j] === '.') {
-          const name = /^\.\s*(\w+)/.exec(src.slice(j));
-          if (!name) break;
-          modifiers.push(name[1]);
-          j += name[0].length;
-        } else if (src[j] === '`') {
-          j = skipLiteral(src, j);
-        } else if (src[j] === '(') {
-          let k = j + 1;
-          while (/\s/.test(src[k] ?? '')) k++;
-          if (src[k] === '"' || src[k] === "'" || src[k] === '`') {
-            const end = skipLiteral(src, k);
-            found.push({ doc: m[2] ?? '', title: src.slice(k + 1, end - 1), modifiers, at });
-            break;
-          }
-          j = skipBalanced(src, j);
-        } else break;
-      }
+  /** Resolve each `@canon` tag in `text`, which starts at `offset` in its file. */
+  function resolveTags(text: string, offset: number, rel: string, lineAt: (at: number) => number): void {
+    for (const m of text.matchAll(/@canon\s+(\S+)/g)) {
+      resolveCitation(m[1] as string, `${rel}:${lineAt(offset + (m.index ?? 0))}`);
     }
-    return found;
+  }
+
+  /** The tests and comments of a suite or a source; a file that does not parse stops the run. */
+  function parse(file: string): ParsedSource & { src: string; lineAt: (at: number) => number } {
+    const src = readFileSync(file, 'utf8');
+    try {
+      return { ...parseSource(src, file.endsWith('.tsx'), VOCABULARY), src, lineAt: linesOf(src) };
+    } catch (error) {
+      console.error(`canon: ${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
+      process.exit(2);
+    }
   }
 
   /**
@@ -1223,67 +1199,66 @@ function analyse(write: boolean): Analysis {
    * the whole file in scope to capture those would demand a citation from the
    * other thirty, and the only way to supply thirty is to invent them.
    */
-  function readSuite(file: string, enforced: boolean): void {
-    {
-      const rel = relative(ROOT, file);
-      const src = readFileSync(file, 'utf8');
+  function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> {
+    const rel = relative(ROOT, file);
+    const parsed = parse(file);
 
-      for (const { doc, title, modifiers, at } of testBlocks(src)) {
-        // The reported line is the `it(` itself, not the top of its JSDoc.
-        const line = src.slice(0, at).split('\n').length;
-        const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
-          x[1].startsWith('axiom-') ? x[1] : `axiom-${x[1]}`
+    for (const { doc, title, modifiers, at } of parsed.tests) {
+      // The reported line is the `it(` itself, not the top of its JSDoc.
+      const line = parsed.lineAt(at);
+      const axioms = [...doc.matchAll(/@axiom\s+(\S+)/g)].map(x =>
+        x[1].startsWith('axiom-') ? x[1] : `axiom-${x[1]}`
+      );
+      const specs = [...doc.matchAll(/@canon\s+(\S+)/g)].map(x => x[1]);
+
+      // A test owes a SPEC. Citing an axiom or a fact is not a different way
+      // of saying the same thing — it says the canon has no addressable spec
+      // for what is being asserted, which is a gap in the canon rather than in
+      // the test. Both the dedicated tag and an `@canon` that happens to name
+      // a given mean that, and only checking the tag let the second form
+      // through unnoticed.
+      const givenCitations = [
+        ...axioms,
+        ...specs.filter(s => {
+          const kind = kindOf(s);
+          return kind !== undefined && !CLAIMS.includes(kind);
+        })
+      ];
+      for (const a of enforced ? givenCitations : []) {
+        findings['missing-spec'].push(
+          `${rel}:${line} "${title}" — cites ${a} (the canon has no addressable spec for this)`
         );
-        const specs = [...doc.matchAll(/@canon\s+(\S+)/g)].map(x => x[1]);
+      }
 
-        // A test owes a SPEC. Citing an axiom or a fact is not a different way
-        // of saying the same thing — it says the canon has no addressable spec
-        // for what is being asserted, which is a gap in the canon rather than in
-        // the test. Both the dedicated tag and an `@canon` that happens to name
-        // a given mean that, and only checking the tag let the second form
-        // through unnoticed.
-        const givenCitations = [
-          ...axioms,
-          ...specs.filter(s => {
-            const kind = kindOf(s);
-            return kind !== undefined && !CLAIMS.includes(kind);
-          })
-        ];
-        for (const a of enforced ? givenCitations : []) {
-          findings['missing-spec'].push(
-            `${rel}:${line} "${title}" — cites ${a} (the canon has no addressable spec for this)`
-          );
-        }
+      if (enforced && axioms.length === 0 && specs.length === 0) {
+        findings.uncited.push(
+          `${rel}:${line} "${title}" — no @canon / @axiom`
+        );
+      }
 
-        if (enforced && axioms.length === 0 && specs.length === 0) {
-          findings.uncited.push(
-            `${rel}:${line} "${title}" — no @canon / @axiom`
-          );
-        }
-
-        // An expected failure is a known defect, and the canon names it as a
-        // bug; a bug is pinned by a test that fails until the fix.
-        const marksFailing = modifiers.includes('fails');
-        if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
-          findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
-        }
-        for (const s of specs) {
-          if (kindOf(s) === 'bug-' && !marksFailing) {
-            findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
-          }
-        }
-        for (const s of [...specs, ...axioms]) {
-          const key = resolveCitation(s, `${rel}:${line}`);
-          if (key === undefined) continue;
-          if (claimParents.has(key)) {
-            findings['parent-cited'].push(`${rel}:${line} "${title}" — cites ${s}, which holds nested claims`);
-          }
-          citedTargets.add(key);
-          testedTargets.add(key);
-          testsPer.set(key, (testsPer.get(key) ?? 0) + 1);
+      // An expected failure is a known defect, and the canon names it as a
+      // bug; a bug is pinned by a test that fails until the fix.
+      const marksFailing = modifiers.some(m => VOCABULARY.fails.has(m));
+      if (marksFailing && !specs.some(s => kindOf(s) === 'bug-' || kindOf(s) === 'exception-')) {
+        findings['fails-without-bug'].push(`${rel}:${line} "${title}"`);
+      }
+      for (const s of specs) {
+        if (kindOf(s) === 'bug-' && !marksFailing) {
+          findings['unpinned-bug'].push(`${rel}:${line} "${title}" — cites ${s}`);
         }
       }
+      for (const s of [...specs, ...axioms]) {
+        const key = resolveCitation(s, `${rel}:${line}`);
+        if (key === undefined) continue;
+        if (claimParents.has(key)) {
+          findings['parent-cited'].push(`${rel}:${line} "${title}" — cites ${s}, which holds nested claims`);
+        }
+        citedTargets.add(key);
+        testedTargets.add(key);
+        testsPer.set(key, (testsPer.get(key) ?? 0) + 1);
+      }
     }
+    return parsed;
   }
 
   /** A test file: `.test` or `.spec`, in TypeScript with or without JSX. */
@@ -1335,19 +1310,26 @@ function analyse(write: boolean): Analysis {
   }
 
   /**
-   * Check a module's `@canon` tags resolve, and nothing else.
+   * Read a suite or a module of the sources: its tests, as `readSuite` does,
+   * and every other `@canon` tag in a comment, which only resolves.
+   * A tag in a string is no citation, the same as a test in a string is no test.
    *
-   * A citation is a true statement about a link wherever it is written, which is
-   * the same argument `readSuite` makes for reading an undeclared suite. It does
-   * NOT add to `citedTargets`: a unit mentioned in prose still owes a test, and
-   * `dead` is the list that says so.
+   * A module that turns a table of cases into tests, which a suite then runs,
+   * holds tests as real as the suite's own. Crediting only a suite's tests left
+   * every leaf such a test checks reported untested, and the only way to quiet
+   * that was to move working tests into the suite to suit the checker.
+   *
+   * `enforced` is set for every file in the declared directory: a suite, or a
+   * helper module whose tests a suite there runs, so each of them owes a tag.
    */
-  function readModule(file: string): void {
+  function readSource(file: string, enforced = false): void {
+    const { tests, comments, lineAt } = readSuite(file, enforced);
     const rel = relative(ROOT, file);
-    const src = readFileSync(file, 'utf8');
-    for (const m of src.matchAll(/@canon\s+(\S+)/g)) {
-      const line = src.slice(0, m.index ?? 0).split('\n').length;
-      resolveCitation(m[1], `${rel}:${line}`);
+    const docs = new Set(tests.flatMap(t => (t.span ? [t.span[0]] : [])));
+    // Resolve-only: a unit a comment names still owes a test, and `dead` is
+    // the list that says so.
+    for (const comment of comments) {
+      if (!docs.has(comment.start)) resolveTags(comment.value, comment.start + 2, rel, lineAt);
     }
   }
 
@@ -1356,22 +1338,24 @@ function analyse(write: boolean): Analysis {
   const enforcedFiles = new Set<string>(
     existsSync(join(ROOT, TESTS)) ? allSuites(join(ROOT, TESTS)) : []
   );
-  for (const file of enforcedFiles) readSuite(file, true);
+  for (const file of enforcedFiles) readSource(file, true);
+  const enforcedModules = new Set<string>(
+    existsSync(join(ROOT, TESTS)) ? allModules(join(ROOT, TESTS)) : []
+  );
+  for (const file of enforcedModules) readSource(file, true);
 
   /**
    * Check a reference's citations resolve, and nothing else.
    *
-   * The `@canon` tags `readModule` already reads, plus the markdown links prose
-   * cites with. Without this, a renamed unit leaves a dead link in the very
+   * Its `@canon` tags, plus the markdown links prose cites with. Without this, a renamed unit leaves a dead link in the very
    * document a reader learns the canon from, and nothing reports it.
    *
-   * Resolve-only, for `readModule`'s reason: a worked example must not discharge
-   * the test a unit owes.
+   * Resolve-only: a worked example must not discharge the test a unit owes.
    */
   function readReference(file: string): void {
-    readModule(file);
-    if (!file.endsWith('.md')) return;
     const rel = relative(ROOT, file);
+    const src = readFileSync(file, 'utf8');
+    resolveTags(src, 0, rel, linesOf(src));
     for (const a of scanFile(file).anchors) {
       if (/^(https?:|mailto:)/.test(a.href) || !a.href.includes('#')) continue;
       const [path, frag] = a.href.split('#');
@@ -1395,9 +1379,11 @@ function analyse(write: boolean): Analysis {
     const abs = join(ROOT, root);
     if (!existsSync(abs)) continue;
     for (const file of allSuites(abs)) {
-      if (!enforcedFiles.has(file)) readSuite(file, false);
+      if (!enforcedFiles.has(file)) readSource(file);
     }
-    for (const file of allModules(abs)) readModule(file);
+    for (const file of allModules(abs)) {
+      if (!enforcedModules.has(file)) readSource(file);
+    }
   }
 
   for (const ref of REFERENCES)

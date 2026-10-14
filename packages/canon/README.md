@@ -16,7 +16,7 @@ pnpm add -D @bigmistqke/canon
 
 ## Plugins
 
-The command `lint` comes from [`@bigmistqke/canon-plugin-retext`](../canon-plugin-retext), and `logic` from [`@bigmistqke/canon-plugin-alloy`](../canon-plugin-alloy), so `canon` depends on nothing outside Node: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
+The command `lint` comes from [`@bigmistqke/canon-plugin-retext`](../canon-plugin-retext), and `logic` from [`@bigmistqke/canon-plugin-alloy`](../canon-plugin-alloy), so `canon` itself depends only on [acorn](https://github.com/acornjs/acorn) and its TypeScript plugin, which read the tests and comments of a suite: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
 
 ```md
 ---

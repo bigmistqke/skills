@@ -30,6 +30,27 @@ describe('an unguarded claim', () => {
   it('reports an untesting for a leaf no test checks', () => {
     expect(check(canon(LEAF))['untested']).toBe(1);
   });
+
+  /**
+   * @canon spec-an-unguarded-claim-is-untested
+   */
+  it('reports an untesting for a leaf only the comment of a declaration in a module of the sources names', () => {
+    const tag = ['@', 'canon'].join('');
+    const module = `/** Says one thing. ${tag} spec-a-leaf-says-one-thing */\nexport function say(): void {}\n\n/**\n * ${tag} spec-a-leaf-says-another-thing\n */\ntest('checks another thing', () => {});\n`;
+    const files = { 'test/say.ts': module };
+    const document = canon(`${LEAF}\n### @spec a-leaf-says-another-thing\n\n> A leaf says another thing.\n`);
+    expect(check(document, '', { files })['untested']).toBe(1);
+  });
+
+  /**
+   * @canon spec-an-unguarded-claim-is-untested
+   */
+  it('reports an untesting for a leaf only a string in a module of the sources names', () => {
+    const tag = ['@', 'canon'].join('');
+    const module = `export const example = \`\n/**\n * ${tag} spec-a-leaf-says-one-thing\n */\ntest('checks one thing', () => {});\n\`;\n`;
+    const files = { 'test/example.ts': module };
+    expect(check(canon(LEAF), '', { files })['untested']).toBe(1);
+  });
 });
 
 describe('a tag', () => {
@@ -41,12 +62,40 @@ describe('a tag', () => {
   });
 });
 
+describe('a tag outside a test', () => {
+  const tag = ['@', 'canon'].join('');
+
+  /**
+   * @canon spec-a-tag-in-any-comment-names-a-unit
+   */
+  it('reports a rotting for a tag in a comment of a suite that names no unit', () => {
+    const tests = `/** ${tag} spec-renamed-away */\ndescribe('a group', () => {\n  // see ${tag} spec-also-gone\n${tagged('spec-a-leaf-says-one-thing')}});\n`;
+    expect(check(canon(LEAF), tests)['rot']).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-tag-outside-a-test-tests-nothing
+   */
+  it('reports an untesting for a leaf only a comment of a suite names', () => {
+    const tests = `// covers ${tag} spec-a-leaf-says-one-thing\ndescribe('a group', () => {});\n`;
+    expect(check(canon(LEAF), tests)['untested']).toBe(1);
+  });
+});
+
 describe('an adrift test', () => {
   /**
    * @canon spec-a-declared-test-carries-a-tag
    */
   it('reports an uncitation for a declared test that carries no tag', () => {
     expect(check(canon(LEAF), `${tagged('spec-a-leaf-says-one-thing')}it('checks nothing', () => {});\n`)['uncited']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-declared-test-carries-a-tag
+   */
+  it('reports an uncitation for a test that a helper module in the declared directory makes and carries no tag', () => {
+    const files = { 'test/canon/matrix.ts': `export function matrix(rows: string[]): void {\n  for (const row of rows) test(row, () => {});\n}\n` };
+    expect(check(canon(LEAF), tagged('spec-a-leaf-says-one-thing'), { files })['uncited']).toBe(1);
   });
 
   /**

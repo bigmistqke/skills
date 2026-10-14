@@ -43,5 +43,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@sveltejs/acorn-typescript": "^1.0.13",
+    "acorn": "^8.19.0"
   }
 }
