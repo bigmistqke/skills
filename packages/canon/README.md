@@ -57,7 +57,11 @@ dispose: pulse disposes {1} | pulse does not dispose {1}
 ```
 ````
 
+A word in brackets names a term and links to it, so that a statement points at the definitions it relies on: `Freelancing: checker reports a [freelancing] for {1} | …`, `noun Unit: [unit]`. It links to the unit that holds the line, or to the unit it points at, `[checker](#term-checker)`. Only the first mention of a term in a statement is a link, a statement never links to its own unit, and the text layout has no links.
+
 A line gives the positive and the negative reading of a set, a field, a relation or an event of the vocabulary, with `{1}`, `{2}` for the variables it is about, and `noun Name: words` gives the noun of a signature. A predicate of the vocabulary that has no line is said by its own body, with the arguments in place of its parameters. A name, a negation or a construct with no words is reported, never skipped, and a variable that is already in use gets a numbered name (`c2`) so that two different ones never read as one. [`fixtures/lifetimes/CANON.md`](fixtures/lifetimes/CANON.md) is an example: its readings, its predicates, and the statements said from them.
+
+`canon check` also checks the words of such a document, with no Java. The terms are where the words are named, so the declaration of a word and the readings that say it belong in its term. It reports a reading of a word that nothing declares (`undeclared`), a declaration that is not in a term (`misplaced`), a reading in another unit than the declaration it says (`apart`), and a word that no claim, definition or fact uses (`unused`).
 
 The statement is the plugin's to write: `generate` never overwrites one that a person wrote, and says so; delete it to let it be generated. A unit whose statement is generated needs no `map` block. A document without a `readings` block is left as it is.
 

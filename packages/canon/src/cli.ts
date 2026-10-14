@@ -1513,7 +1513,9 @@ Options for tree:
 The commands lint and logic come from plugins: @bigmistqke/canon/lint and
 @bigmistqke/canon/alloy. The Alloy plugin also adds to generate and check: a
 document with a "readings" block has the statement of each unit with a
-predicate written from the predicate, and check reports one that is stale. A document's frontmatter chooses which apply to it,
+predicate written from the predicate, and check reports one that is stale. It
+also reports the words of such a document that are undeclared, misplaced,
+apart from their declaration or unused. A document's frontmatter chooses which apply to it,
 each named by its package ("plugins: [\"@bigmistqke/canon/lint\"]"); with none,
 both do. Any other name is a package installed in the project, whose commands
 are added to these.

@@ -11,6 +11,8 @@ import { type Node, parseFormula } from './alloy-parse.ts';
 interface Reading {
   positive: string;
   negative?: string;
+  /** The unit that holds the line, which a word in brackets links to. */
+  unit?: string;
 }
 
 /** A predicate of the vocabulary: its parameters and the text of its body. */
@@ -22,6 +24,8 @@ interface Definition {
 export interface Readings {
   /** The noun for a signature: `Owner` is "owner". */
   nouns: Map<string, string>;
+  /** The unit that holds the line of a noun, which a word in brackets links to. */
+  nounUnits: Map<string, string>;
   /** The article of a noun that was written with one, `noun Hour: an hour`: the default goes by the sound of the word, and a noun can say otherwise. */
   articles: Map<string, string>;
   /** The reading of a set, a field, a relation or a predicate, by its name. */
@@ -60,14 +64,16 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
 });
 
 /**
- * Read a table of readings. A line is `noun Name: words`, which may start with
- * the article the noun takes (`noun Hour: an hour`), or
+ * Read a table of readings, held by `unit`. A word in brackets names a term and
+ * links to the unit that holds the line, `[freelancing]`, or to the unit it
+ * points at, `[checker](#term-checker)`. A line is `noun Name: words`, which
+ * may start with the article the noun takes (`noun Hour: an hour`), or
  * `key: positive | negative` for an atom, whose key is the name of a set
  * (`Ran`), a field (`on`), a relation (`Clock.older`), a primed set (`Throwing'`)
  * or a predicate (`dispose`). Blank lines and lines that start with `#` are skipped.
  */
-export function parseReadings(text: string): Readings {
-  const readings: Readings = { nouns: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map() };
+export function parseReadings(text: string, unit?: string): Readings {
+  const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map() };
   for (const raw of text.split('\n')) {
     const line = raw.trim();
     if (line === '' || line.startsWith('#')) continue;
@@ -76,14 +82,53 @@ export function parseReadings(text: string): Readings {
       const written = /^(an?)\s+(.+)$/.exec((noun[2] as string).trim());
       readings.nouns.set(noun[1] as string, written ? (written[2] as string) : (noun[2] as string).trim());
       if (written) readings.articles.set(noun[1] as string, written[1] as string);
+      if (unit !== undefined) readings.nounUnits.set(noun[1] as string, unit);
+      balanced(line);
       continue;
     }
     const atom = /^([\w.']+)\s*:\s*(.+)$/.exec(line);
     if (!atom) throw new Error(`cannot read the line of readings: ${line}`);
     const [positive, negative] = (atom[2] as string).split('|').map(part => part.trim());
-    readings.atoms.set(atom[1] as string, { positive: positive as string, negative });
+    readings.atoms.set(atom[1] as string, { positive: positive as string, negative, unit });
+    balanced(line);
   }
   return readings;
+}
+
+/** Marks a word that names a term, and so links to its unit: the mark, the unit, the mark, the word, the mark. */
+const LINK = '\u0002';
+const LINK_MARK = /\u0002([^\u0002]*)\u0002([^\u0002]*)\u0002/g;
+
+/** A word in brackets, with the unit it points at when it says one. */
+const BRACKETED = /\[([^\]]+)\](?:\(#([^)\s]+)\))?/g;
+
+function balanced(line: string): void {
+  if (/[[\]]/.test(line.replace(BRACKETED, ''))) throw new Error(`a bracket in the line of readings has no partner: ${line}`);
+}
+
+/** The words of a reading, where each word in brackets is marked as the name of a term: it links to the unit it points at, or else to the unit that holds the reading. */
+function mark(words: string, unit: string | undefined): string {
+  return words.replace(BRACKETED, (_, word: string, target: string | undefined) => {
+    const to = target ?? unit;
+    return to === undefined ? word : `${LINK}${to}${LINK}${word}${LINK}`;
+  });
+}
+
+/** The words without the marks of their links. */
+const plain = (words: string): string => words.replace(LINK_MARK, (_, __, word: string) => word);
+
+/**
+ * Resolve the marks of links, in the order a reader meets them. Only the first
+ * mention of a term is a link, and a unit never links to itself; the text
+ * layout has no links.
+ */
+function resolveLinks(text: string, links: boolean, self: string | undefined): string {
+  const seen = new Set<string>(self === undefined ? [] : [self]);
+  return text.replace(LINK_MARK, (_, target: string, word: string) => {
+    if (!links || seen.has(target)) return word;
+    seen.add(target);
+    return `[${word}](#${target})`;
+  });
 }
 
 /** Marks a variable in the words, so that a sentence is never started with a capital in place of the variable's own letter. */
@@ -171,7 +216,7 @@ class Verbalizer {
     if (!reading) throw new Error(`no reading for "${key}"`);
     const words = negative ? reading.negative : reading.positive;
     if (words === undefined) throw new Error(`no negative reading for "${key}"`);
-    return words.replace(/\{(\d+)\}/g, (_, n: string) => {
+    return mark(words, reading.unit).replace(/\{(\d+)\}/g, (_, n: string) => {
       const slot = slots[Number(n) - 1];
       if (slot === undefined) throw new Error(`the reading of "${key}" uses {${n}}, which the formula does not give`);
       return `${VARIABLE}${slot}${VARIABLE}`;
@@ -188,7 +233,7 @@ class Verbalizer {
     const name = nameOf(type, 'the type of a quantified variable');
     const noun = this.readings.nouns.get(name);
     if (noun === undefined) throw new Error(`no noun for "${name}"`);
-    return noun;
+    return mark(noun, this.readings.nounUnits.get(name));
   }
 
   /** A comparison, as the atoms it stands for: a union on the left or a difference on the right is spelled out. */
@@ -255,7 +300,7 @@ class Verbalizer {
         this.used.add(alias);
         scope.set(name, alias);
         const noun = this.noun(type);
-        return { name: alias, noun, article: this.written(type) ?? articleFor(noun) };
+        return { name: alias, noun, article: this.written(type) ?? articleFor(plain(noun)) };
       })
     );
     const body = new Verbalizer(this.readings, scope, this.chain, this.used).doc(node.body);
@@ -413,8 +458,8 @@ function markdownLines(doc: Doc): string[] {
 }
 
 /** The words for the formula in `source`, as lines of text. Throws an Error that names what cannot be said. */
-export function verbalize(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text'): string {
-  return finish(new Verbalizer(readings).doc(parseFormula(source)), layout);
+export function verbalize(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
+  return finish(new Verbalizer(readings).doc(parseFormula(source)), layout, self);
 }
 
 const DEFINITION = /^\s*pred\s+(\w+)\s*(?:\[([^\]]*)\])?\s*\{([\s\S]*)\}\s*$/;
@@ -442,17 +487,18 @@ function parameters(text: string): { name: string; type: string }[] {
  * The words for a definition, `pred name[params] { body }`: what the predicate
  * names, exactly when its body holds. Throws an Error that names what cannot be said.
  */
-export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text'): string {
+export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
   const m = DEFINITION.exec(source);
   if (!m) throw new Error('a definition is written `pred name[parameters] { formula }`');
   const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), parseFormula(m[3] as string));
-  return finish(doc, layout);
+  return finish(doc, layout, self);
 }
 
 /** A doc as text: laid out, with a capital where the sentence starts with its own words and a period where it ends. */
-function finish(doc: Doc, layout: 'text' | 'markdown'): string {
-  const out = layout === 'markdown' ? markdownLines(doc) : lines(doc);
-  if (!(out[0] as string).startsWith(VARIABLE)) out[0] = (out[0] as string).replace(/^./, c => c.toUpperCase());
+function finish(doc: Doc, layout: 'text' | 'markdown', self: string | undefined): string {
+  const raw = layout === 'markdown' ? markdownLines(doc) : lines(doc);
+  const out = resolveLinks(raw.join('\n'), layout === 'markdown', self).split('\n');
+  if (!(out[0] as string).startsWith(VARIABLE)) out[0] = (out[0] as string).replace(/^(\[?)(.)/, (_, bracket: string, c: string) => bracket + c.toUpperCase());
   const last = out.length - 1;
   // A period closes a clause; a line that is an item of a list, or introduces one, is not the end of the sentence.
   if (!/(:|^\s*- .*)$/.test(out[last] as string)) out[last] = `${out[last]}.`;

@@ -274,6 +274,57 @@ describe('two variables', () => {
   });
 });
 
+describe('a word that names a term', () => {
+  const readings = parseReadings(
+    ['noun Unit: [unit]', 'noun Owner: an [owner]', 'Ran: {1} has [run] | {1} has not [run]', 'Done: {1} is [done] | {1} is not [done]', 'Told: [checker](#term-checker) tells {1} | [checker](#term-checker) tells no one', 'Alarm: [alarm] rings for {1} | no [alarm] rings for {1}'].join('\n'),
+    'term-x'
+  );
+  const markdown = (source: string, self?: string): string => verbalize(source, readings, 'markdown', self);
+
+  it('links to the unit that holds the reading, in the Markdown layout', () => {
+    expect(markdown('a in Ran')).toBe('a has [run](#term-x).');
+  });
+
+  it('is plain in the text layout, which has no links', () => {
+    expect(verbalize('a in Ran', readings)).toBe('a has run.');
+  });
+
+  it('links only the first mention of a term, in the order a reader meets it', () => {
+    expect(markdown('a in Ran and b in Ran and c in Done')).toBe(
+      ['All of these hold:', '- a has [run](#term-x)', '- b has run', '- c is done'].join('\n')
+    );
+  });
+
+  it('is never a link to the unit the sentence is in', () => {
+    expect(markdown('a in Ran', 'term-x')).toBe('a has run.');
+    expect(markdown('a in Ran and b in Told', 'term-x')).toContain('[checker](#term-checker) tells b');
+  });
+
+  it('links to the unit it points at when it says one', () => {
+    expect(markdown('a in Told')).toBe('[Checker](#term-checker) tells a.');
+  });
+
+  it('links the nouns of a quantifier, and picks the article by the word and not the brackets', () => {
+    expect(markdown('some o: Owner | o in Ran')).toBe('There is an [owner](#term-x) o such that o has run.');
+    expect(markdown('all u: Unit | u in Done')).toBe('For every [unit](#term-x) u:\n\nu is done.');
+  });
+
+  it('starts a sentence with a capital on the word and not on the bracket', () => {
+    expect(markdown('a in Alarm')).toBe('[Alarm](#term-x) rings for a.');
+    expect(verbalize('a in Alarm', readings)).toBe('Alarm rings for a.');
+  });
+
+  it('is only a word where the reading is held by no unit', () => {
+    const loose = parseReadings('Ran: {1} has [run] | {1} has not [run]');
+    expect(verbalize('a in Ran', loose, 'markdown')).toBe('a has run.');
+  });
+
+  it('is refused when a bracket has no partner', () => {
+    expect(() => parseReadings('Ran: {1} has [run | {1} has not run')).toThrow('a bracket in the line of readings has no partner');
+    expect(() => parseReadings('noun Unit: unit]')).toThrow('has no partner');
+  });
+});
+
 describe('what it refuses', () => {
   it('says which name has no reading', () => {
     expect(() => say('frobnicate[o]')).toThrow('no reading for "frobnicate"');

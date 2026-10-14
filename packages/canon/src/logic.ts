@@ -9,6 +9,7 @@ import { alloyProgram, checkAlloy, type AlloyOptions } from './alloy.ts';
 import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from './plugin.ts';
 import * as statements from './statements.ts';
+import { checkWords } from './words.ts';
 
 /** Check each document's maps and alloy blocks; the exit code: 0 when the maps are current and every scenario can happen, 1 when not, 2 when a check could not run. */
 export function logic(documents: string[], root: string, options: AlloyOptions): number {
@@ -109,6 +110,20 @@ export function checkStatements(documents: string[], root: string): number {
   return code;
 }
 
+/** Report the words of each document that keeps readings that are undeclared, misplaced, apart from their reading or unused; the exit code: 0, or 1 when there is one. */
+export function checkDocumentWords(documents: string[], root: string): number {
+  let code = 0;
+  for (const doc of documents) {
+    const file = resolve(root, doc);
+    if (!existsSync(file)) continue;
+    for (const finding of checkWords(readFileSync(file, 'utf8'))) {
+      code = 1;
+      console.log(`${doc}: ${finding.unit}: ${finding.kind}: ${finding.message}`);
+    }
+  }
+  return code;
+}
+
 /** The `logic` field of the scope: where the Alloy analyzer is. Paths are relative to the project root. */
 interface LogicConfig {
   alloy?: { jar?: string; java?: string };
@@ -119,7 +134,7 @@ export const plugin: Plugin = {
   config: 'logic',
   commands: {
     generate: ({ root, documents }) => generateStatements(documents, root),
-    check: ({ root, documents }) => checkStatements(documents, root),
+    check: ({ root, documents }) => Math.max(checkStatements(documents, root), checkDocumentWords(documents, root)),
     logic: ({ args, root, documents, config, options }) => {
       const documentsToRead = args.length > 0 ? args : documents;
       if (options.review !== undefined) return review(documentsToRead, root, options.review as string[]);

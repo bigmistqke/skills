@@ -32,6 +32,18 @@ describe('the canon of the checker', () => {
     expect(write(CANON)).toEqual({ src: CANON, written: [] });
   });
 
+  it('links the words of every statement to the terms that say them, and never a statement to its own unit', () => {
+    const statements = new Map(units.map(u => [u.id, u.statement ?? '']));
+    expect(statements.get('term-unfounded')).toContain('[cites](#term-cite)');
+    expect(statements.get('term-unfounded')).toContain('[spec](#term-spec)');
+    expect(statements.get('spec-a-spec-cites-an-axiom-or-a-spec')).toContain('[checker](#term-checker) reports a [freelancing](#term-freelancing)');
+    const generated = states(CANON).map(s => s.unit);
+    for (const id of generated) expect(statements.get(id)).not.toContain(`(#${id})`);
+    // every link of a statement leads to a term that the document declares
+    const terms = new Set(units.filter(u => u.kind === 'term').map(u => u.id));
+    for (const id of generated) for (const [, target] of (statements.get(id) ?? '').matchAll(/\]\(#([\w-]+)\)/g)) expect(terms.has(target as string)).toBe(true);
+  });
+
   it('keeps the bugs as prose, since a bug states what the code does wrong, which the specs forbid', () => {
     const logic = new Set(readBlocks(CANON).filter(b => b.lang === 'alloy' && b.role === 'unit').map(b => b.unit));
     for (const bug of units.filter(u => u.kind === 'bug')) expect(logic.has(bug.id)).toBe(false);
@@ -39,7 +51,7 @@ describe('the canon of the checker', () => {
 
   it('gives every name a claim uses words, and every word a body or a declaration', () => {
     const readings = readingsOf(CANON);
-    expect(readings?.atoms.size).toBe(80);
+    expect(readings?.atoms.size).toBe(73);
     expect(readings?.nouns.size).toBe(21);
     expect(readings?.definitions.size).toBe(13);
   });

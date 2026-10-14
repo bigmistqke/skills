@@ -44,7 +44,16 @@ export function readingsOf(src: string): Readings | undefined {
   if (table.length === 0) return undefined;
   // The predicates a document defines, in its vocabulary and in the units that define them.
   const model = blocks.filter(b => b.lang === 'alloy' && b.role !== 'bounds' && b.role !== 'scenario');
-  return withDefinitions(parseReadings(table.map(b => b.body).join('\n')), model.map(b => b.body).join('\n'));
+  // Each block is read for the unit that holds it, so that a word in brackets links to the term that says it.
+  const merged = parseReadings('');
+  for (const block of table) {
+    const part = parseReadings(block.body, block.unit);
+    for (const [key, value] of part.nouns) merged.nouns.set(key, value);
+    for (const [key, value] of part.nounUnits) merged.nounUnits.set(key, value);
+    for (const [key, value] of part.articles) merged.articles.set(key, value);
+    for (const [key, value] of part.atoms) merged.atoms.set(key, value);
+  }
+  return withDefinitions(merged, model.map(b => b.body).join('\n'));
 }
 
 const quote = (words: string): string =>
@@ -75,7 +84,7 @@ export function states(src: string): StatementState[] {
     let words: string;
     try {
       const { body } = predicates[0] as { body: string };
-      words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown') : verbalize(body, readings, 'markdown'));
+      words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown', unit.id) : verbalize(body, readings, 'markdown', unit.id));
     } catch (error) {
       found.push({ unit: unit.id, kind: 'unsayable', message: (error as Error).message });
       continue;
