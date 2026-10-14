@@ -1,16 +1,16 @@
-# @bigmistqke/canon-alloy
+# @bigmistqke/canon-plugin-alloy
 
 The Alloy plugin for [`@bigmistqke/canon`](../canon): the logic of a canon said in words, and checked by the [Alloy analyzer](https://github.com/AlloyTools/org.alloytools.alloy). It writes the statement of each unit from its formula, so that the statement cannot say what the logic does not, and it asks whether the claims of a canon contradict each other.
 
 ```bash
-pnpm add -D @bigmistqke/canon @bigmistqke/canon-alloy
+pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-alloy
 ```
 
 A document names the plugin in its frontmatter:
 
 ```md
 ---
-plugins: ["@bigmistqke/canon-alloy"]
+plugins: ["@bigmistqke/canon-plugin-alloy"]
 ---
 # Canon
 ```

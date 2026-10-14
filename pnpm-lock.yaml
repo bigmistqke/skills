@@ -11,39 +11,15 @@ importers:
       '@bigmistqke/canon':
         specifier: workspace:*
         version: link:packages/canon
-      '@bigmistqke/canon-alloy':
+      '@bigmistqke/canon-plugin-alloy':
         specifier: workspace:*
-        version: link:packages/alloy
-      '@bigmistqke/canon-lint':
+        version: link:packages/canon-plugin-alloy
+      '@bigmistqke/canon-plugin-retext':
         specifier: workspace:*
-        version: link:packages/lint
+        version: link:packages/canon-plugin-retext
       turbo:
         specifier: ^2.11.7
         version: 2.11.7
-
-  packages/alloy:
-    devDependencies:
-      '@bigmistqke/canon':
-        specifier: workspace:*
-        version: link:../canon
-      '@bigmistqke/canon-lint':
-        specifier: workspace:*
-        version: link:../lint
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.20.5
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
-      vitest:
-        specifier: ^3.1.3
-        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1)
 
   packages/canon:
     devDependencies:
@@ -60,7 +36,31 @@ importers:
         specifier: ^3.1.3
         version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1)
 
-  packages/lint:
+  packages/canon-plugin-alloy:
+    devDependencies:
+      '@bigmistqke/canon':
+        specifier: workspace:*
+        version: link:../canon
+      '@bigmistqke/canon-plugin-retext':
+        specifier: workspace:*
+        version: link:../canon-plugin-retext
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.5
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      vitest:
+        specifier: ^3.1.3
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1)
+
+  packages/canon-plugin-retext:
     dependencies:
       remark-parse:
         specifier: ^11.0.0

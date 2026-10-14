@@ -12,8 +12,8 @@
   },
   "devDependencies": {
     "@bigmistqke/canon": "workspace:*",
-    "@bigmistqke/canon-alloy": "workspace:*",
-    "@bigmistqke/canon-lint": "workspace:*",
+    "@bigmistqke/canon-plugin-alloy": "workspace:*",
+    "@bigmistqke/canon-plugin-retext": "workspace:*",
     "turbo": "^2.11.7"
   }
 }

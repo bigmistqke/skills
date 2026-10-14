@@ -49,7 +49,7 @@ all n: Node | n in Done
 
 /** The document that extends it, with `claim` as the formula of its own axiom and `own` added to the end. */
 const child = (claim: string, own = ''): string => `---
-plugins: ["@bigmistqke/canon-alloy"]
+plugins: ["@bigmistqke/canon-plugin-alloy"]
 extends: ["../canon/CANON.md"]
 ---
 # Child

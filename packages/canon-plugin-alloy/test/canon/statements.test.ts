@@ -283,7 +283,7 @@ describe('the command line', () => {
    */
   it('is not read by the prose check', () => {
     const long = doc('always all n: Node | n in Started and n not in Done and n in Started and n not in Done implies eventually n in Done');
-    const { runs } = project(`---\nplugins: ["@bigmistqke/canon-alloy", "@bigmistqke/canon-lint"]\n---\n${long}`, ['generate'], ['lint']);
+    const { runs } = project(`---\nplugins: ["@bigmistqke/canon-plugin-alloy", "@bigmistqke/canon-plugin-retext"]\n---\n${long}`, ['generate'], ['lint']);
     expect(runs[1]?.out).not.toContain('sentence-length');
     expect(runs[1]?.code).toBe(0);
   });

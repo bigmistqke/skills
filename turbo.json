@@ -27,18 +27,18 @@
     "@bigmistqke/canon#test": {
       "dependsOn": [
         "build",
-        "@bigmistqke/canon-alloy#build"
+        "@bigmistqke/canon-plugin-alloy#build"
       ],
       "env": [
         "CANON_ALLOY_JAR",
         "CANON_JAVA"
       ]
     },
-    "@bigmistqke/canon-alloy#test": {
+    "@bigmistqke/canon-plugin-alloy#test": {
       "dependsOn": [
         "build",
         "@bigmistqke/canon#build",
-        "@bigmistqke/canon-lint#build"
+        "@bigmistqke/canon-plugin-retext#build"
       ],
       "env": [
         "CANON_ALLOY_JAR",
