@@ -43,7 +43,17 @@ export const plugin: Plugin = {
 
 A command gets the arguments, the project root, the documents that name the plugin and the plugin's own options, and returns an exit code: 0 when everything holds, 1 when there is a finding, 2 when a check could not run. The same command from several plugins runs them all, and the exit code is the highest. Its entry has to be reachable by `require`, through `main` or an `exports` entry with a `default` condition.
 
-The frontmatter reads a small part of YAML, all of it valid YAML: the key `plugins`, with a list of strings, inline (`["a", "b"]`) or as lines that start with a dash. A name that starts with `@` must be quoted. Any other key is an error, so a misspelled key cannot silently drop a check. `check` and `generate` run what the plugins add to them, and read the frontmatter only to know which plugins apply.
+The frontmatter reads a small part of YAML, all of it valid YAML: the keys `plugins` and `extends`, with a list of strings, inline (`["a", "b"]`) or as lines that start with a dash. A name that starts with `@` must be quoted. Any other key is an error, so a misspelled key cannot silently drop a check.
+
+`extends` lists the paths of the documents this document extends, each read from the folder of the document that lists it, as a link in the document would be:
+
+```md
+---
+extends: ["../canon/CANON.md"]
+---
+```
+
+An extended document is context. Its units and its words are read with the document, and it is checked where it lives, so its units owe nothing in the document that extends it. A document extends what the documents it extends extend. An id that both declare is reported, because a pointer or a tag cannot say which of the two units it names. A path that names no document, and an extension that leads back to a document on the way, are refused with exit code 2. `check` and `generate` run what the plugins add to them, and read the frontmatter only to know which plugins apply.
 
 ## Statements said from predicates
 
@@ -67,11 +77,15 @@ A line gives the positive and the negative reading of a set, a field, a relation
 
 A scenario, a block that says a situation must be possible, is said the same way, just above its block, under the words "It must be possible that:", so that a reader sees a possibility claim and not a rule. Its statement goes by the place of the scenario among the scenarios of its unit, `scenario-1-term-checker`, and `check` reports it when it is missing, stale or cannot be said.
 
+A document that extends another (`extends` in its frontmatter) says its statements with the readings of the extended document too, and a word of the extended document links to that document, `[unit](../canon/CANON.md#term-unit)`. The words the extended document declares count as declared in the words check. `generate` writes statements only in the documents the project checks, never in the ones they extend.
+
 The statement is the plugin's to write: `generate` never overwrites one that a person wrote, and says so; delete it to let it be generated. A unit whose statement is generated needs no `map` block. A document without a `readings` block is left as it is.
 
 ## The logic layer
 
 A unit can hold fenced blocks next to its statement. `canon logic` hands the `alloy` blocks of the documents to the [Alloy analyzer](https://github.com/AlloyTools/org.alloytools.alloy) and asks whether each scenario can happen while every unit holds. When one cannot, it names the units a repair has to touch.
+
+The claims of the documents a document extends join its model, so a claim of the document that contradicts one of theirs is found, and the report names both. A group of units that holds no block of the checked document is left to the document that holds it. The analyzer is started once for each run, as many at a time as the machine has processors; `CANON_ALLOY_JOBS` sets another number.
 
 ````md
 ```alloy vocabulary   the signatures, relations and events the units share

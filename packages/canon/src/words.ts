@@ -126,16 +126,19 @@ function readingKeys(src: string): { key: string; unit: string; noun: boolean }[
  * from the declaration it says, and a word that no claim, definition or fact
  * uses. A document with no readings is left alone.
  */
-export function checkWords(src: string): WordFinding[] {
+export function checkWords(src: string, context: string[] = []): WordFinding[] {
   const keys = readingKeys(src);
   if (keys.length === 0) return [];
   const kinds = new Map(readUnits(src).map(u => [u.id, u.kind]));
   const words = declared(src);
+  // The words of the documents it extends are declared there, and are the document's words as well.
+  const inherited = context.flatMap(declared);
   const byName = new Map(words.map(w => [w.name, w]));
   const found: WordFinding[] = [];
 
   for (const { key, unit, noun } of keys) {
     const candidates = byName.has(key) ? [byName.get(key) as Word] : fieldOf(words, key);
+    if (candidates.length === 0 && (inherited.some(w => w.name === key) || fieldOf(inherited, key).length > 0)) continue;
     if (candidates.length === 0) {
       found.push({ unit, kind: 'undeclared', message: `${noun ? 'the noun' : 'the reading'} "${key}" says a word that nothing in the document declares` });
     } else if (!candidates.some(w => w.unit === unit)) {

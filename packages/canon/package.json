@@ -14,6 +14,9 @@
   },
   "exports": {
     "./alloy": "./dist/logic.js",
+    "./blocks": "./dist/blocks.js",
+    "./extends": "./dist/extends.js",
+    "./frontmatter": "./dist/frontmatter.js",
     "./kinds": "./dist/kinds.js",
     "./lint": "./dist/lint.js",
     "./plugin": "./dist/plugin.js",

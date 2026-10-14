@@ -130,7 +130,8 @@ function resolveLinks(text: string, links: boolean, self: string | undefined): s
   return text.replace(LINK_MARK, (_, target: string, word: string) => {
     if (!links || seen.has(target)) return word;
     seen.add(target);
-    return `[${word}](#${target})`;
+    // a target in another document is written whole, `../canon/CANON.md#term-unit`; a unit of this document is its id
+    return `[${word}](${target.includes('#') ? target : `#${target}`})`;
   });
 }
 

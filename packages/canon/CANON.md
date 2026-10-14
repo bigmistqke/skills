@@ -82,6 +82,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term entry`](#term-entry) — An entry is one string of the list of plugins in a frontmatter.
 - [`@term list`](#term-list) — For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin): frontmatter_1 lists plugin_1 exactly when frontmatter_1 holds an [entry](#term-entry) that spells plugin_1.
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
+- [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when at least one of these holds: - plugin_1 is a plugin inside the package of the [checker](#term-checker) and document_1 starts with no [listing frontmatter](#term-frontmatter) - document_1 starts with a listing frontmatter that [lists](#term-list) plugin_1
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
 - [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when all of these hold: - run_1 asks for a [command](#term-command) that plugin_1 adds - plugin_1 is a plugin inside the package of the [checker](#term-checker) or [applies](#term-apply) to a [document](#term-document)
@@ -164,6 +165,11 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec a-unit-owns-only-the-text-before-its-first-nested-heading`](#spec-a-unit-owns-only-the-text-before-its-first-nested-heading) — For every [unit_1](#term-unit) and every [text_1](#term-own-text): when the own text of unit_1 holds text_1, the text of a unit nested in unit_1 does not hold text_1.
   - [`@spec a-site-line-in-the-own-text-names-the-site-of-its-unit`](#spec-a-site-line-in-the-own-text-names-the-site-of-its-unit) — For every [unit_1](#term-unit) and every [site_1](#term-site): when the [own text](#term-own-text) of unit_1 has a site line that names site_1, unit_1 [names](#term-name) site_1.
   - [`@spec a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above`](#spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above) — For every [unit_1](#term-unit) and every [site_1](#term-site): when all of these hold: - the text of a unit nested in unit_1 has a site line that names site_1 - the [own text](#term-own-text) of unit_1 has no site line that names site_1 then unit_1 does not [name](#term-name) site_1.
+  - [`@spec an-extends-key-lists-the-documents-a-document-extends`](#spec-an-extends-key-lists-the-documents-a-document-extends) — For every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [path_1](#term-extension) and every document_2: when all of these hold: - document_1 starts with frontmatter_1 - frontmatter_1 lists the path path_1 - the path path_1 leads to document_2 then document_1 extends document_2.
+  - [`@spec a-path-is-read-from-the-folder-of-the-document-that-lists-it`](#spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it) — For every [path_1](#term-extension): when path_1 is a path that a frontmatter lists, path_1 is read from the folder of the [document](#term-document) that lists it.
+  - [`@spec a-document-is-context-for-the-documents-that-extend-it-and-for-theirs`](#spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs) — For every [document_1](#term-document) and every document_2 and every document_3: all of these hold: - when document_1 [extends](#term-extension) document_2, document_2 is context for document_1 - when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1
+  - [`@spec a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it`](#spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit): when all of these hold: - the project lists document_1 among the documents it checks - the project does not list document_2 among the documents it checks - document_2 is [context](#term-extension) for document_1 - document_2 [holds](#term-hold) unit_1 then [checker](#term-checker) reports no [finding](#term-finding) for unit_1.
+  - [`@spec an-id-that-an-extended-document-declares-too-is-repeated`](#spec-an-id-that-an-extended-document-declares-too-is-repeated) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit) and every unit_2: when all of these hold: - document_2 is [context](#term-extension) for document_1 - document_1 [holds](#term-hold) unit_1 - document_2 holds unit_2 - unit_1 has the id of unit_2 then unit_1 [repeats](#term-repeat) unit_2.
 - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1 - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 asks for a [command](#term-command) that is not [available](#term-availability) - run_1 gets code 2 from a plugin then run_1 exits with code 2.
   - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1 - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
     - [`@spec a-document-with-no-plugins-list-gets-the-plugins-inside-the-package`](#spec-a-document-with-no-plugins-list-gets-the-plugins-inside-the-package) — For every [inside_plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter), [checker](#term-checker) runs inside_plugin_1 over document_1.
@@ -177,13 +183,15 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — For every [entry_1](#term-entry) and every quoted_comma_1: entry_1 does not end at quoted_comma_1.
     - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — For every [frontmatter_1](#term-frontmatter): when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
   - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — For every [block_1](#term-frontmatter): when block_1 is a frontmatter, block_1 is a block that starts its [document](#term-document).
-  - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes - frontmatter_1 has the flaw of a key that the [checker](#term-checker) does not know - frontmatter_1 has the flaw of a list that is not closed - frontmatter_1 has the flaw of a string that is not closed - frontmatter_1 has the flaw of a key that appears twice then frontmatter_1 is a frontmatter that the checker cannot read.
+  - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes - frontmatter_1 has the flaw of a key that the [checker](#term-checker) does not know - frontmatter_1 has the flaw of a list that is not closed - frontmatter_1 has the flaw of a string that is not closed - frontmatter_1 has the flaw of a key that appears twice - frontmatter_1 has the flaw of a path that names no document - frontmatter_1 has the flaw of an extension that leads back to its own document then frontmatter_1 is a frontmatter that the checker cannot read.
     - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted_frontmatter_1](#term-flaw): misquoted_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — For every [misquoted_frontmatter_1](#term-flaw): [checker](#term-checker) tells the author to write the name in quotes for misquoted_frontmatter_1.
     - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign_frontmatter_1](#term-flaw): foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed_frontmatter_1](#term-flaw): unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated_frontmatter_1](#term-flaw): unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled_frontmatter_1](#term-flaw): doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling_frontmatter_1](#term-flaw): dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+    - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular_frontmatter_1](#term-flaw): circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
   - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
     - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
     - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run_1](#term-run): when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
@@ -348,6 +356,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale`](#spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale) — For every [scenario_1](#term-scenario): when the statement of scenario_1 is not what its formula says and the formula of scenario_1 can be said in words, [checker](#term-checker) writes the statement of scenario_1 when it generates.
   - [`@spec generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is`](#spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is) — For every [scenario_1](#term-scenario): when the statement of scenario_1 is what its formula says, [checker](#term-checker) does not write the statement of scenario_1 when it generates.
   - [`@spec check-reports-a-statement-of-a-scenario-that-is-not-current`](#spec-check-reports-a-statement-of-a-scenario-that-is-not-current) — For every [scenario_1](#term-scenario): when the statement of scenario_1 is not what its formula says, [checker](#term-checker) reports the statement of scenario_1.
+  - [`@spec a-unit-is-said-with-the-readings-of-the-documents-its-document-extends`](#spec-a-unit-is-said-with-the-readings-of-the-documents-its-document-extends) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit): when document_2 is [context](#term-extension) for document_1, document_1 [holds](#term-hold) unit_1 and unit_1 holds a formula, the statement of unit_1 is said with the readings of the documents its document extends.
+  - [`@spec a-word-of-an-extended-document-links-to-that-document`](#spec-a-word-of-an-extended-document-links-to-that-document) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit): when document_2 is [context](#term-extension) for document_1, document_1 [holds](#term-hold) unit_1 and unit_1 holds a formula, the statement of unit_1 links a word to the extended document that holds its term.
+  - [`@spec generate-writes-no-statement-for-a-unit-of-an-extended-document`](#spec-generate-writes-no-statement-for-a-unit-of-an-extended-document) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit): when all of these hold: - the project lists document_1 among the documents it checks - the project does not list document_2 among the documents it checks - document_2 is [context](#term-extension) for document_1 - document_2 [holds](#term-hold) unit_1 then [checker](#term-checker) does not write the [statement](#term-statement) of unit_1 when it generates.
+  - [`@spec a-word-declared-in-an-extended-document-is-declared`](#spec-a-word-declared-in-an-extended-document-is-declared) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit) and every unit_2 and every [word_1](#term-word): when all of these hold: - document_2 is [context](#term-extension) for document_1 - document_1 [holds](#term-hold) unit_1 - a reading in unit_1 says word_1 - document_2 holds unit_2 - unit_2 declares word_1 then word_1 is not a word that a reading says and nothing declares.
 - [`@axiom the-claims-of-a-canon-never-contradict-each-other`](#axiom-the-claims-of-a-canon-never-contradict-each-other) — All of these hold: - for every [unit_1](#term-unit): when unit_1 is held with units that cannot all hold, [checker](#term-checker) names unit_1 in its report of a contradiction - for every [scenario_1](#term-scenario): when scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen.
   - [`@spec a-formula-with-no-keyword-is-a-claim-to-hold`](#spec-a-formula-with-no-keyword-is-a-claim-to-hold) — For every [unit_1](#term-unit): when unit_1 holds a formula with no keyword, the analyzer is asked to hold the formula of unit_1.
   - [`@spec a-unit-that-holds-only-definitions-is-in-the-model-and-is-no-claim`](#spec-a-unit-that-holds-only-definitions-is-in-the-model-and-is-no-claim) — For every [unit_1](#term-unit): when unit_1 holds only definitions, the definitions of unit_1 are part of the model and the analyzer is not asked to hold the formula of unit_1.
@@ -372,6 +384,8 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec logic-succeeds-when-nothing-is-reported`](#spec-logic-succeeds-when-nothing-is-reported) — For every [run_1](#term-run) and every [logic_command_1](#term-command): when all of these hold: - run_1 asks for logic_command_1 - there is no [scenario_1](#term-scenario) such that [checker](#term-checker) reports that scenario_1 cannot happen - there is no [unit_1](#term-unit) such that unit_1 is held with units that cannot all hold then run_1 exits with code 0.
   - [`@spec a-reported-scenario-or-contradiction-fails-logic`](#spec-a-reported-scenario-or-contradiction-fails-logic) — For every [run_1](#term-run) and every [logic_command_1](#term-command): when all of these hold: - run_1 asks for logic_command_1 - at least one of these holds: - there is a [scenario_1](#term-scenario) such that [checker](#term-checker) reports that scenario_1 cannot happen - there is a [unit_1](#term-unit) such that unit_1 is held with units that cannot all hold then run_1 does not exit with code 0.
   - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — For every [run_1](#term-run) and every [logic_command_1](#term-command): when run_1 asks for logic_command_1 and the Alloy analyzer cannot run for run_1, run_1 exits with code 2.
+  - [`@spec the-claims-of-an-extended-document-join-the-model`](#spec-the-claims-of-an-extended-document-join-the-model) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit): when all of these hold: - the project lists document_1 among the documents it checks - document_2 is [context](#term-extension) for document_1 - document_2 [holds](#term-hold) unit_1 - unit_1 holds a formula with no keyword then the analyzer is asked to hold the formula of unit_1.
+  - [`@spec a-group-with-no-block-of-a-checked-document-is-not-asked-about`](#spec-a-group-with-no-block-of-a-checked-document-is-not-asked-about) — For every [unit_1](#term-unit): when unit_1 is in a group none of whose blocks is in a document the project checks, the analyzer is not asked about unit_1.
 <!-- toc:end -->
 
 ## Terms
@@ -1641,18 +1655,20 @@ lists: {1} [lists] {2} | {1} does not [list] {2}
 
 > A flaw is a mistake that makes a frontmatter unreadable.
 
-Five flaws make a frontmatter unreadable:
+Seven flaws make a frontmatter unreadable:
 
 - An entry with an at sign outside quotes.
 - A key the checker does not know.
 - A list with no end.
 - A string with no end.
 - A key that appears twice.
+- A path in the extends list that names no document.
+- An extension that leads back to the document that lists it.
 
 The checker reads a small part of YAML and refuses the rest, so that a mistake cannot drop a check without a word.
 
 ```alloy vocabulary
-sig Misquoted, Foreign, Unclosed, Unterminated, Doubled, Told in Frontmatter {}
+sig Misquoted, Foreign, Unclosed, Unterminated, Doubled, Dangling, Looping, Told in Frontmatter {}
 ```
 
 ```readings
@@ -1666,7 +1682,44 @@ noun Unterminated: [unterminated frontmatter]
 Unterminated: {1} has the [flaw] of a string that is not closed | {1} does not have the [flaw] of a string that is not closed
 noun Doubled: [doubled frontmatter]
 Doubled: {1} has the [flaw] of a key that appears twice | {1} does not have the [flaw] of a key that appears twice
+noun Dangling: [dangling frontmatter]
+Dangling: {1} has the [flaw] of a path that names no document | {1} does not have the [flaw] of a path that names no document
+noun Looping: [circular frontmatter]
+Looping: {1} has the [flaw] of an extension that leads back to its own document | {1} does not have the [flaw] of an extension that leads back to its own document
 Told: [checker](#term-checker) tells the author to write the name in quotes for {1} | [checker](#term-checker) does not tell the author to write the name in quotes for {1}
+```
+
+### @term extension
+
+> A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
+
+A path starts from the folder of the document that lists it. A document is context for the documents that extend it, and for the documents that those extend.
+
+```alloy vocabulary
+sig Path {}
+sig FromFolder, Listed in Path {}
+sig Checked in Document {}
+sig SaidWithContext, LinksToContext, OnlyContext in Unit {}
+one sig Written { rel: Frontmatter -> Path }
+one sig Leads { rel: Path -> Document }
+one sig Extend { rel: Document -> Document }
+one sig Context { rel: Document -> Document }
+one sig SameId { rel: Unit -> Unit }
+```
+
+```readings
+noun Path: [path]
+FromFolder: {1} is read from the folder of the [document](#term-document) that lists it | {1} is not read from the folder of the [document](#term-document) that lists it
+Listed: {1} is a [path] that a frontmatter lists | {1} is not a [path] that a frontmatter lists
+Checked: the project lists {1} among the documents it checks | the project does not list {1} among the documents it checks
+Written.rel: {1} lists the [path] {2} | {1} does not list the [path] {2}
+Leads.rel: the [path] {1} leads to {2} | the [path] {1} does not lead to {2}
+Extend.rel: {1} [extends] {2} | {1} does not [extend] {2}
+Context.rel: {2} is [context] for {1} | {2} is not [context] for {1}
+SameId.rel: {1} has the id of {2} | {1} does not have the id of {2}
+SaidWithContext: the statement of {1} is said with the readings of the documents its document extends | the statement of {1} is not said with the readings of the documents its document extends
+LinksToContext: the statement of {1} links a word to the extended document that holds its term | the statement of {1} links no word to an extended document
+OnlyContext: {1} is in a group none of whose blocks is in a document the project checks | {1} is in a group that has a block of a document the project checks
 ```
 
 ### @term apply
@@ -3309,6 +3362,95 @@ This follows because the nested unit is the one that answers for that place.
 all u: Unit, s: Site | (u->s in NestedSiteLine.rel and u->s not in SiteLine.rel) implies u->s not in Name.site
 ```
 
+#### @spec an-extends-key-lists-the-documents-a-document-extends
+
+<!-- statement-spec-an-extends-key-lists-the-documents-a-document-extends:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [path_1](#term-extension) and every document_2:
+>
+> when all of these hold:
+> - document_1 starts with frontmatter_1
+> - frontmatter_1 lists the path path_1
+> - the path path_1 leads to document_2
+>
+> then document_1 extends document_2.
+<!-- statement-spec-an-extends-key-lists-the-documents-a-document-extends:end -->
+
+This follows because a pointer into another document leads where it says only if the checker knows which documents the author means. The author says so in the document.
+
+```alloy
+all d: Document, f: Frontmatter, p: Path, e: Document | (d->f in Head.rel and f->p in Written.rel and p->e in Leads.rel) implies d->e in Extend.rel
+```
+
+#### @spec a-path-is-read-from-the-folder-of-the-document-that-lists-it
+
+<!-- statement-spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it:begin — generated by `canon generate`; edits are overwritten -->
+> For every [path_1](#term-extension):
+>
+> when path_1 is a path that a frontmatter lists, path_1 is read from the folder of the [document](#term-document) that lists it.
+<!-- statement-spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it:end -->
+
+This follows because a link in a document leads from where the document is, and a path in its frontmatter means the same.
+
+```alloy
+all p: Path | p in Listed implies p in FromFolder
+```
+
+#### @spec a-document-is-context-for-the-documents-that-extend-it-and-for-theirs
+
+<!-- statement-spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every document_3:
+>
+> all of these hold:
+> - when document_1 [extends](#term-extension) document_2, document_2 is context for document_1
+> - when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1
+<!-- statement-spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs:end -->
+
+This follows because a document that extends another takes in what that one takes in, and the author does not list it again.
+
+```alloy
+all d: Document, e: Document, g: Document | (d->e in Extend.rel implies d->e in Context.rel) and ((d->e in Extend.rel and e->g in Context.rel) implies d->g in Context.rel)
+```
+
+#### @spec a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it
+
+<!-- statement-spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - the project lists document_1 among the documents it checks
+> - the project does not list document_2 among the documents it checks
+> - document_2 is [context](#term-extension) for document_1
+> - document_2 [holds](#term-hold) unit_1
+>
+> then [checker](#term-checker) reports no [finding](#term-finding) for unit_1.
+<!-- statement-spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it:end -->
+
+This follows because the extended document is checked where it lives. A second report of the same unit would only make noise.
+
+```alloy
+all d: Document, e: Document, u: Unit | (d in Checked and e not in Checked and d->e in Context.rel and e->u in Hold.units) implies u not in Finding
+```
+
+#### @spec an-id-that-an-extended-document-declares-too-is-repeated
+
+<!-- statement-spec-an-id-that-an-extended-document-declares-too-is-repeated:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit) and every unit_2:
+>
+> when all of these hold:
+> - document_2 is [context](#term-extension) for document_1
+> - document_1 [holds](#term-hold) unit_1
+> - document_2 holds unit_2
+> - unit_1 has the id of unit_2
+>
+> then unit_1 [repeats](#term-repeat) unit_2.
+<!-- statement-spec-an-id-that-an-extended-document-declares-too-is-repeated:end -->
+
+This follows because a pointer or a tag cannot say which of two units with one id it means. The checker reads an extended document together with the document that extends it.
+
+```alloy
+all d: Document, e: Document, u: Unit, v: Unit | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and u->v in SameId.rel) implies u->v in Repeat.rel
+```
+
 ## @axiom a-check-the-project-asked-for-is-never-dropped-silently
 
 <!-- statement-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
@@ -3555,6 +3697,8 @@ all b: Block | b in Frontmatter implies b in Top
 > - frontmatter_1 has the flaw of a list that is not closed
 > - frontmatter_1 has the flaw of a string that is not closed
 > - frontmatter_1 has the flaw of a key that appears twice
+> - frontmatter_1 has the flaw of a path that names no document
+> - frontmatter_1 has the flaw of an extension that leads back to its own document
 >
 > then frontmatter_1 is a frontmatter that the checker cannot read.
 <!-- statement-spec-a-flawed-frontmatter-is-refused:end -->
@@ -3562,7 +3706,7 @@ all b: Block | b in Frontmatter implies b in Top
 This follows because the checker reads a small part of YAML and nothing else. A block it misreads would drop a check without a word, so it refuses a block with a flaw.
 
 ```alloy
-all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled) implies f in Refused
+all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping) implies f in Refused
 ```
 
 ##### @spec a-misquoted-entry-is-refused
@@ -3647,6 +3791,34 @@ This follows because the two lists may differ, and the checker cannot tell which
 
 ```alloy
 all f: Doubled | f in Refused
+```
+
+##### @spec a-path-that-names-no-document-is-refused
+
+<!-- statement-spec-a-path-that-names-no-document-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [dangling_frontmatter_1](#term-flaw):
+>
+> dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-a-path-that-names-no-document-is-refused:end -->
+
+This follows because a document that is not there cannot be context, and the author would read a canon that has less than it names.
+
+```alloy
+all f: Dangling | f in Refused
+```
+
+##### @spec an-extension-that-leads-back-is-refused
+
+<!-- statement-spec-an-extension-that-leads-back-is-refused:begin — generated by `canon generate`; edits are overwritten -->
+> For every [circular_frontmatter_1](#term-flaw):
+>
+> circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+<!-- statement-spec-an-extension-that-leads-back-is-refused:end -->
+
+This follows because a document that is its own context has no first reading, and the checker would have to choose where to start.
+
+```alloy
+all f: Looping | f in Refused
 ```
 
 #### @spec a-refused-frontmatter-fails-the-run
@@ -6081,6 +6253,75 @@ This follows because a statement that is not current may say what the formula do
 all c: Scenario | c not in ScenarioCurrent implies c in ScenarioReported
 ```
 
+#### @spec a-unit-is-said-with-the-readings-of-the-documents-its-document-extends
+
+<!-- statement-spec-a-unit-is-said-with-the-readings-of-the-documents-its-document-extends:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit):
+>
+> when document_2 is [context](#term-extension) for document_1, document_1 [holds](#term-hold) unit_1 and unit_1 holds a formula, the statement of unit_1 is said with the readings of the documents its document extends.
+<!-- statement-spec-a-unit-is-said-with-the-readings-of-the-documents-its-document-extends:end -->
+
+This follows because the words of an extended document are the words of the document that extends it. A statement that could not use them would repeat them.
+
+```alloy
+all d: Document, e: Document, u: Unit | (d->e in Context.rel and d->u in Hold.units and u in Logical) implies u in SaidWithContext
+```
+
+#### @spec a-word-of-an-extended-document-links-to-that-document
+
+<!-- statement-spec-a-word-of-an-extended-document-links-to-that-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit):
+>
+> when document_2 is [context](#term-extension) for document_1, document_1 [holds](#term-hold) unit_1 and unit_1 holds a formula, the statement of unit_1 links a word to the extended document that holds its term.
+<!-- statement-spec-a-word-of-an-extended-document-links-to-that-document:end -->
+
+This follows because a reader who meets the word follows it to what it means, and that is in the extended document.
+
+```alloy
+all d: Document, e: Document, u: Unit | (d->e in Context.rel and d->u in Hold.units and u in Logical) implies u in LinksToContext
+```
+
+#### @spec generate-writes-no-statement-for-a-unit-of-an-extended-document
+
+<!-- statement-spec-generate-writes-no-statement-for-a-unit-of-an-extended-document:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - the project lists document_1 among the documents it checks
+> - the project does not list document_2 among the documents it checks
+> - document_2 is [context](#term-extension) for document_1
+> - document_2 [holds](#term-hold) unit_1
+>
+> then [checker](#term-checker) does not write the [statement](#term-statement) of unit_1 when it generates.
+<!-- statement-spec-generate-writes-no-statement-for-a-unit-of-an-extended-document:end -->
+
+This follows because the extended document is the author's elsewhere, and is checked and generated where it lives.
+
+```alloy
+all d: Document, e: Document, u: Unit | (d in Checked and e not in Checked and d->e in Context.rel and e->u in Hold.units) implies u not in Rewritten
+```
+
+#### @spec a-word-declared-in-an-extended-document-is-declared
+
+<!-- statement-spec-a-word-declared-in-an-extended-document-is-declared:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit) and every unit_2 and every [word_1](#term-word):
+>
+> when all of these hold:
+> - document_2 is [context](#term-extension) for document_1
+> - document_1 [holds](#term-hold) unit_1
+> - a reading in unit_1 says word_1
+> - document_2 holds unit_2
+> - unit_2 declares word_1
+>
+> then word_1 is not a word that a reading says and nothing declares.
+<!-- statement-spec-a-word-declared-in-an-extended-document-is-declared:end -->
+
+This follows because the checker reads the extended document with the document, so its words are the document's words.
+
+```alloy
+all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and u->w in Voice.rel and e->v in Hold.units and v->w in Introduce.rel) implies w not in Undeclared
+```
+
 ## @axiom the-claims-of-a-canon-never-contradict-each-other
 
 <!-- statement-axiom-the-claims-of-a-canon-never-contradict-each-other:begin — generated by `canon generate`; edits are overwritten -->
@@ -6477,4 +6718,38 @@ This follows because a check that did not run found nothing, and the author must
 
 ```alloy
 all r: Run, c: LogicCommand | (r->c in Ask.rel and r in NoAnalyzer) implies r in Exits2
+```
+
+#### @spec the-claims-of-an-extended-document-join-the-model
+
+<!-- statement-spec-the-claims-of-an-extended-document-join-the-model:begin — generated by `canon generate`; edits are overwritten -->
+> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit):
+>
+> when all of these hold:
+> - the project lists document_1 among the documents it checks
+> - document_2 is [context](#term-extension) for document_1
+> - document_2 [holds](#term-hold) unit_1
+> - unit_1 holds a formula with no keyword
+>
+> then the analyzer is asked to hold the formula of unit_1.
+<!-- statement-spec-the-claims-of-an-extended-document-join-the-model:end -->
+
+This follows because two claims that contradict each other make a contradiction in the canon, wherever the two sit.
+
+```alloy
+all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held
+```
+
+#### @spec a-group-with-no-block-of-a-checked-document-is-not-asked-about
+
+<!-- statement-spec-a-group-with-no-block-of-a-checked-document-is-not-asked-about:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when unit_1 is in a group none of whose blocks is in a document the project checks, the analyzer is not asked about unit_1.
+<!-- statement-spec-a-group-with-no-block-of-a-checked-document-is-not-asked-about:end -->
+
+This follows because the extended document is checked where it lives. Asking again would repeat the work and report the same units twice.
+
+```alloy
+all u: Unit | u in OnlyContext implies u not in Searched
 ```

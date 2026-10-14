@@ -13,6 +13,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { contextOf } from './extends.ts';
 import { readFrontmatter } from './frontmatter.ts';
 import type { Command, Plugin } from './plugin.ts';
 
@@ -39,7 +40,9 @@ function pluginsOf(document: string, root: string): string[] {
   const file = join(root, document);
   if (!existsSync(file)) return DEFAULT_PLUGINS;
   try {
-    return readFrontmatter(readFileSync(file, 'utf8'))?.plugins ?? DEFAULT_PLUGINS;
+    const frontmatter = readFrontmatter(readFileSync(file, 'utf8'));
+    contextOf(file, root);
+    return frontmatter?.plugins ?? DEFAULT_PLUGINS;
   } catch (error) {
     throw new Error(`${document}: frontmatter: ${(error as Error).message}`);
   }

@@ -1,15 +1,18 @@
 /**
  * The frontmatter of a canon document: a block between two lines of `---` at
- * the very top. It names the plugins whose checks apply to the document:
+ * the very top. It names the plugins whose checks apply to the document, and
+ * the documents it extends:
  *
  *     ---
  *     plugins: ["@bigmistqke/canon-forge"]
+ *     extends: ["../canon/CANON.md"]
  *     ---
  *
  * The core depends on nothing outside Node, so this reads a small part of
- * YAML and nothing else: the key `plugins`, whose value is a list of strings,
- * written inline (`[a, "b"]`) or as lines that start with a dash. Everything
- * it accepts is also valid YAML, so other tools can read the same block.
+ * YAML and nothing else: the keys `plugins` and `extends`, whose values are
+ * lists of strings, written inline (`[a, "b"]`) or as lines that start with a
+ * dash. Everything it accepts is also valid YAML, so other tools can read the
+ * same block.
  */
 
 /** The block at the top of a document, with its closing line. */
@@ -18,7 +21,12 @@ export const FRONTMATTER = /^---[ \t]*\r?\n(?:[\s\S]*?\r?\n)?---[ \t]*(?:\r?\n|$
 export interface Frontmatter {
   /** The plugins the document names; undefined when it has no `plugins` key. */
   plugins?: string[];
+  /** The paths of the documents it extends, as written; undefined when it has no `extends` key. */
+  extends?: string[];
 }
+
+/** The keys the block may have. */
+const KEYS = ['plugins', 'extends'] as const;
 
 /** A plain YAML scalar cannot start with these, and the `@` is the one a package name starts with. */
 const RESERVED_START = /^[@`%!&*|>'"[\]{},#?:-]/;
@@ -26,7 +34,7 @@ const RESERVED_START = /^[@`%!&*|>'"[\]{},#?:-]/;
 /** One scalar: double quoted, single quoted, or plain. */
 function scalar(raw: string): string {
   const text = raw.trim();
-  if (text === '') throw new Error('an empty entry in the list of plugins');
+  if (text === '') throw new Error('an empty entry in the list');
   if (text.startsWith('"')) {
     if (text.length < 2 || !text.endsWith('"')) throw new Error(`the string ${text} has no closing quote`);
     return text.slice(1, -1).replace(/\\(["\\])/g, '$1');
@@ -45,7 +53,7 @@ function scalar(raw: string): string {
 /** The entries of `[a, "b"]`. Commas inside quotes belong to the string. */
 function inlineList(raw: string): string[] {
   const body = raw.trim();
-  if (!body.startsWith('[') || !body.endsWith(']')) throw new Error('the list of plugins has no closing "]"');
+  if (!body.startsWith('[') || !body.endsWith(']')) throw new Error('the list has no closing "]"');
   const inner = body.slice(1, -1);
   const items: string[] = [];
   let current = '';
@@ -62,7 +70,7 @@ function inlineList(raw: string): string[] {
     }
     current += ch;
   }
-  if (quote !== undefined) throw new Error('a quote in the list of plugins is never closed');
+  if (quote !== undefined) throw new Error('a quote in the list is never closed');
   if (current.trim() !== '' || items.length > 0) items.push(current);
   return items.map(scalar);
 }
@@ -87,11 +95,12 @@ export function readFrontmatter(src: string): Frontmatter | undefined {
     if (line.trim() === '' || line.trim().startsWith('#')) continue;
     const key = /^([A-Za-z][\w-]*):[ \t]*(.*)$/.exec(line);
     if (key === null) throw new Error(`cannot read the line "${line.trim()}"`);
-    if (key[1] !== 'plugins') throw new Error(`unknown key "${key[1]}"; the only key is "plugins"`);
-    if (result.plugins !== undefined) throw new Error('the key "plugins" appears twice');
+    const name = KEYS.find(k => k === key[1]);
+    if (name === undefined) throw new Error(`unknown key "${key[1]}"; the keys are "plugins" and "extends"`);
+    if (result[name] !== undefined) throw new Error(`the key "${name}" appears twice`);
     const rest = (key[2] as string).replace(/[ \t]+#.*$/, '');
     if (rest !== '') {
-      result.plugins = inlineList(rest);
+      result[name] = inlineList(rest);
       continue;
     }
     const items: string[] = [];
@@ -99,7 +108,7 @@ export function readFrontmatter(src: string): Frontmatter | undefined {
       i++;
       items.push(scalar((lines[i] as string).replace(/^[ \t]*-[ \t]*/, '').replace(/[ \t]+#.*$/, '')));
     }
-    result.plugins = items;
+    result[name] = items;
   }
   return result;
 }

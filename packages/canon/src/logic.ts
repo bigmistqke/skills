@@ -4,12 +4,19 @@
  * the backend finds is reported in the units' own words.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { alloyProgram, checkAlloy, type AlloyOptions } from './alloy.ts';
+import { contextOf } from './extends.ts';
 import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from './plugin.ts';
 import * as statements from './statements.ts';
+import type { Context } from './statements.ts';
 import { checkWords } from './words.ts';
+
+/** The documents a document extends, nearest first, each with its path from the folder of the document. */
+function contextFor(file: string, root: string): Context[] {
+  return contextOf(file, root).map(other => ({ path: relative(dirname(file), other).split('\\').join('/'), src: readFileSync(other, 'utf8') }));
+}
 
 /** Check each document's maps and alloy blocks; the exit code: 0 when the maps are current and every scenario can happen, 1 when not, 2 when a check could not run. */
 export async function logic(documents: string[], root: string, options: AlloyOptions): Promise<number> {
@@ -22,13 +29,14 @@ export async function logic(documents: string[], root: string, options: AlloyOpt
       return 2;
     }
     const src = readFileSync(file, 'utf8');
+    const context = contextFor(file, root);
     if (alloyProgram(src).units.length === 0) continue;
     checked++;
     // The maps are read before the solver runs: they need no Java, and a stale one says the predicate is not what the prose says.
     const maps = checkMaps(src);
     if (maps.length > 0) code = 1;
     for (const finding of maps) console.log(`${doc}: ${finding.unit}: ${finding.kind}: ${finding.message}`);
-    const result = await checkAlloy(src, options);
+    const result = await checkAlloy(src, { ...options, context: context.map(c => c.src) });
     if ('error' in result) {
       console.error(`canon: ${doc}: the Alloy analyzer did not run\n${result.error}`);
       return 2;
@@ -84,12 +92,13 @@ export function generateStatements(documents: string[], root: string): number {
     const file = resolve(root, doc);
     if (!existsSync(file)) continue;
     const src = readFileSync(file, 'utf8');
-    for (const state of statements.states(src)) {
+    const context = contextFor(file, root);
+    for (const state of statements.states(src, context)) {
       if (state.kind === 'unsayable') console.log(`${doc}: ${state.unit}: unsayable: ${state.message}`);
       if (state.kind === 'unsayable' || state.kind === 'handwritten') code = 1;
       if (state.kind === 'handwritten') console.log(`${doc}: ${state.unit}: handwritten: ${WHAT.handwritten}`);
     }
-    const { src: next, written } = statements.write(src);
+    const { src: next, written } = statements.write(src, context);
     if (next === src) continue;
     writeFileSync(file, next);
     for (const unit of written) console.log(`wrote the statement of ${unit} in ${doc}`);
@@ -103,7 +112,7 @@ export function checkStatements(documents: string[], root: string): number {
   for (const doc of documents) {
     const file = resolve(root, doc);
     if (!existsSync(file)) continue;
-    for (const state of statements.states(readFileSync(file, 'utf8'))) {
+    for (const state of statements.states(readFileSync(file, 'utf8'), contextFor(file, root))) {
       if (state.kind === 'current') continue;
       code = 1;
       console.log(`${doc}: ${state.unit}: ${state.kind}: ${state.kind === 'unsayable' ? state.message : WHAT[state.kind]}`);
@@ -118,7 +127,7 @@ export function checkDocumentWords(documents: string[], root: string): number {
   for (const doc of documents) {
     const file = resolve(root, doc);
     if (!existsSync(file)) continue;
-    for (const finding of checkWords(readFileSync(file, 'utf8'))) {
+    for (const finding of checkWords(readFileSync(file, 'utf8'), contextFor(file, root).map(c => c.src))) {
       code = 1;
       console.log(`${doc}: ${finding.unit}: ${finding.kind}: ${finding.message}`);
     }

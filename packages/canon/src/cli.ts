@@ -22,6 +22,7 @@ import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type T
 import type { PluginContext } from './plugin.ts';
 import { documentsFor, findCommands } from './plugins.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
+import { contextOf } from './extends.ts';
 import { maskFences, readUnits } from './units.ts';
 
 // ---------------------------------------------------------------------------
@@ -877,6 +878,22 @@ function analyse(write: boolean): Analysis {
         findings.unreachable.push(
           `${rel}: "${m[0].trim()}" — the stem must end the heading`
         );
+      }
+    }
+
+    // An extended document is read with this one, so an id that both declare names two units.
+    {
+      const ids = new Set(readUnits(docSource).map(u => u.id));
+      let context: string[] = [];
+      try {
+        context = contextOf(file, ROOT);
+      } catch {
+        // a path that names no document, or an extension that leads back, is refused by the plugins' pass
+      }
+      for (const other of context) {
+        for (const unit of readUnits(readFileSync(other, 'utf8'))) {
+          if (ids.has(unit.id)) findings.rot.push(`${rel}#${unit.id} — ${relative(ROOT, other)} declares it too, so a pointer or a tag cannot say which unit it names`);
+        }
       }
     }
 

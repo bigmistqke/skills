@@ -25,6 +25,8 @@ export interface AlloyOptions {
    * by the id of the unit that holds the scenario.
    */
   leave?: string[] | Record<string, string[]>;
+  /** The text of the documents the document extends: their claims join the model, and what only they hold is left to them. */
+  context?: string[];
 }
 
 /** Which runs a program holds: the units together and each scenario with them, the units left out one by one, or both. */
@@ -100,9 +102,9 @@ function build(blocks: Block[], bounds: string, runs: Runs, only?: Only): Progra
 }
 
 /** The Alloy file of a document, with every unit in one model. */
-export function alloyProgram(src: string, runs: Runs = 'all', only?: Only): Program {
-  const blocks = alloyBlocks(src);
-  return build(blocks, boundsOf(blocks), runs, only);
+export function alloyProgram(src: string, runs: Runs = 'all', only?: Only, context: string[] = []): Program {
+  const blocks = [...context.flatMap(alloyBlocks), ...alloyBlocks(src)];
+  return build(blocks, boundsOf([...alloyBlocks(src), ...context.flatMap(alloyBlocks)]), runs, only);
 }
 
 /** The identifiers of a block, outside its comments. */
@@ -116,8 +118,9 @@ const mentions = (body: string): Set<string> =>
  * can be asked about alone. A group with no unit to hold and no scenario is
  * left out.
  */
-export function groups(src: string): Block[][] {
-  const blocks = alloyBlocks(src).filter(b => b.role !== 'bounds');
+export function groups(src: string, context: string[] = []): Block[][] {
+  const own = new Set(alloyBlocks(src));
+  const blocks = [...context.flatMap(alloyBlocks), ...own].filter(b => b.role !== 'bounds');
   const parent = blocks.map((_, i) => i);
   const find = (i: number): number => {
     while (parent[i] !== i) i = parent[i] = parent[parent[i] as number] as number;
@@ -136,7 +139,8 @@ export function groups(src: string): Block[][] {
   });
   const byRoot = new Map<number, Block[]>();
   blocks.forEach((block, i) => byRoot.set(find(i), [...(byRoot.get(find(i)) ?? []), block]));
-  return [...byRoot.values()].filter(group => group.some(b => b.role === 'scenario' || (b.role === 'unit' && !PARAGRAPH.test(b.body))));
+  // A group that holds nothing of the document is left to the document that holds it, which is checked where it lives.
+  return [...byRoot.values()].filter(group => group.some(b => own.has(b)) && group.some(b => b.role === 'scenario' || (b.role === 'unit' && !PARAGRAPH.test(b.body))));
 }
 
 /** The scope of a group: the scope asked for, without the sizes of signatures the group does not declare. */
@@ -200,7 +204,8 @@ async function pool<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]>
 /** Ask the analyzer about the runs of several programs at once, each run in a process of its own; whether each run of each program found an instance, or the first error. */
 async function solveAll(programs: Program[], java: string, jar: string): Promise<Map<string, boolean>[] | { error: string }> {
   const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, java, jar).then(result => ({ i, result }))));
-  const answers = await pool(tasks, availableParallelism());
+  // As many processes as there are processors, unless `CANON_ALLOY_JOBS` says fewer: a test runner that asks about several documents at once should not start them all.
+  const answers = await pool(tasks, Number(process.env.CANON_ALLOY_JOBS) || availableParallelism());
   const found: Map<string, boolean>[] = programs.map(() => new Map());
   for (const { i, result } of answers) {
     if ('error' in result) return { error: result.error };
@@ -221,8 +226,9 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   const java = options.java ?? process.env.CANON_JAVA ?? 'java';
   const jar = options.jar ?? process.env.CANON_ALLOY_JAR;
   if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
-  const bounds = boundsOf(alloyBlocks(src));
-  const parts = groups(src).map(group => ({ group, scope: boundsFor(bounds, group) }));
+  const context = options.context ?? [];
+  const bounds = boundsOf([...alloyBlocks(src), ...context.flatMap(alloyBlocks)]);
+  const parts = groups(src, context).map(group => ({ group, scope: boundsFor(bounds, group) }));
   const asked = parts.map(({ group, scope }) => build(group, scope, 'check'));
   const first = await solveAll(asked, java, jar);
   if ('error' in first) return { ok: false, error: first.error };

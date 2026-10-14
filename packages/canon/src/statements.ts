@@ -37,21 +37,34 @@ export interface StatementState {
   quote?: string;
 }
 
-/** The readings a document keeps, with the definitions of its vocabulary; undefined when it keeps none. */
-export function readingsOf(src: string): Readings | undefined {
-  const blocks = readBlocks(src);
-  const table = blocks.filter(b => b.lang === 'readings');
-  if (table.length === 0) return undefined;
+/** A document that a document extends: where it is from the folder of the document, and its text. */
+export interface Context {
+  path: string;
+  src: string;
+}
+
+/**
+ * The readings a document keeps, with the definitions of its vocabulary, and
+ * those of the documents it extends, whose words link to the document that
+ * holds them; undefined when neither keeps any. The nearer a document, the
+ * more its readings count, and the document's own count most.
+ */
+export function readingsOf(src: string, context: Context[] = []): Readings | undefined {
+  const own = readBlocks(src);
+  const documents = [...[...context].reverse().map(c => ({ path: c.path, blocks: readBlocks(c.src) })), { path: undefined, blocks: own }];
+  if (!documents.some(d => d.blocks.some(b => b.lang === 'readings'))) return undefined;
   // The predicates a document defines, in its vocabulary and in the units that define them.
-  const model = blocks.filter(b => b.lang === 'alloy' && b.role !== 'bounds' && b.role !== 'scenario');
+  const model = documents.flatMap(d => d.blocks).filter(b => b.lang === 'alloy' && b.role !== 'bounds' && b.role !== 'scenario');
   // Each block is read for the unit that holds it, so that a word in brackets links to the term that says it.
   const merged = parseReadings('');
-  for (const block of table) {
-    const part = parseReadings(block.body, block.unit);
-    for (const [key, value] of part.nouns) merged.nouns.set(key, value);
-    for (const [key, value] of part.nounUnits) merged.nounUnits.set(key, value);
-    for (const [key, value] of part.articles) merged.articles.set(key, value);
-    for (const [key, value] of part.atoms) merged.atoms.set(key, value);
+  for (const { path, blocks } of documents) {
+    for (const block of blocks.filter(b => b.lang === 'readings')) {
+      const part = parseReadings(block.body, path === undefined ? block.unit : `${path}#${block.unit}`);
+      for (const [key, value] of part.nouns) merged.nouns.set(key, value);
+      for (const [key, value] of part.nounUnits) merged.nounUnits.set(key, value);
+      for (const [key, value] of part.articles) merged.articles.set(key, value);
+      for (const [key, value] of part.atoms) merged.atoms.set(key, value);
+    }
   }
   return withDefinitions(merged, model.map(b => b.body).join('\n'));
 }
@@ -63,10 +76,10 @@ const quote = (words: string): string =>
     .join('\n');
 
 /** What each statement of a document is, in document order; empty for a document with no readings. */
-export function states(src: string): StatementState[] {
+export function states(src: string, context: Context[] = []): StatementState[] {
   let readings: Readings | undefined;
   try {
-    readings = readingsOf(src);
+    readings = readingsOf(src, context);
   } catch (error) {
     return [{ unit: '(readings)', kind: 'unsayable', message: (error as Error).message }];
   }
@@ -126,8 +139,8 @@ function scenarios(src: string, blocks = readBlocks(src, readUnits(src))): { key
  * The document with the stale statements rewritten and the missing ones
  * written below their headings, and the units that changed.
  */
-export function write(src: string): { src: string; written: string[] } {
-  const todo = states(src).filter(s => s.quote !== undefined && (s.kind === 'stale' || s.kind === 'missing'));
+export function write(src: string, context: Context[] = []): { src: string; written: string[] } {
+  const todo = states(src, context).filter(s => s.quote !== undefined && (s.kind === 'stale' || s.kind === 'missing'));
   let text = src;
   for (const { unit, kind, quote: words } of todo) {
     if (kind !== 'stale') continue;
