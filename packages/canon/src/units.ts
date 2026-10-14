@@ -5,8 +5,10 @@
  * unit is one thing everywhere.
  */
 
+import { FRONTMATTER } from './frontmatter.ts';
+
 /**
- * Blank out fenced-code bodies and the generated index, keeping every byte
+ * Blank out the frontmatter, fenced-code bodies and the generated index, keeping every byte
  * offset and every newline.
  *
  * The index has to go: it links every unit in the document, so leaving it
@@ -16,6 +18,7 @@
  */
 export const maskFences = (src: string): string =>
   src
+    .replace(FRONTMATTER, m => m.replace(/[^\n]/g, ' '))
     .replace(/^(```+|~~~+)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, m =>
       m.replace(/[^\n]/g, ' ')
     )

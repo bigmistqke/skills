@@ -13,7 +13,10 @@
     "canon": "./dist/cli.js"
   },
   "exports": {
+    "./alloy": "./dist/logic.js",
     "./kinds": "./dist/kinds.js",
+    "./lint": "./dist/lint.js",
+    "./plugin": "./dist/plugin.js",
     "./regions": "./dist/regions.js",
     "./units": "./dist/units.js"
   },

@@ -19,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
+import type { PluginContext } from './plugin.ts';
+import { documentsFor, findCommands } from './plugins.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
 import { maskFences, readUnits } from './units.ts';
 
@@ -47,8 +49,8 @@ interface Config {
    * tracker whether each issue exists and is open.
    */
   tracker?: TrackerConfig;
-  /** The logic layer: where the Alloy analyzer is, for `logic`. Paths are relative to the project root. */
-  logic?: { alloy?: { jar?: string; java?: string } };
+  /** A plugin's options, under the field its `config` names. */
+  [plugin: string]: unknown;
 }
 
 /**
@@ -1465,6 +1467,12 @@ Options for tree:
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
+The commands lint and logic come from plugins: @bigmistqke/canon/lint and
+@bigmistqke/canon/alloy. A document's frontmatter chooses which apply to it,
+each named by its package ("plugins: [\"@bigmistqke/canon/lint\"]"); with none,
+both do. Any other name is a package installed in the project, whose commands
+are added to these.
+
 logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" field
 of the scope gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
@@ -1660,6 +1668,44 @@ function tree(options: {
   }
 }
 
+/** The commands the core runs itself; every other command is added by a plugin. */
+const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'log']);
+
+/**
+ * Run the command that plugins add, each over the documents that apply it, and
+ * exit with the worst of their codes. A plugin that cannot be found or loaded,
+ * or a frontmatter that cannot be read, stops the run before anything is
+ * checked.
+ */
+async function runPlugin(command: string, args: string[], options: PluginContext['options']): Promise<never> {
+  let found: Awaited<ReturnType<typeof findCommands>>;
+  let applied: string[][];
+  try {
+    found = await findCommands(command, DOCS, ROOT);
+    applied = found.map(({ specifier }) => documentsFor(specifier, DOCS, ROOT));
+  } catch (error) {
+    console.error(`canon: ${(error as Error).message}`);
+    process.exit(2);
+  }
+  if (found.length === 0) {
+    console.error(`canon: unknown command "${command}"\n\n${HELP}`);
+    process.exit(2);
+  }
+  let code = 0;
+  for (const [i, { plugin, run }] of found.entries()) {
+    const exit = await run({
+      args,
+      root: ROOT,
+      documents: applied[i] as string[],
+      config: plugin.config === undefined ? undefined : CONFIG[plugin.config],
+      options
+    });
+    // 2, a check that could not run, outranks 1, a finding, which outranks 0.
+    code = Math.max(code, exit);
+  }
+  process.exit(code);
+}
+
 async function main(argv: string[]): Promise<void> {
   let parsed: ReturnType<typeof parseArgs>;
   try {
@@ -1693,23 +1739,7 @@ async function main(argv: string[]): Promise<void> {
     console.log(HELP);
     return;
   }
-  if (command === 'lint') {
-    // Loaded only here: the language checks need the retext packages, and every
-    // other command depends on nothing outside Node.
-    const { lint } = await import('./lint.ts');
-    process.exit((await lint(rest)) === 0 ? 0 : 1);
-  }
-  if (command === 'logic') {
-    // Loaded only here: it needs a Java and the analyzer, which no other command does.
-    const { logic, review } = await import('./logic.ts');
-    if (values.review !== undefined) process.exit(review(rest.length > 0 ? rest : DOCS, ROOT, values.review as string[]));
-    process.exit(
-      logic(rest.length > 0 ? rest : DOCS, ROOT, {
-        jar: CONFIG.logic?.alloy?.jar === undefined ? undefined : resolve(ROOT, CONFIG.logic.alloy.jar),
-        java: CONFIG.logic?.alloy?.java === undefined ? undefined : resolve(ROOT, CONFIG.logic.alloy.java)
-      })
-    );
-  }
+  if (!CORE_COMMANDS.has(command)) await runPlugin(command, rest, values);
   if (command === 'log') {
     if (rest.length > 1) {
       console.error(`canon: log takes at most one range\n\n${HELP}`);

@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { alloyProgram, checkAlloy, type AlloyOptions } from './alloy.ts';
 import { checkMaps, reviewMaps } from './map.ts';
+import type { Plugin } from './plugin.ts';
 
 /** Check each document's maps and alloy blocks; the exit code: 0 when the maps are current and every scenario can happen, 1 when not, 2 when a check could not run. */
 export function logic(documents: string[], root: string, options: AlloyOptions): number {
@@ -65,3 +66,24 @@ export function review(documents: string[], root: string, units: string[]): numb
   for (const id of left) console.error(`canon: ${id} has no map and predicate in the documents`);
   return left.length === 0 ? 0 : 2;
 }
+
+/** The `logic` field of the scope: where the Alloy analyzer is. Paths are relative to the project root. */
+interface LogicConfig {
+  alloy?: { jar?: string; java?: string };
+}
+
+export const plugin: Plugin = {
+  name: 'alloy',
+  config: 'logic',
+  commands: {
+    logic: ({ args, root, documents, config, options }) => {
+      const documentsToRead = args.length > 0 ? args : documents;
+      if (options.review !== undefined) return review(documentsToRead, root, options.review as string[]);
+      const alloy = (config as LogicConfig | undefined)?.alloy;
+      return logic(documentsToRead, root, {
+        jar: alloy?.jar === undefined ? undefined : resolve(root, alloy.jar),
+        java: alloy?.java === undefined ? undefined : resolve(root, alloy.java)
+      });
+    }
+  }
+};

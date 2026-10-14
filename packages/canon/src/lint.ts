@@ -27,6 +27,7 @@ import { type Processor, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import { VFile } from 'vfile'
 import { reporter } from 'vfile-reporter'
+import type { Plugin } from './plugin.ts'
 
 /**
  * The longest sentence allowed, in words. ASD-STE100, Simplified Technical
@@ -116,6 +117,19 @@ function projectRoot(): string {
   }
 }
 
+/** Lint the documents at `targets`, reported relative to `root`. Prints the findings and returns how many there were. */
+async function lintFiles(targets: string[], root: string): Promise<number> {
+  const files: VFile[] = []
+  for (const path of targets) {
+    const file = new VFile({ path: relative(root, path), value: blankGenerated(readFileSync(path, 'utf8')) })
+    await processor.run(processor.parse(file), file)
+    files.push(file)
+  }
+
+  console.log(reporter(files, { quiet: true }))
+  return files.reduce((n, f) => n + f.messages.length, 0)
+}
+
 /**
  * Lint `paths`, or with none the canon documents declared in package.json.
  * Prints the findings and returns how many there were.
@@ -128,16 +142,16 @@ export async function lint(paths: string[]): Promise<number> {
       : ((JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).canon.documents ?? ['CANON.md']) as string[]).map(
           (d) => join(root, d)
         )
+  return lintFiles(targets, root)
+}
 
-  const files: VFile[] = []
-  for (const path of targets) {
-    const file = new VFile({ path: relative(root, path), value: blankGenerated(readFileSync(path, 'utf8')) })
-    await processor.run(processor.parse(file), file)
-    files.push(file)
-  }
-
-  console.log(reporter(files, { quiet: true }))
-  return files.reduce((n, f) => n + f.messages.length, 0)
+export const plugin: Plugin = {
+  name: 'lint',
+  commands: {
+    // Files named on the command line are linted whatever their frontmatter says; with none, the documents that apply it.
+    lint: async ({ args, root, documents }) =>
+      (await (args.length > 0 ? lint(args) : lintFiles(documents.map((d) => join(root, d)), root))) === 0 ? 0 : 1,
+  },
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

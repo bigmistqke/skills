@@ -14,6 +14,37 @@ pnpm add -D @bigmistqke/canon
 
 `canon --help` lists the commands and every finding `check` reports. Needs Node 22 or later.
 
+## Plugins
+
+The commands `lint` and `logic` come from plugins, so the rest of `canon` depends on nothing outside Node: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
+
+```md
+---
+plugins: ["@bigmistqke/canon/lint", "@bigmistqke/canon/alloy"]
+---
+# Canon
+```
+
+A document with no `plugins` key gets those two, as every document did before. A document that names plugins gets those and no others, and `plugins: []` names none. A plugin's commands run over the documents that name it; a file named on the command line is always run. The commands of the two plugins inside `canon` exist whatever the documents name.
+
+Any other name is a package too. It is looked up from the project root, so it has to be a dependency of the project: a document can choose among the packages the project already has and cannot make `canon` fetch or run anything new. (The two inside `canon` are the exception: a package can name itself, so they resolve to the running copy.) The package exports a `plugin`, described by the types in `@bigmistqke/canon/plugin`:
+
+```ts
+import type { Plugin } from '@bigmistqke/canon/plugin';
+
+export const plugin: Plugin = {
+  name: 'example',
+  commands: {
+    lint: ({ documents }) => 0, // adds to `canon lint`
+    explain: ({ args }) => 0 // a command of its own: `canon explain`
+  }
+};
+```
+
+A command gets the arguments, the project root, the documents that name the plugin and the plugin's own options, and returns an exit code: 0 when everything holds, 1 when there is a finding, 2 when a check could not run. The same command from several plugins runs them all, and the exit code is the highest. Its entry has to be reachable by `require`, through `main` or an `exports` entry with a `default` condition.
+
+The frontmatter reads a small part of YAML, all of it valid YAML: the key `plugins`, with a list of strings, inline (`["a", "b"]`) or as lines that start with a dash. A name that starts with `@` must be quoted. Any other key is an error, so a misspelled key cannot silently drop a check. `check` does not read the frontmatter beyond skipping it.
+
 ## The logic layer
 
 A unit can hold fenced blocks next to its statement. `canon logic` hands the `alloy` blocks of the documents to the [Alloy analyzer](https://github.com/AlloyTools/org.alloytools.alloy) and asks whether each scenario can happen while every unit holds. When one cannot, it names the units a repair has to touch.
