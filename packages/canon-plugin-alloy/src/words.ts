@@ -160,6 +160,47 @@ export function checkWords(src: string, context: string[] = []): WordFinding[] {
   return found;
 }
 
+export interface LoneFinding {
+  unit: string;
+  kind: 'lone';
+  message: string;
+}
+
+/** The text of a model block with the name list of each signature declaration blanked out: what the block names, apart from what it declares. */
+const naming = (body: string): string =>
+  strip(body).replace(/\bsig\s+([\w\s,]+?)(?=(?:\s+(?:extends|in)\s+[\w\s+]+?)?\s*\{)/g, m => m.replace(/\w+/g, w => (w === 'sig' ? w : ' ')));
+
+/**
+ * The formulas of a document that keeps readings that are lone on a signature,
+ * in document order: the formula of a unit that is not a term uses a signature
+ * that no other unit of the document or of the documents it extends names, and
+ * that no scenario names. Nothing else constrains such a signature, so no
+ * other formula can contradict the formula. Fields and predicates are left out.
+ */
+export function checkLoneFormulas(src: string, context: string[] = []): LoneFinding[] {
+  if (readingKeys(src).length === 0) return [];
+  const units = readUnits(src);
+  const kinds = new Map(units.map(u => [u.id, u.kind]));
+  const signatures = new Set([...declared(src), ...context.flatMap(declared)].filter(w => w.kind === 'signature').map(w => w.name));
+  const model = (text: string, doc: number) =>
+    readBlocks(text, readUnits(text))
+      .filter(b => b.lang === 'alloy' && b.role !== 'bounds')
+      .map(b => ({ unit: `${doc}:${b.unit}`, role: b.role, names: new Set(naming(b.body).match(/\b\w+\b/g) ?? []) }));
+  const blocks = [...model(src, 0), ...context.flatMap((text, i) => model(text, i + 1))];
+  const found: LoneFinding[] = [];
+  for (const block of blocks) {
+    if (block.role !== 'unit' || !block.unit.startsWith('0:')) continue;
+    const unit = block.unit.slice(2);
+    if (kinds.get(unit) === 'term') continue;
+    for (const name of block.names) {
+      if (!signatures.has(name)) continue;
+      const named = blocks.some(b => b.names.has(name) && (b.unit !== block.unit || b.role === 'scenario'));
+      if (!named) found.push({ unit, kind: 'lone', message: `rests on the signature "${name}", which no other unit and no scenario names, so no other formula can contradict it` });
+    }
+  }
+  return found;
+}
+
 /** How many times a signature or a predicate is named in the declarations of words of that name: once each. */
 const declarations = (words: Word[], word: Word): number => words.filter(w => w.name === word.name && w.kind !== 'field').length;
 

@@ -92,7 +92,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
 - [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
 - [`@term setting`](#term-setting) — A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
-- [`@term enter`](#term-enter) — For every [run_1](#term-run) and every [document_1](#term-document): run_1 enters document_1 exactly when all of these hold: - document_1 starts with a [frontmatter](#term-frontmatter) that holds a [setting](#term-setting) - document_1 is named CANON.md - there are folder_1 and folder_2 such that all of these hold: - run_1 is run in folder_1 - folder_1 is folder_2 or lies below folder_2 - document_1 lies in folder_2 - there is no combination of document_2 and folder_3 such that all of these hold: - document_2 starts with a frontmatter that holds a setting - document_2 is named CANON.md - document_2 lies in folder_3 - folder_1 is folder_3 or lies below folder_3 - folder_3 lies below folder_2
+- [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
 - [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when run_1 asks for a [command](#term-command) that plugin_1 adds and plugin_1 [applies](#term-apply) to a [document](#term-document).
@@ -150,29 +150,29 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec an-index-matches-its-document`](#spec-an-index-matches-its-document) — For every [document_1](#term-document): when document_1 [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) document_1, [checker](#term-checker) reports a [misindexing](#term-misindexing) for document_1.
   - [`@spec a-site-is-held-by-a-source`](#spec-a-site-is-held-by-a-source) — For every [claim_1](#term-claim): when claim_1 [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for claim_1.
     - [`@bug a-site-named-in-a-comment-is-held`](#bug-a-site-named-in-a-comment-is-held) — When a claim names a site that no source holds, and a comment names the site, checker reports no mislocation for the claim.
-  - [`@spec a-heading-with-a-kind-and-a-stem-declares-a-unit`](#spec-a-heading-with-a-kind-and-a-stem-declares-a-unit) — For every [heading_1](#term-heading): when all of these hold: - heading_1 is a heading that gives a kind and a stem - heading_1 is not a heading inside a fenced block - heading_1 is not a heading inside the index then heading_1 declares a [unit](#term-unit).
-  - [`@spec a-heading-in-a-fenced-block-declares-no-unit`](#spec-a-heading-in-a-fenced-block-declares-no-unit) — For every [heading_1](#term-heading): when heading_1 is a heading inside a fenced block, heading_1 declares no [unit](#term-unit).
-  - [`@spec a-heading-in-the-index-declares-no-unit`](#spec-a-heading-in-the-index-declares-no-unit) — For every [heading_1](#term-heading): when heading_1 is a heading inside the index, heading_1 declares no [unit](#term-unit).
-  - [`@spec a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading`](#spec-a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading) — For every [unit_1](#term-unit) and every unit_2: when all of these hold: - the heading of unit_1 lies in the [extent](#term-extent) of unit_2 - there is no unit_3 such that the heading of unit_1 lies in the extent of unit_3 and the heading of unit_3 lies in the extent of unit_2 then unit_1 [sits in](#term-sit) unit_2.
-  - [`@spec a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it`](#spec-a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it) — For every [unit_1](#term-unit) and every unit_2 and every [section_1](#term-section): when unit_1 comes after section_1 and the [extent](#term-extent) of unit_2 ends at section_1, unit_1 does not [sit in](#term-sit) unit_2.
-  - [`@spec a-unit-owns-only-the-text-before-its-first-nested-heading`](#spec-a-unit-owns-only-the-text-before-its-first-nested-heading) — For every [unit_1](#term-unit) and every [text_1](#term-own-text): when the own text of unit_1 holds text_1, the text of a unit nested in unit_1 does not hold text_1.
-  - [`@spec a-site-line-in-the-own-text-names-the-site-of-its-unit`](#spec-a-site-line-in-the-own-text-names-the-site-of-its-unit) — For every [unit_1](#term-unit) and every [site_1](#term-site): when the [own text](#term-own-text) of unit_1 has a site line that names site_1, unit_1 [names](#term-name) site_1.
-  - [`@spec a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above`](#spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above) — For every [unit_1](#term-unit) and every [site_1](#term-site): when all of these hold: - the text of a unit nested in unit_1 has a site line that names site_1 - the [own text](#term-own-text) of unit_1 has no site line that names site_1 then unit_1 does not [name](#term-name) site_1.
-  - [`@spec an-extends-key-lists-the-documents-a-document-extends`](#spec-an-extends-key-lists-the-documents-a-document-extends) — For every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [path_1](#term-extension) and every document_2: when all of these hold: - document_1 starts with frontmatter_1 - frontmatter_1 lists the path path_1 - the path path_1 leads to document_2 then document_1 extends document_2.
-  - [`@spec a-path-is-read-from-the-folder-of-the-document-that-lists-it`](#spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it) — For every [path_1](#term-extension): when path_1 is a path that a frontmatter lists, path_1 is read from the folder of the [document](#term-document) that lists it.
+  - [`@spec a-heading-with-a-kind-and-a-stem-declares-a-unit`](#spec-a-heading-with-a-kind-and-a-stem-declares-a-unit) — A [heading](#term-heading) that gives a kind and a stem declares a [unit](#term-unit), unless it lies inside a fenced block or inside the index.
+  - [`@spec a-heading-in-a-fenced-block-declares-no-unit`](#spec-a-heading-in-a-fenced-block-declares-no-unit) — A heading inside a fenced block declares no unit.
+  - [`@spec a-heading-in-the-index-declares-no-unit`](#spec-a-heading-in-the-index-declares-no-unit) — A heading inside the index declares no unit.
+  - [`@spec a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading`](#spec-a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading) — A unit sits in the closest unit whose extent holds its heading.
+  - [`@spec a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it`](#spec-a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it) — A unit that comes after a plain heading that ends the [extent](#term-extent) of another unit does not sit in that unit.
+  - [`@spec a-unit-owns-only-the-text-before-its-first-nested-heading`](#spec-a-unit-owns-only-the-text-before-its-first-nested-heading) — Text that the own text of a unit holds is no part of the text of a unit nested in it.
+  - [`@spec a-site-line-in-the-own-text-names-the-site-of-its-unit`](#spec-a-site-line-in-the-own-text-names-the-site-of-its-unit) — A unit names each [site](#term-site) that a site line in its [own text](#term-own-text) names.
+  - [`@spec a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above`](#spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above) — A site line in a nested unit names no site of the unit above, unless the own text of that unit has the same line.
+  - [`@spec an-extends-key-lists-the-documents-a-document-extends`](#spec-an-extends-key-lists-the-documents-a-document-extends) — A document extends each document that a path in the extends key of its frontmatter leads to.
+  - [`@spec a-path-is-read-from-the-folder-of-the-document-that-lists-it`](#spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it) — The checker reads a path that a frontmatter lists from the folder of the document that lists it.
   - [`@spec a-document-is-context-for-the-documents-that-extend-it-and-for-theirs`](#spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs) — For every [document_1](#term-document) and every document_2 and every document_3: all of these hold: - when document_1 [extends](#term-extension) document_2, document_2 is context for document_1 - when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1
-  - [`@spec a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it`](#spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit): when all of these hold: - the project lists document_1 among the documents it checks - the project does not list document_2 among the documents it checks - document_2 is [context](#term-extension) for document_1 - document_2 [holds](#term-hold) unit_1 then [checker](#term-checker) reports no [finding](#term-finding) for unit_1.
-  - [`@spec an-id-that-an-extended-document-declares-too-is-repeated`](#spec-an-id-that-an-extended-document-declares-too-is-repeated) — For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit) and every unit_2: when all of these hold: - document_2 is [context](#term-extension) for document_1 - document_1 [holds](#term-hold) unit_1 - document_2 holds unit_2 - unit_1 has the id of unit_2 then unit_1 [repeats](#term-repeat) unit_2.
-  - [`@spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text`](#spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text) — For every [unit_1](#term-unit): when the own text of unit_1 opens with a blockquote, unit_1 has a [statement](#term-statement).
-  - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — For every [unit_1](#term-unit): when the blockquote of unit_1 runs over several lines, the [statement](#term-statement) of unit_1 holds every line of its blockquote, joined by a space.
+  - [`@spec a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it`](#spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it) — The checker reports no finding for a unit of an extended document that the project does not check.
+  - [`@spec an-id-that-an-extended-document-declares-too-is-repeated`](#spec-an-id-that-an-extended-document-declares-too-is-repeated) — A unit repeats a unit of a document that is context for its own document when the two have the same id.
+  - [`@spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text`](#spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text) — A unit whose own text opens with a blockquote has that blockquote as its statement.
+  - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space.
   - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when fence_1 is a fence that names a language and lies in the own text of unit_1, [checker](#term-checker) reads fence_1 as a block of unit_1.
   - [`@spec a-fence-with-no-language-is-prose`](#spec-a-fence-with-no-language-is-prose) — For every [fence_1](#term-fence): when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
   - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — For every [fence_1](#term-fence): when the second word of fence_1 is vocabulary, fence_1 has the role of vocabulary.
   - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — For every [fence_1](#term-fence): when the second word of fence_1 is bounds, fence_1 has the role of bounds.
   - [`@spec a-block-whose-second-word-is-scenario-has-the-role-of-scenario`](#spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario) — For every [fence_1](#term-fence): when the second word of fence_1 is scenario, fence_1 has the role of scenario.
   - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) — For every [fence_1](#term-fence): when fence_1 has no second word that names a role, fence_1 has the role of the formula of its unit.
-  - [`@spec the-body-of-a-block-is-the-lines-between-its-fences`](#spec-the-body-of-a-block-is-the-lines-between-its-fences) — For every [fence_1](#term-fence): when fence_1 is a fence that names a language, [checker](#term-checker) reads the body of fence_1 as the lines between its fences.
-  - [`@spec the-offset-of-a-block-is-where-its-body-starts-in-the-document`](#spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document) — For every [fence_1](#term-fence): when fence_1 is a fence that names a language, [checker](#term-checker) says where the body of fence_1 starts in the document.
+  - [`@spec the-body-of-a-block-is-the-lines-between-its-fences`](#spec-the-body-of-a-block-is-the-lines-between-its-fences) — The checker reads the body of a fence that names a language as the lines between its fences.
+  - [`@spec the-offset-of-a-block-is-where-its-body-starts-in-the-document`](#spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document) — The checker says where the body of a fence that names a language starts in the document.
   - [`@spec a-nested-units-block-is-its-own`](#spec-a-nested-units-block-is-its-own) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when fence_1 lies in the own text of unit_1, [checker](#term-checker) reads fence_1 as a block of no unit that [sits in](#term-sit) unit_1.
 - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1 - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 asks for a [command](#term-command) that is not [available](#term-availability) - run_1 gets code 2 from a plugin then run_1 exits with code 2.
   - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1 - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
@@ -181,15 +181,15 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-plugin-a-document-does-not-list-does-not-run-over-it`](#spec-a-plugin-a-document-does-not-list-does-not-run-over-it) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when all of these hold: - document_1 starts with listing_frontmatter_1 - listing_frontmatter_1 does not [list](#term-list) plugin_1 - the command line of a [run](#term-run) does not name document_1 then [checker](#term-checker) does not run plugin_1 over document_1.
     - [`@spec an-empty-list-asks-for-no-plugin`](#spec-an-empty-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when all of these hold: - document_1 starts with listing_frontmatter_1 - listing_frontmatter_1 holds no [entry](#term-entry) - the command line of a [run](#term-run) does not name document_1 then [checker](#term-checker) does not run plugin_1 over document_1.
     - [`@spec a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says`](#spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says) — For every [run_1](#term-run) and every [plugin_1](#term-plugin) and every given_document_1: when run_1 [calls](#term-call) plugin_1, [checker](#term-checker) runs plugin_1 over given_document_1.
-  - [`@spec a-frontmatter-lists-what-is-written-in-it`](#spec-a-frontmatter-lists-what-is-written-in-it) — For every [frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry): when frontmatter_1 holds entry_1, then all of these hold: - frontmatter_1 is a frontmatter with a plugins key - frontmatter_1 has entry_1 between its brackets or has entry_1 after a dash
-    - [`@spec an-inline-list-holds-the-entries-between-its-brackets`](#spec-an-inline-list-holds-the-entries-between-its-brackets) — For every [inline_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry): when inline_frontmatter_1 has entry_1 between its brackets, inline_frontmatter_1 holds entry_1.
-    - [`@spec a-dashed-list-holds-the-entries-after-its-dashes`](#spec-a-dashed-list-holds-the-entries-after-its-dashes) — For every [dashed_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry): when dashed_frontmatter_1 has entry_1 after a dash, dashed_frontmatter_1 holds entry_1.
-    - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — For every [entry_1](#term-entry) and every quoted_comma_1: entry_1 does not end at quoted_comma_1.
+  - [`@spec a-frontmatter-lists-what-is-written-in-it`](#spec-a-frontmatter-lists-what-is-written-in-it) — A frontmatter holds an entry only when it has a plugins key and writes the entry between its brackets or after a dash.
+    - [`@spec an-inline-list-holds-the-entries-between-its-brackets`](#spec-an-inline-list-holds-the-entries-between-its-brackets) — A list written between brackets holds each entry between its brackets.
+    - [`@spec a-dashed-list-holds-the-entries-after-its-dashes`](#spec-a-dashed-list-holds-the-entries-after-its-dashes) — A list written as lines holds the entry after each of its dashes.
+    - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — A comma inside quotes does not end an entry.
     - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — For every [frontmatter_1](#term-frontmatter): when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
-  - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — For every [block_1](#term-frontmatter): when block_1 is a frontmatter, block_1 is a block that starts its [document](#term-document).
+  - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — Only a block that starts its document is a frontmatter.
   - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes - frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines - frontmatter_1 has the flaw of a list that is not closed - frontmatter_1 has the flaw of a string that is not closed - frontmatter_1 has the flaw of a key that appears twice - frontmatter_1 has the flaw of a path that names no document - frontmatter_1 has the flaw of an extension that leads back to its own document - frontmatter_1 has the flaw of a setting in a document that is not the entry document then frontmatter_1 is a frontmatter that the checker cannot read.
     - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted_frontmatter_1](#term-flaw): misquoted_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-    - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — For every [misquoted_frontmatter_1](#term-flaw): [checker](#term-checker) tells the author to write the name in quotes for misquoted_frontmatter_1.
+    - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — When the checker refuses a misquoted entry, it tells the author to write the name in quotes.
     - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign_frontmatter_1](#term-flaw): foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed_frontmatter_1](#term-flaw): unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated_frontmatter_1](#term-flaw): unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
@@ -197,10 +197,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling_frontmatter_1](#term-flaw): dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular_frontmatter_1](#term-flaw): circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
     - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray_frontmatter_1](#term-setting): stray_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-  - [`@spec a-run-takes-its-settings-from-its-entry-document`](#spec-a-run-takes-its-settings-from-its-entry-document) — For every [run_1](#term-run) and every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [setting_1](#term-setting): when run_1 [enters](#term-enter) document_1, document_1 starts with frontmatter_1 and frontmatter_1 sets setting_1, run_1 takes setting_1.
-  - [`@spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document`](#spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document) — For every [setting_path_1](#term-setting) and every [path_1](#term-extension): when setting_path_1 names path_1, path_1 is read from the folder of the [document](#term-document) that lists it.
-  - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin) and every [plugin_key_1](#term-setting): when frontmatter_1 [lists](#term-list) plugin_1, plugin_1 defines plugin_key_1 and frontmatter_1 sets plugin_key_1, frontmatter_1 does not have the [flaw](#term-flaw) of a key that neither the [checker](#term-checker) nor a plugin that frontmatter_1 lists defines.
-  - [`@spec a-package-field-serves-a-run-that-enters-no-document`](#spec-a-package-field-serves-a-run-that-enters-no-document) — For every [run_1](#term-run) and every [field_setting_1](#term-setting): when run_1 [enters](#term-enter) no [document](#term-document), run_1 takes field_setting_1.
+  - [`@spec a-run-takes-its-settings-from-its-entry-document`](#spec-a-run-takes-its-settings-from-its-entry-document) — A [run](#term-run) takes each [setting](#term-setting) that the frontmatter of the document it [enters](#term-enter) sets.
+  - [`@spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document`](#spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document) — The checker reads a path that a setting names from the folder of the entry document.
+  - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — The checker does not refuse a key that a plugin in the list of the frontmatter defines.
+  - [`@spec a-package-field-serves-a-run-that-enters-no-document`](#spec-a-package-field-serves-a-run-that-enters-no-document) — A [run](#term-run) that [enters](#term-enter) no document takes its settings from the package field.
   - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
     - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
     - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run_1](#term-run): when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
@@ -219,7 +219,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document`](#spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1 - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
     - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1 - when document_1 holds unit_1, document_2 holds unit_1
     - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1 - when checker reports a finding for document_1, checker reports a finding for document_2
-    - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — For every [document_1](#term-document) and every document_2: when [checker](#term-checker) generates document_2 from document_1, then for every [frontmatter_1](#term-frontmatter): all of these hold: - when document_1 starts with frontmatter_1, document_2 starts with frontmatter_1 - when document_2 starts with frontmatter_1, document_1 starts with frontmatter_1
+    - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — Generate leaves the frontmatter of a document as it was.
 <!-- toc:end -->
 
 ## Terms
@@ -401,14 +401,9 @@ Term: {1} is a [term] | {1} is not a [term]
 The statement of a unit is the blockquote that opens its own text, whole.
 
 ```alloy vocabulary
-sig Stated, OpensWithQuote, LongQuote, WholeQuote in Unit {}
 ```
 
 ```readings
-Stated: {1} has a [statement] | {1} has no [statement]
-OpensWithQuote: the own text of {1} opens with a blockquote | the own text of {1} does not open with a blockquote
-LongQuote: the blockquote of {1} runs over several lines | the blockquote of {1} runs over one line
-WholeQuote: the [statement] of {1} holds every line of its blockquote, joined by a space | the [statement] of {1} leaves out a line of its blockquote
 ```
 
 ### @term sit
@@ -1416,31 +1411,24 @@ A [document](#term-document) that starts with a heading has none, and neither ha
 
 ```alloy vocabulary
 sig Block {}
-sig Frontmatter, Top in Block {}
-sig Listing, Inline, Dashed, Refused in Frontmatter {}
+sig Frontmatter in Block {}
+sig Listing, Refused in Frontmatter {}
 sig Unreadable in Document {}
 one sig Head { rel: Document -> Frontmatter }
 one sig Bare { rel: Document -> Document }
-one sig Rewrite { rel: Document -> Document }
 ```
 
 ```readings
 noun Block: [block]
 noun Frontmatter: [frontmatter]
 Frontmatter: {1} is a [frontmatter] | {1} is not a [frontmatter]
-Top: {1} is a [block] that starts its [document](#term-document) | {1} is not a [block] that starts its [document](#term-document)
 noun Listing: [listing frontmatter]
 Listing: {1} is a [frontmatter] with a plugins key | {1} is not a [frontmatter] with a plugins key
-noun Inline: [inline frontmatter]
-Inline: {1} is a [frontmatter] whose list of plugins is written between brackets | {1} is not a [frontmatter] whose list of plugins is written between brackets
-noun Dashed: [dashed frontmatter]
-Dashed: {1} is a [frontmatter] whose list of plugins is written as lines that start with a dash | {1} is not a [frontmatter] whose list of plugins is written as lines that start with a dash
 noun Refused: [refused frontmatter]
 Refused: {1} is a [frontmatter] that the [checker](#term-checker) cannot read | {1} is not a [frontmatter] that the [checker](#term-checker) cannot read
 Unreadable: [checker](#term-checker) reports that {1} has a [frontmatter] it cannot read | [checker](#term-checker) does not report that {1} has a [frontmatter] it cannot read
 Head.rel: {1} starts with {2} | {1} does not start with {2}
 Bare.rel: {1} is {2} without its [frontmatter] | {1} is not {2} without its [frontmatter]
-Rewrite.rel: [checker](#term-checker) generates {2} from {1} | [checker](#term-checker) does not generate {2} from {1}
 ```
 
 ### @term entry
@@ -1451,25 +1439,14 @@ An entry is plain or in quotes, and a comma ends it unless the comma is in quote
 
 ```alloy vocabulary
 sig Entry {}
-sig Comma {}
-sig Quoted in Comma {}
 one sig Item { rel: Frontmatter -> Entry }
 one sig Spell { rel: Entry -> Plugin }
-one sig Between { rel: Frontmatter -> Entry }
-one sig Dash { rel: Frontmatter -> Entry }
-one sig Ends { rel: Entry -> Comma }
 ```
 
 ```readings
 noun Entry: [entry]
-noun Comma: [comma]
-noun Quoted: [quoted comma]
-Quoted: {1} is a [comma] inside quotes | {1} is not a [comma] inside quotes
 Item.rel: {1} holds {2} | {1} does not hold {2}
 Spell.rel: {1} spells {2} | {1} does not spell {2}
-Between.rel: {1} has {2} between its brackets | {1} does not have {2} between its brackets
-Dash.rel: {1} has {2} after a dash | {1} does not have {2} after a dash
-Ends.rel: {1} ends at {2} | {1} does not end at {2}
 ```
 
 ### @term list
@@ -1506,7 +1483,7 @@ Eight flaws make a frontmatter unreadable:
 The checker reads a small part of YAML and refuses the rest, so that a mistake cannot drop a check without a word.
 
 ```alloy vocabulary
-sig Misquoted, Foreign, Unclosed, Unterminated, Doubled, Dangling, Looping, Told in Frontmatter {}
+sig Misquoted, Foreign, Unclosed, Unterminated, Doubled, Dangling, Looping in Frontmatter {}
 ```
 
 ```readings
@@ -1524,7 +1501,6 @@ noun Dangling: [dangling frontmatter]
 Dangling: {1} has the [flaw] of a path that names no document | {1} does not have the [flaw] of a path that names no document
 noun Looping: [circular frontmatter]
 Looping: {1} has the [flaw] of an extension that leads back to its own document | {1} does not have the [flaw] of an extension that leads back to its own document
-Told: [checker](#term-checker) tells the author to write the name in quotes for {1} | [checker](#term-checker) does not tell the author to write the name in quotes for {1}
 ```
 
 ### @term extension
@@ -1534,26 +1510,13 @@ Told: [checker](#term-checker) tells the author to write the name in quotes for 
 A path starts from the folder of the document that lists it. A document is context for the documents that extend it, and for the documents that those extend.
 
 ```alloy vocabulary
-sig Path {}
-sig FromFolder, Listed in Path {}
-sig Checked in Document {}
-one sig Written { rel: Frontmatter -> Path }
-one sig Leads { rel: Path -> Document }
 one sig Extend { rel: Document -> Document }
 one sig Context { rel: Document -> Document }
-one sig SameId { rel: Unit -> Unit }
 ```
 
 ```readings
-noun Path: [path]
-FromFolder: {1} is read from the folder of the [document](#term-document) that lists it | {1} is not read from the folder of the [document](#term-document) that lists it
-Listed: {1} is a [path] that a frontmatter lists | {1} is not a [path] that a frontmatter lists
-Checked: the project lists {1} among the documents it checks | the project does not list {1} among the documents it checks
-Written.rel: {1} lists the [path] {2} | {1} does not list the [path] {2}
-Leads.rel: the [path] {1} leads to {2} | the [path] {1} does not lead to {2}
 Extend.rel: {1} [extends] {2} | {1} does not [extend] {2}
 Context.rel: {2} is [context] for {1} | {2} is not [context] for {1}
-SameId.rel: {1} has the id of {2} | {1} does not have the id of {2}
 ```
 
 ### @term setting
@@ -1563,77 +1526,17 @@ SameId.rel: {1} has the id of {2} | {1} does not have the id of {2}
 The checker has six settings of its own: `documents`, `suites`, `sources`, `references`, `command` and `tracker`. A plugin may define one more, under the key its configuration names. A value is a string, a list, or a map of keys and values. A setting that names a path names it from the folder of the document that holds it.
 
 ```alloy vocabulary
-sig Setting {}
-sig PluginKey, SettingPath in Setting {}
 sig Stray in Frontmatter {}
-sig CanonFile in Document {}
-sig Setter in Document {}
-sig Folder {}
-sig FieldSetting in Setting {}
-one sig Sets { rel: Frontmatter -> Setting }
-one sig Defines { rel: Plugin -> PluginKey }
-one sig Takes { rel: Run -> Setting }
-one sig Lies { rel: Document -> Folder }
-one sig Up { rel: Folder -> Folder }
-one sig Below { rel: Folder -> Folder }
-one sig Works { rel: Run -> Folder }
-one sig Names { rel: Setting -> Path }
 ```
 
 ```readings
-noun Setting: [setting]
-noun PluginKey: [plugin key]
-PluginKey: {1} is a [setting] under a key that a [plugin](#term-plugin) defines | {1} is not a [setting] under a key that a [plugin](#term-plugin) defines
-noun SettingPath: [setting path]
-SettingPath: {1} is a [setting] that names a [path](#term-extension) | {1} is not a [setting] that names a [path](#term-extension)
 noun Stray: [stray frontmatter]
 Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the entry document | {1} does not have the [flaw](#term-flaw) of a setting in a document that is not the entry document
-CanonFile: {1} is named CANON.md | {1} is not named CANON.md
-Setter: {1} starts with a [frontmatter](#term-frontmatter) that holds a [setting] | {1} does not start with a [frontmatter](#term-frontmatter) that holds a [setting]
-noun Folder: [folder]
-noun FieldSetting: [field setting]
-FieldSetting: {1} is a [setting] that the canon field of the package of the project holds | {1} is not a [setting] that the canon field of the package of the project holds
-Sets.rel: {1} sets {2} | {1} does not set {2}
-Defines.rel: {1} defines {2} | {1} does not define {2}
-Takes.rel: {1} takes {2} | {1} does not take {2}
-Lies.rel: {1} lies in {2} | {1} does not lie in {2}
-Up.rel: {1} is {2} or lies below {2} | {1} is not {2} and does not lie below {2}
-Below.rel: {1} lies below {2} | {1} does not lie below {2}
-Works.rel: {1} is run in {2} | {1} is not run in {2}
-Names.rel: {1} names {2} | {1} does not name {2}
 ```
 
 ### @term enter
 
-<!-- statement-term-enter:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run_1](#term-run) and every [document_1](#term-document):
->
-> run_1 enters document_1 exactly when all of these hold:
-> - document_1 starts with a [frontmatter](#term-frontmatter) that holds a [setting](#term-setting)
-> - document_1 is named CANON.md
-> - there are folder_1 and folder_2 such that all of these hold:
->   - run_1 is run in folder_1
->   - folder_1 is folder_2 or lies below folder_2
->   - document_1 lies in folder_2
->   - there is no combination of document_2 and folder_3 such that all of these hold:
->     - document_2 starts with a frontmatter that holds a setting
->     - document_2 is named CANON.md
->     - document_2 lies in folder_3
->     - folder_1 is folder_3 or lies below folder_3
->     - folder_3 lies below folder_2
-<!-- statement-term-enter:end -->
-
-```alloy
-pred enters[r: Run, d: Document] {
-  d in Setter and d in CanonFile
-  and (some w: Folder, g: Folder | r->w in Works.rel and w->g in Up.rel and d->g in Lies.rel
-    and (no e: Document, h: Folder | e in Setter and e in CanonFile and e->h in Lies.rel and w->h in Up.rel and h->g in Below.rel))
-}
-```
-
-```readings
-enters: {1} [enters] {2} | {1} does not [enter] {2}
-```
+> A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 
 ### @term apply
 
@@ -1655,11 +1558,12 @@ applies: {1} [applies] to {2} | {1} does not [apply] to {2}
 
 > A run is one call of the checker on the command line, with a command and the documents it names.
 
-A run asks for one [command](#term-command), and gets a code from each [plugin](#term-plugin) it calls. Code 0 means nothing is wrong, 1 a finding, and 2 a check that could not run. The run exits with one code.
+A run asks for one [command](#term-command), and gets a code from each [plugin](#term-plugin) it calls. Code 0 means nothing is wrong, 1 a finding, and 2 a check that could not run. The run exits with exactly one of these codes.
 
 ```alloy vocabulary
 sig Run {}
 sig Exits0, Exits1, Exits2 in Run {}
+fact one_code { Run = Exits0 + Exits1 + Exits2 and no Exits0 & Exits1 and no Exits0 & Exits2 and no Exits1 & Exits2 }
 sig Given in Document {}
 one sig Ask { rel: Run -> Command }
 one sig Return { code0: Run -> Plugin, code1: Run -> Plugin, code2: Run -> Plugin }
@@ -1727,17 +1631,9 @@ available: {1} is [available] | {1} is not [available]
 A heading that gives a kind and a stem, such as `@spec a-leaf`, declares a unit. A heading that does not is a [section](#term-section). A heading inside a fenced block, or inside the index of the document, is no heading at all.
 
 ```alloy vocabulary
-sig Heading {}
-sig Declaring, Fenced, Indexed in Heading {}
-one sig Declares { rel: Heading -> Unit }
 ```
 
 ```readings
-noun Heading: [heading]
-Declaring: {1} is a [heading] that gives a kind and a stem | {1} is not a [heading] that gives a kind and a stem
-Fenced: {1} is a [heading] inside a fenced block | {1} is not a [heading] inside a fenced block
-Indexed: {1} is a [heading] inside the index | {1} is not a [heading] inside the index
-Declares.rel: {1} declares {2} | {1} does not declare {2}
 ```
 
 ### @term extent
@@ -1747,15 +1643,9 @@ Declares.rel: {1} declares {2} | {1} does not declare {2}
 A plain heading ends the extent of the units above it, because it is a heading of its own level or above.
 
 ```alloy vocabulary
-one sig Reaches { rel: Unit -> Unit }
-one sig Ending { rel: Unit -> Section }
-one sig Under { rel: Unit -> Section }
 ```
 
 ```readings
-Reaches.rel: the heading of {1} lies in the [extent] of {2} | the heading of {1} does not lie in the [extent] of {2}
-Ending.rel: the [extent] of {1} ends at {2} | the [extent] of {1} does not end at {2}
-Under.rel: {1} comes after {2} | {1} does not come after {2}
 ```
 
 ### @term own-text
@@ -1765,30 +1655,21 @@ Under.rel: {1} comes after {2} | {1} does not come after {2}
 The checker takes the statement, the site line and the blocks of a unit from its own text. A unit nested in another keeps what it writes.
 
 ```alloy vocabulary
-sig Text {}
-one sig Owns { rel: Unit -> Text }
-one sig Nested { rel: Unit -> Text }
-one sig SiteLine { rel: Unit -> Site }
-one sig NestedSiteLine { rel: Unit -> Site }
 ```
 
 ```readings
-noun Text: [text]
-Owns.rel: the [own text] of {1} holds {2} | the [own text] of {1} does not hold {2}
-Nested.rel: the text of a unit nested in {1} holds {2} | the text of a unit nested in {1} does not hold {2}
-SiteLine.rel: the [own text] of {1} has a site line that names {2} | the [own text] of {1} has no site line that names {2}
-NestedSiteLine.rel: the text of a unit nested in {1} has a site line that names {2} | the text of a unit nested in {1} has no site line that names {2}
 ```
 
 ### @term fence
 
 > A fence is a block of lines between two lines of backticks or tildes, which holds logic or a table of readings.
 
-The first word after the opening fence is the language of the block, and the second is its role. A block with no language is prose. The checker reads a fence for the unit whose own text holds it.
+The first word after the opening fence is the language of the block, and the second is its role. The second word names at most one role, and a block has at most one role. A block with no language is prose. The checker reads a fence for the unit whose own text holds it.
 
 ```alloy vocabulary
 sig Fence {}
-sig Languaged, VocabularyWord, BoundsWord, ScenarioWord, VocabularyBlock, BoundsBlock, ScenarioBlock, UnitBlock, NoSecondWord, BodyBetween, OffsetRight in Fence {}
+sig Languaged, VocabularyWord, BoundsWord, ScenarioWord, VocabularyBlock, BoundsBlock, ScenarioBlock, UnitBlock, NoSecondWord in Fence {}
+fact one_role { no VocabularyWord & BoundsWord and no VocabularyWord & ScenarioWord and no BoundsWord & ScenarioWord and NoSecondWord = Fence - VocabularyWord - BoundsWord - ScenarioWord and no VocabularyBlock & BoundsBlock and no VocabularyBlock & ScenarioBlock and no VocabularyBlock & UnitBlock and no BoundsBlock & ScenarioBlock and no BoundsBlock & UnitBlock and no ScenarioBlock & UnitBlock }
 one sig Within { rel: Fence -> Unit }
 one sig Blocks { rel: Unit -> Fence }
 ```
@@ -1804,8 +1685,6 @@ VocabularyBlock: {1} has the role of vocabulary | {1} does not have the role of 
 BoundsBlock: {1} has the role of bounds | {1} does not have the role of bounds
 ScenarioBlock: {1} has the role of scenario | {1} does not have the role of scenario
 UnitBlock: {1} has the role of the formula of its unit | {1} does not have the role of the formula of its unit
-BodyBetween: [checker](#term-checker) reads the body of {1} as the lines between its fences | [checker](#term-checker) does not read the body of {1} as the lines between its fences
-OffsetRight: [checker](#term-checker) says where the body of {1} starts in the document | [checker](#term-checker) does not say where the body of {1} starts in the document
 Within.rel: {1} lies in the own text of {2} | {1} does not lie in the own text of {2}
 Blocks.rel: [checker](#term-checker) reads {2} as a block of {1} | [checker](#term-checker) does not read {2} as a block of {1}
 ```
@@ -2473,161 +2352,63 @@ Issue: #4
 
 #### @spec a-heading-with-a-kind-and-a-stem-declares-a-unit
 
-<!-- statement-spec-a-heading-with-a-kind-and-a-stem-declares-a-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [heading_1](#term-heading):
->
-> when all of these hold:
-> - heading_1 is a heading that gives a kind and a stem
-> - heading_1 is not a heading inside a fenced block
-> - heading_1 is not a heading inside the index
->
-> then heading_1 declares a [unit](#term-unit).
-<!-- statement-spec-a-heading-with-a-kind-and-a-stem-declares-a-unit:end -->
+> A [heading](#term-heading) that gives a kind and a stem declares a [unit](#term-unit), unless it lies inside a fenced block or inside the index.
 
 This follows because the id of a unit is its kind and its stem, and the heading is the one place that gives both.
 
-```alloy
-all h: Heading | (h in Declaring and h not in Fenced and h not in Indexed) implies (some u: Unit | h->u in Declares.rel)
-```
-
 #### @spec a-heading-in-a-fenced-block-declares-no-unit
 
-<!-- statement-spec-a-heading-in-a-fenced-block-declares-no-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [heading_1](#term-heading):
->
-> when heading_1 is a heading inside a fenced block, heading_1 declares no [unit](#term-unit).
-<!-- statement-spec-a-heading-in-a-fenced-block-declares-no-unit:end -->
+> A heading inside a fenced block declares no unit.
 
 This follows because a fenced block shows an example, and an example must not become a unit that a test can cite.
 
-```alloy
-all h: Heading | h in Fenced implies (no u: Unit | h->u in Declares.rel)
-```
-
 #### @spec a-heading-in-the-index-declares-no-unit
 
-<!-- statement-spec-a-heading-in-the-index-declares-no-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [heading_1](#term-heading):
->
-> when heading_1 is a heading inside the index, heading_1 declares no [unit](#term-unit).
-<!-- statement-spec-a-heading-in-the-index-declares-no-unit:end -->
+> A heading inside the index declares no unit.
 
 This follows because the index lists every unit already. Reading it as units would give each id two units.
 
-```alloy
-all h: Heading | h in Indexed implies (no u: Unit | h->u in Declares.rel)
-```
-
 #### @spec a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading
 
-<!-- statement-spec-a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit) and every unit_2:
->
-> when all of these hold:
-> - the heading of unit_1 lies in the [extent](#term-extent) of unit_2
-> - there is no unit_3 such that the heading of unit_1 lies in the extent of unit_3 and the heading of unit_3 lies in the extent of unit_2
->
-> then unit_1 [sits in](#term-sit) unit_2.
-<!-- statement-spec-a-unit-sits-in-the-closest-unit-whose-extent-holds-its-heading:end -->
+> A unit sits in the closest unit whose extent holds its heading.
 
 This follows because nesting is the citation of the unit above, and the unit above is the closest one that reaches the heading.
 
-```alloy
-all u: Unit, v: Unit | (u->v in Reaches.rel and (no w: Unit | u->w in Reaches.rel and w->v in Reaches.rel)) implies u->v in Sit.rel
-```
-
 #### @spec a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it
 
-<!-- statement-spec-a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit) and every unit_2 and every [section_1](#term-section):
->
-> when unit_1 comes after section_1 and the [extent](#term-extent) of unit_2 ends at section_1, unit_1 does not [sit in](#term-sit) unit_2.
-<!-- statement-spec-a-plain-heading-that-ends-the-extent-of-a-unit-keeps-later-units-out-of-it:end -->
+> A unit that comes after a plain heading that ends the [extent](#term-extent) of another unit does not sit in that unit.
 
 This follows because a plain heading starts a part of the document that is about something else. A unit below it does not derive from a unit above it.
 
-```alloy
-all u: Unit, v: Unit, s: Section | (u->s in Under.rel and v->s in Ending.rel) implies u->v not in Sit.rel
-```
-
 #### @spec a-unit-owns-only-the-text-before-its-first-nested-heading
 
-<!-- statement-spec-a-unit-owns-only-the-text-before-its-first-nested-heading:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit) and every [text_1](#term-own-text):
->
-> when the own text of unit_1 holds text_1, the text of a unit nested in unit_1 does not hold text_1.
-<!-- statement-spec-a-unit-owns-only-the-text-before-its-first-nested-heading:end -->
+> Text that the own text of a unit holds is no part of the text of a unit nested in it.
 
 This follows because what a nested unit writes is its own claim. The unit above does not make it.
 
-```alloy
-all u: Unit, t: Text | u->t in Owns.rel implies u->t not in Nested.rel
-```
-
 #### @spec a-site-line-in-the-own-text-names-the-site-of-its-unit
 
-<!-- statement-spec-a-site-line-in-the-own-text-names-the-site-of-its-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit) and every [site_1](#term-site):
->
-> when the [own text](#term-own-text) of unit_1 has a site line that names site_1, unit_1 [names](#term-name) site_1.
-<!-- statement-spec-a-site-line-in-the-own-text-names-the-site-of-its-unit:end -->
+> A unit names each [site](#term-site) that a site line in its [own text](#term-own-text) names.
 
 This follows because a claim that answers for one place in the code names that place on a line of its own.
 
-```alloy
-all u: Unit, s: Site | u->s in SiteLine.rel implies u->s in Name.site
-```
-
 #### @spec a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above
 
-<!-- statement-spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit) and every [site_1](#term-site):
->
-> when all of these hold:
-> - the text of a unit nested in unit_1 has a site line that names site_1
-> - the [own text](#term-own-text) of unit_1 has no site line that names site_1
->
-> then unit_1 does not [name](#term-name) site_1.
-<!-- statement-spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above:end -->
+> A site line in a nested unit names no site of the unit above, unless the own text of that unit has the same line.
 
 This follows because the nested unit is the one that answers for that place.
 
-```alloy
-all u: Unit, s: Site | (u->s in NestedSiteLine.rel and u->s not in SiteLine.rel) implies u->s not in Name.site
-```
-
 #### @spec an-extends-key-lists-the-documents-a-document-extends
 
-<!-- statement-spec-an-extends-key-lists-the-documents-a-document-extends:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [path_1](#term-extension) and every document_2:
->
-> when all of these hold:
-> - document_1 starts with frontmatter_1
-> - frontmatter_1 lists the path path_1
-> - the path path_1 leads to document_2
->
-> then document_1 extends document_2.
-<!-- statement-spec-an-extends-key-lists-the-documents-a-document-extends:end -->
+> A document extends each document that a path in the extends key of its frontmatter leads to.
 
 This follows because a pointer into another document leads where it says only if the checker knows which documents the author means. The author says so in the document.
 
-```alloy
-all d: Document, f: Frontmatter, p: Path, e: Document | (d->f in Head.rel and f->p in Written.rel and p->e in Leads.rel) implies d->e in Extend.rel
-```
-
 #### @spec a-path-is-read-from-the-folder-of-the-document-that-lists-it
 
-<!-- statement-spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it:begin — generated by `canon generate`; edits are overwritten -->
-> For every [path_1](#term-extension):
->
-> when path_1 is a path that a frontmatter lists, path_1 is read from the folder of the [document](#term-document) that lists it.
-<!-- statement-spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it:end -->
+> The checker reads a path that a frontmatter lists from the folder of the document that lists it.
 
 This follows because a link in a document leads from where the document is, and a path in its frontmatter means the same.
-
-```alloy
-all p: Path | p in Listed implies p in FromFolder
-```
 
 #### @spec a-document-is-context-for-the-documents-that-extend-it-and-for-theirs
 
@@ -2645,73 +2426,43 @@ This follows because a document that extends another takes in what that one take
 all d: Document, e: Document, g: Document | (d->e in Extend.rel implies d->e in Context.rel) and ((d->e in Extend.rel and e->g in Context.rel) implies d->g in Context.rel)
 ```
 
+<!-- statement-scenario-1-spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [document_1](#term-document) and document_2 and document_3 such that all of these hold:
+> - document_1 and document_3 are different
+> - document_1 [extends](#term-extension) document_2
+> - document_2 extends document_3
+> - document_3 is context for document_1
+<!-- statement-scenario-1-spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs:end -->
+
+```alloy scenario
+some d, e, g: Document | d != g and d->e in Extend.rel and e->g in Extend.rel and d->g in Context.rel
+```
+
 #### @spec a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it
 
-<!-- statement-spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit):
->
-> when all of these hold:
-> - the project lists document_1 among the documents it checks
-> - the project does not list document_2 among the documents it checks
-> - document_2 is [context](#term-extension) for document_1
-> - document_2 [holds](#term-hold) unit_1
->
-> then [checker](#term-checker) reports no [finding](#term-finding) for unit_1.
-<!-- statement-spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it:end -->
+> The checker reports no finding for a unit of an extended document that the project does not check.
 
 This follows because the extended document is checked where it lives. A second report of the same unit would only make noise.
 
-```alloy
-all d: Document, e: Document, u: Unit | (d in Checked and e not in Checked and d->e in Context.rel and e->u in Hold.units) implies u not in Finding
-```
-
 #### @spec an-id-that-an-extended-document-declares-too-is-repeated
 
-<!-- statement-spec-an-id-that-an-extended-document-declares-too-is-repeated:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document_1](#term-document) and every document_2 and every [unit_1](#term-unit) and every unit_2:
->
-> when all of these hold:
-> - document_2 is [context](#term-extension) for document_1
-> - document_1 [holds](#term-hold) unit_1
-> - document_2 holds unit_2
-> - unit_1 has the id of unit_2
->
-> then unit_1 [repeats](#term-repeat) unit_2.
-<!-- statement-spec-an-id-that-an-extended-document-declares-too-is-repeated:end -->
+> A unit repeats a unit of a document that is context for its own document when the two have the same id.
 
 This follows because a pointer or a tag cannot say which of two units with one id it means. The checker reads an extended document together with the document that extends it.
 
-```alloy
-all d: Document, e: Document, u: Unit, v: Unit | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and u->v in SameId.rel) implies u->v in Repeat.rel
-```
-
 #### @spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text
 
-<!-- statement-spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit):
->
-> when the own text of unit_1 opens with a blockquote, unit_1 has a [statement](#term-statement).
-<!-- statement-spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text:end -->
+> A unit whose own text opens with a blockquote has that blockquote as its statement.
 
 This follows because a reader looks for the claim of a unit right under its heading. The quote under the heading is what the unit says.
 
-```alloy
-all u: Unit | u in OpensWithQuote implies u in Stated
-```
-
 #### @spec every-line-of-the-blockquote-is-part-of-the-statement
 
-<!-- statement-spec-every-line-of-the-blockquote-is-part-of-the-statement:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](#term-unit):
->
-> when the blockquote of unit_1 runs over several lines, the [statement](#term-statement) of unit_1 holds every line of its blockquote, joined by a space.
-<!-- statement-spec-every-line-of-the-blockquote-is-part-of-the-statement:end -->
+> The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space.
 
 This follows because a claim that runs over several lines is still one claim, and a reader would miss what the first line leaves out.
-
-```alloy
-all u: Unit | u in LongQuote implies u in WholeQuote
-```
 
 #### @spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it
 
@@ -2799,31 +2550,15 @@ all f: Fence | f in NoSecondWord implies f in UnitBlock
 
 #### @spec the-body-of-a-block-is-the-lines-between-its-fences
 
-<!-- statement-spec-the-body-of-a-block-is-the-lines-between-its-fences:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence_1](#term-fence):
->
-> when fence_1 is a fence that names a language, [checker](#term-checker) reads the body of fence_1 as the lines between its fences.
-<!-- statement-spec-the-body-of-a-block-is-the-lines-between-its-fences:end -->
+> The checker reads the body of a fence that names a language as the lines between its fences.
 
 This follows because the fences belong to the Markdown and not to the logic, and the analyzer would refuse them.
 
-```alloy
-all f: Fence | f in Languaged implies f in BodyBetween
-```
-
 #### @spec the-offset-of-a-block-is-where-its-body-starts-in-the-document
 
-<!-- statement-spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence_1](#term-fence):
->
-> when fence_1 is a fence that names a language, [checker](#term-checker) says where the body of fence_1 starts in the document.
-<!-- statement-spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document:end -->
+> The checker says where the body of a fence that names a language starts in the document.
 
 This follows because a tool that rewrites a block needs to know where its body sits.
-
-```alloy
-all f: Fence | f in Languaged implies f in OffsetRight
-```
 
 #### @spec a-nested-units-block-is-its-own
 
@@ -2994,63 +2729,27 @@ all r: Run, p: Plugin, d: Given | calls[r, p] implies p->d in Over.rel
 
 #### @spec a-frontmatter-lists-what-is-written-in-it
 
-<!-- statement-spec-a-frontmatter-lists-what-is-written-in-it:begin — generated by `canon generate`; edits are overwritten -->
-> For every [frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry):
->
-> when frontmatter_1 holds entry_1,
->
-> then all of these hold:
-> - frontmatter_1 is a frontmatter with a plugins key
-> - frontmatter_1 has entry_1 between its brackets or has entry_1 after a dash
-<!-- statement-spec-a-frontmatter-lists-what-is-written-in-it:end -->
+> A frontmatter holds an entry only when it has a plugins key and writes the entry between its brackets or after a dash.
 
 This follows because a document asks for what it writes: the plugins its list names are the strings written there, and no others.
 
-```alloy
-all f: Frontmatter, e: Entry | f->e in Item.rel implies (f in Listing and (f->e in Between.rel or f->e in Dash.rel))
-```
-
 ##### @spec an-inline-list-holds-the-entries-between-its-brackets
 
-<!-- statement-spec-an-inline-list-holds-the-entries-between-its-brackets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [inline_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry):
->
-> when inline_frontmatter_1 has entry_1 between its brackets, inline_frontmatter_1 holds entry_1.
-<!-- statement-spec-an-inline-list-holds-the-entries-between-its-brackets:end -->
+> A list written between brackets holds each entry between its brackets.
 
 This follows because an entry between the brackets, quoted or plain, is part of the list.
 
-```alloy
-all f: Inline, e: Entry | f->e in Between.rel implies f->e in Item.rel
-```
-
 ##### @spec a-dashed-list-holds-the-entries-after-its-dashes
 
-<!-- statement-spec-a-dashed-list-holds-the-entries-after-its-dashes:begin — generated by `canon generate`; edits are overwritten -->
-> For every [dashed_frontmatter_1](#term-frontmatter) and every [entry_1](#term-entry):
->
-> when dashed_frontmatter_1 has entry_1 after a dash, dashed_frontmatter_1 holds entry_1.
-<!-- statement-spec-a-dashed-list-holds-the-entries-after-its-dashes:end -->
+> A list written as lines holds the entry after each of its dashes.
 
 This follows because a list written as lines holds the entry after each dash.
 
-```alloy
-all f: Dashed, e: Entry | f->e in Dash.rel implies f->e in Item.rel
-```
-
 ##### @spec a-comma-inside-quotes-ends-no-entry
 
-<!-- statement-spec-a-comma-inside-quotes-ends-no-entry:begin — generated by `canon generate`; edits are overwritten -->
-> For every [entry_1](#term-entry) and every quoted_comma_1:
->
-> entry_1 does not end at quoted_comma_1.
-<!-- statement-spec-a-comma-inside-quotes-ends-no-entry:end -->
+> A comma inside quotes does not end an entry.
 
 This follows because a name in quotes is one string, whatever it holds.
-
-```alloy
-all e: Entry, c: Quoted | e->c not in Ends.rel
-```
 
 ##### @spec a-frontmatter-with-no-plugins-key-holds-no-entry
 
@@ -3068,17 +2767,9 @@ all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)
 
 #### @spec only-a-block-at-the-top-is-a-frontmatter
 
-<!-- statement-spec-only-a-block-at-the-top-is-a-frontmatter:begin — generated by `canon generate`; edits are overwritten -->
-> For every [block_1](#term-frontmatter):
->
-> when block_1 is a frontmatter, block_1 is a block that starts its [document](#term-document).
-<!-- statement-spec-only-a-block-at-the-top-is-a-frontmatter:end -->
+> Only a block that starts its document is a frontmatter.
 
 This follows because a block lower in a document is part of its text, and a document that starts with a heading asks for nothing.
-
-```alloy
-all b: Block | b in Frontmatter implies b in Top
-```
 
 #### @spec a-flawed-frontmatter-is-refused
 
@@ -3120,17 +2811,9 @@ all f: Misquoted | f in Refused
 
 ##### @spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes
 
-<!-- statement-spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes:begin — generated by `canon generate`; edits are overwritten -->
-> For every [misquoted_frontmatter_1](#term-flaw):
->
-> [checker](#term-checker) tells the author to write the name in quotes for misquoted_frontmatter_1.
-<!-- statement-spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes:end -->
+> When the checker refuses a misquoted entry, it tells the author to write the name in quotes.
 
 This follows because the author needs only the quotes, and the checker knows it.
-
-```alloy
-all f: Misquoted | f in Told
-```
 
 ##### @spec a-key-the-checker-does-not-know-is-refused
 
@@ -3232,59 +2915,27 @@ all f: Stray | f in Refused
 
 #### @spec a-run-takes-its-settings-from-its-entry-document
 
-<!-- statement-spec-a-run-takes-its-settings-from-its-entry-document:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run_1](#term-run) and every [document_1](#term-document) and every [frontmatter_1](#term-frontmatter) and every [setting_1](#term-setting):
->
-> when run_1 [enters](#term-enter) document_1, document_1 starts with frontmatter_1 and frontmatter_1 sets setting_1, run_1 takes setting_1.
-<!-- statement-spec-a-run-takes-its-settings-from-its-entry-document:end -->
+> A [run](#term-run) takes each [setting](#term-setting) that the frontmatter of the document it [enters](#term-enter) sets.
 
 This follows because a project asks for its checks in the frontmatter of its entry document. A check that the project asked for is never dropped. The entry document is the nearest document named CANON.md that holds a setting, from the folder of the run upwards. A document with no setting is not an entry document. A canon with no settings can then lie beside a project that sets them elsewhere.
 
-```alloy
-all r: Run, d: Document, f: Frontmatter, s: Setting | (enters[r, d] and d->f in Head.rel and f->s in Sets.rel) implies r->s in Takes.rel
-```
-
 #### @spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document
 
-<!-- statement-spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document:begin — generated by `canon generate`; edits are overwritten -->
-> For every [setting_path_1](#term-setting) and every [path_1](#term-extension):
->
-> when setting_path_1 names path_1, path_1 is read from the folder of the [document](#term-document) that lists it.
-<!-- statement-spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document:end -->
+> The checker reads a path that a setting names from the folder of the entry document.
 
 This follows because a setting lies next to the canon it describes and moves with it. A path that starts from the root of a project would name another file after the move.
 
-```alloy
-all s: SettingPath, p: Path | s->p in Names.rel implies p in FromFolder
-```
-
 #### @spec a-key-that-a-listed-plugin-defines-is-known
 
-<!-- statement-spec-a-key-that-a-listed-plugin-defines-is-known:begin — generated by `canon generate`; edits are overwritten -->
-> For every [frontmatter_1](#term-frontmatter) and every [plugin_1](#term-plugin) and every [plugin_key_1](#term-setting):
->
-> when frontmatter_1 [lists](#term-list) plugin_1, plugin_1 defines plugin_key_1 and frontmatter_1 sets plugin_key_1, frontmatter_1 does not have the [flaw](#term-flaw) of a key that neither the [checker](#term-checker) nor a plugin that frontmatter_1 lists defines.
-<!-- statement-spec-a-key-that-a-listed-plugin-defines-is-known:end -->
+> The checker does not refuse a key that a plugin in the list of the frontmatter defines.
 
 This follows because a plugin owns its options. The checker cannot know them before it loads the plugin. A key of a plugin that the document does not list stays unknown. The options of a plugin that does not run then cannot pass as a check.
 
-```alloy
-all f: Frontmatter, p: Plugin, k: PluginKey | (lists[f, p] and p->k in Defines.rel and f->k in Sets.rel) implies f not in Foreign
-```
-
 #### @spec a-package-field-serves-a-run-that-enters-no-document
 
-<!-- statement-spec-a-package-field-serves-a-run-that-enters-no-document:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run_1](#term-run) and every [field_setting_1](#term-setting):
->
-> when run_1 [enters](#term-enter) no [document](#term-document), run_1 takes field_setting_1.
-<!-- statement-spec-a-package-field-serves-a-run-that-enters-no-document:end -->
+> A [run](#term-run) that [enters](#term-enter) no document takes its settings from the package field.
 
 This follows because a project that keeps its settings in the canon field of its package still asks for its checks there. The settings of a document come first. The field serves while no document holds a setting.
-
-```alloy
-all r: Run, s: FieldSetting | (no d: Document | enters[r, d]) implies r->s in Takes.rel
-```
 
 #### @spec a-refused-frontmatter-fails-the-run
 
@@ -3561,20 +3212,7 @@ all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Findin
 
 ##### @spec generate-keeps-the-frontmatter-of-a-document
 
-<!-- statement-spec-generate-keeps-the-frontmatter-of-a-document:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document_1](#term-document) and every document_2:
->
-> when [checker](#term-checker) generates document_2 from document_1,
->
-> then for every [frontmatter_1](#term-frontmatter):
->
-> all of these hold:
-> - when document_1 starts with frontmatter_1, document_2 starts with frontmatter_1
-> - when document_2 starts with frontmatter_1, document_1 starts with frontmatter_1
-<!-- statement-spec-generate-keeps-the-frontmatter-of-a-document:end -->
+> Generate leaves the frontmatter of a document as it was.
 
 This follows because the block is the author's, and `generate` writes the regions it owns and nothing else.
 
-```alloy
-all d, e: Document | d->e in Rewrite.rel implies (all f: Frontmatter | (d->f in Head.rel implies e->f in Head.rel) and (e->f in Head.rel implies d->f in Head.rel))
-```

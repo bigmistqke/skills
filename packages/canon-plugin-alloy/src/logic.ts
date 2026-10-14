@@ -11,7 +11,7 @@ import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from '@bigmistqke/canon/plugin';
 import * as statements from './statements.ts';
 import type { Context } from './statements.ts';
-import { checkWords } from './words.ts';
+import { checkLoneFormulas, checkWords } from './words.ts';
 
 /** The documents a document extends, nearest first, each with its path from the folder of the document. */
 function contextFor(file: string, root: string): Context[] {
@@ -121,13 +121,15 @@ export function checkStatements(documents: string[], root: string): number {
   return code;
 }
 
-/** Report the words of each document that keeps readings that are undeclared, misplaced, apart from their reading or unused; the exit code: 0, or 1 when there is one. */
+/** Report the words of each document that keeps readings that are undeclared, misplaced, apart from their reading or unused, and the formulas that are lone on a signature; the exit code: 0, or 1 when there is one. */
 export function checkDocumentWords(documents: string[], root: string): number {
   let code = 0;
   for (const doc of documents) {
     const file = resolve(root, doc);
     if (!existsSync(file)) continue;
-    for (const finding of checkWords(readFileSync(file, 'utf8'), contextFor(file, root).map(c => c.src))) {
+    const src = readFileSync(file, 'utf8');
+    const context = contextFor(file, root).map(c => c.src);
+    for (const finding of [...checkWords(src, context), ...checkLoneFormulas(src, context)]) {
       code = 1;
       console.log(`${doc}: ${finding.unit}: ${finding.kind}: ${finding.message}`);
     }
