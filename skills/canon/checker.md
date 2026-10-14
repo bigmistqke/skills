@@ -10,9 +10,9 @@ The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependen
 pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-retext
 ```
 
-The package `@bigmistqke/canon-plugin-retext` adds the command `lint`, and a project that does not check its prose can leave it out. `@bigmistqke/canon-plugin-alloy` adds `logic` and the generated statements.
+The package `@bigmistqke/canon-plugin-retext` adds the command `lint`. A project that does not check its prose can leave it out. `@bigmistqke/canon-plugin-alloy` adds `logic` and the generated statements.
 
-Then declare the scope in the frontmatter of the entry document, the `CANON.md` where you run the command or the nearest one above it. `pnpm canon` runs the package's `canon` command, so the project needs no script for it:
+Then declare the scope in the frontmatter of the entry document: the nearest `CANON.md`, from the folder where you run the command upwards. The project needs no script, because `pnpm canon` runs the package's own command:
 
 ```yaml
 ---
@@ -26,7 +26,9 @@ tracker: {kind: github, repo: owner/name}
 ---
 ```
 
-The frontmatter reads a small part of YAML: a string, a list written as `[a, b]` or as lines that start with a dash, and a map written between braces. Every key is optional. The entry document is the nearest `CANON.md` whose frontmatter holds a setting. Paths start from the folder of that document. A setting in any other document that the project checks is refused. A project that has not moved its settings can keep them in the `canon` field of `package.json`, which serves while no document holds a setting.
+The frontmatter reads a small part of YAML. A value is a string, a list such as `[a, b]`, or a map such as `{a: b}`. A list can also be lines that start with a dash. Every key is optional.
+
+The entry document is the nearest `CANON.md` whose frontmatter holds a setting. Paths start from the folder of that document. A setting in any other document that the project checks is refused. A project can also keep its settings in the `canon` field of `package.json`. The checker reads that field while no document holds a setting.
 
 - `documents`: the siblings of the entry document that are checked with it. The entry document is always checked. Default none.
 - `suites`: the declared suite directory. Every test in it must cite a unit. Default `test/canon`. Keep it flat: a suite answers to a claim, not to a module.
@@ -47,6 +49,7 @@ pnpm canon tree -v            # the same, with each unit's statement
 pnpm canon tree --gaps        # only the branches that lead to an untested claim
 pnpm canon tree --suspect 3   # specs with no nested specs and three or more tests
 pnpm canon lint               # language checks on the prose of the documents
+pnpm canon logic              # whether the formulas of the units can all hold together
 pnpm canon log                # commits that change the implementation without naming a unit
 ```
 
@@ -80,3 +83,19 @@ tracker: {kind: gitlab, project: group/subgroup/project, host: gitlab.example.co
 5. `closed-issue` is a bug or a conflict that names a closed issue. Either the fix or the ruling landed and the unit goes, or the issue was closed too soon.
 6. `unreachable-tracker` is a tracker that could not be asked. It is reported once for each project, not once for each bug.
 7. `check --offline` skips the lookup and needs no network. Every other finding is still reported.
+
+## 4. Plugins
+
+A plugin adds commands to the checker. A document names the plugins it asks for under `plugins` in its frontmatter, each by its package, and the project installs each one. A document with no `plugins` key asks for none. A command that no listed plugin adds exits with code 2 as unknown.
+
+- `@bigmistqke/canon-plugin-retext` adds `lint`.
+- `@bigmistqke/canon-plugin-alloy` adds `logic`, and adds to `generate` and `check`: it writes the statements of units from their formulas and reports the stale ones. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `logic` needs Java 17 or later and the jar of the Alloy analyzer:
+
+```yaml
+---
+plugins: ["@bigmistqke/canon-plugin-retext", "@bigmistqke/canon-plugin-alloy"]
+logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/java}}
+---
+```
+
+`CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths, and a path in the frontmatter wins. `canon logic --review <unit>` marks a map reviewed, for a unit whose statement a person wrote.
