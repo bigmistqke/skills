@@ -16,7 +16,18 @@ export interface AlloyOptions {
   java?: string;
   /** The Alloy distribution jar; `CANON_ALLOY_JAR`. */
   jar?: string;
+  /**
+   * The units, by id, to try leaving out when a scenario cannot happen; every
+   * unit by default. A check that already knows which unit it expects can ask
+   * about that one alone: if leaving it out lets the scenario happen, nothing
+   * else was keeping it from happening. A map gives the units for each scenario,
+   * by the id of the unit that holds the scenario.
+   */
+  leave?: string[] | Record<string, string[]>;
 }
+
+/** Which runs a program holds: the units together and each scenario with them, the units left out one by one, or both. */
+export type Runs = 'check' | 'blame' | 'all';
 
 /** A scenario the units do not allow, and the units a repair has to touch for it to be allowed. */
 export interface ScenarioFailure {
@@ -53,7 +64,11 @@ const scenarioName = (unit: string, nth: number): string => `scenario_${nth}_${p
  * left out. With no scenario the units are run on their own, which only finds
  * units that contradict each other in every trace.
  */
-export function alloyProgram(src: string): { program: string; units: string[]; scenarios: { name: string; unit: string }[] } {
+export function alloyProgram(
+  src: string,
+  runs: Runs = 'all',
+  only?: { scenarios?: string[]; leave?: string[] | Record<string, string[]> }
+): { program: string; units: string[]; scenarios: { name: string; unit: string }[] } {
   const blocks = readBlocks(src, readUnits(src)).filter(b => b.lang === 'alloy');
   const bounds = blocks.find(b => b.role === 'bounds')?.body.trim() ?? DEFAULT_BOUNDS;
   const units = [...new Set(blocks.filter(b => b.role === 'unit').map(b => b.unit))];
@@ -63,16 +78,19 @@ export function alloyProgram(src: string): { program: string; units: string[]; s
     .map((block, i, all) => ({ block, name: scenarioName(block.unit, all.slice(0, i).filter(o => o.unit === block.unit).length + 1) }));
   const all = (extra: string[], leaving?: number): string =>
     [...names.filter((_, j) => j !== leaving), ...extra].join(' and ') || 'some none';
-  const runs = [
-    `run consistent { ${all([])} } ${bounds}`,
-    ...scenarios.flatMap(({ name }) => [
-      `run ${name}_with_all { ${all([name])} } ${bounds}`,
-      ...names.map((unit, i) => `run ${name}_without_${unit} { ${all([name], i)} } ${bounds}`),
-    ]),
-  ];
+  const together = runs === 'blame' ? [] : [`run consistent { ${all([])} } ${bounds}`, ...scenarios.map(({ name }) => `run ${name}_with_all { ${all([name])} } ${bounds}`)];
+  const blamed = scenarios
+    .filter(({ name }) => only?.scenarios === undefined || only.scenarios.includes(name))
+    .flatMap(({ name, block }) => {
+      const leave = Array.isArray(only?.leave) ? only.leave : only?.leave?.[block.unit];
+      return names.flatMap((unit, i) =>
+        runs === 'check' || (leave !== undefined && !leave.includes(units[i] as string)) ? [] : [`run ${name}_without_${unit} { ${all([name], i)} } ${bounds}`]
+      );
+    });
+  const commands = [...together, ...blamed];
   const parts = blocks.filter(b => b.role !== 'bounds' && b.role !== 'scenario').map(paragraphs);
   const stated = scenarios.map(({ block, name }) => `pred ${name} {\n${block.body}}\n`);
-  return { program: [...parts, ...stated, ...runs].join('\n'), units, scenarios: scenarios.map(({ name, block }) => ({ name, unit: block.unit })) };
+  return { program: [...parts, ...stated, ...commands].join('\n'), units, scenarios: scenarios.map(({ name, block }) => ({ name, unit: block.unit })) };
 }
 
 /** Whether each run of the receipt found an instance: a run with no solution has none within its bounds. */
@@ -84,31 +102,48 @@ const solved = (receipt: string): Map<string, boolean> =>
     ]),
   );
 
-export function checkAlloy(src: string, options: AlloyOptions = {}): AlloyResult {
-  const java = options.java ?? process.env.CANON_JAVA ?? 'java';
-  const jar = options.jar ?? process.env.CANON_ALLOY_JAR;
-  if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
-  const { program, units, scenarios: stated } = alloyProgram(src);
-  const scenarios = stated.length;
+/** Run the analyzer over a program, and say whether each of its runs found an instance. */
+function solve(program: string, java: string, jar: string): { found: Map<string, boolean> } | { error: string } {
   const dir = mkdtempSync(join(tmpdir(), 'canon-alloy-'));
   try {
     const file = join(dir, 'model.als');
     writeFileSync(file, program);
     const ran = spawnSync(java, ['-jar', jar, 'exec', '-f', '-o', join(dir, 'out'), '-t', 'text', file], { encoding: 'utf8' });
-    if (ran.error) return { ok: false, error: ran.error.message };
-    let found: Map<string, boolean>;
+    if (ran.error) return { error: ran.error.message };
     try {
-      found = solved(readFileSync(join(dir, 'out', 'receipt.json'), 'utf8'));
+      return { found: solved(readFileSync(join(dir, 'out', 'receipt.json'), 'utf8')) };
     } catch {
-      return { ok: false, error: `${ran.stdout}${ran.stderr}`.trim() || 'the Alloy analyzer wrote no receipt' };
+      return { error: `${ran.stdout}${ran.stderr}`.trim() || 'the Alloy analyzer wrote no receipt' };
     }
-    if (!found.get('consistent')) return { ok: false, units, scenarios, failures: [{ scenario: 'consistent', conflict: units }] };
-    // A unit whose removal lets the scenario happen is in every conflict: the repair has to touch one of them.
-    const failures = stated
-      .filter(({ name }) => !found.get(`${name}_with_all`))
-      .map(({ name, unit }) => ({ scenario: name, unit, conflict: units.filter(unit => found.get(`${name}_without_${predicateName(unit)}`)) }));
-    return failures.length === 0 ? { ok: true, units, scenarios } : { ok: false, units, scenarios, failures };
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+}
+
+/**
+ * Whether every scenario can happen while all the units hold. The analyzer is
+ * asked first only that, with one run for the units and one for each scenario;
+ * the runs that leave a unit out, to say which units a repair has to touch, are
+ * made afterwards, and only for the scenarios that cannot happen.
+ */
+export function checkAlloy(src: string, options: AlloyOptions = {}): AlloyResult {
+  const java = options.java ?? process.env.CANON_JAVA ?? 'java';
+  const jar = options.jar ?? process.env.CANON_ALLOY_JAR;
+  if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
+  const { program, units, scenarios: stated } = alloyProgram(src, 'check');
+  const scenarios = stated.length;
+  const first = solve(program, java, jar);
+  if ('error' in first) return { ok: false, error: first.error };
+  if (!first.found.get('consistent')) return { ok: false, units, scenarios, failures: [{ scenario: 'consistent', conflict: units }] };
+  const cannot = stated.filter(({ name }) => !first.found.get(`${name}_with_all`));
+  if (cannot.length === 0) return { ok: true, units, scenarios };
+  const second = solve(alloyProgram(src, 'blame', { scenarios: cannot.map(c => c.name), leave: options.leave }).program, java, jar);
+  if ('error' in second) return { ok: false, error: second.error };
+  // A unit whose removal lets the scenario happen is in every conflict: the repair has to touch one of them.
+  const failures = cannot.map(({ name, unit }) => ({
+    scenario: name,
+    unit,
+    conflict: units.filter(other => second.found.get(`${name}_without_${predicateName(other)}`))
+  }));
+  return { ok: false, units, scenarios, failures };
 }

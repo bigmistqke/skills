@@ -368,6 +368,7 @@ const HUE: Record<Kind, string> = {
   'spec-': '36', // cyan
   'exception-': '33', // yellow — where the shoe does not fit should catch the eye
   'bug-': '1;31', // bold red — a defect to fix
+  'conflict-': '1;91', // bold bright red — a defect of the canon itself
   'term-': '1;32' // bold green
 };
 
@@ -386,6 +387,7 @@ const DIM: Record<Kind, string> = {
   'spec-': '2;36',
   'exception-': '2;33',
   'bug-': '2;31',
+  'conflict-': '2;91',
   'term-': '2;32'
 };
 
@@ -596,8 +598,21 @@ function treeOf(
     listGivens('fact-', true);
   }
 
+  // A conflict belongs to no unit and derives from none, so it is no part of
+  // the tree either. It is drawn as what it is, a warning, with its statement.
+  const conflicts = gapsOnly ? [] : headings.filter(u => kindOf(u.id ?? '') === 'conflict-');
+  if (conflicts.length > 0) out.push('');
+  for (const unit of conflicts) {
+    const [tag, ...word] = prose(unit.id ?? '').split(' ');
+    out.push(`${paint(DIM['conflict-'], tag)} ${paint(HUE['conflict-'], word.join(' '))}`);
+    if (unit.statement) {
+      const sill = ' '.repeat(tag.length + 1);
+      out.push(sill + paint(SAID, clip(unit.statement, sill.length)));
+    }
+  }
+
   for (const root of headings.filter(u => !u.parent || !byId.has(u.parent))) {
-    if (kindOf(root.id ?? '') === 'term-' || kindOf(root.id ?? '') === 'fact-') continue;
+    if (['term-', 'fact-', 'conflict-'].includes(kindOf(root.id ?? '') ?? '')) continue;
     if (!keep(root)) continue;
     const rootKind = kindOf(root.id ?? '') ?? 'axiom-';
     const [rootTag, ...rootLabel] = prose(root.id ?? '').split(' ');
@@ -694,6 +709,8 @@ type FindingName =
   | 'untracked-bug'
   | 'unpinned-bug'
   | 'fails-without-bug'
+  | 'untracked-conflict'
+  | 'lone-conflict'
   | 'missing-issue'
   | 'closed-issue'
   | 'unreachable-tracker'
@@ -715,9 +732,11 @@ const MEANING: Record<FindingName, string> = {
   'untracked-bug': 'bug that names no issue',
   'unpinned-bug': 'test citing a bug without being marked to fail — a bug is pinned by a test that fails until the fix',
   'fails-without-bug': 'test marked to fail that cites no bug or exception — an expected failure is a known defect, and the canon names it',
-  'missing-issue': 'bug naming an issue the tracker does not hold, or one that is a pull request',
-  'closed-issue': 'bug naming an issue that is closed — the fix landed and the bug goes, or the issue was closed too soon',
-  'unreachable-tracker': 'bug whose issue the tracker could not be asked about — no token, no access or no network',
+  'untracked-conflict': 'conflict that names no issue',
+  'lone-conflict': 'conflict whose "Between:" line names fewer than two units — a contradiction needs two sides',
+  'missing-issue': 'bug or conflict naming an issue the tracker does not hold, or one that is a pull request',
+  'closed-issue': 'bug or conflict naming an issue that is closed — the fix landed and the unit goes, or the issue was closed too soon',
+  'unreachable-tracker': 'bug or conflict whose issue the tracker could not be asked about — no token, no access or no network',
   'stale-site': 'unit naming a code site that is not there, or naming it in its statement'
 };
 
@@ -751,7 +770,7 @@ interface Analysis {
    * reference. Further parents and nesting together are the derivation graph.
    */
   links: Map<string, Array<{ target: string; derives: boolean }>>;
-  /** The text of each bug, by `<doc>#<id>`, which names its issues. */
+  /** The text of each bug and conflict, by `<doc>#<id>`, which names its issues. */
   bugs: Map<string, string>;
 }
 
@@ -778,6 +797,8 @@ function analyse(write: boolean): Analysis {
     'untracked-bug': [],
     'unpinned-bug': [],
     'fails-without-bug': [],
+    'untracked-conflict': [],
+    'lone-conflict': [],
     'missing-issue': [],
     'closed-issue': [],
     'unreachable-tracker': [],
@@ -1337,8 +1358,10 @@ function analyse(write: boolean): Analysis {
 
   // dead — a unit nothing cites. Last, after every suite has been read: a spec
   // kept alive by a test it has not reached yet would otherwise report dead,
-  // and the list would read as a canon full of unreachable units.
+  // and the list would read as a canon full of unreachable units. A conflict is
+  // no part of the theory, only a record of where it fails, so nothing cites it.
   for (const [key, unit] of units) {
+    if (unit.kind === 'conflict-') continue;
     if (!citedTargets.has(key))
       findings.dead.push(`${key} (${aNoun(unit.kind)})`);
   }
@@ -1404,13 +1427,31 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  // untracked-bug — a bug owes an issue, named in its own text.
+  // untracked-bug, untracked-conflict — a bug or a conflict owes an issue,
+  // named in its own text. Both wait on someone: a bug on its fix, a conflict on
+  // the owner's ruling. The issue is where that wait is tracked.
   const bugs = new Map<string, string>();
   for (const [key, unit] of units) {
-    if (unit.kind !== 'bug-') continue;
+    if (unit.kind !== 'bug-' && unit.kind !== 'conflict-') continue;
     bugs.set(key, unit.own ?? '');
     if (!/(?:^|[^\w&])#\d+\b|\/issues\/\d+/.test(unit.own ?? '')) {
-      findings['untracked-bug'].push(key);
+      findings[unit.kind === 'bug-' ? 'untracked-bug' : 'untracked-conflict'].push(key);
+    }
+  }
+
+  // lone-conflict — a conflict names, on its "Between:" line, the units that
+  // cannot all hold. A contradiction has at least two sides, and a conflict is
+  // never one of them.
+  for (const [key, unit] of units) {
+    if (unit.kind !== 'conflict-') continue;
+    const line = /^Between:(.*)$/m.exec(unit.own ?? '')?.[1] ?? '';
+    const sides = new Set(
+      [...line.matchAll(/\]\([^)#]*#([\w-]+)\)/g)]
+        .map(m => m[1] as string)
+        .filter(id => kindOf(id) !== undefined && kindOf(id) !== 'conflict-')
+    );
+    if (sides.size < 2) {
+      findings['lone-conflict'].push(`${key} (names ${sides.size} unit${sides.size === 1 ? '' : 's'})`);
     }
   }
 
@@ -1488,7 +1529,8 @@ ${(Object.keys(MEANING) as FindingName[])
 
 Terms come first in the tree, each with its definition and the number of units
 that link to it. Facts come next, each with its statement and the number of
-units that derive from it. The derivation tree of the axioms follows.
+units that derive from it. Conflicts follow, each with its statement. The
+derivation tree of the axioms comes last.
 
 Tree connectors:
   ├─ └─   nesting — the ordinary citation
@@ -1544,7 +1586,7 @@ async function holdToTracker(
     }
   }
   for (const [problem, keys] of unreachable) {
-    findings['unreachable-tracker'].push(`${problem} (${keys.length} bug(s), such as ${keys[0]})`);
+    findings['unreachable-tracker'].push(`${problem} (${keys.length} bug(s) or conflict(s), such as ${keys[0]})`);
   }
 }
 
