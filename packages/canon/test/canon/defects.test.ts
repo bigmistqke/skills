@@ -39,6 +39,9 @@ const CONFLICT = (between: string[], issue?: string) => `${LEAF}${SECOND}
 Between: ${between.map((id) => `[\`${id}\`](#${id})`).join(', ')}
 ${issue ? `\nIssue: ${issue}\n` : ''}`;
 
+/** The setting of a tracker, which the check run offline does not ask. */
+const TRACKER = { settings: { tracker: { kind: 'github', repo: 'acme/app' } } };
+
 const BOTH = ['spec-a-leaf-says-one-thing', 'spec-a-leaf-says-another-thing'];
 const LEAVES = tagged('spec-a-leaf-says-one-thing') + tagged('spec-a-leaf-says-another-thing');
 
@@ -47,7 +50,7 @@ describe('a hidden bug', () => {
    * @canon spec-a-bug-names-an-issue
    */
   it('reports an untracking for a bug that names no issue', () => {
-    expect(check(canon(BUG()), PIN)['untracked-bug']).toBe(1);
+    expect(check(canon(BUG()), PIN, TRACKER)['untracked-bug']).toBe(1);
   });
 
   /**
@@ -77,7 +80,7 @@ describe('a hidden conflict', () => {
    * @canon spec-a-conflict-names-an-issue
    */
   it('reports an untracking for a conflict that names no issue', () => {
-    expect(check(canon(CONFLICT(BOTH)), LEAVES)['untracked-conflict']).toBe(1);
+    expect(check(canon(CONFLICT(BOTH)), LEAVES, TRACKER)['untracked-conflict']).toBe(1);
   });
 
   /**

@@ -82,7 +82,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term name`](#term-name) — A bug names each issue that the issue line of the bug names.
 - [`@term tested`](#term-tested) — For every [unit_1](#term-unit): unit_1 is tested exactly when at least one of these holds: - a [test](#term-test) [checks](#term-check) unit_1 - unit_1 is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) unit_1
 - [`@term paired`](#term-paired) — For every [conflict_1](#term-conflict): conflict_1 is paired exactly when conflict_1 [names](#term-name) a [unit](#term-unit) and names another unit.
-- [`@term hidden`](#term-hidden) — For every [unit_1](#term-unit): unit_1 is hidden exactly when unit_1 is one of these: - a [bug](#term-bug) that [names](#term-name) no [issue](#term-issue), names an issue that [tracker](#term-tracker) does not know, names an issue that tracker has closed or is not [tested](#term-tested) - a [conflict](#term-conflict) that names no issue, names an issue that tracker does not know, names an issue that tracker has closed or is not [paired](#term-paired)
+- [`@term hidden`](#term-hidden) — For every [unit_1](#term-unit): unit_1 is hidden exactly when at least one of these holds: - all of these hold: - unit_1 is a [bug](#term-bug) - at least one of these holds: - [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue) - unit_1 names an issue that tracker does not know - unit_1 names an issue that tracker has closed - unit_1 is not [tested](#term-tested) - all of these hold: - unit_1 is a [conflict](#term-conflict) - at least one of these holds: - project has a tracker and unit_1 names no issue - unit_1 names an issue that tracker does not know - unit_1 names an issue that tracker has closed - unit_1 is not [paired](#term-paired)
 - [`@term misleading`](#term-misleading) — For every [test_1](#term-test): test_1 is misleading exactly when test_1 is one of these: - an [expected failure](#term-expected-failure) that [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception) - a [plain test](#term-plain-test) that checks a bug
 - [`@term plugin`](#term-plugin) — A plugin is a package that adds commands to the checker, and that a document asks for by the name of the package.
 - [`@term command`](#term-command) — A command is a word after `canon` on the command line, and asks the checker for one job.
@@ -126,12 +126,12 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec a-unit-does-not-depend-on-itself`](#spec-a-unit-does-not-depend-on-itself) — For every [unit_1](#term-unit): when unit_1 is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for unit_1.
 - [`@axiom a-known-defect-stays-in-sight`](#axiom-a-known-defect-stays-in-sight) — All of these hold: - for every [bug_1](#term-bug): when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1 - for every [conflict_1](#term-conflict): when conflict_1 is hidden, checker reports a finding for conflict_1 - for every [test_1](#term-test): when test_1 is [misleading](#term-misleading), checker reports a finding for test_1.
   - [`@spec a-hidden-bug-is-reported`](#spec-a-hidden-bug-is-reported) — For every [bug_1](#term-bug): when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1.
-    - [`@spec a-bug-names-an-issue`](#spec-a-bug-names-an-issue) — For every [bug_1](#term-bug): when bug_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for bug_1.
+    - [`@spec a-bug-names-an-issue`](#spec-a-bug-names-an-issue) — For every [bug_1](#term-bug): when [project](#term-project) has a [tracker](#term-tracker) and bug_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for bug_1.
     - [`@spec a-bug-names-an-issue-the-tracker-knows`](#spec-a-bug-names-an-issue-the-tracker-knows) — For every [bug_1](#term-bug): when bug_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for bug_1.
     - [`@spec a-bug-names-an-open-issue`](#spec-a-bug-names-an-open-issue) — For every [bug_1](#term-bug): when bug_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for bug_1.
     - [`@spec a-bug-is-tested`](#spec-a-bug-is-tested) — For every [bug_1](#term-bug): when bug_1 is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for bug_1.
   - [`@spec a-hidden-conflict-is-reported`](#spec-a-hidden-conflict-is-reported) — For every [conflict_1](#term-conflict): when conflict_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for conflict_1.
-    - [`@spec a-conflict-names-an-issue`](#spec-a-conflict-names-an-issue) — For every [conflict_1](#term-conflict): when conflict_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for conflict_1.
+    - [`@spec a-conflict-names-an-issue`](#spec-a-conflict-names-an-issue) — For every [conflict_1](#term-conflict): when [project](#term-project) has a [tracker](#term-tracker) and conflict_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for conflict_1.
     - [`@spec a-conflict-names-an-issue-the-tracker-knows`](#spec-a-conflict-names-an-issue-the-tracker-knows) — For every [conflict_1](#term-conflict): when conflict_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for conflict_1.
     - [`@spec a-conflict-names-an-open-issue`](#spec-a-conflict-names-an-open-issue) — For every [conflict_1](#term-conflict): when conflict_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for conflict_1.
     - [`@spec a-conflict-names-two-units`](#spec-a-conflict-names-two-units) — For every [conflict_1](#term-conflict): when conflict_1 is not [paired](#term-paired), [checker](#term-checker) reports an [unpairing](#term-unpairing) for conflict_1.
@@ -188,6 +188,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — For every [claim_1](#term-claim): when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) claim_1, [checker](#term-checker) reports no [untesting](#term-untesting) for claim_1.
       - [`@spec a-claim-an-undeclared-test-checks-is-not-untested`](#spec-a-claim-an-undeclared-test-checks-is-not-untested) — For every [claim_1](#term-claim): when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) claim_1, [checker](#term-checker) reports no [untesting](#term-untesting) for claim_1.
       - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — For every [spec_1](#term-spec): when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [sits in](#term-sit) spec_1, [checker](#term-checker) reports no [untesting](#term-untesting) for spec_1.
+    - [`@spec a-project-with-no-tracker-reports-no-untracking`](#spec-a-project-with-no-tracker-reports-no-untracking) — For every [unit_1](#term-unit): when [project](#term-project) has no [tracker](#term-tracker), [checker](#term-checker) reports no [untracking](#term-untracking) for unit_1.
     - [`@spec only-a-call-that-declares-a-test-is-a-test`](#spec-only-a-call-that-declares-a-test-is-a-test) — The checker reads a call as a test only when a [runner](#term-runner) of the project declares a test with it.
       - [`@spec a-member-no-runner-names-is-no-test`](#spec-a-member-no-runner-names-is-no-test) — A call through a member that no runner of the project names, such as `test.beforeEach(fn)` or `test.extend({})`, is no test.
       - [`@spec a-call-with-no-body-is-no-test`](#spec-a-call-with-no-body-is-no-test) — A call with no function after its first argument, such as `test.todo('name')` or `test.skip(condition, 'reason')`, is no test.
@@ -1275,13 +1276,17 @@ Issue: {1} is an [issue] | {1} is not an [issue]
 
 > Tracker is the issue tracker the scope of the project names.
 
-The [issues](#term-issue) a bug or a conflict names are the tracker's.
+The [issues](#term-issue) a bug or a conflict names are the tracker's. The setting `tracker` names it. A project that sets no `tracker` has none, and so has no issues: a line such as `Issue: #12` in such a project names nothing.
 
 ```alloy vocabulary
+lone sig Tracker {}
 sig Known, Closed in Issue {}
+fact issues_are_the_trackers { no Tracker implies no Issue }
 ```
 
 ```readings
+noun Tracker: [tracker]
+Tracker: [project](#term-project) has a [tracker] | [project](#term-project) has no [tracker]
 Known: [tracker] knows {1} | [tracker] does not know {1}
 Closed: [tracker] has closed {1} | [tracker] has not closed {1}
 ```
@@ -1358,17 +1363,29 @@ paired: {1} is [paired] | {1} is not [paired]
 <!-- statement-term-hidden:begin — generated by `canon generate`; edits are overwritten -->
 > For every [unit_1](#term-unit):
 >
-> unit_1 is hidden exactly when unit_1 is one of these:
-> - a [bug](#term-bug) that [names](#term-name) no [issue](#term-issue), names an issue that [tracker](#term-tracker) does not know, names an issue that tracker has closed or is not [tested](#term-tested)
-> - a [conflict](#term-conflict) that names no issue, names an issue that tracker does not know, names an issue that tracker has closed or is not [paired](#term-paired)
+> unit_1 is hidden exactly when at least one of these holds:
+> - all of these hold:
+>   - unit_1 is a [bug](#term-bug)
+>   - at least one of these holds:
+>     - [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue)
+>     - unit_1 names an issue that tracker does not know
+>     - unit_1 names an issue that tracker has closed
+>     - unit_1 is not [tested](#term-tested)
+> - all of these hold:
+>   - unit_1 is a [conflict](#term-conflict)
+>   - at least one of these holds:
+>     - project has a tracker and unit_1 names no issue
+>     - unit_1 names an issue that tracker does not know
+>     - unit_1 names an issue that tracker has closed
+>     - unit_1 is not [paired](#term-paired)
 <!-- statement-term-hidden:end -->
 
-A known defect out of sight: no open issue tracks it, no test checks it, or a conflict that does not say which units it sets against each other.
+A known defect out of sight: no open issue tracks it, no test checks it, or a conflict that does not say which units it sets against each other. A project with no [tracker](#term-tracker) owes no issue.
 
 ```alloy
 pred hidden[x: Unit] {
-  (x in Bug and ((no i: Issue | x->i in Name.issue) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not tested[x]))
-  or (x in Conflict and ((no i: Issue | x->i in Name.issue) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not paired[x]))
+  (x in Bug and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not tested[x]))
+  or (x in Conflict and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not paired[x]))
 }
 ```
 
@@ -2028,11 +2045,11 @@ all b: Bug | hidden[b] implies b in Finding
 <!-- statement-spec-a-bug-names-an-issue:begin — generated by `canon generate`; edits are overwritten -->
 > For every [bug_1](#term-bug):
 >
-> when bug_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for bug_1.
+> when [project](#term-project) has a [tracker](#term-tracker) and bug_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for bug_1.
 <!-- statement-spec-a-bug-names-an-issue:end -->
 
 ```alloy
-all b: Bug | (no i: Issue | b->i in Name.issue) implies b in Untracking
+all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in Untracking
 ```
 
 ##### @spec a-bug-names-an-issue-the-tracker-knows
@@ -2090,11 +2107,11 @@ all c: Conflict | hidden[c] implies c in Finding
 <!-- statement-spec-a-conflict-names-an-issue:begin — generated by `canon generate`; edits are overwritten -->
 > For every [conflict_1](#term-conflict):
 >
-> when conflict_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for conflict_1.
+> when [project](#term-project) has a [tracker](#term-tracker) and conflict_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for conflict_1.
 <!-- statement-spec-a-conflict-names-an-issue:end -->
 
 ```alloy
-all c: Conflict | (no i: Issue | c->i in Name.issue) implies c in Untracking
+all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies c in Untracking
 ```
 
 ##### @spec a-conflict-names-an-issue-the-tracker-knows
@@ -2737,6 +2754,20 @@ This follows because a test of a [bug](#term-bug) asserts what the spec the bug 
 ```alloy
 all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting
 ```
+
+#### @spec a-project-with-no-tracker-reports-no-untracking
+
+<!-- statement-spec-a-project-with-no-tracker-reports-no-untracking:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when [project](#term-project) has no [tracker](#term-tracker), [checker](#term-checker) reports no [untracking](#term-untracking) for unit_1.
+<!-- statement-spec-a-project-with-no-tracker-reports-no-untracking:end -->
+
+```alloy
+all u: Unit | no Tracker implies u not in Untracking
+```
+
+This follows because an [issue](#term-issue) is an entry of the [tracker](#term-tracker). A project with no tracker has no issue that a bug or a conflict could name. An [untracking](#term-untracking) there would ask for an issue line that names nothing, which an author could only meet with a number that tracks no work.
 
 #### @spec only-a-call-that-declares-a-test-is-a-test
 

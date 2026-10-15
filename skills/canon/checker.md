@@ -65,7 +65,7 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 
 ## 3. Issues
 
-A bug or a conflict names its issue on a line of its own, such as `Issue: #49`. With no `tracker` in the scope, `check` accepts any `#49` or issue URL. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
+A bug or a conflict names its issue on a line of its own, such as `Issue: #49`, when the scope has a `tracker`. With no `tracker`, the project has no issues, and a bug or a conflict owes no issue line. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
 
 ```yaml
 tracker: {kind: github, repo: owner/name}

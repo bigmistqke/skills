@@ -1487,12 +1487,13 @@ function analyse(write: boolean): Analysis {
 
   // untracked-bug, untracked-conflict — a bug or a conflict owes an issue,
   // named in its own text. Both wait on someone: a bug on its fix, a conflict on
-  // the owner's ruling. The issue is where that wait is tracked.
+  // the owner's ruling. The issue is where that wait is tracked. A project with
+  // no tracker has no issues, so nothing is owed there.
   const bugs = new Map<string, string>();
   for (const [key, unit] of units) {
     if (unit.kind !== 'bug-' && unit.kind !== 'conflict-') continue;
     bugs.set(key, unit.own ?? '');
-    if (!/(?:^|[^\w&])#\d+\b|\/issues\/\d+/.test(unit.own ?? '')) {
+    if (CONFIG.tracker !== undefined && !/(?:^|[^\w&])#\d+\b|\/issues\/\d+/.test(unit.own ?? '')) {
       findings[unit.kind === 'bug-' ? 'untracked-bug' : 'untracked-conflict'].push(key);
     }
   }

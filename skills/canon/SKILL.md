@@ -86,7 +86,7 @@ Tests cannot tell an extension from a patch, because many implementations pass t
 3. Find the spec that covers the situation. If none does, a spec is missing or states too much.
 4. Find the axiom or fact that decides the spec. If none does, one is missing. Ask the owner of the design.
 5. Write what is missing from the top down: axiom or fact, then spec. Make the test from step 2 cite the spec.
-6. If the fix waits, record the defect instead. Write a bug inside the spec, name its issue, and mark the test from step 2 to fail, citing the bug. [Writing units](writing-units.md#5-facts-exceptions-and-bugs) has the rules.
+6. If the fix waits, record the defect instead. Write a bug inside the spec, name its issue when the project has a tracker, and mark the test from step 2 to fail, citing the bug. [Writing units](writing-units.md#5-facts-exceptions-and-bugs) has the rules.
 7. Fix the code. If a bug recorded the defect, remove it, and make its test pass and cite the spec.
 8. Never narrow a spec so that the defect falls outside it. A defect points up, at a gap in the canon, and never down, at the claim it breaks. Only the owner of the design can rule that a claim was wrong.
 9. Pointing up can mean generalising a spec. The defect may show that a leaf spec stated one case of a wider claim. Then restate that spec as the wider claim, which makes it a parent. Under it, write one leaf spec for each case it covers, the defect's case included. The defect's test cites that leaf.
