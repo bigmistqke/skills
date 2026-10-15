@@ -20,6 +20,25 @@ const BUG = `${LEAF}
 Issue: #1
 `;
 
+/** The leaf, a second leaf, a bug under the first and a conflict between them, neither with an issue line. */
+const UNTRACKED = `${LEAF}
+#### @bug the-leaf-breaks
+
+> The code does another thing.
+
+### @spec a-leaf-says-another-thing
+
+> A leaf says another thing.
+
+## Conflicts
+
+### @conflict the-leaves-disagree
+
+> The two leaves cannot both hold.
+
+Between: [\`spec-a-leaf-says-one-thing\`](#spec-a-leaf-says-one-thing), [\`spec-a-leaf-says-another-thing\`](#spec-a-leaf-says-another-thing)
+`;
+
 /** A module that builds one test per case of a table, the way a suite of cases is written, and tags the test it builds. */
 const MATRIX = `export function matrix(cases: string[]): void {
   for (const name of cases) {
@@ -68,5 +87,27 @@ describe('a tested claim', () => {
    */
   it('reports no untesting for a spec whose bug a test checks', () => {
     expect(check(canon(BUG), tagged('bug-the-leaf-breaks', 'it.fails'))['untested']).toBeUndefined();
+  });
+});
+
+describe('a project with no tracker', () => {
+  /**
+   * @canon spec-a-project-with-no-tracker-reports-no-untracking
+   */
+  it('reports no untracking for a bug or a conflict that names no issue', () => {
+    const tests = tagged('bug-the-leaf-breaks', 'it.fails') + tagged('spec-a-leaf-says-another-thing');
+    const found = check(canon(UNTRACKED), tests);
+    expect(found['untracked-bug']).toBeUndefined();
+    expect(found['untracked-conflict']).toBeUndefined();
+  });
+});
+
+describe('a project with no runner', () => {
+  /**
+   * @canon spec-a-project-with-no-runner-reports-no-untesting
+   */
+  it('reports no untesting for a leaf or a bug that no test checks', () => {
+    expect(check(canon(BUG), '', { settings: { runners: [] } })['untested']).toBeUndefined();
+    expect(check(canon(BUG), '')['untested']).toBe(2);
   });
 });

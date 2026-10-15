@@ -89,7 +89,7 @@ This follows because a missing value sets nothing: …
 5. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
 6. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
 7. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
-8. A bug sits inside the spec it breaks, and names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
+8. A bug sits inside the spec it breaks, and, when the project configures a tracker, names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
 9. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
 10. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
 11. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
@@ -133,7 +133,7 @@ _Avoid_: current state, now
 4. Never cite an axiom or a fact (`missing-spec`). Write the missing spec instead.
 5. A leaf that claims a result on every target needs a test on every target. A test on one target says nothing about the others. A claim tested on some targets only goes unchecked on the rest.
 6. A leaf leaves the coverage backlog only when a test cites it directly, or cites a bug inside it.
-7. A helper that wraps a runner's call, such as `(name, fn) => it(name, fn)`, carries `@runner` in its JSDoc, or `@runner fails` when it wraps `it.fails`. So does a `test` that `base.extend(...)` makes. Each call of it is then a test: tag the call, not the helper. Import the helper by a relative path: the checker follows no alias.
+7. A helper that wraps a runner's call, such as `(name, fn) => it(name, fn)`, carries `@runner` in its JSDoc, or `@runner fails` when it wraps `it.fails`. So does a `test` that `base.extend(...)` makes. Each call of it is then a test: tag the call, not the helper. Import the helper by a relative path: the checker follows no alias. A project that sets `runners` lists `"@runner"` among them.
 8. If a test needs a word of explanation, open its JSDoc with it, then leave a blank line before the tags. Move a line comment that explains a test into its JSDoc. A comment that heads a group of tests stays where it is.
 
 ```ts
@@ -170,7 +170,7 @@ test('a throwing listener does not stop the next one', () => {
 3. Write conflicts in the `## Conflicts` section of a canon document, as `### @conflict <stem>`. A conflict sits in no unit, and no unit sits in a conflict (`misnested`).
 4. Its statement names the case in which the units cannot all hold: what happens, and what each side claims of it.
 5. Name the units on a `Between:` line, right after the statement. Name at least two (`lone-conflict`). A link on that line is no derivation: a conflict follows from nothing.
-6. Name its issue on a line of its own, such as `Issue: #61` (`untracked-conflict`). The tracker holds a conflict's issue as it holds a bug's.
+6. When the project configures a tracker, name its issue on a line of its own, such as `Issue: #61` (`untracked-conflict`). The tracker holds a conflict's issue as it holds a bug's.
 7. A conflict owes no test. No test can pin it, because the code can hold at most one side.
 
 ```md

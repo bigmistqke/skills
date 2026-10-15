@@ -23,7 +23,7 @@ sources: [src, test]
 references: []
 command: pnpm canon
 tracker: {kind: github, repo: owner/name}
-runners: [vitest]
+runners: ["@runner", vitest]
 ---
 ```
 
@@ -38,7 +38,7 @@ The entry document is the nearest `CANON.md` whose frontmatter holds a setting. 
 - A document that builds on another lists its path under `extends` in its frontmatter, such as `extends: ["../canon/CANON.md"]`. The other document is context: the checker reads its units and checks it where it lives. A path that names no document is refused.
 - `command`: how the project runs the checker, for the advice in findings.
 - `tracker`: the issue tracker the bugs and conflicts name their issues in. Default none. [Section 3](#3-issues) has the fields.
-- `runners`: the test libraries whose calls are tests. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only], fails: [failing], from: [mocha], globals: true}` describes a library with no preset. A call counts only when its name comes from the library: imported from a package under `from`, or a global when the map sets `globals`. Default every preset.
+- `runners`: the test libraries whose calls are tests. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only], fails: [failing], from: [mocha], globals: true}` describes a library with no preset. A call counts only when its name comes from the library: imported from a package under `from`, or a global when the map sets `globals`. The entry `"@runner"`, in quotes, picks the helpers that a JSDoc line `@runner` marks; a marker in a project whose list leaves it out stops the run. Default every preset and `"@runner"`. With `runners: []` the project has no tests: the checker holds the canon to itself, and no claim owes a test.
 - A plugin may define a key of its own, such as `logic: {alloy: {jar: tools/alloy.jar}}`. The checker accepts it once the document lists the plugin, and refuses any other key it does not know.
 
 ## 2. Commands
@@ -65,7 +65,7 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 
 ## 3. Issues
 
-A bug or a conflict names its issue on a line of its own, such as `Issue: #49`. With no `tracker` in the scope, `check` accepts any `#49` or issue URL. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
+A bug or a conflict names its issue on a line of its own, such as `Issue: #49`, when the scope has a `tracker`. With no `tracker`, the project has no issues, and a bug or a conflict owes no issue line. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
 
 ```yaml
 tracker: {kind: github, repo: owner/name}

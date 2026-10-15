@@ -35,7 +35,9 @@ const canon = (units: string): string => `${HEAD}\n${units}`;
 
 /**
  * Builds a project of one canon document and one test file, runs `check` over
- * it, and returns each finding that has any entries, with its count.
+ * it, and returns each finding that has any entries, with its count. The
+ * project names a tracker, so a bug owes an issue, and the run is offline, so
+ * the tracker is not asked.
  */
 function check(document: string, test: string): Record<string, number> {
   const dir = mkdtempSync(join(tmpdir(), 'canon-check-'));
@@ -44,13 +46,13 @@ function check(document: string, test: string): Record<string, number> {
   writeFileSync(
     join(dir, 'package.json'),
     JSON.stringify({
-      canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' }
+      canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon', tracker: { kind: 'github', repo: 'acme/app' } }
     })
   );
   writeFileSync(join(dir, 'CANON.md'), document);
   writeFileSync(join(dir, 'test', 'canon', 'a.test.ts'), test);
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
-  const run = spawnSync(process.execPath, [CLI, 'check'], { cwd: dir, encoding: 'utf8' });
+  const run = spawnSync(process.execPath, [CLI, 'check', '--offline'], { cwd: dir, encoding: 'utf8' });
   const counts: Record<string, number> = {};
   for (const line of run.stdout.split('\n')) {
     const found = /^(\S+) — .*: (\d+)$/.exec(line);
