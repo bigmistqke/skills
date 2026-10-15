@@ -61,6 +61,15 @@ describe('the setting runners', () => {
   });
 
   /**
+   * @canon spec-an-empty-list-of-runners-reads-no-test
+   */
+  it('reads no call as a test when the list of runners is empty', () => {
+    const tests = `it('an untagged check', () => {});\ntest('another', () => {});\n`;
+    expect(check(canon(LEAF), tests, { settings: { runners: [] } })['uncited']).toBeUndefined();
+    expect(check(canon(LEAF), tests)['uncited']).toBe(2);
+  });
+
+  /**
    * @canon spec-a-runner-written-as-a-map-adds-its-calls
    */
   it('reads a call that a runner written as a map lists as a test, as a global or imported from its package', () => {

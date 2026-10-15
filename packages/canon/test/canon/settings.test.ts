@@ -245,11 +245,41 @@ describe('a runner marker the checker cannot read', () => {
   });
 
   /**
+   * @canon spec-a-runner-marker-the-settings-do-not-list-is-refused
+   */
+  it('refuses a marker in a project whose runners leave out "@runner", and reads it when they list it', () => {
+    const helpers = `/** ${marker} */\nexport const check = (name: string, fn: () => void) => it(name, fn);\n`;
+    const listed = (runners: string) => {
+      const dir = write({ 'CANON.md': canon(['suites: checks', 'sources: [checks]', `runners: ${runners}`]), 'checks/a.test.ts': TEST, 'checks/helpers.ts': helpers });
+      run(dir, '.', 'generate');
+      return run(dir, '.', 'check', '--offline');
+    };
+    const left = listed('[vitest]');
+    expect(left.out).toContain('checks/helpers.ts');
+    expect(left.out).toContain('"@runner"');
+    expect(left.code).toBe(2);
+    expect(listed('[]').code).toBe(2);
+    expect(listed('["@runner", vitest]').code).toBe(0);
+  });
+
+  /**
    * @canon spec-a-runner-marker-on-no-declaration-is-refused
    */
   it('refuses a marker above no declaration, and exits with code 2', () => {
     const { out, code } = project({ 'checks/helpers.ts': `/** ${marker} */\nconsole.log('loaded');\n` });
     expect(out).toContain('checks/helpers.ts:1 — the runner marker is above no declaration');
     expect(code).toBe(2);
+  });
+});
+
+describe('a check with no runner', () => {
+  /**
+   * @canon spec-a-check-with-no-runner-says-it-reads-no-test
+   */
+  it('says in its report that it reads no tests', () => {
+    const none = write({ 'CANON.md': canon(['suites: checks', 'runners: []']), 'checks/a.test.ts': TEST });
+    expect(run(none, '.', 'check', '--offline').out).toContain('tests: none read');
+    const some = write({ 'CANON.md': canon(['suites: checks']), 'checks/a.test.ts': TEST });
+    expect(run(some, '.', 'check', '--offline').out).not.toContain('tests: none read');
   });
 });

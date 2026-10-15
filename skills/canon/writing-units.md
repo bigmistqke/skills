@@ -133,7 +133,7 @@ _Avoid_: current state, now
 4. Never cite an axiom or a fact (`missing-spec`). Write the missing spec instead.
 5. A leaf that claims a result on every target needs a test on every target. A test on one target says nothing about the others. A claim tested on some targets only goes unchecked on the rest.
 6. A leaf leaves the coverage backlog only when a test cites it directly, or cites a bug inside it.
-7. A helper that wraps a runner's call, such as `(name, fn) => it(name, fn)`, carries `@runner` in its JSDoc, or `@runner fails` when it wraps `it.fails`. So does a `test` that `base.extend(...)` makes. Each call of it is then a test: tag the call, not the helper. Import the helper by a relative path: the checker follows no alias.
+7. A helper that wraps a runner's call, such as `(name, fn) => it(name, fn)`, carries `@runner` in its JSDoc, or `@runner fails` when it wraps `it.fails`. So does a `test` that `base.extend(...)` makes. Each call of it is then a test: tag the call, not the helper. Import the helper by a relative path: the checker follows no alias. A project that sets `runners` lists `"@runner"` among them.
 8. If a test needs a word of explanation, open its JSDoc with it, then leave a blank line before the tags. Move a line comment that explains a test into its JSDoc. A comment that heads a group of tests stays where it is.
 
 ```ts

@@ -101,3 +101,13 @@ describe('a project with no tracker', () => {
     expect(found['untracked-conflict']).toBeUndefined();
   });
 });
+
+describe('a project with no runner', () => {
+  /**
+   * @canon spec-a-project-with-no-runner-reports-no-untesting
+   */
+  it('reports no untesting for a leaf or a bug that no test checks', () => {
+    expect(check(canon(BUG), '', { settings: { runners: [] } })['untested']).toBeUndefined();
+    expect(check(canon(BUG), '')['untested']).toBe(2);
+  });
+});

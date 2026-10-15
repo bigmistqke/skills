@@ -82,7 +82,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term name`](#term-name) — A bug names each issue that the issue line of the bug names.
 - [`@term tested`](#term-tested) — For every [unit_1](#term-unit): unit_1 is tested exactly when at least one of these holds: - a [test](#term-test) [checks](#term-check) unit_1 - unit_1 is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) unit_1
 - [`@term paired`](#term-paired) — For every [conflict_1](#term-conflict): conflict_1 is paired exactly when conflict_1 [names](#term-name) a [unit](#term-unit) and names another unit.
-- [`@term hidden`](#term-hidden) — For every [unit_1](#term-unit): unit_1 is hidden exactly when at least one of these holds: - all of these hold: - unit_1 is a [bug](#term-bug) - at least one of these holds: - [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue) - unit_1 names an issue that tracker does not know - unit_1 names an issue that tracker has closed - unit_1 is not [tested](#term-tested) - all of these hold: - unit_1 is a [conflict](#term-conflict) - at least one of these holds: - project has a tracker and unit_1 names no issue - unit_1 names an issue that tracker does not know - unit_1 names an issue that tracker has closed - unit_1 is not [paired](#term-paired)
+- [`@term hidden`](#term-hidden) — For every [unit_1](#term-unit): unit_1 is hidden exactly when at least one of these holds: - all of these hold: - unit_1 is a [bug](#term-bug) - at least one of these holds: - [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue) - unit_1 names an issue that tracker does not know - unit_1 names an issue that tracker has closed - project has a [runner](#term-runner) and unit_1 is not [tested](#term-tested) - all of these hold: - unit_1 is a [conflict](#term-conflict) - at least one of these holds: - project has a tracker and unit_1 names no issue - unit_1 names an issue that tracker does not know - unit_1 names an issue that tracker has closed - unit_1 is not [paired](#term-paired)
 - [`@term misleading`](#term-misleading) — For every [test_1](#term-test): test_1 is misleading exactly when test_1 is one of these: - an [expected failure](#term-expected-failure) that [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception) - a [plain test](#term-plain-test) that checks a bug
 - [`@term plugin`](#term-plugin) — A plugin is a package that adds commands to the checker, and that a document asks for by the name of the package.
 - [`@term command`](#term-command) — A command is a word after `canon` on the command line, and asks the checker for one job.
@@ -92,7 +92,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term flaw`](#term-flaw) — A flaw is a mistake that makes a frontmatter unreadable.
 - [`@term extension`](#term-extension) — A document extends another when its frontmatter lists the path of the other. The other is then context for it: the checker reads its units and its words, and checks it where it lives.
 - [`@term setting`](#term-setting) — A setting is a key of a frontmatter that sets how the checker runs over a project, with its value.
-- [`@term runner`](#term-runner) — A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes. A function that a runner marker marks is a call of a runner too.
+- [`@term runner`](#term-runner) — A runner is what the checker reads tests through: Vitest, Jest, Playwright, Node's test runner, a library that `runners` describes, or the runner markers.
 - [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
@@ -129,7 +129,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-bug-names-an-issue`](#spec-a-bug-names-an-issue) — For every [bug_1](#term-bug): when [project](#term-project) has a [tracker](#term-tracker) and bug_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for bug_1.
     - [`@spec a-bug-names-an-issue-the-tracker-knows`](#spec-a-bug-names-an-issue-the-tracker-knows) — For every [bug_1](#term-bug): when bug_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for bug_1.
     - [`@spec a-bug-names-an-open-issue`](#spec-a-bug-names-an-open-issue) — For every [bug_1](#term-bug): when bug_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for bug_1.
-    - [`@spec a-bug-is-tested`](#spec-a-bug-is-tested) — For every [bug_1](#term-bug): when bug_1 is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for bug_1.
+    - [`@spec a-bug-is-tested`](#spec-a-bug-is-tested) — For every [bug_1](#term-bug): when [project](#term-project) has a [runner](#term-runner) and bug_1 is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for bug_1.
   - [`@spec a-hidden-conflict-is-reported`](#spec-a-hidden-conflict-is-reported) — For every [conflict_1](#term-conflict): when conflict_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for conflict_1.
     - [`@spec a-conflict-names-an-issue`](#spec-a-conflict-names-an-issue) — For every [conflict_1](#term-conflict): when [project](#term-project) has a [tracker](#term-tracker) and conflict_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for conflict_1.
     - [`@spec a-conflict-names-an-issue-the-tracker-knows`](#spec-a-conflict-names-an-issue-the-tracker-knows) — For every [conflict_1](#term-conflict): when conflict_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for conflict_1.
@@ -139,8 +139,8 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec an-expected-failure-checks-a-bug-or-an-exception`](#spec-an-expected-failure-checks-a-bug-or-an-exception) — For every [expected_failure_1](#term-expected-failure): when expected_failure_1 [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for expected_failure_1.
     - [`@spec a-plain-test-does-not-check-a-bug`](#spec-a-plain-test-does-not-check-a-bug) — For every [plain_test_1](#term-plain-test): when plain_test_1 [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for plain_test_1.
 - [`@axiom the-check-can-be-taken-at-its-word`](#axiom-the-check-can-be-taken-at-its-word) — The author can act on what the checker reports: a clean check means the canon holds, and a finding means it does not.
-  - [`@axiom a-canon-cannot-go-out-of-date-unnoticed`](#axiom-a-canon-cannot-go-out-of-date-unnoticed) — All of these hold: - for every [claim_1](#term-claim): when claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1 - for every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), checker reports a finding for tag_1 - for every [test_1](#term-test): when test_1 is [adrift](#term-adrift), checker reports a finding for test_1 - for every [pointer_1](#term-pointer): when pointer_1 names no [target](#term-target), checker reports a finding for pointer_1 - for every unit_1: when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1 - for every unit_1: when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1 - for every [document_1](#term-document): when document_1 [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for document_1 - for every document_1: when document_1 holds an index that does not [match](#term-match) document_1, checker reports a finding for document_1 - for every claim_1: when claim_1 names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for claim_1 - for every unit_1: when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.
-    - [`@spec an-unguarded-claim-is-untested`](#spec-an-unguarded-claim-is-untested) — For every [claim_1](#term-claim): when claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for claim_1.
+  - [`@axiom a-canon-cannot-go-out-of-date-unnoticed`](#axiom-a-canon-cannot-go-out-of-date-unnoticed) — All of these hold: - for every [claim_1](#term-claim): when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1 - for every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), checker reports a finding for tag_1 - for every [test_1](#term-test): when test_1 is [adrift](#term-adrift), checker reports a finding for test_1 - for every [pointer_1](#term-pointer): when pointer_1 names no [target](#term-target), checker reports a finding for pointer_1 - for every unit_1: when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1 - for every unit_1: when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1 - for every [document_1](#term-document): when document_1 [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for document_1 - for every document_1: when document_1 holds an index that does not [match](#term-match) document_1, checker reports a finding for document_1 - for every claim_1: when claim_1 names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for claim_1 - for every unit_1: when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.
+    - [`@spec an-unguarded-claim-is-untested`](#spec-an-unguarded-claim-is-untested) — For every [claim_1](#term-claim): when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for claim_1.
     - [`@spec a-tag-names-a-unit`](#spec-a-tag-names-a-unit) — For every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for tag_1.
     - [`@spec a-tag-in-any-comment-names-a-unit`](#spec-a-tag-in-any-comment-names-a-unit) — When a `@canon` tag in any comment of a suite or a source names no unit, the checker reports a [rotting](#term-rotting) for it.
     - [`@spec a-tag-outside-a-test-tests-nothing`](#spec-a-tag-outside-a-test-tests-nothing) — A `@canon` tag in a comment that is not the documentation comment of a test makes no unit [tested](#term-tested).
@@ -188,6 +188,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — For every [claim_1](#term-claim): when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) claim_1, [checker](#term-checker) reports no [untesting](#term-untesting) for claim_1.
       - [`@spec a-claim-an-undeclared-test-checks-is-not-untested`](#spec-a-claim-an-undeclared-test-checks-is-not-untested) — For every [claim_1](#term-claim): when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) claim_1, [checker](#term-checker) reports no [untesting](#term-untesting) for claim_1.
       - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — For every [spec_1](#term-spec): when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [sits in](#term-sit) spec_1, [checker](#term-checker) reports no [untesting](#term-untesting) for spec_1.
+    - [`@spec a-project-with-no-runner-reports-no-untesting`](#spec-a-project-with-no-runner-reports-no-untesting) — For every [unit_1](#term-unit): when [project](#term-project) has no [runner](#term-runner), [checker](#term-checker) reports no [untesting](#term-untesting) for unit_1.
     - [`@spec a-project-with-no-tracker-reports-no-untracking`](#spec-a-project-with-no-tracker-reports-no-untracking) — For every [unit_1](#term-unit): when [project](#term-project) has no [tracker](#term-tracker), [checker](#term-checker) reports no [untracking](#term-untracking) for unit_1.
     - [`@spec only-a-call-that-declares-a-test-is-a-test`](#spec-only-a-call-that-declares-a-test-is-a-test) — The checker reads a call as a test only when a [runner](#term-runner) of the project declares a test with it.
       - [`@spec a-member-no-runner-names-is-no-test`](#spec-a-member-no-runner-names-is-no-test) — A call through a member that no runner of the project names, such as `test.beforeEach(fn)` or `test.extend({})`, is no test.
@@ -199,6 +200,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-global-name-is-a-runner-only-where-a-runner-provides-globals`](#spec-a-global-name-is-a-runner-only-where-a-runner-provides-globals) — A call whose name no module declares or imports is a test only when a runner of the project provides that call as a global.
       - [`@spec a-call-takes-the-modifiers-of-its-own-runner`](#spec-a-call-takes-the-modifiers-of-its-own-runner) — A call reads its modifiers by the runner its name leads to, such as Playwright's `fail` only on Playwright's `test`.
       - [`@spec a-runner-set-in-the-settings-replaces-the-presets`](#spec-a-runner-set-in-the-settings-replaces-the-presets) — When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
+      - [`@spec an-empty-list-of-runners-reads-no-test`](#spec-an-empty-list-of-runners-reads-no-test) — When the setting `runners` is an empty list, the checker reads no call as a test.
       - [`@spec a-runner-written-as-a-map-adds-its-calls`](#spec-a-runner-written-as-a-map-adds-its-calls) — A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists. Its calls come from the packages under `from`, or are globals when it sets `globals`.
       - [`@spec a-failure-modifier-of-a-runner-marks-an-expected-failure`](#spec-a-failure-modifier-of-a-runner-marks-an-expected-failure) — A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
       - [`@spec a-call-of-a-marked-function-is-a-test`](#spec-a-call-of-a-marked-function-is-a-test) — A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there in the scope of the call, through an import of a relative path, or through a re-export.
@@ -226,7 +228,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed_frontmatter_1](#term-flaw): unclosed_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated_frontmatter_1](#term-flaw): unterminated_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled_frontmatter_1](#term-flaw): doubled_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec a-runner-the-checker-does-not-know-is-refused`](#spec-a-runner-the-checker-does-not-know-is-refused) — A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
+      - [`@spec a-runner-the-checker-does-not-know-is-refused`](#spec-a-runner-the-checker-does-not-know-is-refused) — A frontmatter is one the checker cannot read when `runners` names neither a preset nor `"@runner"`, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
       - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling_frontmatter_1](#term-flaw): dangling_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular_frontmatter_1](#term-flaw): circular_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray_frontmatter_1](#term-setting): stray_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
@@ -256,7 +258,9 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-runner-marker-the-checker-cannot-read-stops-the-run`](#spec-a-runner-marker-the-checker-cannot-read-stops-the-run) — When a runner marker is one the checker cannot read, the checker names it, and the run exits with code 2.
       - [`@spec a-runner-marker-with-a-word-other-than-fails-is-refused`](#spec-a-runner-marker-with-a-word-other-than-fails-is-refused) — A runner marker with a word after `@runner` other than `fails` is one the checker cannot read.
       - [`@spec a-runner-marker-on-no-declaration-is-refused`](#spec-a-runner-marker-on-no-declaration-is-refused) — A runner marker that is not right above the declaration of a name with a value is one the checker cannot read.
+      - [`@spec a-runner-marker-the-settings-do-not-list-is-refused`](#spec-a-runner-marker-the-settings-do-not-list-is-refused) — A runner marker in a project whose setting `runners` does not list `"@runner"` is one the checker cannot read. The checker says to add `"@runner"` to the setting.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
+  - [`@spec a-check-with-no-runner-says-it-reads-no-test`](#spec-a-check-with-no-runner-says-it-reads-no-test) — When the project has no runner, the report of `check` says that it reads no tests.
 <!-- toc:end -->
 
 ## Terms
@@ -1370,7 +1374,7 @@ paired: {1} is [paired] | {1} is not [paired]
 >     - [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue)
 >     - unit_1 names an issue that tracker does not know
 >     - unit_1 names an issue that tracker has closed
->     - unit_1 is not [tested](#term-tested)
+>     - project has a [runner](#term-runner) and unit_1 is not [tested](#term-tested)
 > - all of these hold:
 >   - unit_1 is a [conflict](#term-conflict)
 >   - at least one of these holds:
@@ -1380,11 +1384,11 @@ paired: {1} is [paired] | {1} is not [paired]
 >     - unit_1 is not [paired](#term-paired)
 <!-- statement-term-hidden:end -->
 
-A known defect out of sight: no open issue tracks it, no test checks it, or a conflict that does not say which units it sets against each other. A project with no [tracker](#term-tracker) owes no issue.
+A known defect out of sight: no open issue tracks it, no test checks it, or a conflict that does not say which units it sets against each other. A project with no [tracker](#term-tracker) owes no issue, and a project with no [runner](#term-runner) owes no test.
 
 ```alloy
 pred hidden[x: Unit] {
-  (x in Bug and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not tested[x]))
+  (x in Bug and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or (some Runner and not tested[x])))
   or (x in Conflict and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not paired[x]))
 }
 ```
@@ -1589,9 +1593,23 @@ Stray: {1} has the [flaw](#term-flaw) of a setting in a document that is not the
 
 ### @term runner
 
-> A runner is the test library whose calls the checker reads as tests: Vitest, Jest, Playwright, Node's test runner, or a library the setting `runners` describes. A function that a runner marker marks is a call of a runner too.
+> A runner is what the checker reads tests through: Vitest, Jest, Playwright, Node's test runner, a library that `runners` describes, or the runner markers.
 
-The setting `runners` lists the runners of a project, such as `runners: [vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing], from: [mocha], globals: true}` describes a runner with no preset. A project that sets no `runners` has every preset.
+The setting `runners` lists the runners of a project, such as `runners: ["@runner", vitest, playwright]`. A name picks a preset: `vitest`, `jest`, `playwright` or `node`. The entry `"@runner"` picks the runner markers. It needs quotes, because a plain value cannot start with an at sign.
+
+A map such as `{calls: [specify], modifiers: [only, skip], fails: [failing], from: [mocha], globals: true}` describes a runner with no preset. A project that sets no `runners` has every preset and the runner markers.
+
+A project whose setting is `runners: []` has no runner, and so no tests. The checker holds its canon to itself: to its units, links and logic, and not to tests of the code.
+
+```alloy vocabulary
+sig Runner {}
+fact tests_are_the_runners { no Runner implies no Test }
+```
+
+```readings
+noun Runner: [runner]
+Runner: [project](#term-project) has a [runner] | [project](#term-project) has no [runner]
+```
 
 A runner has three lists. Its calls start a test, such as `it` or `test`. Its modifiers keep a call a test, such as `only` in `it.only`. Its failure modifiers keep a call a test and mark it to fail, such as `fails` in `it.fails`. A runner also names the packages a module imports its calls from, the call those packages export as their default, if any, and says whether it provides its calls as globals.
 
@@ -2081,11 +2099,11 @@ all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in O
 <!-- statement-spec-a-bug-is-tested:begin — generated by `canon generate`; edits are overwritten -->
 > For every [bug_1](#term-bug):
 >
-> when bug_1 is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for bug_1.
+> when [project](#term-project) has a [runner](#term-runner) and bug_1 is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for bug_1.
 <!-- statement-spec-a-bug-is-tested:end -->
 
 ```alloy
-all b: Bug | not tested[b] implies b in Untesting
+all b: Bug | (some Runner and not tested[b]) implies b in Untesting
 ```
 
 #### @spec a-hidden-conflict-is-reported
@@ -2200,7 +2218,7 @@ A checker can act as an advisor, whose findings are hints the author weighs. It 
 > All of these hold:
 > - for every [claim_1](#term-claim):
 >
->   when claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1
+>   when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1
 > - for every [tag_1](#term-tag):
 >
 >   when tag_1 [names](#term-name) no [unit](#term-unit), checker reports a finding for tag_1
@@ -2234,10 +2252,12 @@ This narrows taking the check at its word to a clean check: when the checker rep
 
 Documentation goes out of date because nothing checks it. A canon goes out of date unnoticed when a claim no test checks stops holding, or when a test stops saying which claim it checks. It goes out of date as well when a link no longer leads where it says. So every leaf claim is [tested](#term-tested), and every [test](#term-test) [checks](#term-check) a leaf through its [tags](#term-tag). A claim that is not is [unguarded](#term-unguarded), and a test that does not is [adrift](#term-adrift).
 
+A project with no [runner](#term-runner) has no tests, and holds its canon to itself alone: it owes no test.
+
 So too every [pointer](#term-pointer), [index](#term-index) and [site](#term-site) leads where it says, and every id names one unit.
 
 ```alloy
-(all c: Claim | unguarded[c] implies c in Finding)
+(all c: Claim | (some Runner and unguarded[c]) implies c in Finding)
 and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding)
 and (all t: Test | adrift[t] implies t in Finding)
 and (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding)
@@ -2254,13 +2274,13 @@ and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)
 <!-- statement-spec-an-unguarded-claim-is-untested:begin — generated by `canon generate`; edits are overwritten -->
 > For every [claim_1](#term-claim):
 >
-> when claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for claim_1.
+> when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for claim_1.
 <!-- statement-spec-an-unguarded-claim-is-untested:end -->
 
 This follows because an [untesting](#term-untesting) is the finding for a leaf that no test checks.
 
 ```alloy
-all c: Claim | unguarded[c] implies c in Untesting
+all c: Claim | (some Runner and unguarded[c]) implies c in Untesting
 ```
 
 #### @spec a-tag-names-a-unit
@@ -2755,6 +2775,20 @@ This follows because a test of a [bug](#term-bug) asserts what the spec the bug 
 all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting
 ```
 
+#### @spec a-project-with-no-runner-reports-no-untesting
+
+<!-- statement-spec-a-project-with-no-runner-reports-no-untesting:begin — generated by `canon generate`; edits are overwritten -->
+> For every [unit_1](#term-unit):
+>
+> when [project](#term-project) has no [runner](#term-runner), [checker](#term-checker) reports no [untesting](#term-untesting) for unit_1.
+<!-- statement-spec-a-project-with-no-runner-reports-no-untesting:end -->
+
+```alloy
+all u: Unit | no Runner implies u not in Untesting
+```
+
+This follows because a test is a call that a [runner](#term-runner) declares, so a project with no runner has no tests. An [untesting](#term-untesting) there would ask for a test that the project has chosen not to have.
+
 #### @spec a-project-with-no-tracker-reports-no-untracking
 
 <!-- statement-spec-a-project-with-no-tracker-reports-no-untracking:begin — generated by `canon generate`; edits are overwritten -->
@@ -2832,6 +2866,12 @@ This follows because each runner declares a test only through its own modifiers.
 > When the setting `runners` lists runners, the checker reads a call as a test only when one of those runners declares a test with it.
 
 This follows because a project that names its runners says which calls its tests are. A modifier of a runner the project does not use, such as Playwright's `fail` in a project of Vitest, then declares no test.
+
+##### @spec an-empty-list-of-runners-reads-no-test
+
+> When the setting `runners` is an empty list, the checker reads no call as a test.
+
+This follows because the list names every runner of the project, and an empty one names none. Such a project has chosen to hold its canon to itself, and a call of `it` in it checks nothing the canon knows of.
 
 ##### @spec a-runner-written-as-a-map-adds-its-calls
 
@@ -3176,7 +3216,7 @@ all f: Doubled | f in Refused
 
 ##### @spec a-runner-the-checker-does-not-know-is-refused
 
-> A frontmatter is one the checker cannot read when its setting `runners` names no preset, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
+> A frontmatter is one the checker cannot read when `runners` names neither a preset nor `"@runner"`, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
 
 This follows because a misspelled runner, such as `vitset`, would change which calls are tests, and the author would trust a check of the wrong tests.
 
@@ -3544,8 +3584,20 @@ This follows because a misspelled `@runner fail` would make a call that fails on
 
 This follows because such a marker names no call, so the checker cannot do what the author meant.
 
+##### @spec a-runner-marker-the-settings-do-not-list-is-refused
+
+> A runner marker in a project whose setting `runners` does not list `"@runner"` is one the checker cannot read. The checker says to add `"@runner"` to the setting.
+
+This follows because the marker asks for the calls of its function to be tests, and the setting says they are none. Reading the marker would overrule the setting, and ignoring it would drop the tests it asks for.
+
 #### @spec a-source-the-checker-cannot-parse-fails-the-run
 
 > When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
 
 This follows because the checker reads the tests and the tags of a file from its syntax. A file it cannot parse holds tests and tags it cannot read, so the checks they ask for cannot run.
+
+### @spec a-check-with-no-runner-says-it-reads-no-test
+
+> When the project has no runner, the report of `check` says that it reads no tests.
+
+This follows because a clean check means the canon holds, and in a project with no runner it holds without tests. The author acts on a clean check, so the report says how much it covers.

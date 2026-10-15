@@ -26,7 +26,7 @@ import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
 import { maskFences, readUnits } from './units.ts';
 import { parseSource, testsOf, type Exports, type Syntax, type TestBlock } from './tests.ts';
-import { runnersOf, type Runner } from './runners.ts';
+import { MARKER, marksOf, runnersOf, type Runner } from './runners.ts';
 
 // ---------------------------------------------------------------------------
 // SCOPE — declared, never inferred.
@@ -143,6 +143,12 @@ const RUNNERS = ((): Runner[] => {
     process.exit(2);
   }
 })();
+
+/** Whether the project reads the runner markers as runners. */
+const MARKS = marksOf(CONFIG.runners);
+
+/** Whether the project has a runner at all. With none it has no tests, and owes none. */
+const HAS_RUNNER = RUNNERS.length > 0 || MARKS;
 
 // ---------------------------------------------------------------------------
 // A minimal element scanner: enough to know which element each anchor sits in.
@@ -1207,6 +1213,13 @@ function analyse(write: boolean): Analysis {
       console.error(`canon: ${rel}:${syntax.lineAt(problem.at)} — ${problem.message}`);
       process.exit(2);
     }
+    // A marker the setting does not pick asks for tests the setting says are none.
+    if (!MARKS) {
+      for (const node of syntax.marked.keys()) {
+        console.error(`canon: ${rel}:${syntax.lineAt(node.start)} — a runner marker marks this declaration, but the setting "runners" does not list "${MARKER}"; add "${MARKER}" to it`);
+        process.exit(2);
+      }
+    }
     exportsOf.set(file, syntax.exports);
     const parsed = { ...syntax, tests: testsOf(syntax, file, RUNNERS, lookup) };
 
@@ -1524,7 +1537,9 @@ function analyse(write: boolean): Analysis {
   for (const [bug, specs] of bugSpecs) {
     if (testedTargets.has(bug)) for (const spec of specs) testedTargets.add(spec);
   }
+  // A project with no runner has no tests, so none is owed.
   for (const [key, unit] of units) {
+    if (!HAS_RUNNER) break;
     if (!CLAIMS.includes(unit.kind)) continue;
     if (claimParents.has(key)) continue;
     if (!testedTargets.has(key)) {
@@ -1664,6 +1679,7 @@ async function check(offline: boolean): Promise<void> {
   if (tracker !== undefined) {
     console.log(`issues: ${asked ? `held to the ${tracker.kind} tracker` : 'not checked (--offline)'}`);
   }
+  if (!HAS_RUNNER) console.log('tests: none read (runners: []), so no claim owes a test');
   console.log('');
 
   let total = 0;

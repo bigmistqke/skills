@@ -1,6 +1,6 @@
 /**
  * The runners whose calls the checker reads as tests: the ones the setting
- * `runners` lists, or every preset when it lists none.
+ * `runners` lists, or every preset and the runner markers when it is not set.
  */
 
 /**
@@ -52,6 +52,9 @@ export const PRESETS: Record<string, Runner> = {
   }
 };
 
+/** The entry of the setting `runners` that picks the runner markers: the functions a JSDoc line `@runner` marks. */
+export const MARKER = '@runner';
+
 const LISTS = ['calls', 'modifiers', 'fails', 'from'] as const;
 const KEYS = [...LISTS, 'globals'] as const;
 
@@ -64,11 +67,11 @@ const isStrings = (v: unknown): v is string[] => Array.isArray(v) && v.every(x =
  */
 export function runnersOf(setting: unknown): Runner[] {
   const entries: unknown[] = setting === undefined ? Object.keys(PRESETS) : Array.isArray(setting) ? setting : [setting];
-  return entries.map(entry => {
+  return entries.filter(entry => entry !== MARKER).map(entry => {
     if (typeof entry === 'string') {
       const preset = PRESETS[entry];
       if (preset === undefined) {
-        throw new Error(`the runner "${entry}" is no preset; the presets are ${Object.keys(PRESETS).map(k => `"${k}"`).join(', ')}`);
+        throw new Error(`the runner "${entry}" is no preset; the presets are ${Object.keys(PRESETS).map(k => `"${k}"`).join(', ')}, and "${MARKER}" picks the runner markers`);
       }
       return preset;
     }
@@ -92,4 +95,9 @@ export function runnersOf(setting: unknown): Runner[] {
       globals: map.globals === true || map.globals === 'true'
     };
   });
+}
+
+/** Whether the setting `runners` picks the runner markers: it lists `"@runner"`, or is not set. */
+export function marksOf(setting: unknown): boolean {
+  return setting === undefined || (Array.isArray(setting) && setting.includes(MARKER));
 }
