@@ -97,7 +97,7 @@ export function runnersOf(setting: unknown): Runner[] {
   });
 }
 
-/** Whether the setting `runners` picks the runner markers: it lists `"@runner"`, or is not set. */
+/** Whether the setting `runners` picks the runner markers: it is or lists `"@runner"`, or is not set. */
 export function marksOf(setting: unknown): boolean {
-  return setting === undefined || (Array.isArray(setting) && setting.includes(MARKER));
+  return setting === undefined || setting === MARKER || (Array.isArray(setting) && setting.includes(MARKER));
 }
