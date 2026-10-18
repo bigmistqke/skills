@@ -38,6 +38,7 @@ This skill settles a design question that the canon does not yet answer. It runs
 2. Write each answer as the unit that fits it:
    - a term for a word;
    - an axiom for a value;
+   - a scope for what the project takes on or leaves out;
    - a fact for something the platform imposes;
    - a spec for a decision or a behaviour;
    - an exception for a fact that keeps a spec from holding fully.

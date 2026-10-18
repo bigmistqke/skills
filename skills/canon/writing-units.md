@@ -17,14 +17,15 @@ How to write, place and test the units of the canon. [`SKILL.md`](SKILL.md) hold
 | `@term` | a word of the project's language: what the thing it names is — never what it does | nothing |
 <!-- kinds:end -->
 
-Tell the kinds apart with two questions:
+Tell the kinds apart with three questions:
 
-1. Does the statement still hold if someone rebuilt the system with different internals? Then it is an axiom.
-2. Does the statement still hold if nobody had built the system? Then it is a fact.
-3. A statement that fails both questions is a decision or a behaviour: a spec.
-4. A statement that defines a word is a term.
+1. Does the statement only say what the project takes on or leaves out, and force no behaviour? Then it is a scope.
+2. Does the statement still hold if someone rebuilt the system with different internals? Then it is an axiom.
+3. Does the statement still hold if nobody had built the system? Then it is a fact.
+4. A statement that fails all three questions is a decision or a behaviour: a spec.
+5. A statement that defines a word is a term.
 
-Axioms state how the world should be. Facts state how the platform is. A spec, together with the facts it cites, must make its axiom hold. The split follows [Zave and Jackson](http://www.pamelazave.com/4dc.pdf).
+Scopes state which part of the world the project answers for. Axioms state how the world should be. Facts state how the platform is. A spec, together with the facts it cites, must make its axiom hold. The split follows [Zave and Jackson](http://www.pamelazave.com/4dc.pdf).
 
 ## 2. Units
 
@@ -32,7 +33,7 @@ Axioms state how the world should be. Facts state how the platform is. A spec, t
 2. Write the stem by hand. You may reword the statement at any time, because citations name the stem.
 3. Open the body with the statement as a blockquote. In a document that keeps readings, the checker writes the statement of a unit with a formula. Write the formula instead, as [units with logic](#12-units-with-logic) describes.
 4. Make every claim about the system a unit. Body text explains its unit's claim and adds no new claim.
-5. State a claim as strongly as the project means it. The project means what its axioms and the request say, not what a draft of the canon diff says. Where the system falls short of a claim, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
+5. State a claim as strongly as the project means it: as its axioms and the request say, not as a draft of the diff says. Where the system falls short of a claim, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
 6. A unit your change adds may claim less whenever the request does not need more. That is the [scope](SKILL.md#terms) of the change, not a weakening. A spec of the main branch that your change widened may return to its claim on the main branch, and no further.
 7. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
 8. Write in the present tense. History belongs in a decision record.
