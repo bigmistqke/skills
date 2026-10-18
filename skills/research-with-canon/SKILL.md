@@ -61,5 +61,5 @@ This skill builds the facts of a canon: what the world the system runs in does, 
 ## 7. Hand back
 
 1. End when the question has an answer written as a fact, or when no source and no probe can answer it. Then say so, and say what the question would need.
-2. Return the fact, its source or its probe, and the questions you noticed beyond it.
+2. Return the fact, its source or its probe, and the questions you noticed beyond it. When the fact shows that the platform cannot give a result the question asked about, say so plainly.
 3. Hand the work to the canon skill. It places the fact, and decides what the specs claim from it.

@@ -26,13 +26,15 @@ description: The methodology that governs all work on a project with a CANON.md 
 - Reviewer: the role that checks the canon diff and the code against the axioms and facts that exist. A reviewer runs again the probes that the facts name, and writes no new probe. A boundary that no fact answers is a question for a researcher.
 - Canon diff: the edits a change makes to the canon documents.
 - Declared units: the units a change adds, changes or retires. Its pull request names them, and they fit its scope.
-- Mechanism: a piece of code that exists to make a unit hold, such as a guard, a conversion, a special case or a release. The canon states the claim, and how the code meets it is your choice.
+- Mechanism: what happens inside a part to make its claims hold, such as a guard, a conversion, a special case or a release. It is your choice, held by the test that notices its break.
 
 ## Protocol
 
 This protocol governs all work on the project. Follow it in every session, for every change and every choice.
 
 `CANON.md` is the project. It states what the system does and why, as claims that tests cite. The code and the tests express the canon and follow from it. The canon is not documentation of the code.
+
+The canon is a map, not the territory. It states what the project wants each part to take in, give back and do to its surroundings, and why. A part is the whole system, a module or one function, and the tests show that each part does what the canon wants. What happens inside a part is not claimed, and what the canon does not claim is not promised. A want with no claim, or a claim with no test, is a gap; a map that tries to hold the territory becomes the program.
 
 Every session starts without the theory. It does not know why the code is the way it is, and the code cannot tell it. The canon holds the theory. Each session rebuilds the theory from the canon, works under it, and writes back what it decided. The canon is how the project keeps its knowledge from one session to the next.
 
@@ -47,7 +49,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 
 1. The canon outranks every other source of intent: the code, the tests, the README, glossaries, decision records, memory, and your own assumptions.
 2. Only the owner of the design decides values. Ask whenever the canon does not decide a question. Ask what the system must do and what it may cost, not how the code does it. A mechanism is your choice under the canon. Do not ask the owner to approve one, and do not treat an approval as a ruling.
-3. Ask one question at a time, and give your recommended answer with it. If the code or the canon can answer a question, read them instead of asking.
+3. Ask one question at a time, and give your recommended answer with it. If the code or the canon can answer a question, read them instead of asking. When the answer depends on what the platform gives, research the platform first, and bring the facts with the question.
 4. The owner changes the project through the canon too. When the owner asks for something the canon forbids, or something the scope of the project leaves out, do not carry it out. Name the conflict and the units involved. The owner changes the canon first.
 5. When the code contradicts the canon, the code has a defect. Follow [section 4](#4-fixing-a-defect).
 6. When a test asserts something other than the spec it cites, the spec decides. Correct the test, unless the owner rules that the spec is wrong.
@@ -86,9 +88,13 @@ This file holds what every session needs. Two files beside it hold the rest:
    1. The units cited by the tests of the code the change touches, and the units that use the same words as the change. Note the words you searched for.
    2. The documents that describe what the change touches.
    3. The members of each set that a declared unit claims something of, such as every option, input kind, target or entry point. List them from a source: a type, a registry, a schema, the exports, a specification. A list written from memory misses members.
-   4. The boundaries: zero, empty and missing inputs, the extremes of each type, ties, and what the platform leaves undefined or to the implementation.
+   4. The boundaries of what the declared units claim: zero, empty and missing inputs, the extremes of each type, ties, and what the platform leaves undefined.
 
-   Each item fits a declared unit, has a fact that answers it, or has a spec that leaves it open on purpose. An argument is not an answer. Where a unit has to claim a result that no fact backs, put the question to a [researcher](#terms), as [section 5](#5-exploring) describes. Propose what you notice beyond the scope of the change as an issue, as [section 7](#7-pull-requests-and-reviews) describes.
+   Claim a result at a boundary only where the request or an axiom wants one. A boundary nothing wants needs no text, and the canon promises nothing there. A boundary whose result a declared unit claims gets a test in step 7.
+
+   Before a unit claims a result that depends on what the platform gives, put the question to a [researcher](#terms), as [section 5](#5-exploring) describes. The claim waits for the fact. An argument is not a fact. When the facts show that the platform cannot give the result, do not design a mechanism to make the claim hold anyway. Bring the facts to the owner, with a proposed scope or exception, and ask whether the project takes the case on.
+
+   Propose what you notice beyond the scope of the change as an issue, as [section 7](#7-pull-requests-and-reviews) describes.
 5. Deduce the specs from the axiom and the facts, with a leaf for each case.
 6. Before you write any code, have someone who did not write the canon diff review it: the owner of the design, or a fresh [reviewer](#terms). The reviewer checks each new fact, as the research-with-canon skill describes: runs its probe again, and checks that its quote says what it claims. The reviewer checks each new unit against the units from step 4. A finding blocks the canon diff only when it shows one of these:
    1. A declared unit contradicts another unit or a fact.
@@ -122,6 +128,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 5. A fact comes from research, which the research-with-canon skill describes. Put one stated question to a [researcher](#terms), and take back the fact it writes.
 6. A fact enters the canon with the change that asked its question. A fact that answers no question of the change stays out of it.
 7. Commit the facts and their probes apart from the specs and the code, at the start of the branch when you can. They can then be reviewed on their own.
+8. When each answer about the platform raises new questions, the world a change meets is still unknown. Stop the change, and say so to the owner. Explore by the rules above, committing the project to nothing. When the facts are in, the owner sets the scopes and the axioms they call for, and a new change starts from them.
 
 ## 6. Commits
 
@@ -137,7 +144,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 4. Do not fix any other finding in this change, even one in the same area. Each fix adds code, and so widens the area. Propose it as an issue instead. An issue is visible to others, so file the ones the owner of the design agrees to. Fix a cleanup in the same change only when it is small, and touches only code the change already touches.
 5. Once the owner agrees to the issue of a verified defect outside the scope of the change, record it as a change of its own. Start that change from the main branch: its scope is that one bug. If a probe reproduced the defect, write what the probe measured as a fact that names the probe. Record the defect as step 5 of [section 4](#4-fixing-a-defect) describes. That change records the defect and does not fix it, so it skips step 3 of section 4.
 6. Fix a finding in the canon by editing a statement. Change a unit's kind or its place only when an edit cannot fix the finding. Each such change gives the unit a new parent and new siblings, which the next review has to check again.
-7. Review the diff of each fix round before you push it. A fix round that adds a mechanism also breaks it, as step 9 of [section 3](#3-adding-or-changing-behaviour) describes. A fix round does not open the survey again. A mechanism replaced a second time is a sign that the claim it serves is wider than the request. Check that claim against the [scope](#terms) of the change before you design again.
+7. Review the diff of each fix round before you push it. A fix round that adds a mechanism also breaks it, as step 9 of [section 3](#3-adding-or-changing-behaviour) describes. A fix round does not open the survey again. A mechanism replaced a second time is a sign that the claim it serves is wider than the request. Check that claim against the [scope](#terms) of the change and the facts: a claim the platform cannot give is a scope question for the owner.
 8. A reviewer of code breaks it the way a plausible wrong implementation would, and checks that a test notices. Such a break widens a guard, or handles a case for only some members of a set.
 9. Merge only when these all hold, and do not call the change ready to merge before they do:
    1. Every declared unit holds, and a test checks each of its leaves. No bug sits in a unit that the change adds or widens, unless the change exists to record that bug.
@@ -166,7 +173,7 @@ A project with code and tests but no canon gets its canon written backwards. The
    3. Place each spec under the axiom that forces it, and nest a leaf for each case. Write the facts it relies on.
    4. Tag each test with the leaf it checks, as [writing units](writing-units.md#8-tests) describes. A test that checks a parent's basic case needs a leaf for that case.
    5. Run the tests and `pnpm canon check`, and `pnpm canon lint` and `pnpm canon logic` when the documents list their plugins. Commit the area on its own.
-8. State the code as it behaves now. Where it does not hold an axiom, tell a departure from a defect. This holds only while you write the canon of a project that has none. A change to a project with a canon starts from the canon, as [section 3](#3-adding-or-changing-behaviour) describes, and the code follows it.
+8. State what the tests and the documents show the project wants, as the code holds it now. Behaviour that nothing wants is not promised, and needs no unit. Where the code does not hold an axiom, tell a departure from a defect. This holds only while you write the canon of a project that has none. A change to a project with a canon starts from the canon, as [section 3](#3-adding-or-changing-behaviour) describes, and the code follows it.
    1. A departure the code makes on purpose is an exception. Write the fact that forces it. If the fact is how a library the project follows behaves, state that behaviour as the fact.
    2. A departure the owner has not ruled on is an exception too, and its question goes in an issue. When the owner rules, change the canon.
    3. A defect is a claim the code breaks. Write the spec as the axiom forces it, and a bug inside it that names the defect's issue. Pin the bug with a test marked to fail, and leave the fix to [the defect procedure](#4-fixing-a-defect).
