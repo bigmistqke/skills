@@ -37,4 +37,8 @@ describe('the lint command', () => {
   it('passes a document whose sentences are short', async () => {
     expect(await lint('# Canon\n\nA program means one thing.\n')).toBe(0);
   });
+
+  it('passes a document that names the request of a change', async () => {
+    expect(await lint('# Canon\n\nThe request sets the scope of a change.\n')).toBe(0);
+  });
 });
