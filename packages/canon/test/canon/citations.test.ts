@@ -226,6 +226,15 @@ Issue: #9
 Derives from: [\`spec-a-leaf-says-one-thing\`](#spec-a-leaf-says-one-thing)
 `)).misnested).toBe(1);
   });
+
+  /**
+   * @canon bug-a-derives-from-line-is-not-checked-for-its-kind
+   */
+  it.fails('reports a misnesting for a scope whose "Derives from:" line names a spec', () => {
+    expect(check(canon(`${SPEC}${SCOPE}
+Derives from: [\`spec-a-leaf-says-one-thing\`](#spec-a-leaf-says-one-thing)
+`)).misnested).toBe(1);
+  });
 });
 
 describe('a unit that follows from itself', () => {

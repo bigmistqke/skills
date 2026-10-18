@@ -124,7 +124,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-bug-cites-only-specs`](#spec-a-bug-cites-only-specs) — For every [bug_1](#term-bug): when bug_1 [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for bug_1.
     - [`@spec a-conflict-cites-nothing`](#spec-a-conflict-cites-nothing) — For every [conflict_1](#term-conflict): when conflict_1 [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for conflict_1.
     - [`@spec a-term-cites-nothing`](#spec-a-term-cites-nothing) — For every [term_1](#term-term): when term_1 [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for term_1.
-    - [`@bug a-derives-from-line-is-not-checked-for-its-kind`](#bug-a-derives-from-line-is-not-checked-for-its-kind) — When a fact derives from a unit, and the fact sits in no unit, checker reports no misnesting for the fact.
+    - [`@bug a-derives-from-line-is-not-checked-for-its-kind`](#bug-a-derives-from-line-is-not-checked-for-its-kind) — When a unit derives from a kind of unit it may not cite, and the unit sits in no unit, checker reports no misnesting for the unit.
   - [`@spec a-unit-does-not-depend-on-itself`](#spec-a-unit-does-not-depend-on-itself) — For every [unit_1](#term-unit): when unit_1 is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for unit_1.
 - [`@axiom a-known-defect-stays-in-sight`](#axiom-a-known-defect-stays-in-sight) — All of these hold: - for every [bug_1](#term-bug): when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1 - for every [conflict_1](#term-conflict): when conflict_1 is hidden, checker reports a finding for conflict_1 - for every [test_1](#term-test): when test_1 is [misleading](#term-misleading), checker reports a finding for test_1.
   - [`@spec a-hidden-bug-is-reported`](#spec-a-hidden-bug-is-reported) — For every [bug_1](#term-bug): when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1.
@@ -2032,7 +2032,7 @@ all t: Term | (some u: Unit | cites[t, u]) implies t in Misnesting
 
 ##### @bug a-derives-from-line-is-not-checked-for-its-kind
 
-> When a fact derives from a unit, and the fact sits in no unit, checker reports no misnesting for the fact.
+> When a unit derives from a kind of unit it may not cite, and the unit sits in no unit, checker reports no misnesting for the unit.
 
 The check for a misnesting reads only where a unit sits. A "Derives from:" line that names a kind the unit may not cite passes.
 
