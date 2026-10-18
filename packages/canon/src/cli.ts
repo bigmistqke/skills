@@ -413,6 +413,7 @@ const paint = (code: string, s: string): string =>
  */
 const HUE: Record<Kind, string> = {
   'axiom-': '1;35', // bold magenta
+  'scope-': '35', // magenta — set by the owner like an axiom, but it forces nothing
   'fact-': '1;34', // bold blue — a given, but not a chosen one
   'spec-': '36', // cyan
   'exception-': '33', // yellow — where the shoe does not fit should catch the eye
@@ -432,6 +433,7 @@ const SAID = '2;3';
 
 const DIM: Record<Kind, string> = {
   'axiom-': '2;35',
+  'scope-': '2;35',
   'fact-': '2;34',
   'spec-': '2;36',
   'exception-': '2;33',
@@ -1431,8 +1433,9 @@ function analyse(write: boolean): Analysis {
   // kept alive by a test it has not reached yet would otherwise report dead,
   // and the list would read as a canon full of unreachable units. A conflict is
   // no part of the theory, only a record of where it fails, so nothing cites it.
+  // A scope forces nothing, so nothing has to cite it.
   for (const [key, unit] of units) {
-    if (unit.kind === 'conflict-') continue;
+    if (unit.kind === 'conflict-' || unit.kind === 'scope-') continue;
     if (!citedTargets.has(key))
       findings.dead.push(`${key} (${aNoun(unit.kind)})`);
   }

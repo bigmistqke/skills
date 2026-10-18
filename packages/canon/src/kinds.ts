@@ -14,7 +14,7 @@ import { beginMarker } from "./regions.ts";
  * to `OWES` without a matching entry here, or cited by a name that is not one of
  * these, stops compiling instead of silently matching nothing.
  */
-export type Kind = 'axiom-' | 'fact-' | 'spec-' | 'exception-' | 'bug-' | 'conflict-' | 'term-';
+export type Kind = 'axiom-' | 'scope-' | 'fact-' | 'spec-' | 'exception-' | 'bug-' | 'conflict-' | 'term-';
 
 /**
  * kind → what a reader reaches for it for. Generated into `writing-units.md` beside
@@ -23,6 +23,8 @@ export type Kind = 'axiom-' | 'fact-' | 'spec-' | 'exception-' | 'bug-' | 'confl
 export const MEANS: Record<Kind, string> = {
   'axiom-':
     'a value: how the project wants the world of the people using it to be — never a decision about how to build it',
+  'scope-':
+    'what the project takes on, or what it leaves out: a bound the owner of the design sets — it forces no spec, and nothing has to cite it',
   'fact-':
     'how the platform the project is built on is, whatever the project does',
   'spec-':
@@ -44,6 +46,7 @@ export const MEANS: Record<Kind, string> = {
  */
 export const OWES: Record<Kind, Kind[][] | null> = {
   'axiom-': null, // primitive by kind — owes nothing
+  'scope-': null, // a bound the owner sets — owes nothing
   'fact-': null, // imposed by the platform — owes nothing
   'spec-': [['axiom-', 'spec-']],
   'exception-': [['spec-'], ['fact-']],
@@ -56,11 +59,13 @@ export const OWES: Record<Kind, Kind[][] | null> = {
  * kind → the kinds it may cite without owing them. An axiom owes nothing, so a
  * root axiom stands alone, but it may narrow a more general axiom by sitting
  * inside it or naming it on its "Derives from:" line. A spec names the facts
- * it relies on the same way.
+ * it relies on the same way. An axiom, a spec or an exception may cite the
+ * scope that bounds it, so that a change to the scope shows what to read again.
  */
 export const MAY_CITE: Partial<Record<Kind, Kind[]>> = {
-  'axiom-': ['axiom-'],
-  'spec-': ['fact-']
+  'axiom-': ['axiom-', 'scope-'],
+  'spec-': ['fact-', 'scope-'],
+  'exception-': ['scope-']
 };
 
 /** kind → every kind it may cite, owed or not. */
@@ -107,7 +112,7 @@ export function kindsTable(): string {
     const may = (MAY_CITE[k] ?? []).map(tag).join(' or ');
     const owed =
       owes === null
-        ? `nothing${may ? ` — may narrow ${may}` : ''}`
+        ? `nothing${may ? ` — may cite ${may}` : ''}`
         : owes.map(group => group.map(tag).join(' or ')).join(' and ') +
           (may ? ` — may cite ${may}` : '');
     return `| ${tag(k)} | ${MEANS[k]} | ${owed} |`;

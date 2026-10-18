@@ -138,6 +138,13 @@ describe('a unit nothing uses', () => {
   it('reports an orphaning for a fact nothing uses', () => {
     expect(check(canon(`${LEAF}\n## @fact the-platform-is-one-way\n\n> The platform is one way.\n`), tagged('spec-a-leaf-says-one-thing'))['dead']).toBe(1);
   });
+
+  /**
+   * @canon spec-a-unit-is-used
+   */
+  it('reports no orphaning for a scope nothing uses', () => {
+    expect(check(canon(`${LEAF}\n## @scope the-project-leaves-the-platform-out\n\n> The project leaves the platform out.\n`), tagged('spec-a-leaf-says-one-thing'))['dead']).toBeUndefined();
+  });
 });
 
 describe('a heading', () => {
