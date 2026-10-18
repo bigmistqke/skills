@@ -1,6 +1,6 @@
 ---
 name: canon
-description: The methodology that governs all work on a project with a CANON.md — the document of axioms, facts, specs and exceptions that is the project itself, which the code and tests express and a checker holds closed. Load at the start of every session and before any work in such a project. Use it for every choice made in the system, internal ones included; before changing an area of the code (read the theory that covers it first); when adding or changing behaviour (place it against the specs it resembles, derive it from an axiom, survey the units and boundaries it reaches, and have the canon diff reviewed before writing code); when opening a pull request or acting on review findings; when fixing a bug (trace it up to the missing spec, axiom or fact before touching code); when writing a test; when editing CANON.md; before ending a session (write every decision back into the canon); when running the canon checker; and when writing the canon of an existing project that has none. For a design question the canon does not decide, use the grill-with-canon skill. For a question about the world the system runs in, use the research-with-canon skill.
+description: The methodology that governs all work on a project with a CANON.md — the document of axioms, facts, specs and exceptions that is the project itself, which the code and tests express and a checker holds closed. Load at the start of every session and before any work in such a project. Use it for every choice made in the system, internal ones included; before changing an area of the code (read the theory that covers it first); when adding or changing behaviour (place it against the specs it resembles, derive it from an axiom, survey the units and boundaries it reaches, and have the canon diff reviewed before writing code); when opening a pull request or acting on review findings; when fixing a bug (trace it up to the missing spec, axiom or fact before touching code); when writing a test; when editing CANON.md; before ending a session (write every decision of value or behaviour back into the canon); when running the canon checker; and when writing the canon of an existing project that has none. For a design question the canon does not decide, use the grill-with-canon skill. For a question about the world the system runs in, use the research-with-canon skill.
 ---
 
 # Canon
@@ -59,7 +59,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 
 1. If no `CANON.md` has settings in its frontmatter and `package.json` has no `canon` field, the project has no checker yet. Ask the owner before you set it up as [`checker.md`](checker.md) describes.
 2. At the start, read the root axioms, the scopes and the facts. Then read every unit that covers the area of your task.
-3. Use the canon for every choice you make in the system, internal ones included. An internal choice needs the canon most, because nothing outside the system checks it.
+3. Use the canon for every choice that decides what the system does, or why. How the code meets a claim is a mechanism: your choice, held by the test that notices its break.
 4. When you face a choice, find the units that decide it. Choose the option they force, and cite them in your reasoning. An earlier ruling forces a new case only when the reason the ruling gives covers that case; a likeness to the ruling is not enough. The code shows what the system does, and decides nothing.
 5. When a scope leaves a question out, the project does not answer it. Say so, and do not ask the owner.
 6. When the units do not decide a choice, the canon lacks a value or a spec. Settle it with the owner of the design through the grill-with-canon skill, which writes the answer into the canon. While the ruling waits, write the part of the choice that the units force. Record the rest as an open choice, as [writing units](writing-units.md#5-facts-exceptions-and-bugs) describes, and work on from there.
@@ -69,7 +69,7 @@ This file holds what every session needs. Two files beside it hold the rest:
    3. How does the requested change fit what is already there?
 
    If the canon lacks a claim you need, write the unit. If an answer needs a judgement the canon cannot give, ask the owner of the design.
-8. Before the session ends, write every decision you made into the canon. The next session knows only what the canon holds.
+8. Before the session ends, write into the canon every decision of value or of behaviour you made. A mechanism needs no unit.
 9. Write each unit for a reader who has none of your context. That reader is the next session.
 10. End the session with `pnpm canon check` clean and `pnpm canon log` clean. If a document lists the Alloy plugin, end it with `pnpm canon logic` clean too. If a document lists the retext plugin, run `pnpm canon lint` on the text you wrote, and fix its findings.
 
@@ -147,7 +147,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 
 ## 8. Writing the canon of an existing project
 
-A project with code and tests but no canon gets its canon written backwards. The work starts from the tests, the code and the documents, and goes up to the theory. Follow the steps in order. Steps 3 to 6 settle the givens with the owner of the design. Step 7 repeats for each area of the code.
+A project with code and tests but no canon gets its canon written backwards. The work starts from the tests, the code and the documents, and goes up to the theory. Follow the steps in order. Steps 3 to 6 settle the givens, and steps 5 and 6 settle them with the owner of the design. Step 7 repeats for each area of the code.
 
 1. Work on a branch of its own.
 2. Set up the checker as [`checker.md`](checker.md) describes, and create `CANON.md` with its index markers.

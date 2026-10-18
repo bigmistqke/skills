@@ -17,7 +17,7 @@ How to write, place and test the units of the canon. [`SKILL.md`](SKILL.md) hold
 | `@term` | a word of the project's language: what the thing it names is — never what it does | nothing |
 <!-- kinds:end -->
 
-Tell the kinds apart with three questions:
+Tell the kinds apart with these questions:
 
 1. Does the statement only say what the project takes on or leaves out, and force no behaviour? Then it is a scope.
 2. Does the statement still hold if someone rebuilt the system with different internals? Then it is an axiom.
@@ -35,7 +35,7 @@ Scopes state which part of the world the project answers for. Axioms state how t
 4. Make every claim about the system a unit. Body text explains its unit's claim and adds no new claim.
 5. State a claim as strongly as the project means it: as its axioms and the request say, not as a draft of the diff says. Where the system falls short of a claim, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
 6. A unit your change adds may claim less whenever the request does not need more. That is the [scope](SKILL.md#terms) of the change, not a weakening. A spec of the main branch that your change widened may return to its claim on the main branch, and no further.
-7. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
+7. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does, as its users or callers see it, needs a unit. A comment on how the code does it needs none.
 8. Write in the present tense. History belongs in a decision record.
 9. Write a decision record only for a choice that is hard to reverse, surprising without its context, and the result of a real trade-off.
 
