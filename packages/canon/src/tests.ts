@@ -10,8 +10,8 @@
  * A call is a runner's only when its name leads to the runner: imported from
  * one of the runner's packages, or a global where the runner provides globals.
  * A declaration whose JSDoc holds the runner marker `@runner`, or
- * `@runner fails`, is a runner as well, where a call's name leads to it: in
- * the scope of the call, or through relative imports and re-exports.
+ * `@runner fails`, is a runner as well, where a call's name leads to it: among
+ * the declarations visible at the call, or through relative imports and re-exports.
  */
 import { Parser, type Comment } from 'acorn';
 import { tsPlugin } from '@sveltejs/acorn-typescript';
@@ -70,7 +70,7 @@ export interface Syntax {
   bodies: Set<Node>;
   /** Each marker that has a word other than `fails`, or is above no declaration, with what is wrong. */
   problems: { at: number; message: string }[];
-  scopes: { map: WeakMap<object, Scope>; scope: Scope };
+  lexical: { map: WeakMap<object, Scope>; scope: Scope };
   /** The module each import specifier imports from. */
   sources: Map<Node, string>;
   exports: Exports;
@@ -224,7 +224,7 @@ function readMarkers(syntax: Syntax): void {
 /** The module each import specifier names, and what the module exports. */
 function readModule(syntax: Syntax): void {
   const { names, stars } = syntax.exports;
-  const top = syntax.scopes.scope;
+  const top = syntax.lexical.scope;
   for (const statement of syntax.program.body as Node[]) {
     if (statement.type !== 'ImportDeclaration') continue;
     for (const specifier of statement.specifiers as Node[]) {
@@ -233,7 +233,7 @@ function readModule(syntax: Syntax): void {
       if (specifier.type === 'ImportNamespaceSpecifier') top.declarations.set((specifier.local as Node).name as string, specifier as never);
     }
   }
-  /** What a name of the module's top scope leads to. */
+  /** What a name declared at the top of the module leads to. */
   const local = (name: string): Export => {
     const declaration = top.declarations.get(name) as Node | undefined;
     if (declaration === undefined) return { kind: 'none' };
@@ -289,7 +289,7 @@ export function parseSource(src: string, jsx: boolean): Syntax {
     marked: new Map(),
     bodies: new Set(),
     problems: [],
-    scopes: { map: map as WeakMap<object, Scope>, scope },
+    lexical: { map: map as WeakMap<object, Scope>, scope },
     sources: new Map(),
     exports: { names: new Map(), stars: [] }
   };
@@ -404,12 +404,12 @@ function resolveName(
  * declaration.
  */
 export function testsOf(syntax: Syntax, file: string, runners: Runner[], lookup: ImportLookup): TestBlock[] {
-  const { src, program, bodies, scopes } = syntax;
+  const { src, program, bodies, lexical } = syntax;
   const tests: TestBlock[] = [];
   const visit = (node: Node, scope: Scope): void => {
     // The test is declared where a marked declaration is called, not in its value.
     if (bodies.has(node)) return;
-    const inner = scopes.map.get(node) ?? scope;
+    const inner = lexical.map.get(node) ?? scope;
     if (node.type === 'CallExpression') {
       const args = node.arguments as Node[];
       const chain = chainOf(node.callee as Node);
@@ -435,6 +435,6 @@ export function testsOf(syntax: Syntax, file: string, runners: Runner[], lookup:
     }
     for (const child of children(node)) visit(child, inner);
   };
-  visit(program, scopes.scope);
+  visit(program, lexical.scope);
   return tests;
 }

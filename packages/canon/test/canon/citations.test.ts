@@ -11,6 +11,12 @@ const SPEC = `
 > A leaf says one thing.
 `;
 
+const SCOPE = `
+## @scope the-project-leaves-the-platform-out
+
+> The project leaves the platform out.
+`;
+
 const FACT = `
 ## @fact the-platform-is-one-way
 
@@ -82,13 +88,35 @@ It comes from [\`axiom-a-program-means-one-thing\`](#axiom-a-program-means-one-t
 
 describe('a unit that cites a kind it may not', () => {
   /**
-   * @canon spec-an-axiom-cites-only-axioms
+   * @canon spec-an-axiom-cites-only-axioms-and-scopes
    */
   it('reports a misnesting for an axiom that sits in a spec', () => {
     expect(check(canon(`${SPEC}
 #### @axiom a-value-under-a-spec
 
 > A value under a spec.
+`)).misnested).toBe(1);
+  });
+
+  /**
+   * @canon spec-an-axiom-cites-only-axioms-and-scopes
+   */
+  it('reports no misnesting for an axiom that sits in a scope', () => {
+    expect(check(canon(`${SCOPE}
+### @axiom a-value-under-a-scope
+
+> A value under a scope.
+`)).misnested).toBeUndefined();
+  });
+
+  /**
+   * @canon spec-a-scope-cites-nothing
+   */
+  it('reports a misnesting for a scope that sits in an axiom', () => {
+    expect(check(canon(`
+### @scope a-scope-under-an-axiom
+
+> The project takes on a scope under an axiom.
 `)).misnested).toBe(1);
   });
 
@@ -104,7 +132,7 @@ describe('a unit that cites a kind it may not', () => {
   });
 
   /**
-   * @canon spec-a-spec-cites-only-axioms-specs-and-facts
+   * @canon spec-a-spec-cites-only-axioms-specs-facts-and-scopes
    */
   it('reports a misnesting for a spec that sits in a term', () => {
     expect(check(canon(`
@@ -121,7 +149,18 @@ describe('a unit that cites a kind it may not', () => {
   });
 
   /**
-   * @canon spec-an-exception-cites-only-specs-and-facts
+   * @canon spec-a-spec-cites-only-axioms-specs-facts-and-scopes
+   */
+  it('reports no misnesting for a spec that sits in a scope', () => {
+    expect(check(canon(`${SCOPE}
+### @spec a-spec-under-a-scope
+
+> A spec under a scope.
+`)).misnested).toBeUndefined();
+  });
+
+  /**
+   * @canon spec-an-exception-cites-only-specs-facts-and-scopes
    */
   it('reports a misnesting for an exception that sits in an axiom', () => {
     expect(check(canon(`
@@ -129,6 +168,17 @@ describe('a unit that cites a kind it may not', () => {
 
 > An exception under an axiom.
 `)).misnested).toBe(1);
+  });
+
+  /**
+   * @canon spec-an-exception-cites-only-specs-facts-and-scopes
+   */
+  it('reports no misnesting for an exception that sits in a scope', () => {
+    expect(check(canon(`${SCOPE}
+### @exception an-exception-under-a-scope
+
+> An exception under a scope.
+`)).misnested).toBeUndefined();
   });
 
   /**
@@ -173,6 +223,15 @@ Issue: #9
    */
   it.fails('reports a misnesting for a fact whose "Derives from:" line names a spec', () => {
     expect(check(canon(`${SPEC}${FACT}
+Derives from: [\`spec-a-leaf-says-one-thing\`](#spec-a-leaf-says-one-thing)
+`)).misnested).toBe(1);
+  });
+
+  /**
+   * @canon bug-a-derives-from-line-is-not-checked-for-its-kind
+   */
+  it.fails('reports a misnesting for a scope whose "Derives from:" line names a spec', () => {
+    expect(check(canon(`${SPEC}${SCOPE}
 Derives from: [\`spec-a-leaf-says-one-thing\`](#spec-a-leaf-says-one-thing)
 `)).misnested).toBe(1);
   });

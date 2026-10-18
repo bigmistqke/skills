@@ -106,6 +106,14 @@ describe('an adrift test', () => {
   });
 
   /**
+   * @canon spec-a-declared-test-checks-only-claims
+   */
+  it('reports a misaiming for a declared test that checks a scope', () => {
+    const SCOPE = '\n## @scope the-project-leaves-the-platform-out\n\n> The project leaves the platform out.\n';
+    expect(check(canon(LEAF + SCOPE), tagged('spec-a-leaf-says-one-thing') + tagged('scope-the-project-leaves-the-platform-out'))['missing-spec']).toBe(1);
+  });
+
+  /**
    * @canon spec-a-test-checks-only-leaves
    */
   it('reports an overreach for a test that checks a refined spec', () => {
@@ -137,6 +145,13 @@ describe('a unit nothing uses', () => {
    */
   it('reports an orphaning for a fact nothing uses', () => {
     expect(check(canon(`${LEAF}\n## @fact the-platform-is-one-way\n\n> The platform is one way.\n`), tagged('spec-a-leaf-says-one-thing'))['dead']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-unit-is-used
+   */
+  it('reports no orphaning for a scope nothing uses', () => {
+    expect(check(canon(`${LEAF}\n## @scope the-project-leaves-the-platform-out\n\n> The project leaves the platform out.\n`), tagged('spec-a-leaf-says-one-thing'))['dead']).toBeUndefined();
   });
 });
 

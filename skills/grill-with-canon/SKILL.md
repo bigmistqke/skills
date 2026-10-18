@@ -20,13 +20,14 @@ This skill settles a design question that the canon does not yet answer. It runs
 1. Read the units that cover the question before asking anything: the terms, the axioms and facts, and the specs nearby.
 2. Lay out the decisions the question depends on. Settle a decision before the ones that depend on it.
 3. Ask one question at a time. Give your recommended answer with each question, and say which units support it.
-4. If the code or the canon can answer a question, read them instead of asking.
-5. Keep asking until every branch of the tree has an answer. Do not stop at the first workable design.
+4. If the code or the canon can answer a question, read them instead of asking. If a scope of the project leaves a question out, the project does not answer it: say so instead of asking.
+5. Keep asking until every branch that the request depends on has an answer. The request is what the change in hand needs, or the plan the owner asked to test. Within it, do not stop at the first workable design.
+6. List a branch that the request does not depend on as an open question for the owner, and do not ask it now.
 
 ## 3. Challenge every answer
 
 1. Check the answer against the canon. If it contradicts a unit, name the conflict and the units at once, and ask which one holds.
-2. Test the answer against concrete scenarios that probe its edges. Invent the scenarios yourself, and pick the ones most likely to break it.
+2. Test the answer against concrete scenarios that probe its edges. Invent the scenarios yourself, within the request, and pick the ones most likely to break it.
 3. When the owner says how something works, check the code. If the code disagrees, say so, with the file and the function.
 4. When the owner uses a word against its term, name the conflict at once.
 5. When a word is vague or carries two meanings, propose one precise term and ask the owner to choose.
@@ -38,7 +39,8 @@ This skill settles a design question that the canon does not yet answer. It runs
 2. Write each answer as the unit that fits it:
    - a term for a word;
    - an axiom for a value;
-   - a fact for something the platform imposes;
+   - a scope for what the project takes on or leaves out;
+   - a fact for something the platform imposes, found as the research-with-canon skill describes, since the owner's word is no source;
    - a spec for a decision or a behaviour;
    - an exception for a fact that keeps a spec from holding fully.
 3. When a word was used two ways, record the conflict and how it was settled in the body of its term. List the rejected words on the term's `_Avoid_:` line.
@@ -47,6 +49,6 @@ This skill settles a design question that the canon does not yet answer. It runs
 
 ## 5. Hand back
 
-1. End the session when every question has an answer written into the canon.
-2. Summarise the units you added or changed, and any question the owner left open.
+1. End the session when every question that the request depends on has an answer written into the canon.
+2. Summarise the units you added or changed, the open questions from step 6 of section 2, and any question the owner left open.
 3. Hand the work to the canon skill: its procedures for changing code, adding behaviour and fixing defects take over from here.

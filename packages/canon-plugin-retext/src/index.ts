@@ -36,10 +36,11 @@ const MAX_WORDS = 25
 const MAX_SENTENCES = 5
 
 /**
- * Words `retext-simplify` would replace that name parts of the system or of
- * JavaScript, so a plainer word would change the meaning.
+ * Words `retext-simplify` would replace that name parts of the system, of
+ * JavaScript or of the canon method, so a plainer word would change the
+ * meaning. A request is what sets the scope of a change.
  */
-const VOCABULARY = ['component', 'effect', 'function', 'interface', 'option', 'render', 'type']
+const VOCABULARY = ['component', 'effect', 'function', 'interface', 'option', 'render', 'request', 'type']
 
 /**
  * Blank out what is not prose written by hand, keeping every offset so the

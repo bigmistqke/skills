@@ -11,7 +11,7 @@ describe('the program of a document', () => {
 
   /**
    * @canon spec-a-formula-with-no-keyword-is-a-claim-to-hold
-   * @canon spec-the-scope-of-a-document-is-given-to-every-search
+   * @canon spec-the-bounds-of-a-document-are-given-to-every-search
    */
   it('names a predicate after each unit that holds a bare formula, and leaves the bounds out of the program', () => {
     expect(units).toContain('spec-a-disposed-owner-cannot-be-entered');

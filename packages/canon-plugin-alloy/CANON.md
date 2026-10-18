@@ -170,7 +170,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
 - [`@axiom the-claims-of-a-canon-never-contradict-each-other`](#axiom-the-claims-of-a-canon-never-contradict-each-other) — All of these hold: - for every [unit_1](../canon/CANON.md#term-unit): when unit_1 is held with units that cannot all hold, [checker](../canon/CANON.md#term-checker) names unit_1 in its report of a contradiction - for every [scenario_1](#term-scenario): when scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen.
   - [`@spec a-formula-with-no-keyword-is-a-claim-to-hold`](#spec-a-formula-with-no-keyword-is-a-claim-to-hold) — For every [unit_1](../canon/CANON.md#term-unit): when unit_1 holds a formula with no keyword, the analyzer is asked to hold the formula of unit_1.
   - [`@spec a-unit-that-holds-only-definitions-is-in-the-model-and-is-no-claim`](#spec-a-unit-that-holds-only-definitions-is-in-the-model-and-is-no-claim) — The definitions of a unit that holds only definitions are part of the model, and the analyzer does not hold them as a claim.
-  - [`@spec the-scope-of-a-document-is-given-to-every-search`](#spec-the-scope-of-a-document-is-given-to-every-search) — Every search uses the scope that the document asks for.
+  - [`@spec the-bounds-of-a-document-are-given-to-every-search`](#spec-the-bounds-of-a-document-are-given-to-every-search) — Every search uses the bounds that the document asks for.
   - [`@spec a-search-about-the-units-together-asks-for-every-held-unit-and-no-other`](#spec-a-search-about-the-units-together-asks-for-every-held-unit-and-no-other) — The [search](#term-search) about all the held units together asks every held unit to hold, and no other.
   - [`@spec each-scenario-gets-a-search-with-every-held-unit`](#spec-each-scenario-gets-a-search-with-every-held-unit) — The analyzer asks about each scenario in a search that asks every held unit to hold.
   - [`@spec the-first-searches-leave-no-unit-out`](#spec-the-first-searches-leave-no-unit-out) — For every [search_1](#term-search): when search_1 is asked before any scenario is known to be impossible, search_1 leaves no unit out.
@@ -187,7 +187,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec units-that-share-a-word-are-asked-about-together`](#spec-units-that-share-a-word-are-asked-about-together) — For every [unit_1](../canon/CANON.md#term-unit) and every unit_2: when unit_1 shares a word with unit_2, the analyzer is asked about unit_1 together with unit_2.
   - [`@spec units-that-share-no-word-are-asked-about-apart`](#spec-units-that-share-no-word-are-asked-about-apart) — For every [unit_1](../canon/CANON.md#term-unit) and every unit_2: when the analyzer is asked about unit_1 together with unit_2, unit_1 is linked to unit_2 through shared words.
   - [`@spec a-unit-in-a-group-with-no-claim-and-no-scenario-is-not-asked-about`](#spec-a-unit-in-a-group-with-no-claim-and-no-scenario-is-not-asked-about) — The analyzer is not asked about a unit in a group with no unit to hold and no scenario.
-  - [`@spec the-scope-of-a-group-names-only-the-signatures-it-declares`](#spec-the-scope-of-a-group-names-only-the-signatures-it-declares) — The scope of a search names only the signatures that its group declares.
+  - [`@spec the-bounds-of-a-group-name-only-the-signatures-it-declares`](#spec-the-bounds-of-a-group-name-only-the-signatures-it-declares) — The bounds of a search name only the signatures that its group declares.
   - [`@spec logic-succeeds-when-nothing-is-reported`](#spec-logic-succeeds-when-nothing-is-reported) — For every [run_1](../canon/CANON.md#term-run) and every [logic_command_1](#term-alloy-plugin): when all of these hold: - run_1 asks for logic_command_1 - there is no [scenario_1](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that scenario_1 cannot happen - there is no [unit_1](../canon/CANON.md#term-unit) such that unit_1 is held with units that cannot all hold then run_1 exits with code 0.
   - [`@spec a-reported-scenario-or-contradiction-fails-logic`](#spec-a-reported-scenario-or-contradiction-fails-logic) — For every [run_1](../canon/CANON.md#term-run) and every [logic_command_1](#term-alloy-plugin): when all of these hold: - run_1 asks for logic_command_1 - at least one of these holds: - there is a [scenario_1](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that scenario_1 cannot happen - there is a [unit_1](../canon/CANON.md#term-unit) such that unit_1 is held with units that cannot all hold then run_1 does not exit with code 0.
   - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — A run of `logic` exits with code 2 when the Alloy analyzer cannot run.
@@ -656,7 +656,7 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 
 > A scenario is a situation that a unit says must be possible while every unit of the canon holds.
 
-A scenario sits in the unit that holds it. It is possible when the analyzer finds a world where it happens and every held unit holds. It is impossible when the analyzer finds none within the scope.
+A scenario sits in the unit that holds it. It is possible when the analyzer finds a world where it happens and every held unit holds. It is impossible when the analyzer finds none within the bounds.
 
 ```alloy vocabulary
 sig Scenario {}
@@ -2187,11 +2187,11 @@ all u: Unit | u in BareFormula implies u in Held
 
 This follows because a definition gives a word its meaning and claims nothing, and the claims need the word.
 
-#### @spec the-scope-of-a-document-is-given-to-every-search
+#### @spec the-bounds-of-a-document-are-given-to-every-search
 
-> Every search uses the scope that the document asks for.
+> Every search uses the bounds that the document asks for.
 
-This follows because a claim that holds in a scope too small to show its flaw would let a contradiction through. The author sets the scope.
+This follows because a claim that holds in bounds too small to show its flaw would let a contradiction through. The author sets the bounds.
 
 #### @spec a-search-about-the-units-together-asks-for-every-held-unit-and-no-other
 
@@ -2415,11 +2415,11 @@ all u: Unit, v: Unit | u->v in Together.rel implies u->v in Chain.rel
 
 This follows because such a group has nothing to hold and nothing to allow.
 
-#### @spec the-scope-of-a-group-names-only-the-signatures-it-declares
+#### @spec the-bounds-of-a-group-name-only-the-signatures-it-declares
 
-> The scope of a search names only the signatures that its group declares.
+> The bounds of a search name only the signatures that its group declares.
 
-This follows because the analyzer refuses a scope for a signature it does not know, and a group cannot declare what another group holds.
+This follows because the analyzer refuses bounds for a signature it does not know, and a group cannot declare what another group holds.
 
 #### @spec logic-succeeds-when-nothing-is-reported
 

@@ -1,8 +1,8 @@
 /**
  * The seam between the core of canon and the checks that bring packages of
  * their own. The core depends on nothing outside Node. A plugin adds to the
- * commands of the command line, and the core hands each one the scope it runs
- * in.
+ * commands of the command line, and the core hands each one the settings it runs
+ * under.
  */
 
 /** What the core tells a command about the project it runs in. */
@@ -13,7 +13,7 @@ export interface PluginContext {
   root: string;
   /** The canon documents the plugin applies to, relative to the root. */
   documents: string[];
-  /** The plugin's own field of the `canon` field, as written; undefined when the plugin names no field or the scope has none. */
+  /** The plugin's own field of the `canon` field, as written; undefined when the plugin names no field or the settings have none. */
   config: unknown;
   /** The options given on the command line, as `parseArgs` read them. */
   options: Record<string, string | boolean | (string | boolean)[] | undefined>;
