@@ -71,29 +71,37 @@ This follows because a missing value sets nothing: …
 1. A nested axiom narrows its parent. Open its body with "This narrows … to …".
 2. If a nested axiom can only say "this follows because", its parent forces it. Make it a spec.
 3. A root axiom must decide at least one real choice between two designs that both work.
-4. A nested spec refines its parent: it states one part of the parent more concretely.
-5. A leaf spec makes one claim, about one case. A spec that claims over several cases, with "every", "any", "each", "always" or a list of cases, is a parent. It names its cases, and holds one nested spec for each. Each nested spec states its case as a single claim, with a test of its own.
-6. A test of one case says nothing about the others. A spec that claims over cases and has tests for only some of them is a claim that nothing checks.
-7. A spec that follows from another spec without refining it sits under its axiom. It names the other spec on its `Derives from:` line.
-8. Only a leaf owes a test. A parent spec is checked through its leaves, so a case the parent states and no leaf covers needs a leaf of its own. The basic case of a parent, the one its refinements differ from, is such a case.
-9. A spec whose only nested units are exceptions is a parent too. Give the part of its claim that holds a leaf of its own.
-10. Use these heading levels: a root `##`, a nested axiom `###`, a spec `####`, its refinements and exceptions `#####`, one level more `######`.
-11. A unit that would sit deeper than six levels names its parent on its `Derives from:` line instead.
+4. State what an axiom costs in its body. The cost is the work the axiom asks of the system that the platform does not do for it. Take the axiom "a program gives the same result on every runtime it supports". It turns every place where the runtimes differ into behaviour to build and test on each runtime. The owner of the design decides with that cost in view.
+5. A nested spec refines its parent: it states one part of the parent more concretely.
+6. A leaf spec makes one claim, about one case. A spec that claims over several cases, with "every", "any", "each", "always" or a list of cases, is a parent. It names its cases, and holds one nested spec for each. Each nested spec states its case as a single claim, with a test of its own.
+7. A test of one case says nothing about the others. A spec that claims over cases and has tests for only some of them is a claim that nothing checks.
+8. A spec that follows from another spec without refining it sits under its axiom. It names the other spec on its `Derives from:` line.
+9. Only a leaf owes a test. A parent spec is checked through its leaves, so a case the parent states and no leaf covers needs a leaf of its own. The basic case of a parent, the one its refinements differ from, is such a case.
+10. A spec whose only nested units are exceptions is a parent too. Give the part of its claim that holds a leaf of its own.
+11. Use these heading levels: a root `##`, a nested axiom `###`, a spec `####`, its refinements and exceptions `#####`, one level more `######`.
+12. A unit that would sit deeper than six levels names its parent on its `Derives from:` line instead.
 
 ## 5. Facts, exceptions and bugs
 
 1. A fact is a root and holds no units.
 2. A spec or exception names each fact it relies on, on its `Derives from:` line.
-3. An exception sits inside the spec it narrows and names the fact that forces it. An exception without a fact fails the check (`freelancing`).
-4. A carve-out that no fact forces is a choice. Write it as a spec nested in the spec it refines.
-5. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
-6. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
-7. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
-8. A bug sits inside the spec it breaks, and, when the project configures a tracker, names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
-9. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
-10. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
-11. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
-12. When the fix lands, the test marked to fail starts passing and so fails the run. Remove its mark, make it cite the spec, remove the bug, and close the issue.
+3. A fact claims only what its source shows. Scope it to where it was observed: the platform and its version, the engine or driver, the hardware, the engine's state, and the inputs. "On macOS 14, a volume formatted as APFS with the default options treats `Readme.md` and `README.md` as one file" is a fact. "macOS treats file names that differ only in case as one file" claims every volume format from one.
+4. Name the source of a fact in its body. A source is the section of a specification, with a link. It may also be the code of a library at a version, or a probe that a session can run again ([probing](SKILL.md#5-exploring)).
+5. Where a source leaves a result undefined, or leaves it to the implementation, that is the fact. Write it as such: "ECMAScript leaves the order that `Array.prototype.sort` gives to the implementation when the comparator is not consistent."
+6. A spec that relies on a scoped fact claims no more than that scope. Where the spec has to hold beyond it, split the spec. State what holds everywhere, such as an invariant, as one leaf. State the exact result as a leaf for the measured platforms only, with an exception for the rest.
+7. Where the facts leave a result open, a spec may leave it open too. It then states only the invariant the axiom needs, such as "the sorted array holds the same elements as the input". Picking one exact result is a choice, and costs code and tests on every target. Make it only where an axiom asks for it, and name that axiom in the "This follows because" sentence.
+8. When a fact stops holding, every unit that names it on its `Derives from:` line may be wrong. Re-examine each one before you change the fact.
+9. An exception sits inside the spec it narrows and names the fact that forces it. An exception without a fact fails the check (`freelancing`).
+10. A carve-out that no fact forces is a choice. Write it as a spec nested in the spec it refines. It narrows its parent and never contradicts it. A carve-out that would contradict its parent is a bug, a conflict, or a choice the owner has not ruled on.
+11. Split a choice the owner of the design has not ruled on in two. The part the axioms force is an ordinary spec, tested now. The rest is one entry in the open-questions section of the canon, with its options, what each one costs, your recommendation and its issue. The spec's body links to the entry. A ruling adds a leaf under the spec and removes the entry, and nothing else moves.
+12. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
+13. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
+14. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
+15. A bug sits inside the spec it breaks, and, when the project configures a tracker, names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
+16. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
+17. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
+18. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
+19. When the fix lands, the test marked to fail starts passing and so fails the run. Remove its mark, make it cite the spec, remove the bug, and close the issue.
 
 ## 6. Terms
 
@@ -133,8 +141,9 @@ _Avoid_: current state, now
 4. Never cite an axiom or a fact (`missing-spec`). Write the missing spec instead.
 5. A leaf that claims a result on every target needs a test on every target. A test on one target says nothing about the others. A claim tested on some targets only goes unchecked on the rest.
 6. A leaf leaves the coverage backlog only when a test cites it directly, or cites a bug inside it.
-7. A helper that wraps a runner's call, such as `(name, fn) => it(name, fn)`, carries `@runner` in its JSDoc, or `@runner fails` when it wraps `it.fails`. So does a `test` that `base.extend(...)` makes. Each call of it is then a test: tag the call, not the helper. Import the helper by a relative path: the checker follows no alias. A project that sets `runners` lists `"@runner"` among them.
-8. If a test needs a word of explanation, open its JSDoc with it, then leave a blank line before the tags. Move a line comment that explains a test into its JSDoc. A comment that heads a group of tests stays where it is.
+7. A unit may derive from a reference, such as a specification, a library or an exact computation. Test it against the reference on generated inputs, not only on inputs picked by hand. The reference shares no code with what it checks, and the tests compare every output the claim makes. Comparing two targets with each other cannot show an error they share.
+8. A helper that wraps a runner's call, such as `(name, fn) => it(name, fn)`, carries `@runner` in its JSDoc, or `@runner fails` when it wraps `it.fails`. So does a `test` that `base.extend(...)` makes. Each call of it is then a test: tag the call, not the helper. Import the helper by a relative path: the checker follows no alias. A project that sets `runners` lists `"@runner"` among them.
+9. If a test needs a word of explanation, open its JSDoc with it, then leave a blank line before the tags. Move a line comment that explains a test into its JSDoc. A comment that heads a group of tests stays where it is.
 
 ```ts
 /**
