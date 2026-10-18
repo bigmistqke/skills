@@ -524,7 +524,7 @@ function treeOf(
   const linked = new Map<string, Element[]>();
   for (const cell of withId.filter(u => u.tag === 'td' || u.tag === 'tr')) {
     const body = src.slice(cell.start, cell.end);
-    const target = /href="#((?:axiom|fact|spec|exception|bug)-[\w-]+)"/.exec(body);
+    const target = /href="#((?:axiom|scope|fact|spec|exception|bug)-[\w-]+)"/.exec(body);
     if (!target) continue;
     const list = linked.get(target[1]) ?? [];
     list.push(cell);
@@ -773,7 +773,7 @@ const MEANING: Record<FindingName, string> = {
   cycle: 'units whose citations lead back to themselves — a derivation must not depend on itself',
   rot: 'citation whose anchor does not resolve',
   dead: 'unit nothing cites',
-  'missing-spec': 'test citing an axiom or a fact rather than a spec',
+  'missing-spec': 'test citing an axiom, a scope or a fact rather than a spec',
   uncited: 'test with no citation — the hierarchy inverted',
   'stale-toc': 'generated table of contents out of sync with the document',
   unreachable:
@@ -1711,7 +1711,7 @@ const IMPLEMENTATION = SOURCES.filter(
 );
 
 /** A unit id as it appears in prose: a kind prefix, then a hyphenated stem. */
-const UNIT_ID = /\b(?:axiom|fact|spec|exception|bug)-[a-z0-9]+(?:-[a-z0-9]+)*/g;
+const UNIT_ID = /\b(?:axiom|scope|fact|spec|exception|bug)-[a-z0-9]+(?:-[a-z0-9]+)*/g;
 
 const git = (...args: string[]): string =>
   execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
