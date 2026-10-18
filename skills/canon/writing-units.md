@@ -125,7 +125,7 @@ _Avoid_: current state, now
 ## 7. Places in the code
 
 1. A site is optional. Give a spec a site only when one place in the code does what it states, and one of these holds:
-   1. The claim does not name the place, and a reader could not find it from the claim. "A dirty slot is marked with its own symbol" does not say where that happens, so it names `scope.ts:DIRTY`.
+   1. The claim does not name the place, and a reader could not find it from the claim. "A dirty slot is marked with its own symbol" does not say where that happens, so it names `slots.ts:DIRTY`.
    2. A parent spec holds at several places, and each nested spec pins one of them. "Closing runs callbacks newest first" holds in three places, and each nested spec names one, such as `owner.ts:disposeOwner`.
 
    Outside the second case, a claim that already names its place needs no site. "`peek(x)` returns the last resolved value" points to `peek`, and a site would only repeat it.

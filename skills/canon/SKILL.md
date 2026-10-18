@@ -23,7 +23,7 @@ description: The methodology that governs all work on a project with a CANON.md 
 - Session: one run of work by an agent, which starts without the theory and must rebuild it from the canon.
 - Scope: what the project takes on and what it leaves out, stated as scope units ([the kinds](writing-units.md#1-kinds)). A change has a scope too: the claims its request needs, within the scope of the project. The request is the issue, or what the owner of the design asked for. The units a change adds, changes or retires claim no more than the request needs. Only the owner widens a scope, of the project or of a change ([section 3](#3-adding-or-changing-behaviour), step 3).
 - Researcher: the role that builds the facts. A researcher answers one stated question about the world the system runs in, from a source or a probe. The answer is a fact, and the research-with-canon skill describes the work. A researcher does not design. Give research an agent of its own when one is available, so that the design cannot bend the fact.
-- Reviewer: the role that checks the canon diff and the code against the axioms and facts that exist. A reviewer does not probe. A boundary that no fact answers is a question for a researcher.
+- Reviewer: the role that checks the canon diff and the code against the axioms and facts that exist. A reviewer runs again the probes that the facts name, and writes no new probe. A boundary that no fact answers is a question for a researcher.
 - Canon diff: the edits a change makes to the canon documents.
 - Declared units: the units a change adds, changes or retires. Its pull request names them, and they fit its scope.
 - Mechanism: a piece of code that exists to make a unit hold, such as a guard, a conversion, a special case or a release. The canon states the claim, and how the code meets it is your choice.
@@ -79,7 +79,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 2. Name the axiom the behaviour follows from and the facts it relies on. If no axiom yields the behaviour, an axiom is missing. Stop, and ask the owner.
 3. Claim no more than the request needs. That is the [scope](#terms) of the change.
    1. Before you design a [mechanism](#terms), state the simplest change that meets the request. Design beyond it only where a unit forces you to.
-   2. A claim beyond the request widens the scope. Widening a spec from one input kind to every kind is one example. Widening it from the platforms the issue names to every platform is another.
+   2. A claim beyond the request widens the scope of the change. Widening a spec from one input kind to every kind is one example. Widening it from the platforms the issue names to every platform is another.
    3. Only the owner widens a scope, of the change or of the project. Ask, and name the widening in the question. Then say so in the canon diff.
    4. An answer of the owner can widen the scope without saying so. When one does, name that effect to the owner before you work under it.
 4. Survey what the change meets, within its scope. Write down what you found, and how you found it:
@@ -88,14 +88,15 @@ This file holds what every session needs. Two files beside it hold the rest:
    3. The members of each set that a declared unit claims something of, such as every option, input kind, target or entry point. List them from a source: a type, a registry, a schema, the exports, a specification. A list written from memory misses members.
    4. The boundaries: zero, empty and missing inputs, the extremes of each type, ties, and what the platform leaves undefined or to the implementation.
 
-   Each item fits a declared unit, has a fact that answers it, or has a spec that leaves it open on purpose. An argument is not an answer. Where a unit has to claim a result that no fact backs, put the question to a [researcher](#terms), as [section 5](#5-exploring) describes. Turn what you notice beyond the scope into an issue.
+   Each item fits a declared unit, has a fact that answers it, or has a spec that leaves it open on purpose. An argument is not an answer. Where a unit has to claim a result that no fact backs, put the question to a [researcher](#terms), as [section 5](#5-exploring) describes. Propose what you notice beyond the scope of the change as an issue, as [section 7](#7-pull-requests-and-reviews) describes.
 5. Deduce the specs from the axiom and the facts, with a leaf for each case.
 6. Before you write any code, have someone who did not write the canon diff review it: the owner of the design, or a fresh [reviewer](#terms). The reviewer checks each new fact, as the research-with-canon skill describes: runs its probe again, and checks that its quote says what it claims. The reviewer checks each new unit against the units from step 4. A finding blocks the canon diff only when it shows one of these:
    1. A declared unit contradicts another unit or a fact.
    2. A declared unit claims a result that no fact backs.
    3. A declared unit cannot be tested.
+   4. A new fact claims more than its source shows.
 
-   Answer the second kind by leaving the result open, or by putting its question to a researcher. Other findings go on to the implementation, or into an issue. When no finding blocks, the review of the canon diff ends.
+   Answer the second kind by leaving the result open, or by putting its question to a researcher. Other findings go on to the implementation, or are proposed as issues. When no finding blocks, the review of the canon diff ends.
 7. Write the tests, and see them fail. Choose inputs that a plausible wrong implementation gets wrong. A test of "non-zero is true" uses 2 and −2, where a bitwise and a logical reading differ, not 1.
 8. Write the code. It expresses the declared units, and nothing more.
 9. Break each mechanism the code adds, and see a test that cites its unit fail for that reason. Then restore the mechanism. A mechanism whose break no test notices is untested, whatever the coverage says.
@@ -104,8 +105,8 @@ This file holds what every session needs. Two files beside it hold the rest:
 ## 4. Fixing a defect
 
 1. Do not change the code first. Write the test that the defect breaks, and see it fail.
-2. Find the spec that covers the situation. If none does, a spec is missing or states too much. Find the axiom or fact that decides the spec. If none does, one is missing: ask the owner of the design.
-3. Do not stop at the failing case. List the other members of the set it belongs to, from a source, as step 4 of [section 3](#3-adding-or-changing-behaviour) describes. Check which of them share the defect's cause, and fix those with it as one design. Turn the others into issues.
+2. Find the spec that covers the situation. If none does, a spec is missing or states too much. Find the axiom or fact that decides the spec. If no axiom does, one is missing: ask the owner of the design. If a fact is missing, put its question to a [researcher](#terms).
+3. Do not stop at the failing case. List the other members of the set it belongs to, from a source, as step 4 of [section 3](#3-adding-or-changing-behaviour) describes. Check which of them share the defect's cause, and fix those with it as one design. Propose the others as issues, as [section 7](#7-pull-requests-and-reviews) describes.
 4. Write what is missing from the top down: axiom or fact, then spec. Make the test from step 1 cite the spec.
 5. If the fix waits, record the defect instead: a bug inside the spec, and the test from step 1 marked to fail, citing the bug. [Writing units](writing-units.md#5-facts-exceptions-and-bugs) has the rules.
 6. Fix the code. If a bug recorded the defect, remove it, and make its test pass and cite the spec.
@@ -134,9 +135,9 @@ This file holds what every session needs. Two files beside it hold the rest:
 2. Verify a finding before you act on it: reproduce it, or find it in the code. Pass on a finding that you have not verified as unverified.
 3. Fix a finding against a declared unit in the same change. Such a finding says that the code does not express the unit, that no test checks it, or that the unit itself is wrong. When the change adds or widens that unit, first ask whether the request needs the claim the finding breaks. If it does not, claim less, as [writing units](writing-units.md#2-units) allows: narrow the unit, leave the result open, or write the exception a fact forces. Add a mechanism only for a claim the request needs.
 4. Do not fix any other finding in this change, even one in the same area. Each fix adds code, and so widens the area. Propose it as an issue instead. An issue is visible to others, so file the ones the owner of the design agrees to. Fix a cleanup in the same change only when it is small, and touches only code the change already touches.
-5. When the owner agrees to the issue of a verified defect outside the scope, record the defect as a change of its own. Start that change from the main branch: its scope is that one bug. If a probe reproduced the defect, write what the probe measured as a fact that names the probe. Record the defect as step 5 of [section 4](#4-fixing-a-defect) describes. That change records the defect and does not fix it, so it skips step 3 of section 4.
+5. Once the owner agrees to the issue of a verified defect outside the scope of the change, record it as a change of its own. Start that change from the main branch: its scope is that one bug. If a probe reproduced the defect, write what the probe measured as a fact that names the probe. Record the defect as step 5 of [section 4](#4-fixing-a-defect) describes. That change records the defect and does not fix it, so it skips step 3 of section 4.
 6. Fix a finding in the canon by editing a statement. Change a unit's kind or its place only when an edit cannot fix the finding. Each such change gives the unit a new parent and new siblings, which the next review has to check again.
-7. Review the diff of each fix round before you push it. A fix round that adds a mechanism also breaks it, as step 9 of [section 3](#3-adding-or-changing-behaviour) describes. A fix round does not open the survey again. A mechanism replaced a second time is a sign that the claim it serves is wider than the request. Check that claim against the [scope](#terms) before you design again.
+7. Review the diff of each fix round before you push it. A fix round that adds a mechanism also breaks it, as step 9 of [section 3](#3-adding-or-changing-behaviour) describes. A fix round does not open the survey again. A mechanism replaced a second time is a sign that the claim it serves is wider than the request. Check that claim against the [scope](#terms) of the change before you design again.
 8. A reviewer of code breaks it the way a plausible wrong implementation would, and checks that a test notices. Such a break widens a guard, or handles a case for only some members of a set.
 9. Merge only when these all hold, and do not call the change ready to merge before they do:
    1. Every declared unit holds, and a test checks each of its leaves. No bug sits in a unit that the change adds or widens, unless the change exists to record that bug.
