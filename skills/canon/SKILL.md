@@ -1,6 +1,6 @@
 ---
 name: canon
-description: The methodology that governs all work on a project with a CANON.md — the document of axioms, facts, specs and exceptions that is the project itself, which the code and tests express and a checker holds closed. Load at the start of every session and before any work in such a project. Use it for every choice made in the system, internal ones included; before changing an area of the code (read the theory that covers it first); when adding or changing behaviour (place it against the specs it resembles, derive it from an axiom, survey the units and boundaries it reaches, and have the canon diff reviewed before writing code); when opening a pull request or acting on review findings; when fixing a bug (trace it up to the missing spec, axiom or fact before touching code); when writing a test; when editing CANON.md; before ending a session (write every decision back into the canon); when running the canon checker; and when writing the canon of an existing project that has none. For a design question the canon does not decide, use the grill-with-canon skill.
+description: The methodology that governs all work on a project with a CANON.md — the document of axioms, facts, specs and exceptions that is the project itself, which the code and tests express and a checker holds closed. Load at the start of every session and before any work in such a project. Use it for every choice made in the system, internal ones included; before changing an area of the code (read the theory that covers it first); when adding or changing behaviour (place it against the specs it resembles, derive it from an axiom, survey the units and boundaries it reaches, and have the canon diff reviewed before writing code); when opening a pull request or acting on review findings; when fixing a bug (trace it up to the missing spec, axiom or fact before touching code); when writing a test; when editing CANON.md; before ending a session (write every decision back into the canon); when running the canon checker; and when writing the canon of an existing project that has none. For a design question the canon does not decide, use the grill-with-canon skill. For a question about the world the system runs in, use the research-with-canon skill.
 ---
 
 # Canon
@@ -22,7 +22,7 @@ description: The methodology that governs all work on a project with a CANON.md 
 - Owner of the design: the person who decides the project's values. You propose, and the owner judges.
 - Session: one run of work by an agent, which starts without the theory and must rebuild it from the canon.
 - Scope: the claims a change makes. The request sets them: the issue, or what the owner of the design asked for. The units a change adds, changes or retires claim no more than the request needs. Only the owner widens a scope ([section 3](#3-adding-or-changing-behaviour), step 3).
-- Researcher: the role that builds the facts. A researcher answers one stated question about the world the system runs in, from a source or a probe, and writes the answer as a fact ([section 5](#5-exploring)). A researcher does not design. Give research an agent of its own when one is available, so that the design cannot bend the fact.
+- Researcher: the role that builds the facts. A researcher answers one stated question about the world the system runs in, from a source or a probe. The answer is a fact, and the research-with-canon skill describes the work. A researcher does not design. Give research an agent of its own when one is available, so that the design cannot bend the fact.
 - Reviewer: the role that checks the canon diff and the code against the axioms and facts that exist. A reviewer does not probe. A boundary that no fact answers is a question for a researcher.
 - Canon diff: the edits a change makes to the canon documents.
 - Declared units: the units a change adds, changes or retires. Its pull request names them, and they fit its scope.
@@ -89,7 +89,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 
    Each item fits a declared unit, is answered by a fact, or is left open in a spec on purpose. An argument is not an answer. Where a unit has to claim a result that no fact backs, put the question to a [researcher](#terms), as [section 5](#5-exploring) describes. Turn what you notice beyond the scope into an issue.
 5. Deduce the specs from the axiom and the facts, with a leaf for each case.
-6. Before you write any code, have someone who did not write the canon diff review it: the owner of the design, or a fresh [reviewer](#terms). The reviewer runs again the probes that the new facts name, and checks that each source a fact quotes says what the fact claims. The reviewer checks each new unit against the units from step 4. A finding blocks the canon diff only when it shows one of these:
+6. Before you write any code, have someone who did not write the canon diff review it: the owner of the design, or a fresh [reviewer](#terms). The reviewer checks each new fact, as the research-with-canon skill describes: runs its probe again, and checks that its quote says what it claims. The reviewer checks each new unit against the units from step 4. A finding blocks the canon diff only when it shows one of these:
    1. A declared unit contradicts another unit or a fact.
    2. A declared unit claims a result that no fact backs.
    3. A declared unit cannot be tested.
@@ -117,19 +117,9 @@ This file holds what every session needs. Two files beside it hold the rest:
 2. An experiment makes no claim and commits the project to nothing. The canon does not govern it.
 3. A result enters the project only through the canon, in the order of [section 1](#1-authority).
 4. When the result of an experiment is in the canon, remove the experiment, or keep it only as a record of the exploration.
-5. A probe is an experiment that answers one question about the platform: what does it do at this boundary? Isolate one thing, and make the probe reproducible: committed, with the versions and the environment it ran in.
-6. A probe must be able to show its fact wrong:
-   1. It measures the platform alone, never through the project's own code.
-   2. It varies every input that its fact speaks of, not only sizes: shapes, signs, odd and even, and the degenerate cases.
-   3. It tells apart every result its fact asserts. A field set to zero is not a field never written.
-   4. It records the errors the platform reports.
-   5. It shows that it reached what it measures, and that the platform did not skip the work.
-7. Some engines decide by heuristics, such as a JIT compiler. A fact about one holds only in the state it was measured in: the tier, the warm-up, the process. Run its probe again where the product runs, such as under the test runner.
-8. The result of a probe enters the canon as a fact, which claims only what the probe measured. Keep the probe so that a later session can run it again, and name it in the body of the fact. That session can then tell whether the fact still holds.
-9. Research answers one question at a time. State the question before you start, and stop when it has an answer. The researcher sees the question, not the design.
-10. Use an existing library for anything a probe does not measure, such as reading a specification or parsing its output.
-11. A fact enters the canon with the change that asked its question. State that question in the body of the fact. A fact that answers no question of the change stays out of it.
-12. Commit the facts and their probes apart from the specs and the code, at the start of the branch when you can, so that they can be reviewed on their own.
+5. A fact comes from research, which the research-with-canon skill describes. Put one stated question to a [researcher](#terms), and take back the fact it writes.
+6. A fact enters the canon with the change that asked its question. A fact that answers no question of the change stays out of it.
+7. Commit the facts and their probes apart from the specs and the code, at the start of the branch when you can. They can then be reviewed on their own.
 
 ## 6. Commits
 

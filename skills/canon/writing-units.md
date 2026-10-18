@@ -51,7 +51,7 @@ This follows because …
 1. The canon is a directed acyclic graph. No unit derives from itself, directly or through other units (`cycle`).
 2. Nesting is a citation: a unit inside another unit derives from it. Do not link to the unit that holds your unit.
 3. List further parents on one `Derives from:` line, right after the statement. Only links on that line are derivation edges. Every other link is a reference.
-4. The primary parent of a unit is the unit it sits in. Choose it so that the chain of primary parents leads up to the axiom that does most of the forcing. A fact is never a primary parent: a fact holds no units ([section 5](#5-facts-and-exceptions)).
+4. The primary parent of a unit is the unit it sits in. Choose it so that the chain of primary parents leads up to the axiom that does most of the forcing. A fact is never a primary parent: a fact holds no units ([section 5](#5-facts-exceptions-and-bugs)).
 5. Open a spec's body with its `Derives from:` line, if it has one, then one sentence: "This follows because …".
 6. If you cannot write that sentence, an axiom is missing. Ask the owner of the design.
 7. Place a spec under the axiom that forces it, not under an axiom on the same topic.
@@ -87,23 +87,21 @@ This follows because a missing value sets nothing: …
 
 1. A fact is a root and holds no units.
 2. A spec or exception names each fact it relies on, on its `Derives from:` line.
-3. A fact claims only what its source shows. State where it was observed: the platform and its version, the engine or driver, the hardware, the engine's state, and the inputs. "On macOS 14, a volume formatted as APFS with the default options treats `Readme.md` and `README.md` as one file" is a fact. "macOS treats file names that differ only in case as one file" claims every volume format from one.
-4. Name the source of a fact in its body. A source is the section of a specification, with a link. It may also be the code of a library at a version, or a probe that a session can run again ([probing](SKILL.md#5-exploring)).
-5. Where a source leaves a result undefined, or leaves it to the implementation, that is the fact. Write it as such: "ECMAScript leaves the order that `Array.prototype.sort` gives to the implementation when the comparator is not consistent."
-6. A spec that relies on a fact claims no more than where the fact was observed. Where the spec has to hold beyond that, split the spec. State what holds everywhere, such as an invariant, as one leaf. State the exact result as a leaf for the measured platforms only, with an exception for the rest.
-7. Where the facts leave a result open, a spec may leave it open too. It then states only the invariant the axiom needs, such as "the sorted array holds the same elements as the input". Picking one exact result is a choice, and costs code and tests on every target. Make it only where an axiom asks for it, and name that axiom in the "This follows because" sentence.
-8. When a fact stops holding, every unit that names it on its `Derives from:` line may be wrong. Re-examine each one before you change the fact.
-9. An exception sits inside the spec it narrows and names the fact that forces it. An exception without a fact fails the check (`freelancing`).
-10. A carve-out that no fact forces is a choice. Write it as a spec nested in the spec it refines. It narrows its parent and never contradicts it. A carve-out that would contradict its parent is a bug, a conflict, or a choice the owner has not ruled on.
-11. Split a choice the owner of the design has not ruled on in two. The part the axioms force is an ordinary spec, tested now. The rest is one entry in the open-questions section of the canon, with its options, what each one costs, your recommendation and its issue. The spec's body links to the entry. A ruling adds a leaf under the spec and removes the entry, and nothing else moves.
-12. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
-13. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
-14. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
-15. A bug sits inside the spec it breaks, and, when the project configures a tracker, names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
-16. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
-17. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
-18. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
-19. When the fix lands, the test marked to fail starts passing and so fails the run. Remove its mark, make it cite the spec, remove the bug, and close the issue.
+3. The research-with-canon skill says what a fact may claim, and how the fact names its source.
+4. A spec that relies on a fact claims no more than where the fact was observed. Where the spec has to hold beyond that, split the spec. State what holds everywhere, such as an invariant, as one leaf. State the exact result as a leaf for the measured platforms only, with an exception for the rest.
+5. Where the facts leave a result open, a spec may leave it open too. It then states only the invariant the axiom needs, such as "the sorted array holds the same elements as the input". Picking one exact result is a choice, and costs code and tests on every target. Make it only where an axiom asks for it, and name that axiom in the "This follows because" sentence.
+6. When a fact stops holding, every unit that names it on its `Derives from:` line may be wrong. Re-examine each one before you change the fact.
+7. An exception sits inside the spec it narrows and names the fact that forces it. An exception without a fact fails the check (`freelancing`).
+8. A carve-out that no fact forces is a choice. Write it as a spec nested in the spec it refines. It narrows its parent and never contradicts it. A carve-out that would contradict its parent is a bug, a conflict, or a choice the owner has not ruled on.
+9. Split a choice the owner of the design has not ruled on in two. The part the axioms force is an ordinary spec, tested now. The rest is one entry in the open-questions section of the canon, with its options, what each one costs, your recommendation and its issue. The spec's body links to the entry. A ruling adds a leaf under the spec and removes the entry, and nothing else moves.
+10. An exception lasts as long as its fact. When a library defect forces an exception, pin the exception with `test.fails`. Remove the exception when that test starts failing.
+11. A spec that keeps collecting exceptions asks more than the platform gives. Restate the spec.
+12. A bug marks a place where the code breaks the spec it sits in. It is a defect of the project, which no fact forces and which the project means to fix. A departure that a fact forces is an exception, not a bug.
+13. A bug sits inside the spec it breaks, and, when the project configures a tracker, names its issue on a line of its own, such as `Issue: #49` (`untracked-bug`). Its statement says what the code does instead of what the spec claims. When the project configures a tracker, the checker holds the issue to it: the issue must exist, and it must be open (`missing-issue`, `closed-issue`, `unreachable-tracker`). [The checker](checker.md#3-issues) has the setup.
+14. Pin each bug with a test marked to fail, such as `it.fails`. The test asserts the claim of the spec and cites the bug. A test that cites a bug without the mark is a finding (`unpinned-bug`). So is a test with the mark that cites no bug or exception (`fails-without-bug`).
+15. A bug refines nothing, so a spec that holds only bugs stays a leaf, and its passing tests go on citing it.
+16. The test that pins a bug asserts the claim of the spec the bug breaks, so it pins that spec too. A spec that no code holds yet, such as one written for a defect, needs no passing test while its bug is pinned.
+17. When the fix lands, the test marked to fail starts passing and so fails the run. Remove its mark, make it cite the spec, remove the bug, and close the issue.
 
 ## 6. Terms
 
