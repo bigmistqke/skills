@@ -31,10 +31,11 @@ Axioms state how the world should be. Facts state how the platform is. A spec, t
 2. Write the stem by hand. You may reword the statement at any time, because citations name the stem.
 3. Open the body with the statement as a blockquote. In a document that keeps readings, the checker writes the statement of a unit with a formula. Write the formula instead, as [units with logic](#12-units-with-logic) describes.
 4. Make every claim about the system a unit. Body text explains its unit's claim and adds no new claim.
-5. State a claim as strongly as the project means it. Where the system falls short of it, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
-6. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
-7. Write in the present tense. History belongs in a decision record.
-8. Write a decision record only for a choice that is hard to reverse, surprising without its context, and the result of a real trade-off.
+5. State a claim as strongly as the project means it. The project means what its axioms and the request say, not what a draft of the canon diff says. Where the system falls short of a claim, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
+6. A unit your change adds may claim less whenever the request does not need more. That is the [scope](SKILL.md#terms) of the change, not a weakening. A spec of the main branch that your change widened may return to its claim on the main branch, and no further.
+7. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
+8. Write in the present tense. History belongs in a decision record.
+9. Write a decision record only for a choice that is hard to reverse, surprising without its context, and the result of a real trade-off.
 
 ```md
 ### @spec a-write-is-visible-before-its-flush
