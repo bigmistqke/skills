@@ -84,7 +84,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check of groups', () => {
   afterEach(() => new Promise(resolve => setTimeout(resolve, 0)));
 
   /**
-   * @canon spec-the-scope-of-a-group-names-only-the-signatures-it-declares
+   * @canon spec-the-bounds-of-a-group-name-only-the-signatures-it-declares
    * @canon spec-units-that-share-no-word-are-asked-about-apart
    */
   it('asks about the groups apart, with the sizes of only the signatures each declares', { timeout: 120_000 }, async () => {

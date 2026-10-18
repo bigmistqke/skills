@@ -137,7 +137,7 @@ export function checkDocumentWords(documents: string[], root: string): number {
   return code;
 }
 
-/** The `logic` field of the scope: where the Alloy analyzer is. Paths are relative to the project root. */
+/** The `logic` field of the settings: where the Alloy analyzer is. Paths are relative to the project root. */
 interface LogicConfig {
   alloy?: { jar?: string; java?: string };
 }

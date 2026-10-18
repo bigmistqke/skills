@@ -10,8 +10,8 @@
  * A call is a runner's only when its name leads to the runner: imported from
  * one of the runner's packages, or a global where the runner provides globals.
  * A declaration whose JSDoc holds the runner marker `@runner`, or
- * `@runner fails`, is a runner as well, where a call's name leads to it: in
- * the scope of the call, or through relative imports and re-exports.
+ * `@runner fails`, is a runner as well, where a call's name leads to it: among
+ * the declarations visible at the call, or through relative imports and re-exports.
  */
 import { Parser, type Comment } from 'acorn';
 import { tsPlugin } from '@sveltejs/acorn-typescript';
@@ -233,7 +233,7 @@ function readModule(syntax: Syntax): void {
       if (specifier.type === 'ImportNamespaceSpecifier') top.declarations.set((specifier.local as Node).name as string, specifier as never);
     }
   }
-  /** What a name of the module's top scope leads to. */
+  /** What a name declared at the top of the module leads to. */
   const local = (name: string): Export => {
     const declaration = top.declarations.get(name) as Node | undefined;
     if (declaration === undefined) return { kind: 'none' };

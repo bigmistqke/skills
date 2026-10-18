@@ -334,15 +334,15 @@ class Verbalizer {
   private quantified(node: Extract<Node, { t: 'quant' }>): Doc {
     const absorbed = this.absorbed(node);
     if (absorbed !== undefined) return absorbed;
-    const scope = new Map(this.bound);
+    const bindings = new Map(this.bound);
     const vars = node.decls.flatMap(({ names, type }) =>
       names.map(name => {
         const variable = this.fresh(type);
-        scope.set(name, variable.name);
+        bindings.set(name, variable.name);
         return variable;
       })
     );
-    const body = new Verbalizer(this.readings, scope, this.chain, this.used).doc(node.body);
+    const body = new Verbalizer(this.readings, bindings, this.chain, this.used).doc(node.body);
     if (node.q === 'all') {
       return { kind: 'block', intro: `for ${vars.map(v => `every ${v.shown}`).join(' and ')}:`, body };
     }

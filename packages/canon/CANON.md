@@ -78,7 +78,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term expected-failure`](#term-expected-failure) — An expected failure is a test that is marked to fail, with a modifier that a [runner](#term-runner) marks a failure with, such as `it.fails`: it fails until the defect it checks is fixed.
 - [`@term check`](#term-check) — For every [test_1](#term-test) and every [unit_1](#term-unit): test_1 checks unit_1 exactly when test_1 [carries](#term-carry) a [tag](#term-tag) that [names](#term-name) unit_1.
 - [`@term issue`](#term-issue) — An issue is an entry of the tracker of the project.
-- [`@term tracker`](#term-tracker) — Tracker is the issue tracker the scope of the project names.
+- [`@term tracker`](#term-tracker) — Tracker is the issue tracker the settings of the project name.
 - [`@term name`](#term-name) — A bug names each issue that the issue line of the bug names.
 - [`@term tested`](#term-tested) — For every [unit_1](#term-unit): unit_1 is tested exactly when at least one of these holds: - a [test](#term-test) [checks](#term-check) unit_1 - unit_1 is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) unit_1
 - [`@term paired`](#term-paired) — For every [conflict_1](#term-conflict): conflict_1 is paired exactly when conflict_1 [names](#term-name) a [unit](#term-unit) and names another unit.
@@ -203,7 +203,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec an-empty-list-of-runners-reads-no-test`](#spec-an-empty-list-of-runners-reads-no-test) — When the setting `runners` is an empty list, the checker reads no call as a test.
       - [`@spec a-runner-written-as-a-map-adds-its-calls`](#spec-a-runner-written-as-a-map-adds-its-calls) — A runner that the setting `runners` writes as a map declares a test with the calls, modifiers and failure modifiers the map lists. Its calls come from the packages under `from`, or are globals when it sets `globals`.
       - [`@spec a-failure-modifier-of-a-runner-marks-an-expected-failure`](#spec-a-failure-modifier-of-a-runner-marks-an-expected-failure) — A test whose call holds a failure modifier of a runner of the project is an [expected failure](#term-expected-failure).
-      - [`@spec a-call-of-a-marked-function-is-a-test`](#spec-a-call-of-a-marked-function-is-a-test) — A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there in the scope of the call, through an import of a relative path, or through a re-export.
+      - [`@spec a-call-of-a-marked-function-is-a-test`](#spec-a-call-of-a-marked-function-is-a-test) — A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there among the declarations visible at the call, through an import of a relative path, or through a re-export.
       - [`@spec only-a-relative-import-leads-to-a-marked-declaration`](#spec-only-a-relative-import-leads-to-a-marked-declaration) — An import of a package, or of a path that a `tsconfig` alias maps, leads to no marked declaration.
       - [`@spec a-marker-in-an-example-is-no-marker`](#spec-a-marker-in-an-example-is-no-marker) — A line `@runner` in an `@example` section or a fenced block of a JSDoc marks nothing.
       - [`@spec a-call-of-a-function-marked-fails-is-an-expected-failure`](#spec-a-call-of-a-function-marked-fails-is-an-expected-failure) — A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
@@ -1278,7 +1278,7 @@ Issue: {1} is an [issue] | {1} is not an [issue]
 
 ### @term tracker
 
-> Tracker is the issue tracker the scope of the project names.
+> Tracker is the issue tracker the settings of the project name.
 
 The [issues](#term-issue) a bug or a conflict names are the tracker's. The setting `tracker` names it. A project that sets no `tracker` has none, and so has no issues: a line such as `Issue: #12` in such a project names nothing.
 
@@ -2833,7 +2833,7 @@ This follows because the runners refuse a test declared there, so a call there t
 
 > A call whose name refers to a declaration of its own module that no runner marker marks, such as `const it = values[Symbol.iterator]()`, is no test.
 
-This follows because the name then holds the module's own value, not a runner's function. The checker follows a name to its declaration in the scope of the call. A declaration in another block of the module does not count.
+This follows because the name then holds the module's own value, not a runner's function. The checker follows a name to its declaration among those visible at the call. A declaration in another block of the module does not count.
 
 ##### @spec a-name-imported-from-no-runner-is-no-runner
 
@@ -2887,7 +2887,7 @@ This follows because each runner marks an expected failure with a modifier of it
 
 ##### @spec a-call-of-a-marked-function-is-a-test
 
-> A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there in the scope of the call, through an import of a relative path, or through a re-export.
+> A call whose name leads to a declaration that a runner marker marks is a test, by the rules for a call of a runner. The name leads there among the declarations visible at the call, through an import of a relative path, or through a re-export.
 
 This follows because a helper that wraps a runner's call declares a test each time it is called. Its call site is where the test is, and where its tag says what it checks.
 

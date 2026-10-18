@@ -51,7 +51,7 @@ The claims of the documents a document extends join its model, so a claim of the
 
 ````md
 ```alloy vocabulary   the signatures, relations and events the units share
-```alloy bounds       the scope of the search, `for 3 but 1..8 steps` by default
+```alloy bounds       the bounds of the search, `for 3 but 1..8 steps` by default
 ```alloy scenario     a situation the units must allow, on any unit
 ```alloy              the unit's own predicate; a bare formula is named after the unit
 ````

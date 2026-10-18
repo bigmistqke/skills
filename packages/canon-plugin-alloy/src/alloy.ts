@@ -46,7 +46,7 @@ export type AlloyResult =
   | { ok: false; units: string[]; scenarios: number; failures: ScenarioFailure[] }
   | { ok: false; error: string };
 
-/** The default scope, when no `alloy bounds` block gives one. */
+/** The default bounds, when no `alloy bounds` block gives them. */
 const DEFAULT_BOUNDS = 'for 3 but 1..8 steps';
 const PARAGRAPH = /^\s*(?:(?:var|one|lone|some|abstract)\s+)*(?:sig|pred|fun|fact|assert|enum|open|run|check)\b/;
 
@@ -64,7 +64,7 @@ const scenarioName = (unit: string, nth: number): string => `scenario_${nth}_${p
 /** The blocks of a document that the Alloy backend reads. */
 const alloyBlocks = (src: string): Block[] => readBlocks(src, readUnits(src)).filter(b => b.lang === 'alloy');
 
-/** The scope a document asks for, or the default one. */
+/** The bounds a document asks for, or the default ones. */
 const boundsOf = (blocks: Block[]): string => blocks.find(b => b.role === 'bounds')?.body.trim() ?? DEFAULT_BOUNDS;
 
 type Only = { scenarios?: string[]; leave?: string[] | Record<string, string[]> };
@@ -143,7 +143,7 @@ export function groups(src: string, context: string[] = []): Block[][] {
   return [...byRoot.values()].filter(group => group.some(b => own.has(b)) && group.some(b => b.role === 'scenario' || (b.role === 'unit' && !PARAGRAPH.test(b.body))));
 }
 
-/** The scope of a group: the scope asked for, without the sizes of signatures the group does not declare. */
+/** The bounds of a group: the bounds asked for, without the sizes of signatures the group does not declare. */
 function boundsFor(bounds: string, blocks: Block[]): string {
   const m = /^for\s+(\d+)(?:\s+but\s+([\s\S]*))?$/.exec(bounds);
   if (m === null) return bounds;
@@ -228,8 +228,8 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
   const context = options.context ?? [];
   const bounds = boundsOf([...alloyBlocks(src), ...context.flatMap(alloyBlocks)]);
-  const parts = groups(src, context).map(group => ({ group, scope: boundsFor(bounds, group) }));
-  const asked = parts.map(({ group, scope }) => build(group, scope, 'check'));
+  const parts = groups(src, context).map(group => ({ group, bounds: boundsFor(bounds, group) }));
+  const asked = parts.map(part => build(part.group, part.bounds, 'check'));
   const first = await solveAll(asked, java, jar);
   if ('error' in first) return { ok: false, error: first.error };
   const units = asked.flatMap(a => a.units);
@@ -246,7 +246,7 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
     if (cannot.length > 0) blamed.push({ index, cannot });
   });
   const second = await solveAll(
-    blamed.map(({ index, cannot }) => build((parts[index] as (typeof parts)[number]).group, (parts[index] as (typeof parts)[number]).scope, 'blame', { scenarios: cannot.map(c => c.name), leave: options.leave })),
+    blamed.map(({ index, cannot }) => build((parts[index] as (typeof parts)[number]).group, (parts[index] as (typeof parts)[number]).bounds, 'blame', { scenarios: cannot.map(c => c.name), leave: options.leave })),
     java,
     jar
   );

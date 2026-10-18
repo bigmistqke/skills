@@ -2,7 +2,7 @@
 
 How to install, configure and run the canon checker. [`SKILL.md`](SKILL.md) holds the protocol, and `pnpm canon --help` is the manual of the tool.
 
-## 1. Install and scope
+## 1. Install and settings
 
 The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependency:
 
@@ -12,7 +12,7 @@ pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-retext
 
 The package `@bigmistqke/canon-plugin-retext` adds the command `lint`. A project that does not check its prose can leave it out. `@bigmistqke/canon-plugin-alloy` adds `logic` and the generated statements.
 
-Then declare the scope in the frontmatter of the entry document: the nearest `CANON.md`, from the folder where you run the command upwards. The project needs no script, because `pnpm canon` runs the package's own command:
+Then declare the settings in the frontmatter of the entry document: the nearest `CANON.md`, from the folder where you run the command upwards. The project needs no script, because `pnpm canon` runs the package's own command:
 
 ```yaml
 ---
@@ -55,7 +55,7 @@ pnpm canon logic              # whether the formulas of the units can all hold t
 pnpm canon log                # commits that change the implementation without naming a unit
 ```
 
-The examples use `pnpm canon`, the command this project declares in its scope.
+The examples use `pnpm canon`, the command this project declares in its settings.
 
 1. `pnpm canon --help` lists every finding `check` reports.
 2. `check` fails when a generated region is stale. To fix it, run `generate`. The generated regions are the index of each document and the kinds table in [`writing-units.md`](writing-units.md).
@@ -65,7 +65,7 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 
 ## 3. Issues
 
-A bug or a conflict names its issue on a line of its own, such as `Issue: #49`, when the scope has a `tracker`. With no `tracker`, the project has no issues, and a bug or a conflict owes no issue line. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
+A bug or a conflict names its issue on a line of its own, such as `Issue: #49`, when the settings have a `tracker`. With no `tracker`, the project has no issues, and a bug or a conflict owes no issue line. With one, `check` asks the tracker about every issue they name. A bug or a conflict then cannot name an issue that does not exist, a PR or a closed issue.
 
 ```yaml
 tracker: {kind: github, repo: owner/name}

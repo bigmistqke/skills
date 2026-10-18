@@ -29,11 +29,11 @@ import { parseSource, testsOf, type Exports, type Syntax, type TestBlock } from 
 import { MARKER, marksOf, runnersOf, type Runner } from './runners.ts';
 
 // ---------------------------------------------------------------------------
-// SCOPE — declared, never inferred.
+// SETTINGS — declared, never inferred.
 //
-// A project declares its scope in the `canon` field of its `package.json`. The
+// A project declares its settings in the `canon` field of its `package.json`. The
 // protocol applies only to the documents and suites named there. An untagged
-// file outside that scope is not ambiguous: it is simply not participating.
+// file the settings do not name is not ambiguous: it is simply not participating.
 // ---------------------------------------------------------------------------
 
 /** The `canon` field of `package.json`. Every key is optional. */
@@ -119,10 +119,10 @@ const DOCS = CONFIG.documents ?? ['CANON.md'];
 /**
  * The declared suites: every file in this directory, no exceptions.
  *
- * Scope is a claim a suite makes, and here the claim is where it lives. Moving
- * a suite in is the declaration; moving it out withdraws it.
+ * Being declared is a claim a suite makes, and here the claim is where it lives.
+ * Moving a suite in is the declaration; moving it out withdraws it.
  *
- * Flat, and scoped by CLAIM rather than by module: one spec can bind several
+ * Flat, and filed by CLAIM rather than by module: one spec can bind several
  * modules at once, and filing its suites by the module they happen to drive
  * would silently re-partition the spec.
  */
@@ -221,7 +221,7 @@ function scan(src: string): { withId: Element[]; anchors: Anchor[] } {
         // Everything above `i` is a descendant that never closed. Dropping it
         // here is what a browser does, and leaving it on the stack would let a
         // later close of the same name pop it — attributing an anchor to a
-        // container that had already ended. The in-scope documents are all
+        // container that had already ended. The declared documents are all
         // balanced, so this is a guard on the checker's silence, not a live fix.
         const closed = stack.splice(i);
         for (const el of closed) {
@@ -824,7 +824,7 @@ interface Analysis {
 }
 
 /**
- * Read every in-scope document, suite and module, and judge what they cite.
+ * Read every declared document, suite and module, and judge what they cite.
  *
  * With `write`, the generated regions are rewritten instead of reported as
  * `stale-toc`: it is the one difference between the two subcommands.
@@ -856,7 +856,7 @@ function analyse(write: boolean): Analysis {
 
   /** every unit, keyed `${doc}#${id}` */
   const units = new Map<string, Unit>();
-  /** every fragment cited from anywhere in scope, keyed `${file}#${frag}` */
+  /** every fragment cited from anywhere declared, keyed `${file}#${frag}` */
   const citedTargets = new Set<string>();
   /**
    * The claims that hold nested claims. A test cites only a leaf: a parent is
@@ -915,7 +915,7 @@ function analyse(write: boolean): Analysis {
   for (const rel of DOCS) {
     const file = join(ROOT, rel);
     if (!existsSync(file)) {
-      findings.rot.push(`${rel}: in-scope document does not exist`);
+      findings.rot.push(`${rel}: declared document does not exist`);
       continue;
     }
     const { withId, anchors } = scanFile(file);
@@ -1192,17 +1192,17 @@ function analyse(write: boolean): Analysis {
   /**
    * Read one suite's citations.
    *
-   * `enforced` separates the two things declared scope was doing at once. A file
-   * in scope has CLAIMED to derive from these documents, so an untagged test in
-   * it is a finding — that is what the declaration buys, and it is why scope can
-   * never be a glob. But a citation is a true statement about a link wherever it
+   * `enforced` separates the two things a declaration was doing at once. A declared
+   * file has CLAIMED to derive from these documents, so an untagged test in
+   * it is a finding — that is what the declaration buys, and it is why a declaration
+   * can never be a glob. But a citation is a true statement about a link wherever it
    * is written, and refusing to read one because its neighbours are untagged
    * discards a real link to preserve a property about silence. So every suite is
    * READ, and only a declared one is JUDGED.
    *
    * The practical case is a suite most of which answers to mathematics or to
-   * nothing in particular, holding two or three tests that do pin a spec. Putting
-   * the whole file in scope to capture those would demand a citation from the
+   * nothing in particular, holding two or three tests that do pin a spec. Declaring
+   * the whole file to capture those would demand a citation from the
    * other thirty, and the only way to supply thirty is to invent them.
    */
   function readSuite(file: string, enforced: boolean): ReturnType<typeof parse> & { tests: TestBlock[] } {
@@ -1310,7 +1310,7 @@ function analyse(write: boolean): Analysis {
   }
 
   /**
-   * Every declared prose reference that is not itself in scope: the documents
+   * Every declared prose reference that is not itself a declared document: the documents
    * that explain the canon, whose links must resolve.
    *
    * Markdown only. A `.ts` beside them may be tooling that writes the literal
@@ -1564,7 +1564,7 @@ than hand-kept. check is the gate, generate is the writer, and tree is the map.
 
 Usage:
   ${COMMAND} check [--offline]     report every finding; exit 1 if there is one. With a
-                                   "tracker" in the scope, also ask it about each bug's
+                                   "tracker" in the settings, also ask it about each bug's
                                    issue; --offline skips that and needs no network
   ${COMMAND} generate              rewrite the generated regions
   ${COMMAND} tree [options]        print the derivation tree with test counts
@@ -1594,7 +1594,7 @@ installed in the project, whose commands are added to these.
 logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" setting
 of the entry document gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
-The protocol is the canon skill. The scope is the frontmatter of the entry
+The protocol is the canon skill. The settings are in the frontmatter of the entry
 document, the nearest CANON.md that holds a setting: documents, suites,
 sources, references, command, tracker. A project that keeps it in the "canon"
 field of package.json is served while no document holds a setting.
@@ -1674,7 +1674,7 @@ async function check(offline: boolean): Promise<void> {
   if (asked) await holdToTracker(tracker, bugs, findings);
 
   console.log(`canon check — ${ROOT}\n`);
-  console.log(`scope: ${DOCS.length} document(s), ${suites} declared suite(s)`);
+  console.log(`settings: ${DOCS.length} document(s), ${suites} declared suite(s)`);
   console.log(`units: ${units.size}`);
   if (tracker !== undefined) {
     console.log(`issues: ${asked ? `held to the ${tracker.kind} tracker` : 'not checked (--offline)'}`);
