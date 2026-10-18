@@ -106,12 +106,12 @@ This file holds what every session needs. Two files beside it hold the rest:
 
 1. Do not change the code first. Write the test that the defect breaks, and see it fail.
 2. Find the spec that covers the situation. If none does, a spec is missing or states too much. Find the axiom or fact that decides the spec. If no axiom does, one is missing: ask the owner of the design. If a fact is missing, put its question to a [researcher](#terms).
-3. Do not stop at the failing case. List the other members of the set it belongs to, from a source, as step 4 of [section 3](#3-adding-or-changing-behaviour) describes. Check which of them share the defect's cause, and fix those with it as one design. Propose the others as issues, as [section 7](#7-pull-requests-and-reviews) describes.
+3. The request of a defect is its failing case. List the other members of the set it belongs to, from a source, as step 4 of [section 3](#3-adding-or-changing-behaviour) describes. Name in the canon diff the ones that share the defect's cause. Fixing them too widens the [scope](#terms) of the change, so ask the owner, with your recommendation. If the owner agrees, fix them with it as one design; if not, propose them as issues, as [section 7](#7-pull-requests-and-reviews) describes.
 4. Write what is missing from the top down: axiom or fact, then spec. Make the test from step 1 cite the spec.
 5. If the fix waits, record the defect instead: a bug inside the spec, and the test from step 1 marked to fail, citing the bug. [Writing units](writing-units.md#5-facts-exceptions-and-bugs) has the rules.
 6. Fix the code. If a bug recorded the defect, remove it, and make its test pass and cite the spec.
 7. Never narrow a spec of the main branch so that the defect falls outside it. A defect points up, at a gap in the canon, and never down, at the claim it breaks. Only the owner of the design can rule that a claim was wrong. A unit that your own change adds may still claim less, as [writing units](writing-units.md#2-units) describes.
-8. Pointing up can mean generalising a spec. The defect may show that a leaf spec stated one case of a wider claim. Then restate that spec as the wider claim, which makes it a parent, with one leaf for each case it covers. The defect's test cites the leaf of its case.
+8. Pointing up can show that a leaf spec states one case of a wider claim. Name that claim in the canon diff. Restating the spec as the wider claim, a parent with one leaf for each case, widens the scope of the change. Ask the owner, in the same question as step 3. The defect's test cites the leaf of its case.
 
 ## 5. Exploring
 
