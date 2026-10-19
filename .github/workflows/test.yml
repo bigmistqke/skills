@@ -1,5 +1,7 @@
 # Build, type-check and test every package, with the Alloy analyzer, so that
 # the tests that ask it run instead of being skipped; then check the canons.
+# Each package's suite has a runner of its own: the analyzer-backed suites are
+# slow on a runner's few cores, and run side by side this way.
 name: test
 
 on:
@@ -12,9 +14,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: node scripts/kinds.ts --check
+      - name: Check the canons
+        run: |
+          for p in canon naturalloy parse-alloy canon-plugin-alloy; do
+            (cd "packages/$p" && node ../canon/src/cli.ts check --offline)
+          done
+          for p in naturalloy parse-alloy canon-plugin-alloy; do
+            (cd "packages/$p" && node ../canon/src/cli.ts lint CANON.md)
+          done
+
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [canon, canon-plugin-retext, canon-plugin-alloy, naturalloy, parse-alloy]
     env:
       CANON_ALLOY_JAR: ${{ github.workspace }}/../alloy.jar
     steps:
@@ -37,16 +66,5 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm typecheck
-      # One package's suite at a time: the analyzer-backed suites each start analyzers of their own, and a runner has few cores.
-      - run: pnpm turbo run test --concurrency=1
-      - run: node scripts/kinds.ts --check
-
-      - name: Check the canons
-        run: |
-          for p in canon naturalloy parse-alloy canon-plugin-alloy; do
-            (cd "packages/$p" && node ../canon/src/cli.ts check --offline)
-          done
-          for p in naturalloy parse-alloy canon-plugin-alloy; do
-            (cd "packages/$p" && node ../canon/src/cli.ts lint CANON.md)
-          done
+      # --only: the other packages' suites run in jobs of their own.
+      - run: pnpm turbo run test --filter=@bigmistqke/${{ matrix.package }} --only
