@@ -1,33 +1,30 @@
 /**
- * The verbalizer: the Alloy formulas of a unit, said in words by a table of
- * readings.
+ * The verbalizer: Alloy formulas said in words by a table of readings.
  */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseFormula } from '../../src/alloy-parse.ts';
-import { readBlocks } from '@bigmistqke/canon/blocks';
-import { readingsOf } from '../../src/statements.ts';
-import { isDefinition, parseDefinitions, parseReadings, type Readings, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
+import { isDefinition, parseDefinitions, parseReadings, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures', 'lifetimes');
 const read = (name: string): string => readFileSync(join(FIXTURE, name), 'utf8');
 
-const READINGS = readingsOf(read('CANON.md')) as Readings;
+/** The readings and the vocabulary of the lifetimes example. */
+const READINGS = withDefinitions(parseReadings(read('readings.txt')), read('vocabulary.als'));
 const say = (formula: string, readings = READINGS): string => verbalize(formula, readings);
 
-describe('the units of the lifetimes fixture', () => {
-  const src = read('CANON.md');
-  const blocks = readBlocks(src).filter(b => b.lang === 'alloy' && (b.role === 'unit' || b.role === 'scenario'));
+describe('the formulas of the lifetimes example', () => {
+  const formulas = read('formulas.als').split(/\n\s*\n/).filter(block => !block.startsWith('--'));
 
   /**
    * @canon spec-a-formula-is-said-in-full
    */
   it('says all seven formulas, the scenario included, without leaving anything out', () => {
-    expect(blocks).toHaveLength(7);
-    for (const block of blocks) {
-      const words = say(block.body);
+    expect(formulas).toHaveLength(7);
+    for (const formula of formulas) {
+      const words = say(formula);
       expect(words.length).toBeGreaterThan(0);
       expect(words).not.toMatch(/\{\d\}|\u0001/);
     }
@@ -37,7 +34,7 @@ describe('the units of the lifetimes fixture', () => {
    * @canon spec-a-formula-is-said-the-same-way-every-time
    */
   it('says them the same way every time', () => {
-    const all = (): string[] => blocks.map(b => say(b.body, READINGS));
+    const all = (): string[] => formulas.map(formula => say(formula));
     expect(all()).toEqual(all());
   });
 });
@@ -624,7 +621,7 @@ describe('two variables', () => {
 describe('a word that names a term', () => {
   const readings = parseReadings(
     ['noun Unit: [unit]', 'noun Owner: an [owner]', 'Ran: {1} has [run] | {1} has not [run]', 'Done: {1} is [done] | {1} is not [done]', 'Told: [checker](#term-checker) tells {1} | [checker](#term-checker) tells no one', 'Alarm: [alarm] rings for {1} | no [alarm] rings for {1}'].join('\n'),
-    'term-x'
+    '#term-x'
   );
   const markdown = (source: string, self?: string): string => verbalize(source, readings, 'markdown', self);
 
@@ -655,8 +652,8 @@ describe('a word that names a term', () => {
    * @canon spec-a-word-never-links-to-the-unit-its-sentence-is-in
    */
   it('is never a link to the unit the sentence is in', () => {
-    expect(markdown('a in Ran', 'term-x')).toBe('a has run.');
-    expect(markdown('a in Ran and b in Told', 'term-x')).toContain('[checker](#term-checker) tells b');
+    expect(markdown('a in Ran', '#term-x')).toBe('a has run.');
+    expect(markdown('a in Ran and b in Told', '#term-x')).toContain('[checker](#term-checker) tells b');
   });
 
   /**
@@ -667,9 +664,9 @@ describe('a word that names a term', () => {
   });
 
   /**
-   * @canon spec-a-word-of-an-extended-document-links-to-that-document
+   * @canon spec-a-link-in-a-table-held-in-another-document-goes-through-its-path
    */
-  it('goes through the path of the document that holds a reading, for a link in it to a unit of that document', () => {
+  it('goes through the path of the document that holds a reading, for a link in it to an anchor of that document', () => {
     const other = parseReadings('Told: [checker](#term-checker) tells {1} | [checker](#term-checker) tells no one', 'canon/CANON.md#term-x', 'canon/CANON.md');
     expect(verbalize('a in Told', other, 'markdown')).toBe('[Checker](canon/CANON.md#term-checker) tells a.');
   });
@@ -678,7 +675,7 @@ describe('a word that names a term', () => {
    * @canon spec-a-reading-that-points-at-a-unit-links-to-it
    */
   it('links to a unit of another document by its whole target, when the reading points at one', () => {
-    const other = parseReadings('Told: [checker](../canon/CANON.md#term-checker) tells {1} | [checker](../canon/CANON.md#term-checker) tells no one', 'term-x');
+    const other = parseReadings('Told: [checker](../canon/CANON.md#term-checker) tells {1} | [checker](../canon/CANON.md#term-checker) tells no one', '#term-x');
     expect(verbalize('a in Told', other, 'markdown')).toBe('[Checker](../canon/CANON.md#term-checker) tells a.');
   });
 
@@ -798,7 +795,7 @@ describe('a quantifier said as a noun phrase', () => {
 describe('the items of a list said in a sentence', () => {
   const readings = parseReadings(
     ['noun Unit: unit', 'Spec: {1} is a spec | {1} is not a spec', 'Axiom: {1} is an axiom | {1} is not an axiom', 'Fact: {1} is a fact | {1} is not a fact', 'Sit.rel: {1} sits in {2} | {1} does not sit in {2}', 'Alarm: [alarm] rings for {1} | no [alarm] rings for {1}'].join('\n'),
-    'term-x'
+    '#term-x'
   );
   const said = (formula: string): string => verbalize(`all u: Unit | ${formula}`, readings).split('\n').slice(1).join('\n').trim();
 

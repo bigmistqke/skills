@@ -1,5 +1,5 @@
 /**
- * The canons of the checker and of the Alloy plugin, written in Alloy: their
+ * The canons of the checker, of naturalloy and of the Alloy plugin, written in Alloy: their
  * statements are what their predicates and definitions say, the words of each
  * are in order, and the checker passes each. This file tests the checker's own
  * tooling, not a project's canon, so it carries no `@canon` tag.
@@ -12,13 +12,24 @@ import { readBlocks } from '@bigmistqke/canon/blocks';
 import { readUnits } from '@bigmistqke/canon/units';
 import { readingsOf, states, write } from '../../src/statements.ts';
 import { checkWords } from '../../src/words.ts';
-import { CLI, CORE, PACKAGE } from '../canon/cli.ts';
+import { CLI, CORE, NATURALLOY, PACKAGE } from '../canon/cli.ts';
 
 const read = (dir: string): string => readFileSync(join(dir, 'CANON.md'), 'utf8');
 const CORE_CANON = read(CORE);
+const NATURALLOY_CANON = read(NATURALLOY);
 const CANONS = [
   { name: 'the checker', dir: CORE, src: CORE_CANON, context: [] as { path: string; src: string }[], least: 100 },
-  { name: 'the Alloy plugin', dir: PACKAGE, src: read(PACKAGE), context: [{ path: '../canon/CANON.md', src: CORE_CANON }], least: 150 }
+  { name: 'naturalloy', dir: NATURALLOY, src: NATURALLOY_CANON, context: [] as { path: string; src: string }[], least: 120 },
+  {
+    name: 'the Alloy plugin',
+    dir: PACKAGE,
+    src: read(PACKAGE),
+    context: [
+      { path: '../canon/CANON.md', src: CORE_CANON },
+      { path: '../naturalloy/CANON.md', src: NATURALLOY_CANON }
+    ],
+    least: 100
+  }
 ];
 
 describe.each(CANONS)('the canon of $name', ({ dir, src, context, least }) => {
