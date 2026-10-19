@@ -345,7 +345,7 @@ describe('a predicate with no reading of its own', () => {
   it('is refused when its body cannot be said, and the error says to give it a reading', () => {
     const readings = defined("pred step[x: Cleanup] { Ran' = Ran + x }");
     expect(() => say('step[d]', readings)).toThrow(/no reading for "step", and its body cannot be said/);
-    expect(() => say('step[d]', defined('pred step[x: Cleanup] { x in Ran  x in Registered }'))).toThrow(/no reading for "step"/);
+    expect(() => say('step[d]', defined('pred step[x: Cleanup] { x in Ran  x.^on in Registered }'))).toThrow(/no reading for "step"/);
   });
 
   /**
@@ -365,7 +365,7 @@ describe('a predicate with no reading of its own', () => {
     expect([...definitions.keys()]).toEqual(['p', 'q']);
     expect(definitions.get('p')?.params).toEqual(['a', 'b', 'c']);
     expect(definitions.get('q')?.params).toEqual([]);
-    expect(definitions.get('p')?.body.trim()).toBe('a in B  and { x }');
+    expect(definitions.get('p')?.body).toMatchObject({ t: 'and', items: [{ t: 'cmp', op: 'in' }, { t: 'name', name: 'x' }] });
   });
 });
 
@@ -442,7 +442,7 @@ describe('a definition', () => {
    */
   it('refuses text that is not a definition, a parameter with no type, and a body that is a rule', () => {
     expect(() => verbalizeDefinition('u in Spec', readings)).toThrow('a definition is written');
-    expect(() => verbalizeDefinition('pred orphan[u] { u in Spec }', readings)).toThrow('has no type');
+    expect(() => verbalizeDefinition('pred orphan[u] { u in Spec }', readings)).toThrow('expected ":", found "]"');
     expect(() => verbalizeDefinition('pred orphan[u: Unit] { u in Spec implies u in Spec }', readings)).toThrow('no words after "exactly when"');
   });
 });

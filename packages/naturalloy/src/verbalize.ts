@@ -5,7 +5,7 @@
  * a construct or a name with no reading is an error, so a rendering never says
  * more or less than the formula does.
  */
-import { type Decl, type Node, parseFormula } from '@bigmistqke/parse-alloy';
+import { type Decl, type Node, parseFormula, parseModule } from '@bigmistqke/parse-alloy';
 
 /** How one thing is said, with `{1}`, `{2}` for the variables it is about. */
 interface Reading {
@@ -15,10 +15,10 @@ interface Reading {
   target?: string;
 }
 
-/** A predicate of the vocabulary: its parameters and the text of its body. */
-interface Definition {
+/** A predicate of the vocabulary: its parameters and its body, which says that the parameters marked `disj` are different. */
+export interface Definition {
   params: string[];
-  body: string;
+  body: Node;
 }
 
 export interface Readings {
@@ -49,73 +49,61 @@ interface Field {
   many: boolean;
 }
 
-/**
- * The predicates a vocabulary defines: `pred name[a: T, b, c: U] { body }`.
- * The body is kept as text, and is read only if a call needs it.
- */
+/** The predicates of a module: `pred name[a: T, disj b, c: U] { body }`, read by the parser. A receiver's predicate is left out. */
 export function parseDefinitions(vocabulary: string): Map<string, Definition> {
   const definitions = new Map<string, Definition>();
-  for (const m of vocabulary.matchAll(/\bpred\s+(\w+)\s*(?:\[([^\]]*)\])?\s*\{/g)) {
-    let depth = 1;
-    let end = (m.index ?? 0) + m[0].length;
-    while (end < vocabulary.length && depth > 0) {
-      depth += vocabulary[end] === '{' ? 1 : vocabulary[end] === '}' ? -1 : 0;
-      end++;
-    }
-    if (depth !== 0) throw new Error(`the predicate "${m[1]}" has no closing brace`);
-    const groups = parameterGroups(m[2] ?? '');
-    const body = vocabulary.slice((m.index ?? 0) + m[0].length, end - 1);
-    const different = differences(groups).map(([a, b]) => `${a} != ${b}`);
-    definitions.set(m[1] as string, { params: groups.flatMap(g => g.names), body: different.length === 0 ? body : `${different.join(' and ')} and (${body})` });
+  for (const p of parseModule(vocabulary).paragraphs) {
+    if (p.t !== 'pred' || p.receiver !== undefined) continue;
+    definitions.set(p.name, { params: (p.params ?? []).flatMap(d => d.names), body: withDifferences(p.params ?? [], p.body) });
   }
   return definitions;
 }
 
+/** A body with the condition that the parameters of each declaration marked `disj` are different. */
+function withDifferences(params: Decl[], body: Node): Node {
+  const different: Node[] = params
+    .filter(d => d.disj)
+    .flatMap(d => d.names.flatMap((a, i) => d.names.slice(i + 1).map((b): Node => ({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } }))));
+  return different.length === 0 ? body : { t: 'and', items: [...different, ...(body.t === 'and' ? body.items : [body])] };
+}
+
 /**
- * The fields that the signatures of a vocabulary declare, with the type each
- * points at. A field of more than one column, or one that two declarations
- * declare, is left out: it has no one type.
+ * The fields that the signatures of a module declare, with the type each
+ * points at. A field of more than one column, a field defined by an
+ * expression, and one that two declarations declare are left out: none has one type.
  */
 export function parseFields(vocabulary: string): Map<string, Field> {
   const fields = new Map<string, Field>();
   const untyped = new Set<string>();
-  for (const m of vocabulary.matchAll(/\bsig\s+([\w\s,]+?)\s*(?:(?:extends|in)\s+[\w\s+]+?)?\s*\{/g)) {
-    const sigs = (m[1] as string).split(',').map(name => name.trim());
-    let depth = 1;
-    let end = (m.index ?? 0) + m[0].length;
-    while (end < vocabulary.length && depth > 0) {
-      depth += vocabulary[end] === '{' ? 1 : vocabulary[end] === '}' ? -1 : 0;
-      end++;
-    }
-    const body = vocabulary.slice((m.index ?? 0) + m[0].length, end - 1);
-    // `a, b: T` declares both: a name with no colon waits for the type of the next part.
-    let waiting: string[] = [];
-    for (const part of body.split(',')) {
-      const bare = /^\s*(?:var\s+)?(\w+)\s*$/.exec(part);
-      if (bare) {
-        waiting.push(bare[1] as string);
-        continue;
+  for (const sig of parseModule(vocabulary).paragraphs) {
+    if (sig.t !== 'sig') continue;
+    for (const decl of sig.fields) {
+      const type = decl.defined ? undefined : decl.type.t === 'name' ? { name: decl.type.name, q: 'one' } : decl.type.t === 'mult' && decl.type.e.t === 'name' ? { name: decl.type.e.name, q: decl.type.q } : undefined;
+      for (const name of decl.names) {
+        if (fields.has(name) || type === undefined) untyped.add(name);
+        fields.set(name, { owner: sig.names.length === 1 ? sig.names[0] : undefined, type: type?.name ?? '', many: type?.q === 'set' || type?.q === 'some' });
       }
-      const named = /^\s*(?:var\s+)?(\w+)\s*:/.exec(part);
-      if (named === null) continue;
-      const typed = /:\s*(?:disj\s+)?(?:(one|lone|some|set)\s+)?(\w+)\s*$/.exec(part);
-      for (const name of [...waiting, named[1] as string]) {
-        if (fields.has(name) || typed === null) untyped.add(name);
-        fields.set(name, { owner: sigs.length === 1 ? sigs[0] : undefined, type: typed?.[2] ?? '', many: typed?.[1] === 'set' || typed?.[1] === 'some' });
-      }
-      waiting = [];
     }
   }
   for (const name of untyped) fields.delete(name);
   return fields;
 }
 
-/** The readings with the definitions and the fields of a vocabulary, so that a predicate with no reading of its own can be said by its body. */
+/** The signatures a module declares `var`. */
+export function parseVariables(vocabulary: string): Set<string> {
+  return new Set(parseModule(vocabulary).paragraphs.flatMap(p => (p.t === 'sig' && p.var ? p.names : [])));
+}
+
+/**
+ * The readings with what a module declares: its predicates, so that one with
+ * no reading of its own can be said by its body, its fields and its `var`
+ * signatures. Throws an AlloyParseError when the vocabulary is not Alloy.
+ */
 export const withDefinitions = (readings: Readings, vocabulary: string): Readings => ({
   ...readings,
   definitions: parseDefinitions(vocabulary),
   fields: parseFields(vocabulary),
-  variables: new Set([...vocabulary.matchAll(/\bvar\s+(?:(?:abstract|one|lone|some)\s+)*sig\s+([\w\s,]+?)\s*(?:extends\b|in\b|\{|=)/g)].flatMap(m => (m[1] as string).split(',').map(name => name.trim())))
+  variables: parseVariables(vocabulary)
 });
 
 /**
@@ -358,7 +346,7 @@ class Verbalizer {
     const inside = new Verbalizer(this.readings, new Map(definition.params.map((p, i) => [p, args[i] as string])), [...this.chain, node.name], this.used);
     let doc: Doc;
     try {
-      doc = inside.doc(parseFormula(definition.body));
+      doc = inside.doc(definition.body);
     } catch (error) {
       throw new Error(`no reading for "${node.name}", and its body cannot be said: ${(error as Error).message}`);
     }
@@ -965,51 +953,22 @@ export function verbalize(source: string, readings: Readings, layout: 'text' | '
   return finish(new Verbalizer(readings).doc(parseFormula(source)), layout, self);
 }
 
-const DEFINITION = /^\s*pred\s+(\w+)\s*(?:\[([^\]]*)\])?\s*\{([\s\S]*)\}\s*$/;
-
 /** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
 export const isDefinition = (source: string): boolean => /^\s*pred\b/.test(source);
-
-/** The parameters of a definition, `disj a, b: T, c: U`, in groups that share a type; a group marked `disj` stands for different things. */
-function parameterGroups(text: string): { names: string[]; type?: string; disj: boolean }[] {
-  const groups: { names: string[]; type?: string; disj: boolean }[] = [];
-  let pending: { names: string[]; disj: boolean } = { names: [], disj: false };
-  for (const part of text.split(',').map(p => p.trim()).filter(p => p !== '')) {
-    const [rawNames, type] = part.includes(':') ? part.split(':').map(p => p.trim()) : [part, undefined];
-    const disj = /^disj\s+/.test(rawNames as string);
-    pending = { names: [...pending.names, (rawNames as string).replace(/^disj\s+/, '')], disj: pending.disj || disj };
-    if (type !== undefined) {
-      groups.push({ ...pending, type });
-      pending = { names: [], disj: false };
-    }
-  }
-  if (pending.names.length > 0) groups.push(pending);
-  return groups;
-}
-
-/** The pairs of parameters that `disj` says are different. */
-const differences = (groups: { names: string[]; disj: boolean }[]): [string, string][] =>
-  groups.filter(g => g.disj).flatMap(g => g.names.flatMap((a, i) => g.names.slice(i + 1).map((b): [string, string] => [a, b])));
-
-/** The parameters of a definition, `a, b: T, c: U`, each with its type. */
-function parameters(text: string): { name: string; type: string }[] {
-  const groups = parameterGroups(text);
-  const untyped = groups.find(g => g.type === undefined);
-  if (untyped !== undefined) throw new Error(`the parameter "${untyped.names[0]}" has no type`);
-  return groups.flatMap(g => g.names.map(name => ({ name, type: g.type as string })));
-}
 
 /**
  * The words for a definition, `pred name[params] { body }`: what the predicate
  * names, exactly when its body holds. Throws an Error that names what cannot be said.
  */
 export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
-  const m = DEFINITION.exec(source);
-  if (!m) throw new Error('a definition is written `pred name[parameters] { formula }`');
-  const body = parseFormula(m[3] as string);
-  const different: Node[] = differences(parameterGroups(m[2] ?? '')).map(([a, b]) => ({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } }));
-  const all: Node = different.length === 0 ? body : { t: 'and', items: [...different, ...(body.t === 'and' ? body.items : [body])] };
-  const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), all);
+  if (!isDefinition(source)) throw new Error('a definition is written `pred name[parameters] { formula }`');
+  const paragraphs = parseModule(source).paragraphs;
+  const pred = paragraphs[0];
+  if (paragraphs.length !== 1 || pred?.t !== 'pred' || pred.receiver !== undefined) throw new Error('a definition is written `pred name[parameters] { formula }`');
+  const params = (pred.params ?? []).flatMap(d => d.names.map(name => ({ name, type: d.type.t === 'name' ? d.type.name : '' })));
+  const untyped = params.find(p => p.type === '');
+  if (untyped !== undefined) throw new Error(`the parameter "${untyped.name}" has no type that is a name`);
+  const doc = new Verbalizer(readings).definition(pred.name, params, withDifferences(pred.params ?? [], pred.body));
   return finish(doc, layout, self);
 }
 
