@@ -225,7 +225,8 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec show-prints-a-world-once-under-the-document-that-holds-its-scenario`](#spec-show-prints-a-world-once-under-the-document-that-holds-its-scenario) — `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
   - [`@spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands`](#spec-a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands) — When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
   - [`@spec a-world-is-said-step-by-step`](#spec-a-world-is-said-step-by-step) — The checker says a world as its steps in order, each under `step <n>:`, counted from 0.
-    - [`@spec the-first-step-says-everything-that-is-true`](#spec-the-first-step-says-everything-that-is-true) — The first step says every tuple of every word that is true at it. A first step where no tuple is true says `nothing is true`.
+    - [`@spec a-tuple-true-at-every-step-is-said-under-throughout`](#spec-a-tuple-true-at-every-step-is-said-under-throughout) — A world says each tuple that is true at every step of its trace once, under `throughout:`, before its first step.
+    - [`@spec the-first-step-says-everything-else-that-is-true`](#spec-the-first-step-says-everything-else-that-is-true) — The first step says every tuple that is true at it and not at every step. A first step with no such tuple says `nothing else is true`, or `nothing is true` when the world has no tuple under `throughout:`.
     - [`@spec a-later-step-says-only-what-changed`](#spec-a-later-step-says-only-what-changed) — A later step says each tuple that became true, after `+`, and each tuple that became false, after `-`. A step where nothing changed says `nothing changes`.
     - [`@spec a-world-says-the-step-its-trace-loops-back-to`](#spec-a-world-says-the-step-its-trace-loops-back-to) — A world ends with `then back to step <n>`, the step that its trace loops back to.
   - [`@spec a-thing-is-named-after-its-noun-and-its-number`](#spec-a-thing-is-named-after-its-noun-and-its-number) — The checker names a thing after the noun of its signature and its number counted from 1, such as `claim_1` for `Claim$0`.
@@ -2855,9 +2856,15 @@ This follows because the world is a view that the author asked for. The check ra
 
 This follows because a scenario is about how things change, and the author follows the change one step at a time.
 
-##### @spec the-first-step-says-everything-that-is-true
+##### @spec a-tuple-true-at-every-step-is-said-under-throughout
 
-> The first step says every tuple of every word that is true at it. A first step where no tuple is true says `nothing is true`.
+> A world says each tuple that is true at every step of its trace once, under `throughout:`, before its first step.
+
+This follows because a tuple that never changes is part of the setting of the world and not of its story. The reader learns that it never changes from the world itself, and does not have to look for it in every step.
+
+##### @spec the-first-step-says-everything-else-that-is-true
+
+> The first step says every tuple that is true at it and not at every step. A first step with no such tuple says `nothing else is true`, or `nothing is true` when the world has no tuple under `throughout:`.
 
 This follows because the first step has no step before it to differ from.
 
