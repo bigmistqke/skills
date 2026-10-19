@@ -1,7 +1,7 @@
 /**
- * Say a formula of a unit in words, the same words every time. The formula is
+ * Say an Alloy formula in words, the same words every time. The formula is
  * read by `alloy-parse.ts`, and what each name stands for comes from a table of
- * readings that the document keeps next to its vocabulary. Nothing is guessed:
+ * readings kept next to the vocabulary. Nothing is guessed:
  * a construct or a name with no reading is an error, so a rendering never says
  * more or less than the formula does.
  */
@@ -11,8 +11,8 @@ import { type Decl, type Node, parseFormula } from './alloy-parse.ts';
 interface Reading {
   positive: string;
   negative?: string;
-  /** The unit that holds the line, which a word in brackets links to. */
-  unit?: string;
+  /** Where a word in brackets that names no link of its own links to: the place that holds the line, as an href. */
+  target?: string;
 }
 
 /** A predicate of the vocabulary: its parameters and the text of its body. */
@@ -24,8 +24,8 @@ interface Definition {
 export interface Readings {
   /** The noun for a signature: `Owner` is "owner". */
   nouns: Map<string, string>;
-  /** The unit a variable of the type links to where it is introduced: the unit that holds a noun with a word in brackets, or the unit the bracket points at. */
-  nounUnits: Map<string, string>;
+  /** Where a variable of the type links to where it is introduced, as an href: the place that holds a noun with a word in brackets, or the link the bracket names. */
+  nounTargets: Map<string, string>;
   /** The article of a noun that was written with one, `noun Hour: an hour`: the default goes by the sound of the word, and a noun can say otherwise. */
   articles: Map<string, string>;
   /** The reading of a set, a field, a relation or a predicate, by its name. */
@@ -119,18 +119,18 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
 });
 
 /**
- * Read a table of readings, held by `unit`. A word in brackets names a term and
- * links to the unit that holds the line, `[freelancing]`, or to the unit it
- * points at, `[checker](#term-checker)`. A line is `noun Name: words`, which
+ * Read a table of readings, held at `target`, an href. A word in brackets names
+ * a term and links to `target`, `[freelancing]`, or to the href it names,
+ * `[checker](#term-checker)`. A line is `noun Name: words`, which
  * may start with the article the noun takes (`noun Hour: an hour`), or
  * `key: positive | negative` for an atom, whose key is the name of a set
  * (`Ran`), a field (`on`), a relation (`Clock.older`), a primed set (`Throwing'`)
  * or a predicate (`dispose`). Blank lines and lines that start with `#` are skipped.
- * A table held by another document has `base`, the path to that document: a
- * link in it to a unit of its own document, `(#term-checker)`, goes through the path.
+ * A table held in another document has `base`, the path to that document: a
+ * link in it to an anchor of its own document, `(#term-checker)`, goes through the path.
  */
-export function parseReadings(text: string, unit?: string, base?: string): Readings {
-  const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set() };
+export function parseReadings(text: string, target?: string, base?: string): Readings {
+  const readings: Readings = { nouns: new Map(), nounTargets: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set() };
   for (const raw of text.split('\n')) {
     const line = (base === undefined ? raw : raw.replace(/\]\(#([^)\s]+)\)/g, `](${base}#$1)`)).trim();
     if (line === '' || line.startsWith('#')) continue;
@@ -141,38 +141,36 @@ export function parseReadings(text: string, unit?: string, base?: string): Readi
       if (written) readings.articles.set(noun[1] as string, written[1] as string);
       // The variables of the type link to its term only where the author marked the noun.
       const marked = /\[([^\]]+)\](?:\(([^)\s]*#[^)\s]+)\))?/.exec(noun[2] as string);
-      const target = marked === null ? undefined : marked[2] === undefined ? unit : targetOf(marked[2]);
-      if (target !== undefined) readings.nounUnits.set(noun[1] as string, target);
+      const to = marked === null ? undefined : (marked[2] ?? target);
+      if (to !== undefined) readings.nounTargets.set(noun[1] as string, to);
       balanced(line);
       continue;
     }
     const atom = /^([\w.']+)\s*:\s*(.+)$/.exec(line);
     if (!atom) throw new Error(`cannot read the line of readings: ${line}`);
     const [positive, negative] = (atom[2] as string).split('|').map(part => part.trim());
-    readings.atoms.set(atom[1] as string, { positive: positive as string, negative, unit });
+    readings.atoms.set(atom[1] as string, { positive: positive as string, negative, target });
     balanced(line);
   }
   return readings;
 }
 
-/** Marks a word that names a term, and so links to its unit: the mark, the unit, the mark, the word, the mark. */
+/** Marks a word that names a term, and so links: the mark, the href, the mark, the word, the mark. */
 const LINK = '\u0002';
 const LINK_MARK = /\u0002([^\u0002]*)\u0002([^\u0002]*)\u0002/g;
 
-/** A word in brackets, with the unit it points at when it says one. */
+/** A word in brackets, with the href it links to when it names one. */
 const BRACKETED = /\[([^\]]+)\](?:\(([^)\s]*#[^)\s]+)\))?/g;
 
-/** The unit a link in a reading points at: the id of a unit of this document, or the whole target of a unit in another, `../canon/CANON.md#term-unit`. */
-const targetOf = (href: string): string => (href.startsWith('#') ? href.slice(1) : href);
 
 function balanced(line: string): void {
   if (/[[\]]/.test(line.replace(BRACKETED, ''))) throw new Error(`a bracket in the line of readings has no partner: ${line}`);
 }
 
-/** The words of a reading, where each word in brackets is marked as the name of a term: it links to the unit it points at, or else to the unit that holds the reading. */
-function mark(words: string, unit: string | undefined): string {
+/** The words of a reading, where each word in brackets is marked as the name of a term: it links to the href it names, or else to the place that holds the reading. */
+function mark(words: string, target: string | undefined): string {
   return words.replace(BRACKETED, (_, word: string, href: string | undefined) => {
-    const to = href === undefined ? unit : targetOf(href);
+    const to = href ?? target;
     return to === undefined ? word : `${LINK}${to}${LINK}${word}${LINK}`;
   });
 }
@@ -182,16 +180,15 @@ const plain = (words: string): string => words.replace(LINK_MARK, (_, __, word: 
 
 /**
  * Resolve the marks of links, in the order a reader meets them. Only the first
- * mention of a term is a link, and a unit never links to itself; the text
- * layout has no links.
+ * mention of a term is a link, and nothing links to `self`, the href of the
+ * place the words are for; the text layout has no links.
  */
 function resolveLinks(text: string, links: boolean, self: string | undefined): string {
   const seen = new Set<string>(self === undefined ? [] : [self]);
   return text.replace(LINK_MARK, (_, target: string, word: string) => {
     if (!links || seen.has(target)) return word;
     seen.add(target);
-    // a target in another document is written whole, `../canon/CANON.md#term-unit`; a unit of this document is its id
-    return `[${word}](${target.includes('#') ? target : `#${target}`})`;
+    return `[${word}](${target})`;
   });
 }
 
@@ -373,7 +370,7 @@ class Verbalizer {
     if (!reading) throw new Error(`no reading for "${key}"`);
     const words = negative ? reading.negative : reading.positive;
     if (words === undefined) throw new Error(`no negative reading for "${key}"`);
-    const said = mark(words, reading.unit).replace(/\{(\d+)\}/g, (_, n: string) => {
+    const said = mark(words, reading.target).replace(/\{(\d+)\}/g, (_, n: string) => {
       const slot = slots[Number(n) - 1];
       if (slot === undefined) throw new Error(`the reading of "${key}" uses {${n}}, which the formula does not give`);
       return `${VARIABLE}${slot}${VARIABLE}`;
@@ -405,8 +402,8 @@ class Verbalizer {
     while (this.used.has(`${base}_${n}`)) n++;
     const name = `${base}_${n}`;
     this.used.add(name);
-    const unit = this.readings.nounUnits.get(typeName);
-    return { name, shown: unit === undefined ? name : `${LINK}${unit}${LINK}${name}${LINK}`, article: this.written(type) ?? articleFor(noun) };
+    const target = this.readings.nounTargets.get(typeName);
+    return { name, shown: target === undefined ? name : `${LINK}${target}${LINK}${name}${LINK}`, article: this.written(type) ?? articleFor(noun) };
   }
 
   /** A comparison, as the atoms it stands for: a union on the left or a difference on the right is spelled out. */
@@ -739,7 +736,7 @@ class Verbalizer {
       } else return undefined;
     }
 
-    const noun = mark(written, this.readings.nounUnits.get(typeName));
+    const noun = mark(written, this.readings.nounTargets.get(typeName));
     const nounText = written.replace(BRACKETED, (_, word: string) => word).trim();
     const article = this.written(type) ?? articleFor(nounText);
     let phrase: string;
@@ -960,7 +957,10 @@ function markdownLines(doc: Doc): string[] {
   return [`when ${when[0]}${when.length === 1 ? ',' : ''}`, ...when.slice(1), '', `then ${then[0]}`, ...then.slice(1)];
 }
 
-/** The words for the formula in `source`, as lines of text. Throws an Error that names what cannot be said. */
+/**
+ * The words for the formula in `source`, as lines of text, or as markdown with links. `self` is the href of the
+ * place the words are for, which they never link to. Throws an Error that names what cannot be said.
+ */
 export function verbalize(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
   return finish(new Verbalizer(readings).doc(parseFormula(source)), layout, self);
 }
