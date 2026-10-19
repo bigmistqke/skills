@@ -9,7 +9,7 @@
 
 export type Quantifier = 'all' | 'some' | 'no' | 'one' | 'lone';
 export type UnaryTemporal = 'always' | 'eventually' | 'after' | 'before' | 'once' | 'historically';
-export type BinaryTemporal = 'until' | 'releases' | 'since' | 'triggered';
+export type BinaryTemporal = 'until' | 'releases' | 'since' | 'triggered' | ';';
 
 export type Node =
   | { t: 'name'; name: string }
@@ -35,7 +35,7 @@ const WORDS = new Set([
   'all', 'some', 'no', 'one', 'lone', 'always', 'eventually', 'after', 'before', 'once', 'historically',
   'until', 'releases', 'since', 'triggered', 'and', 'or', 'not', 'implies', 'iff', 'in', 'disj', 'let', 'else'
 ]);
-const SYMBOLS = ['<=>', '=>', '&&', '||', '!=', '->', '(', ')', '[', ']', '{', '}', ',', ':', '|', '.', '+', '-', '&', "'", '=', '!'];
+const SYMBOLS = ['<=>', '=>', '&&', '||', '!=', '->', '(', ')', '[', ']', '{', '}', ',', ':', ';', '|', '.', '+', '-', '&', "'", '=', '!'];
 const UNARY: readonly string[] = ['always', 'eventually', 'after', 'before', 'once', 'historically'];
 const BINARY: readonly string[] = ['until', 'releases', 'since', 'triggered'];
 const QUANTIFIERS: readonly string[] = ['all', 'some', 'no', 'one', 'lone'];
@@ -110,7 +110,15 @@ class Parser {
   // Formulas, from the loosest operator to the tightest.
 
   formula(): Node {
-    return this.or();
+    return this.sequence();
+  }
+
+  /** `a ; b`, which the analyzer binds looser than every connective and groups to the right. */
+  private sequence(): Node {
+    const l = this.or();
+    if (!this.is(';')) return l;
+    this.take();
+    return { t: 'binary', op: ';', l, r: this.sequence() };
   }
 
   private or(): Node {

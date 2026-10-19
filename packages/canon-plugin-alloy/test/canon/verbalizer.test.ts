@@ -60,6 +60,18 @@ describe('the parser', () => {
   });
 
   /**
+   * @canon spec-a-semicolon-takes-everything-after-it
+   */
+  it('binds ";" looser than every connective, and groups it to the right', () => {
+    expect(parseFormula('a in A or b in B ; c in C implies d in D ; e in E')).toMatchObject({
+      t: 'binary',
+      op: ';',
+      l: { t: 'or' },
+      r: { t: 'binary', op: ';', l: { t: 'implies' }, r: { t: 'cmp' } }
+    });
+  });
+
+  /**
    * @canon spec-and-binds-tighter-than-implies
    * @canon spec-a-chain-of-and-is-one-list
    */
@@ -187,6 +199,34 @@ describe('the words', () => {
     expect(say('(not runNow[c]) until runNow[d]')).toBe(
       'At every moment before the first moment where d runs, c does not run, and d runs now or at a later moment.'
     );
+  });
+
+  /**
+   * @canon spec-always-is-said-as-now-and-at-every-later-moment
+   * @canon spec-before-is-said-as-there-is-a-moment-before-and-at-it
+   * @canon spec-once-is-said-as-now-or-at-an-earlier-moment
+   * @canon spec-historically-is-said-as-now-and-at-every-earlier-moment
+   */
+  it('says always and the past operators of one formula', () => {
+    expect(say('always c in Ran')).toBe('Now and at every later moment, c has run.');
+    expect(say('before c in Ran')).toBe('There is a moment before, and at it, c has run.');
+    expect(say('once c in Ran')).toBe('Now or at an earlier moment, c has run.');
+    expect(say('historically c in Ran')).toBe('Now and at every earlier moment, c has run.');
+  });
+
+  /**
+   * @canon spec-since-is-said-as-at-every-moment-after-the-last-moment-where
+   * @canon spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes
+   * @canon spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one
+   * @canon spec-a-sequence-is-said-as-and-at-the-next-moment
+   */
+  it('says since, releases, triggered and the semicolon', () => {
+    expect(say('(not runNow[c]) since runNow[d]')).toBe(
+      'At every moment after the last moment where d runs, c does not run, and d runs now or at an earlier moment.'
+    );
+    expect(say('runNow[d] releases (not runNow[c])')).toBe('Up to and including the first moment where d runs, if one comes, c does not run.');
+    expect(say('runNow[d] triggered (not runNow[c])')).toBe('Back to and including the last moment where d runs, if there was one, c does not run.');
+    expect(say('runNow[c] ; runNow[d]')).toBe('c runs, and at the next moment, d runs.');
   });
 });
 
@@ -714,6 +754,8 @@ describe('the items of a list said in a sentence', () => {
   it('keep the "then" of a rule when what follows is a time phrase, and drop it otherwise', () => {
     expect(said('u in Spec implies eventually u in Axiom')).toBe('when unit_1 is a spec, then now or at a later moment, unit_1 is an axiom.');
     expect(said('u in Spec implies after u in Axiom')).toBe('when unit_1 is a spec, then at the next moment, unit_1 is an axiom.');
+    expect(said('u in Spec implies once u in Axiom')).toBe('when unit_1 is a spec, then now or at an earlier moment, unit_1 is an axiom.');
+    expect(said('u in Spec implies before u in Axiom')).toBe('when unit_1 is a spec, then there is a moment before, and at it, unit_1 is an axiom.');
     expect(said('u in Spec implies u in Axiom')).toBe('when unit_1 is a spec, unit_1 is an axiom.');
   });
 });
@@ -753,10 +795,10 @@ describe('what it refuses', () => {
    * @canon spec-a-construct-the-words-do-not-cover-is-refused
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
-    expect(() => say('before c in Ran')).toThrow('"before" is not supported');
+    expect(() => say('lone c: Cleanup | c in Ran')).toThrow('"lone" as a quantifier is not supported');
     expect(() => say('one c: Cleanup | c in Ran')).toThrow('"one" as a quantifier is not supported');
     expect(() => say('not eventually c in Ran')).toThrow('"not" is supported only before a comparison or a call');
-    expect(() => say('c in Ran releases d in Ran')).toThrow('"releases" is not supported');
+    expect(() => say('(all c: Cleanup | c in Ran) releases d in Ran')).toThrow('"releases" is supported only between two clauses');
   });
 
   /**

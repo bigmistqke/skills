@@ -152,7 +152,7 @@ const holeOf = (level: number): string => String.fromCharCode(3 + level);
 const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
 
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
-const TIME_PHRASE = /^(?:now or at|at every|at the next|right after)\b/;
+const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including)\b/;
 
 /** The most that is said in a sentence, and not in a list, and how long it may be. */
 const INLINE_ITEMS = 3;
@@ -626,16 +626,31 @@ class Verbalizer {
       case 'quant':
         return this.quantified(node);
       case 'unary': {
-        const words: Record<string, string> = { always: 'at every moment, ', eventually: 'now or at a later moment, ', after: 'at the next moment, ' };
-        const lead = words[node.op];
-        if (lead === undefined) throw new Error(`"${node.op}" is not supported`);
-        return prefix(lead, this.doc(node.f));
+        const words: Record<string, string> = {
+          always: 'now and at every later moment, ',
+          eventually: 'now or at a later moment, ',
+          after: 'at the next moment, ',
+          before: 'there is a moment before, and at it, ',
+          once: 'now or at an earlier moment, ',
+          historically: 'now and at every earlier moment, '
+        };
+        return prefix(words[node.op], this.doc(node.f));
       }
       case 'binary': {
-        if (node.op !== 'until') throw new Error(`"${node.op}" is not supported`);
-        const [before, until] = [this.doc(node.l), this.doc(node.r)];
-        if (typeof before !== 'string' || typeof until !== 'string') throw new Error('"until" is supported only between two clauses');
-        return `at every moment before the first moment where ${until}, ${before}, and ${until} now or at a later moment`;
+        const [l, r] = [this.doc(node.l), this.doc(node.r)];
+        if (typeof l !== 'string' || typeof r !== 'string') throw new Error(`"${node.op}" is supported only between two clauses`);
+        switch (node.op) {
+          case 'until':
+            return `at every moment before the first moment where ${r}, ${l}, and ${r} now or at a later moment`;
+          case 'since':
+            return `at every moment after the last moment where ${r}, ${l}, and ${r} now or at an earlier moment`;
+          case 'releases':
+            return `up to and including the first moment where ${l}, if one comes, ${r}`;
+          case 'triggered':
+            return `back to and including the last moment where ${l}, if there was one, ${r}`;
+          case ';':
+            return `${l}, and at the next moment, ${r}`;
+        }
       }
       default:
         throw new Error(`a ${node.t} cannot stand as a statement`);

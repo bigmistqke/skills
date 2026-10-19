@@ -100,6 +100,14 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The checker says `eventually` as "now or at a later moment".
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The checker says `after` as "at the next moment".
   - [`@spec until-is-said-as-at-every-moment-before-the-first-moment-where`](#spec-until-is-said-as-at-every-moment-before-the-first-moment-where) — The checker says `until` as "at every moment before the first moment where" the second side holds, which comes now or later.
+  - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The checker says `always` as "now and at every later moment".
+  - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The checker says `before` as `there is a moment before, and at it`.
+  - [`@spec once-is-said-as-now-or-at-an-earlier-moment`](#spec-once-is-said-as-now-or-at-an-earlier-moment) — The checker says `once` as "now or at an earlier moment".
+  - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The checker says `historically` as "now and at every earlier moment".
+  - [`@spec since-is-said-as-at-every-moment-after-the-last-moment-where`](#spec-since-is-said-as-at-every-moment-after-the-last-moment-where) — The checker says `since` as "at every moment after the last moment where" the second side holds, which came now or earlier.
+  - [`@spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes`](#spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes) — The checker says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
+  - [`@spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one`](#spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one) — The checker says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
+  - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The checker says `a ; b` as "a, and at the next moment, b".
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The checker refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The checker refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The checker refuses a formula that quantifies a type with no noun, and names the type.
@@ -117,6 +125,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read`](#spec-a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read) — The checker refuses a [formula](#term-parsed-formula) with a construct, a stray character or an unclosed bracket that it cannot read, and names it.
   - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The checker reads everything after the bar of a quantifier as its body.
   - [`@spec a-temporal-operator-takes-the-formula-next-to-it`](#spec-a-temporal-operator-takes-the-formula-next-to-it) — The checker reads the formula next to a temporal operator as its operand.
+  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included.
   - [`@spec and-binds-tighter-than-implies`](#spec-and-binds-tighter-than-implies) — The checker reads an `and` beside an `implies` before the `implies`.
   - [`@spec a-chain-of-and-is-one-list`](#spec-a-chain-of-and-is-one-list) — The checker reads a chain of `and` as one list.
   - [`@spec not-in-a-join-a-prime-and-a-call-are-read`](#spec-not-in-a-join-a-prime-and-a-call-are-read) — The checker reads `not in`, a join, a prime and a call.
@@ -1508,6 +1517,54 @@ This follows because after looks one step ahead and no further.
 
 This follows because until holds the first side up to the moment the second side holds, and requires that moment to come.
 
+#### @spec always-is-said-as-now-and-at-every-later-moment
+
+> The checker says `always` as "now and at every later moment".
+
+This follows because always holds from the present on. "At every moment" would also reach back to the moments before it, which historically covers.
+
+#### @spec before-is-said-as-there-is-a-moment-before-and-at-it
+
+> The checker says `before` as `there is a moment before, and at it`.
+
+This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out.
+
+#### @spec once-is-said-as-now-or-at-an-earlier-moment
+
+> The checker says `once` as "now or at an earlier moment".
+
+This follows because once is eventually turned to the past, and includes the present moment as eventually does.
+
+#### @spec historically-is-said-as-now-and-at-every-earlier-moment
+
+> The checker says `historically` as "now and at every earlier moment".
+
+This follows because historically is always turned to the past, and includes the present moment as always does.
+
+#### @spec since-is-said-as-at-every-moment-after-the-last-moment-where
+
+> The checker says `since` as "at every moment after the last moment where" the second side holds, which came now or earlier.
+
+This follows because since is until turned to the past. It holds the first side from the moment the second side last held up to now, and requires that moment to have come.
+
+#### @spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes
+
+> The checker says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
+
+This follows because releases holds the second side up to the moment the first side holds, that moment included. When that moment never comes, it holds the second side for ever.
+
+#### @spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one
+
+> The checker says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
+
+This follows because triggered is releases turned to the past. It holds the second side back to the moment the first side last held, that moment included. When the first side never held, it holds the second side at every earlier moment.
+
+#### @spec a-sequence-is-said-as-and-at-the-next-moment
+
+> The checker says `a ; b` as "a, and at the next moment, b".
+
+This follows because the semicolon says that the first side holds now and the second side holds at the next moment.
+
 #### @spec a-name-with-no-reading-is-refused-and-named
 
 > The checker refuses a formula with a name that has no reading, and names the word.
@@ -1609,6 +1666,12 @@ This follows because the bar ends the declaration, and what follows is the claim
 > The checker reads the formula next to a temporal operator as its operand.
 
 This follows because always, eventually and after apply to one formula, so that what follows them is plain.
+
+#### @spec a-semicolon-takes-everything-after-it
+
+> The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included.
+
+This follows because the Alloy analyzer binds the semicolon looser than every connective and groups it to the right. A statement of any other reading would say what the logic does not.
 
 #### @spec and-binds-tighter-than-implies
 
