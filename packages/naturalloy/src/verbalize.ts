@@ -967,6 +967,29 @@ class Verbalizer {
     return node.t === 'iff' ? { kind: 'list', intro: BOTH, items: [this.doc(node.l), this.doc(node.r)] } : this.doc(node);
   }
 
+  /**
+   * `until`, `since`, `releases`, `triggered` or `;` with a side of more than a
+   * clause, each side set apart below the words that place it in time. Releases
+   * and triggered are said as the alternatives they mean: `a releases b` is
+   * `always b or (b until (a and b))`, and `a ; b` is `a and after b`.
+   */
+  private setApart(node: Extract<Node, { t: 'binary' }>): Doc {
+    const { l: a, r: b } = node;
+    const part = (intro: string, side: Node): Doc => ({ kind: 'block', intro, body: this.side(side) });
+    switch (node.op) {
+      case 'until':
+        return { kind: 'list', intro: ALL, items: [part('now or at a later moment, the following holds:', b), part('at every moment before the first such moment, the following holds:', a)] };
+      case 'since':
+        return { kind: 'list', intro: ALL, items: [part('now or at an earlier moment, the following holds:', b), part('at every moment after the last such moment, the following holds:', a)] };
+      case 'releases':
+        return this.doc({ t: 'or', items: [{ t: 'unary', op: 'always', f: b }, { t: 'binary', op: 'until', l: b, r: { t: 'and', items: [a, b] } }] });
+      case 'triggered':
+        return this.doc({ t: 'or', items: [{ t: 'unary', op: 'historically', f: b }, { t: 'binary', op: 'since', l: b, r: { t: 'and', items: [a, b] } }] });
+      case ';':
+        return this.doc({ t: 'and', items: [a, { t: 'unary', op: 'after', f: b }] });
+    }
+  }
+
   /** A formula said as a negation: only what has a reading of its own can be negated. */
   private negation(node: Node): Doc {
     switch (node.t) {
@@ -1532,7 +1555,7 @@ class Verbalizer {
         const sides = node.op === ';' && node.r.t === 'binary' && node.r.op === ';' ? [node.l] : [node.l, node.r];
         if (sides.some(holdsBinary)) throw new Error(`"${node.op}" with a side that holds "until", "since", "releases", "triggered" or ";" reads in more than one way`);
         const [l, r] = [this.side(node.l), this.side(node.r)];
-        if (typeof l !== 'string' || typeof r !== 'string') throw new Error(`"${node.op}" is supported only between two clauses`);
+        if (typeof l !== 'string' || typeof r !== 'string') return this.setApart(node);
         switch (node.op) {
           case 'until':
             return `at every moment before the first moment where ${r}, ${l}, and ${r} now or at a later moment`;

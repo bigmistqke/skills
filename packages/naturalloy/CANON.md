@@ -124,6 +124,12 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
   - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
   - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
+  - [`@spec a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart) — The verbalizer says `until`, `since`, `releases`, `triggered` or `;` with a side of more than one clause by setting each side apart below the words that place it in time.
+    - [`@spec until-with-a-side-of-more-than-a-clause-is-said-as-two-parts`](#spec-until-with-a-side-of-more-than-a-clause-is-said-as-two-parts) — The verbalizer says `a until b` with a side of more than one clause in two parts. They are `b` "now or at a later moment", and `a` "at every moment before the first such moment".
+    - [`@spec since-with-a-side-of-more-than-a-clause-is-said-as-two-parts`](#spec-since-with-a-side-of-more-than-a-clause-is-said-as-two-parts) — The verbalizer says `a since b` with a side of more than one clause in two parts. They are `b` "now or at an earlier moment", and `a` "at every moment after the last such moment".
+    - [`@spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until`](#spec-releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until) — The verbalizer says `a releases b`, with a side of more than one clause, as `always b or (b until (a and b))`.
+    - [`@spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since`](#spec-triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since) — The verbalizer says `a triggered b`, with a side of more than one clause, as `historically b or (b since (a and b))`.
+    - [`@spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment`](#spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b`, with a side of more than one clause, as `a and after b`.
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The verbalizer refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The verbalizer refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The verbalizer refuses a formula that quantifies a type with no noun, and names the type.
@@ -1218,6 +1224,42 @@ This follows because Alloy reads each spelling as the same comparison.
 > The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
 
 This follows because a formula the analyzer cannot read claims nothing, so no words can say it.
+
+#### @spec a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart
+
+> The verbalizer says `until`, `since`, `releases`, `triggered` or `;` with a side of more than one clause by setting each side apart below the words that place it in time.
+
+This follows because the words of each operator are a clause with commas. A list in the place of a side would not show where it ends.
+
+##### @spec until-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+
+> The verbalizer says `a until b` with a side of more than one clause in two parts. They are `b` "now or at a later moment", and `a` "at every moment before the first such moment".
+
+This follows because until claims that `b` comes, now or later, and that `a` holds at every moment before it first does.
+
+##### @spec since-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+
+> The verbalizer says `a since b` with a side of more than one clause in two parts. They are `b` "now or at an earlier moment", and `a` "at every moment after the last such moment".
+
+This follows because since is until turned to the past.
+
+##### @spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until
+
+> The verbalizer says `a releases b`, with a side of more than one clause, as `always b or (b until (a and b))`.
+
+This follows because releases holds `b` up to and including the first moment where `a` holds, and for ever when that moment never comes. The two alternatives say each case.
+
+##### @spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since
+
+> The verbalizer says `a triggered b`, with a side of more than one clause, as `historically b or (b since (a and b))`.
+
+This follows because triggered is releases turned to the past.
+
+##### @spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment
+
+> The verbalizer says `a ; b`, with a side of more than one clause, as `a and after b`.
+
+This follows because `a ; b` claims `a` now and `b` at the next moment, which `a and after b` claims too.
 
 #### @spec a-name-with-no-reading-is-refused-and-named
 

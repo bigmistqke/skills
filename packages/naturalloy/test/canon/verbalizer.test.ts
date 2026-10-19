@@ -1288,7 +1288,7 @@ describe('connectives, quantifiers and let', () => {
    */
   it('says an equivalence that is a side of a rule, a temporal operator or a definition as both or neither', () => {
     expect(say('c in Registered implies (c in Ran iff d in Ran)')).toBe('When code has registered c\nthen both or neither of these hold:\n       - c has run\n       - d has run');
-    expect(() => say('(c in Ran iff d in Ran) until d in Registered')).toThrow('"until" is supported only between two clauses');
+    expect(say('(c in Ran iff d in Ran) until d in Registered')).toContain('at every moment before the first such moment, the following holds:\n      both or neither of these hold:');
     const readings = withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\nsame: {1} goes with {2} | {1} does not go with {2}'), 'sig Cleanup {}');
     expect(verbalizeDefinition('pred same[c, d: Cleanup] { c in Ran iff d in Ran }', readings)).toBe(
       'For every cleanup_1 and every cleanup_2:\n  cleanup_1 goes with cleanup_2 exactly when both or neither of these hold:\n    - cleanup_1 has run\n    - cleanup_2 has run'
@@ -1459,6 +1459,71 @@ describe('connectives, quantifiers and let', () => {
 
 describe('what it refuses', () => {
   /**
+   * @canon spec-until-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+   */
+  it('says until with a side of more than a clause as two parts', () => {
+    expect(say('(c in Ran implies d in Ran) until runNow[d]')).toBe(
+      ['All of these hold:', '  - now or at a later moment, the following holds:', '      d runs', '  - at every moment before the first such moment, the following holds:', '      when c has run, d has run.'].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-since-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+   */
+  it('says since with a side of more than a clause as two parts', () => {
+    expect(say('(c in Ran implies d in Ran) since runNow[d]')).toBe(
+      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      d runs', '  - at every moment after the last such moment, the following holds:', '      when c has run, d has run.'].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until
+   */
+  it('says releases with a side of more than a clause as always, or until', () => {
+    expect(say('runNow[d] releases (c in Ran implies d in Ran)')).toBe(
+      [
+        'At least one of these holds:',
+        '  - now and at every later moment:',
+        '      when c has run, d has run',
+        '  - all of these hold:',
+        '      - now or at a later moment, the following holds:',
+        '          all of these hold:',
+        '            - d runs',
+        '            - when c has run, d has run',
+        '      - at every moment before the first such moment, the following holds:',
+        '          when c has run, d has run.'
+      ].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since
+   */
+  it('says triggered with a side of more than a clause as historically, or since', () => {
+    expect(say('runNow[d] triggered (c in Ran implies d in Ran)')).toBe(
+      [
+        'At least one of these holds:',
+        '  - now and at every earlier moment:',
+        '      when c has run, d has run',
+        '  - all of these hold:',
+        '      - now or at an earlier moment, the following holds:',
+        '          all of these hold:',
+        '            - d runs',
+        '            - when c has run, d has run',
+        '      - at every moment after the last such moment, the following holds:',
+        '          when c has run, d has run.'
+      ].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment
+   */
+  it('says a sequence with a side of more than a clause as and at the next moment', () => {
+    expect(say('(c in Ran implies d in Ran) ; runNow[d]')).toBe('All of these hold:\n  - when c has run, d has run\n  - at the next moment, d runs');
+  });
+
+  /**
    * @canon spec-a-name-with-no-reading-is-refused-and-named
    */
   it('says which name has no reading', () => {
@@ -1522,7 +1587,6 @@ describe('what it refuses', () => {
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
     expect(() => say('some ^on')).toThrow('"^on" holds a closure, which has no words');
-    expect(() => say('(all c: Cleanup | c in Ran) releases d in Ran')).toThrow('"releases" is supported only between two clauses');
   });
 
   /**
