@@ -25,7 +25,8 @@
     "prepublishOnly": "pnpm test && pnpm build"
   },
   "dependencies": {
-    "@bigmistqke/naturalloy": "workspace:*"
+    "@bigmistqke/naturalloy": "workspace:*",
+    "@bigmistqke/parse-alloy": "workspace:*"
   },
   "peerDependencies": {
     "@bigmistqke/canon": "^0.5.0"

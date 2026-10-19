@@ -51,6 +51,9 @@ importers:
       '@bigmistqke/naturalloy':
         specifier: workspace:*
         version: link:../naturalloy
+      '@bigmistqke/parse-alloy':
+        specifier: workspace:*
+        version: link:../parse-alloy
     devDependencies:
       '@bigmistqke/canon':
         specifier: workspace:*

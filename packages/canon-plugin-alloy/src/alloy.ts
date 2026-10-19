@@ -10,7 +10,7 @@ import { availableParallelism, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { readUnits } from '@bigmistqke/canon/units';
-import { declaredIn } from './words.ts';
+import { declaredIn, PARAGRAPHS } from './words.ts';
 
 export interface AlloyOptions {
   /** A Java 17 or later; `CANON_JAVA`, or `java`. */
@@ -48,14 +48,13 @@ export type AlloyResult =
 
 /** The default scope, when no `alloy bounds` block gives one. */
 const DEFAULT_BOUNDS = 'for 3 but 1..8 steps';
-const PARAGRAPH = /^\s*(?:(?:var|one|lone|some|abstract)\s+)*(?:sig|pred|fun|fact|assert|enum|open|run|check)\b/;
 
 /** The Alloy name of a unit's predicate: its id, with underscores for hyphens. */
 export const predicateName = (unit: string): string => unit.replace(/-/g, '_');
 
 /** A unit's block as Alloy paragraphs: a bare formula becomes the predicate named after the unit. */
 function paragraphs(block: Block): string {
-  return PARAGRAPH.test(block.body) ? block.body : `pred ${predicateName(block.unit)} {\n${block.body}}\n`;
+  return PARAGRAPHS.test(block.body) ? block.body : `pred ${predicateName(block.unit)} {\n${block.body}}\n`;
 }
 
 /** The name of the predicate that states a scenario: the unit that holds it, and its place among that unit's scenarios. */
@@ -78,7 +77,7 @@ type Program = { program: string; model: string; commands: string[]; units: stri
  */
 function build(blocks: Block[], bounds: string, runs: Runs, only?: Only): Program {
   // A unit that holds only definitions, such as a term that defines a predicate, is part of the model and not a claim to hold.
-  const units = [...new Set(blocks.filter(b => b.role === 'unit' && !PARAGRAPH.test(b.body)).map(b => b.unit))];
+  const units = [...new Set(blocks.filter(b => b.role === 'unit' && !PARAGRAPHS.test(b.body)).map(b => b.unit))];
   const names = units.map(predicateName);
   const scenarios = blocks
     .filter(b => b.role === 'scenario')
@@ -140,7 +139,7 @@ export function groups(src: string, context: string[] = []): Block[][] {
   const byRoot = new Map<number, Block[]>();
   blocks.forEach((block, i) => byRoot.set(find(i), [...(byRoot.get(find(i)) ?? []), block]));
   // A group that holds nothing of the document is left to the document that holds it, which is checked where it lives.
-  return [...byRoot.values()].filter(group => group.some(b => own.has(b)) && group.some(b => b.role === 'scenario' || (b.role === 'unit' && !PARAGRAPH.test(b.body))));
+  return [...byRoot.values()].filter(group => group.some(b => own.has(b)) && group.some(b => b.role === 'scenario' || (b.role === 'unit' && !PARAGRAPHS.test(b.body))));
 }
 
 /** The scope of a group: the scope asked for, without the sizes of signatures the group does not declare. */
