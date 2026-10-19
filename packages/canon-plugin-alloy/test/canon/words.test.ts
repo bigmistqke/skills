@@ -177,11 +177,13 @@ describe('the words of a document', () => {
 
   /**
    * The lanes of a globe: two fields are used only as `l->g in ended` by the
-   * claims, and on their own by a fact of the vocabulary.
+   * claims, and on their own by a fact of the vocabulary. The holder of a
+   * claim is used only by a scenario.
    *
    * @canon spec-a-field-named-on-its-own-is-used
+   * @canon spec-a-word-that-a-scenario-names-is-used
    */
-  it('count the fields of a lane as used when the claims and a fact name them on their own', () => {
+  it('count the fields of a lane as used when the claims, a fact or a scenario name them on their own', () => {
     const src = `# Canon
 
 ## @term lane
@@ -189,6 +191,7 @@ describe('the words of a document', () => {
 \`\`\`alloy vocabulary
 sig Holder {}
 sig Lane { var holder: set Holder, var ended: set Holder, var started: set Holder }
+sig Claim { kind: one Holder }
 fact an_edge_names_the_holder_it_brackets { always (ended in holder and started in holder') }
 \`\`\`
 
@@ -198,12 +201,18 @@ noun Lane: lane
 holder: {2} holds {1} | {2} does not hold {1}
 ended: {1} reports the end of {2} | {1} does not report the end of {2}
 started: {1} reports the start of {2} | {1} does not report the start of {2}
+noun Claim: claim
+kind: {1} is of {2} | {1} is not of {2}
 \`\`\`
 
 ## ${AXIOM} an-end-and-a-start-come-together
 
 \`\`\`alloy
 always all l: Lane | (some g: Holder | l->g in ended) implies (some h: Holder | l->h in started)
+\`\`\`
+
+\`\`\`alloy scenario
+some c: Claim, k: Holder | c->k in kind
 \`\`\`
 `;
     expect(checkWords(src)).toEqual([]);

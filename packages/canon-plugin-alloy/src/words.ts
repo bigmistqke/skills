@@ -87,10 +87,10 @@ export function declared(src: string): Word[] {
   return found;
 }
 
-/** What a unit's model blocks and formulas say, apart from the names they declare: where a word is used. */
+/** What a unit's model blocks, formulas and scenarios say, apart from the names they declare: where a word is used. */
 function usedText(src: string): string {
   return readBlocks(src, readUnits(src))
-    .filter(b => b.lang === 'alloy' && b.role !== 'bounds' && b.role !== 'scenario')
+    .filter(b => b.lang === 'alloy' && b.role !== 'bounds')
     .map(b => strip(b.body))
     .join('\n');
 }

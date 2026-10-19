@@ -59,6 +59,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-reading-apart-from-the-declaration-it-says-is-apart`](#spec-a-reading-apart-from-the-declaration-it-says-is-apart) — For every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word): when a reading in unit_1 says word_1, a unit declares word_1 and unit_1 does not declare word_1, word_1 is a word whose reading is in another unit than its declaration.
   - [`@spec a-declared-word-that-no-claim-uses-is-unused`](#spec-a-declared-word-that-no-claim-uses-is-unused) — For every [word_1](#term-word): when all of these hold: - a [unit](../canon/CANON.md#term-unit) declares word_1 - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1 then word_1 is a word that no claim, definition or fact uses.
   - [`@spec a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used`](#spec-a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used) — A word that a fact, a parent signature or a predicate names counts as used.
+  - [`@spec a-word-that-a-scenario-names-is-used`](#spec-a-word-that-a-scenario-names-is-used) — A word that a [scenario](#term-scenario) names counts as used.
   - [`@spec a-field-that-another-signature-shares-is-used-only-through-its-own-signature`](#spec-a-field-that-another-signature-shares-is-used-only-through-its-own-signature) — When two signatures give a field the same name, a unit uses the field only through its own signature.
   - [`@spec a-field-is-used-wherever-a-formula-names-it`](#spec-a-field-is-used-wherever-a-formula-names-it) — A unit uses a field wherever a formula of it names the field: after a dot, before a dot, or on its own.
     - [`@spec a-field-named-after-a-dot-is-used`](#spec-a-field-named-after-a-dot-is-used) — A field that a formula names after a dot, as in `x.field`, counts as used.
@@ -1183,6 +1184,12 @@ all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u: Unit | u->w in 
 > A word that a fact, a parent signature or a predicate names counts as used.
 
 This follows because the model relies on such a word even where no claim names it.
+
+#### @spec a-word-that-a-scenario-names-is-used
+
+> A word that a [scenario](#term-scenario) names counts as used.
+
+This follows because a scenario is a claim that something is possible, and its statement says the words it names. The lone check counts a scenario as tying a signature to the model for the same reason.
 
 #### @spec a-field-that-another-signature-shares-is-used-only-through-its-own-signature
 
