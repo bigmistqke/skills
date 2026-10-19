@@ -31,7 +31,7 @@ The [canon plugin for Alloy](../canon-plugin-alloy) uses naturalloy to write the
 
 A table of readings says each name a formula uses. A line `key: positive | negative` gives the words for a set, a field, a relation (`Clock.older`), a primed set (`Throwing'`) or a predicate, with `{1}`, `{2}` for the variables it is about. A line `noun Name: words` gives the noun of a signature, with the article it takes when the sound of the word would choose the wrong one (`noun Hour: an hour`). Blank lines and lines that start with `#` are skipped.
 
-`withDefinitions(readings, vocabulary)` adds what the vocabulary declares: the predicates, so that a predicate with no line of its own is said by its body, and the fields and `var` signatures, whose types and changes some constructs need.
+`withDefinitions(readings, vocabulary)` adds what the vocabulary declares: the predicates, so that a predicate with no line of its own is said by its body, the fields and `var` signatures, whose types and changes some constructs need, and the signature each signature is declared `in` or `extends`.
 
 ## How a formula reads
 
@@ -41,7 +41,7 @@ A variable is named after its noun and the number it is, `unit_1`, `unit_2`, `sp
 
 The temporal operators read as moments: `always` is "now and at every later moment", `eventually` "now or at a later moment", `after` "at the next moment", `before` "there is a moment before, and at it", `once` "now or at an earlier moment", `historically` "now and at every earlier moment". `until`, `since`, `releases`, `triggered` and `;` read as one clause each. A primed set or field with no line of its own reads "at the next moment, …" when it is the one changing part of its clause.
 
-A field after a variable, `y.f`, is said with the reading of the field. Two values compared, or a field of many values compared with a variable, are said member by member, over the type the field declares.
+A field after a variable, `y.f`, is said with the reading of the field, and so is a transpose of it, `y.~f`, which is the navigation the other way. Two values compared, or a field of many values compared with a variable, are said member by member, over the type the field declares. `some S` and `no S` of a set whose reading takes a variable are said with a member of the signature that holds the set, "an edge is being delivered", and a quantifier over a set with no noun ranges over that signature.
 
 Whatever cannot be said without loss is refused with the reason, never skipped: a name with no reading, a reading that leaves out a variable the formula gives, a set where a reading takes a variable, a construct with no words. [Issue #29](https://github.com/bigmistqke/skills/issues/29) lists, production by production of Alloy's grammar, what is said and what is not yet.
 
