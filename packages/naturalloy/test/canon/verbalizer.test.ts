@@ -14,6 +14,20 @@ const read = (name: string): string => readFileSync(join(FIXTURE, name), 'utf8')
 const READINGS = withDefinitions(parseReadings(read('readings.txt')), read('vocabulary.als'));
 const say = (formula: string, readings = READINGS): string => verbalize(formula, readings);
 
+/** Sets of things, each held by a signature, or not by one. */
+const SETS = withDefinitions(
+  parseReadings(
+    [
+      'noun Edge: an [edge]', 'noun Hour: an hour', 'noun Alarm: alarm',
+      'Emitting: {1} is being delivered | {1} is not being delivered', 'Ringing: {1} is ringing | {1} is not ringing',
+      'Alarm: {1} rings | {1} does not ring', 'Looped: {1} is sent back to {1} | {1} is not sent back to {1}',
+      'Loose: {1} is loose | {1} is not loose', 'Unknown: {1} is unknown | {1} is not unknown', 'next: {2} follows {1} | {2} does not follow {1}'
+    ].join('\n'),
+    '#term-edge'
+  ),
+  'sig Edge { next: lone Edge } sig Hour {} sig Alarm {} var lone sig Emitting in Edge {} var sig Ringing extends Hour {} sig Looped in Edge {} sig Loose in Edge + Hour {}'
+);
+
 describe('the formulas of the lifetimes example', () => {
   const formulas = read('formulas.als').split(/\n\s*\n/).filter(block => !block.startsWith('--'));
 
@@ -117,6 +131,19 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition
+   */
+  it('says a set with no noun as the type of a quantifier as a condition on a variable of the signature that holds it', () => {
+    expect(say('all e: Emitting | e in Looped', SETS)).toBe('For every edge_1:\n  when edge_1 is being delivered, edge_1 is sent back to edge_1.');
+    expect(say('all e: Emitting | e in Looped implies e in Loose', SETS)).toBe('For every edge_1:\n  when edge_1 is being delivered and is sent back to edge_1, edge_1 is loose.');
+    expect(say('some e: Emitting | d in e.next', SETS)).toBe('d follows an edge that is being delivered.');
+    expect(say('no e: Emitting | d in e.next', SETS)).toBe('d follows no edge that is being delivered.');
+    expect(say('some e: Emitting | e in Looped', SETS)).toBe('There is an edge_1 such that edge_1 is being delivered and is sent back to edge_1.');
+    expect(say('all h: Ringing | h in Alarm', SETS)).toBe('For every hour_1:\n  when hour_1 is ringing, hour_1 rings.');
+    expect(() => say('all e: Loose | e in Looped', SETS)).toThrow('no noun for "Loose"');
+  });
+
+  /**
    * @canon spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field
    */
   it('says membership in a navigation with the reading of its field', () => {
@@ -133,6 +160,58 @@ describe('the words', () => {
     expect(say('some c.on')).toBe('c is on an owner.');
     expect(say('some on.o')).toBe('A cleanup is on o.');
     expect(say('not no c.on')).toBe('c is on an owner.');
+  });
+
+  /**
+   * @canon spec-a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way
+   */
+  it('says a navigation of a transpose as the navigation the other way', () => {
+    expect(say('c in o.(~on)')).toBe('c is on o.');
+    expect(say('o in (~on).c')).toBe('c is on o.');
+    expect(say('c not in o.(~on)')).toBe('c is not on o.');
+    expect(say('no o.(~on)')).toBe('No cleanup is on o.');
+    expect(say("c in o.(~on)'")).toBe('At the next moment, c is on o.');
+    expect(say("c in o.(~(on'))")).toBe('At the next moment, c is on o.');
+  });
+
+  /**
+   * @canon spec-a-pair-in-a-transpose-is-said-the-other-way-round
+   */
+  it('says a pair in a transpose the other way round', () => {
+    expect(say('o->c in ~on')).toBe('c is on o.');
+    expect(say('d->c in ~(Clock.older)')).toBe('Code registered c before d.');
+    expect(say('d->c not in ~(Clock.older)')).toBe('Code did not register c before d.');
+  });
+
+  /**
+   * @canon spec-a-set-whose-reading-says-its-variable-once-is-said-with-a-noun-phrase-in-its-place
+   */
+  it('says some or no of a set whose reading says its variable once with a noun phrase of the signature that holds it', () => {
+    expect(say('some Emitting', SETS)).toBe('An edge is being delivered.');
+    expect(say('no Emitting', SETS)).toBe('No edge is being delivered.');
+    expect(say('not some Emitting', SETS)).toBe('No edge is being delivered.');
+    expect(say('not no Emitting', SETS)).toBe('An edge is being delivered.');
+    expect(say("some Emitting'", SETS)).toBe('At the next moment, an edge is being delivered.');
+    expect(say('some Ringing', SETS)).toBe('An hour is ringing.');
+    expect(say('some Alarm', SETS)).toBe('An alarm rings.');
+    expect(say('some Emitting and some Alarm', SETS)).toBe('An edge is being delivered and an alarm rings.');
+    expect(verbalize('some Emitting', SETS, 'markdown')).toBe('An [edge](#term-edge) is being delivered.');
+  });
+
+  /**
+   * @canon spec-a-set-whose-reading-says-its-variable-twice-is-said-in-full
+   */
+  it('says some or no of a set whose reading says its variable twice in full', () => {
+    expect(say('some Looped', SETS)).toBe('There is an edge_1 such that edge_1 is sent back to edge_1.');
+    expect(say('no Looped', SETS)).toBe('There is no edge_1 such that edge_1 is sent back to edge_1.');
+  });
+
+  /**
+   * @canon spec-a-set-with-no-one-signature-that-holds-it-is-refused
+   */
+  it('refuses some or no of a set that no one signature holds', () => {
+    expect(() => say('some Loose', SETS)).toThrow('no one signature holds "Loose"');
+    expect(() => say('no Unknown', SETS)).toThrow('no one signature holds "Unknown"');
   });
 
   /**
@@ -856,6 +935,7 @@ describe('what it refuses', () => {
     expect(() => say('one c: Cleanup | c in Ran')).toThrow('"one" as a quantifier is not supported');
     expect(() => say('not eventually c in Ran')).toThrow('"not" is supported only before a comparison or a call');
     expect(() => say('(all c: Cleanup | c in Ran) releases d in Ran')).toThrow('"releases" is supported only between two clauses');
+    expect(() => say('some ~on')).toThrow('a set must be a name, not a transpose');
   });
 
   /**

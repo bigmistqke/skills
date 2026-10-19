@@ -45,8 +45,15 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — The verbalizer says a comparison with a difference on its right as: the left side is in the first part and not in the second.
   - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The verbalizer says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
   - [`@spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
+  - [`@spec a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over a set `S` with no noun over the signature that holds `S`, with the condition that the variable is in `S`.
   - [`@spec membership-in-a-navigation-is-said-with-the-reading-of-its-field`](#spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field) — The verbalizer says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
   - [`@spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field`](#spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field) — The verbalizer says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
+  - [`@spec a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way`](#spec-a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way) — The verbalizer says `y.~f` as `f.y`, and `~f.y` as `y.f`.
+  - [`@spec a-pair-in-a-transpose-is-said-the-other-way-round`](#spec-a-pair-in-a-transpose-is-said-the-other-way-round) — The verbalizer says `x->y in ~r` as `y->x in r`.
+  - [`@spec some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature`](#spec-some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature) — The verbalizer says `some S` and `no S`, for a set `S` whose reading takes a variable, as `some` or `no` of the signature that holds `S`. That signature is the one `S` is declared `in` or `extends`, or `S` itself when it stands on its own.
+    - [`@spec a-set-whose-reading-says-its-variable-once-is-said-with-a-noun-phrase-in-its-place`](#spec-a-set-whose-reading-says-its-variable-once-is-said-with-a-noun-phrase-in-its-place) — When the reading of `S` says its variable once, the verbalizer puts a noun phrase of the signature in its place: "an edge is being delivered".
+    - [`@spec a-set-whose-reading-says-its-variable-twice-is-said-in-full`](#spec-a-set-whose-reading-says-its-variable-twice-is-said-in-full) — When the reading of `S` says its variable more than once, the verbalizer says `some S` and `no S` in full: a quantifier over the signature, with a numbered name.
+    - [`@spec a-set-with-no-one-signature-that-holds-it-is-refused`](#spec-a-set-with-no-one-signature-that-holds-it-is-refused) — The verbalizer refuses `some S` and `no S`, for a set `S` whose reading takes a variable, when the vocabulary declares no one signature that holds `S`, and names `S`.
   - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The verbalizer says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
   - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The verbalizer refuses a formula that puts a set or a field where a reading takes a variable, and names it.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
@@ -626,6 +633,14 @@ This follows because `disj` says that the variables of one declaration stand for
 
 This follows because the variable ranges over the members of `A` that are not in `B`, which is the type and the condition together.
 
+#### @spec a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition
+
+> The verbalizer says a quantifier over a set `S` with no noun over the signature that holds `S`, with the condition that the variable is in `S`.
+
+Derives from: [`spec-some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature`](#spec-some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature)
+
+This follows because each member of `S` is a member of the signature that holds it. The variable ranges over the members of that signature that are in `S`.
+
 #### @spec membership-in-a-navigation-is-said-with-the-reading-of-its-field
 
 > The verbalizer says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
@@ -637,6 +652,44 @@ This follows because `x in y.f` holds exactly when `y->x` is in `f`, which is wh
 > The verbalizer says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
 
 This follows because `no y.f` holds exactly when nothing is in `y.f`, and the field declares what can be.
+
+#### @spec a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way
+
+> The verbalizer says `y.~f` as `f.y`, and `~f.y` as `y.f`.
+
+Derives from: [`spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field`](#spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field)
+
+This follows because `~f` holds `x->y` exactly when `f` holds `y->x`. A navigation of `~f` from one side reaches what a navigation of `f` from the other side reaches, and the reading of `f` says that.
+
+#### @spec a-pair-in-a-transpose-is-said-the-other-way-round
+
+> The verbalizer says `x->y in ~r` as `y->x in r`.
+
+This follows because `~r` holds `x->y` exactly when `r` holds `y->x`.
+
+#### @spec some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature
+
+> The verbalizer says `some S` and `no S`, for a set `S` whose reading takes a variable, as `some` or `no` of the signature that holds `S`. That signature is the one `S` is declared `in` or `extends`, or `S` itself when it stands on its own.
+
+This follows because `some S` holds exactly when a member of that signature is in `S`, and the reading of `S` says what being in `S` is.
+
+##### @spec a-set-whose-reading-says-its-variable-once-is-said-with-a-noun-phrase-in-its-place
+
+> When the reading of `S` says its variable once, the verbalizer puts a noun phrase of the signature in its place: "an edge is being delivered".
+
+This follows because the phrase names the one member that the reading is about, in the one place the reading says it.
+
+##### @spec a-set-whose-reading-says-its-variable-twice-is-said-in-full
+
+> When the reading of `S` says its variable more than once, the verbalizer says `some S` and `no S` in full: a quantifier over the signature, with a numbered name.
+
+This follows because a noun phrase in two places would read as two things, where the logic has one.
+
+##### @spec a-set-with-no-one-signature-that-holds-it-is-refused
+
+> The verbalizer refuses `some S` and `no S`, for a set `S` whose reading takes a variable, when the vocabulary declares no one signature that holds `S`, and names `S`.
+
+This follows because without the signature the verbalizer has no noun for the members of `S`, and any noun it chose would be invented.
 
 #### @spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment
 
