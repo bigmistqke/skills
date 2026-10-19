@@ -61,7 +61,8 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 2. `check` fails when a generated region is stale. To fix it, run `generate`. The generated regions are the index of each document and the kinds table in [`writing-units.md`](writing-units.md).
 3. Add the `toc:begin` and `toc:end` markers to each new canon document, once.
 4. `lint` comes from `@bigmistqke/canon-plugin-retext`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
-5. The checker needs Node 22 or later.
+5. `graph` comes from `@bigmistqke/canon-plugin-pele`. It prints the derivations of the documents as a Mermaid flowchart, or with `--svg` as an SVG that Pele renders.
+6. The checker needs Node 22 or later.
 
 ## 3. Issues
 
