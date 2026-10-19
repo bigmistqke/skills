@@ -38,7 +38,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm typecheck
-      - run: pnpm test
+      # One package's suite at a time: the analyzer-backed suites each start analyzers of their own, and a runner has few cores.
+      - run: pnpm turbo run test --concurrency=1
+      - run: node scripts/kinds.ts --check
 
       - name: Check the canons
         run: |

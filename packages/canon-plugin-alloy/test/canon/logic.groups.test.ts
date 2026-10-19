@@ -87,7 +87,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check of groups', () => {
    * @canon spec-the-scope-of-a-group-names-only-the-signatures-it-declares
    * @canon spec-units-that-share-no-word-are-asked-about-apart
    */
-  it('asks about the groups apart, with the sizes of only the signatures each declares', { timeout: 120_000 }, async () => {
+  it('asks about the groups apart, with the sizes of only the signatures each declares', { timeout: 600_000 }, async () => {
     expect(await checkAlloy(doc())).toMatchObject({ ok: true, units: expect.arrayContaining(['axiom-an-apple-is-ripe', 'axiom-a-pear-is-sweet']) });
   });
 
@@ -96,7 +96,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check of groups', () => {
    * @canon spec-the-report-of-a-scenario-names-no-other-unit
    * @canon spec-units-that-share-no-word-are-asked-about-apart
    */
-  it('names the units of the group that cannot hold, and no unit of the other', { timeout: 120_000 }, async () => {
+  it('names the units of the group that cannot hold, and no unit of the other', { timeout: 600_000 }, async () => {
     const contra = doc('\n## @spec an-apple-is-unripe\n\n```alloy\nall a: Apple | a not in Ripe\n```\n\n```alloy scenario\nsome Apple\n```\n');
     const result = await checkAlloy(contra);
     expect(result).toMatchObject({ ok: false });
@@ -108,7 +108,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check of groups', () => {
    * @canon spec-the-report-of-a-contradiction-names-all-the-units-of-the-group
    * @canon spec-units-that-share-no-word-are-asked-about-apart
    */
-  it('names every unit of the group that contradicts itself, and no unit of the other', { timeout: 120_000 }, async () => {
+  it('names every unit of the group that contradicts itself, and no unit of the other', { timeout: 600_000 }, async () => {
     const result = await checkAlloy(doc('\n## @spec an-apple-is-unripe\n\n```alloy\nsome a: Apple | a not in Ripe\n```\n'));
     expect(result).toMatchObject({ ok: false, failures: [{ scenario: 'consistent' }] });
     expect('failures' in result && result.failures.map(f => f.conflict.sort())).toEqual([['axiom-an-apple-is-ripe', 'spec-an-apple-is-unripe']]);

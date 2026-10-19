@@ -12,7 +12,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check', () => {
   // The analyzer is run to completion, which blocks this thread. The test runner answers its messages only when the event loop turns, so let it turn between tests.
   afterEach(() => new Promise(resolve => setTimeout(resolve, 0)));
 
-  it('shows that the reported-failure spec alone keeps a failing cleanup of a disposed owner from making a dispose throw, from going unreported and from reaching the wrong handler', { timeout: 120_000 }, async () => {
+  it('shows that the reported-failure spec alone keeps a failing cleanup of a disposed owner from making a dispose throw, from going unreported and from reaching the wrong handler', { timeout: 600_000 }, async () => {
     expect(
       await answers([
         ['dispose-runs-once', failing('eventually o in Threw'), REPORTED_STEM],
@@ -26,7 +26,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check', () => {
     });
   });
 
-  it('shows that the reported-failure spec alone keeps a dispose from throwing when no handler is above the owner, and allows the error to reach the nearest handler', { timeout: 120_000 }, async () => {
+  it('shows that the reported-failure spec alone keeps a dispose from throwing when no handler is above the owner, and allows the error to reach the nearest handler', { timeout: 600_000 }, async () => {
     expect(
       await answers([
         [REPORTED_STEM, 'some o: Owner, c: Failing | no o.handler and eventually (dispose[o] and c.on = o and eventually (runNow[c] and eventually o in Threw))'],

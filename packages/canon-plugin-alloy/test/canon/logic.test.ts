@@ -85,7 +85,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check', () => {
   /**
    * @canon spec-a-scenario-that-can-happen-is-not-reported
    */
-  it('allows the scenario of the example: a failing cleanup runs while its owner is disposed, and its error reaches the nearest handler', { timeout: 120_000 }, async () => {
+  it('allows the scenario of the example: a failing cleanup runs while its owner is disposed, and its error reaches the nearest handler', { timeout: 600_000 }, async () => {
     expect(await checkAlloy(LIFETIMES)).toMatchObject({ ok: true });
   });
 
@@ -94,7 +94,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check', () => {
    * @canon spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen
    * @canon spec-the-report-of-a-scenario-names-no-other-unit
    */
-  it('names the two specs that keep a scenario from happening when a spec contradicts another', { timeout: 120_000 }, async () => {
+  it('names the two specs that keep a scenario from happening when a spec contradicts another', { timeout: 600_000 }, async () => {
     const contradicting = `${LIFETIMES}
 ### @spec a-disposed-owner-can-be-entered
 
