@@ -100,4 +100,4 @@ logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/jav
 ---
 ```
 
-`CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths, and a path in the frontmatter wins. `canon logic --review <unit>` marks a map reviewed, for a unit whose statement a person wrote.
+`CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths, and a path in the frontmatter wins. `canon logic --review <unit>` marks a map reviewed, for a unit whose statement a person wrote in a document that keeps no readings.

@@ -41,7 +41,7 @@ A scenario, a block that says a situation must be possible, is said the same way
 
 A document that extends another (`extends` in its frontmatter) says its statements with the readings of the extended document too, and a word of the extended document links to that document, `[unit](../canon/CANON.md#term-unit)`. The words the extended document declares count as declared in the words check. `generate` writes statements only in the documents the project checks, never in the ones they extend.
 
-The statement is the plugin's to write: `generate` never overwrites one that a person wrote, and says so; delete it to let it be generated. A unit whose statement is generated needs no `map` block. A document without a `readings` block is left as it is.
+The statement is the plugin's to write: `generate` never overwrites one that a person wrote, and says so; delete it to let it be generated. In a document that keeps readings, a statement outside the markers is `handwritten`, whatever else its unit holds. Keep the sentence of a person in the body, below the generated statement, as an explanation that adds no claim. A document without a `readings` block is left as it is.
 
 ## The logic layer
 
@@ -56,7 +56,7 @@ The claims of the documents a document extends join its model, so a claim of the
 ```alloy              the unit's own predicate; a bare formula is named after the unit
 ````
 
-A unit whose statement a person wrote and that has a predicate also holds a `map` block, whose lines say which words of the statement became which part of the predicate. A unit with a generated statement needs none. A person reads it against both and marks it reviewed:
+In a document without a `readings` block, a person writes each statement. A unit with a predicate then also holds a `map` block, whose lines say which words of the statement became which part of the predicate. A person reads a map against both and marks it reviewed:
 
 ````md
 ```map reviewed=3d2900e5d6b6
