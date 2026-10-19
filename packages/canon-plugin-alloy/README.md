@@ -90,6 +90,8 @@ A scenario that cannot happen is a strong result: no world within the bounds has
     then back to step 1
 ```
 
-A thing is named after its noun and its number, as a variable of a statement is. The first step says every tuple that is true, and each later step says what became true (`+`) and false (`-`). The positive reading of a word says each of its tuples. A word with no reading appears in Alloy, `Ended: claim_1`, so that the world keeps every tuple. A scenario that cannot happen has no world, and its report names the units to change.
+A thing is named after its noun and its number, as a variable of a statement is. The first step says every tuple that is true, and each later step says what became true (`+`) and false (`-`).
+
+The positive reading of a word says each of its tuples. A word with no reading appears in Alloy, `Ended: claim_1`. A thing that no sentence names gets a line of its own, `AtOnce$0 exists`. So the world keeps every tuple. A scenario that cannot happen has no world, and its report names the units to change.
 
 `CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths. The result holds only within the bounds. See [`fixtures/lifetimes/CANON.md`](fixtures/lifetimes/CANON.md).

@@ -27,7 +27,8 @@ export interface WordFinding {
   message: string;
 }
 
-const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ');
+/** A text of Alloy without its comments. */
+export const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ');
 
 /** The text between the brace at `open` and its closing brace, and where the closing brace is. */
 function braced(text: string, open: number): { body: string; end: number } {
@@ -63,13 +64,23 @@ function fieldNames(body: string): string[] {
   return names;
 }
 
+/** A declaration of signatures: its keywords, its names, and whether it puts them inside another with `extends` or `in`; it ends at the brace of the fields. */
+const SIGNATURES = /\b((?:(?:var|one|lone|some|abstract|private)\s+)*)sig\s+([\w\s,]+?)(?:\s+(extends|in)\s+[\w\s+]+?)?\s*\{/g;
+
+/** The signatures that the text of one model block declares, outside its comments, with what their declaration says of them. */
+export function signaturesIn(body: string): { name: string; var: boolean; one: boolean; subset: boolean }[] {
+  return [...strip(body).matchAll(SIGNATURES)].flatMap(m =>
+    (m[2] as string).split(',').map(name => ({ name: name.trim(), var: /\bvar\b/.test(m[1] as string), one: /\bone\b/.test(m[1] as string), subset: m[3] === 'in' }))
+  );
+}
+
 /** The words that the text of one model block declares, outside its comments. */
 export function declaredIn(body: string): { name: string; kind: WordKind }[] {
   const found: { name: string; kind: WordKind }[] = [];
   const text = strip(body);
-  for (const m of text.matchAll(/\bsig\s+([\w\s,]+?)(?:\s+(?:extends|in)\s+[\w\s+]+?)?\s*\{/g)) {
+  for (const m of text.matchAll(SIGNATURES)) {
     const { body: fields } = braced(text, (m.index ?? 0) + m[0].length - 1);
-    const names = (m[1] as string).split(',').map(n => n.trim());
+    const names = (m[2] as string).split(',').map(n => n.trim());
     for (const name of names) found.push({ name, kind: 'signature' });
     if (names.length === 1) for (const field of fieldNames(fields)) found.push({ name: `${names[0]}.${field}`, kind: 'field' });
   }

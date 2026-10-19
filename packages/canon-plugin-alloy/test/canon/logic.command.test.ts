@@ -4,7 +4,7 @@
  * and CANON_JAVA when `java` is older.
  */
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -61,15 +61,14 @@ all p: Pear | p in Sweet
 ${extra}`;
 
 /** A project of the document, whose statements `generate` writes; what `logic` printed and its code, with the analyzer where the environment has it, or without. */
-function logic(document: string, withAnalyzer = true, args: string[] = []) {
+function logic(document: string, withAnalyzer = true, args: string[] = [], env: Record<string, string> = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-logic-'));
   DIRS.push(dir);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
   install(dir);
   writeFileSync(join(dir, 'CANON.md'), named(document));
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
-  const env = withAnalyzer ? process.env : { ...process.env, CANON_ALLOY_JAR: '' };
-  const run = spawnSync(process.execPath, [CLI, 'logic', ...args], { cwd: dir, encoding: 'utf8', env });
+  const run = spawnSync(process.execPath, [CLI, 'logic', ...args], { cwd: dir, encoding: 'utf8', env: { ...process.env, ...(withAnalyzer ? {} : { CANON_ALLOY_JAR: '' }), ...env } });
   return { out: run.stdout, err: run.stderr, code: run.status };
 }
 
@@ -144,6 +143,45 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command with --show', (
     expect(out).toContain('the scenario of axiom-a-pear-is-sweet cannot happen while every unit holds');
     expect(out).not.toContain('the world of');
     expect(code).toBe(1);
+  });
+
+  /**
+   * @canon spec-show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit
+   */
+  it('shows the scenario its name counts in the document, when the scenarios of a unit sit in different groups', { timeout: 120_000 }, () => {
+    const two = doc('\n```alloy scenario\nsome a: Apple | a in Ripe\n```\n\n```alloy scenario\nsome p: Pear | p in Sweet\n```\n');
+    const { out, code } = logic(two, true, ['--show', 'scenario-2-axiom-a-pear-is-sweet']);
+    expect(out.split('the world of ').length - 1).toBe(1);
+    expect(out).toContain('the world of scenario-2-axiom-a-pear-is-sweet:');
+    expect(out).toMatch(/pear_\d is sweet/);
+    expect(out).not.toMatch(/apple_\d is ripe/);
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands
+   */
+  it('says that the analyzer wrote no world, and keeps the report and its code, when the world is missing', { timeout: 120_000 }, () => {
+    const dir = mkdtempSync(join(tmpdir(), 'canon-java-'));
+    DIRS.push(dir);
+    const java = join(dir, 'java');
+    // A Java that runs the analyzer and then takes away the text of every instance it wrote.
+    writeFileSync(java, `#!/bin/sh\n"${process.env.CANON_JAVA ?? 'java'}" "$@"\ncode=$?\nfor a in "$@"; do case "$a" in */out) rm -f "$a"/*-solution-0.txt;; esac; done\nexit $code\n`);
+    chmodSync(java, 0o755);
+    const { out, code } = logic(RIPE, true, ['--show', 'scenario-1-axiom-a-pear-is-sweet'], { CANON_JAVA: java });
+    expect(out).toContain('CANON.md: 2 units, 1 scenario');
+    expect(out).toContain('the world of scenario-1-axiom-a-pear-is-sweet: the analyzer wrote none');
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-show-of-a-name-that-is-no-scenario-stops-logic
+   */
+  it('stops with code 2 when --show names a scenario of a document that logic does not check', { timeout: 120_000 }, () => {
+    const bare = `# Canon\n\n## ${AXIOM} a-root\n\n\`\`\`alloy vocabulary\nsig Apple {}\n\`\`\`\n\n\`\`\`alloy scenario\nsome Apple\n\`\`\`\n`;
+    const { err, code } = logic(bare, true, ['--show', 'scenario-1-axiom-a-root']);
+    expect(err).toContain('scenario-1-axiom-a-root');
+    expect(code).toBe(2);
   });
 
   /**

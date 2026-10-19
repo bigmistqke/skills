@@ -43,7 +43,9 @@ sig AppMotion in Claim {}
 var lone sig Teardown {}
 abstract sig Engine {}
 lone sig AtOnce extends Engine {}
-one sig Probe { rel: Claim -> Lane }`;
+var sig Live {}
+one sig Probe { rel: Claim -> Lane }
+sig Desk { busy: Claim -> Lane }`;
 
 const SCENARIO = 'scenario_1_spec_a_claim_ends';
 
@@ -60,6 +62,14 @@ describe('the steps of a world', () => {
   it('says every true tuple at the first step', () => {
     const lines = sayWorld(ENDING, MODEL, READINGS, SCENARIO);
     expect(lines.slice(lines.indexOf('step 0:'), lines.indexOf('step 1:'))).toEqual(['step 0:', '  lane_1 holds claim_1']);
+  });
+
+  /**
+   * @canon spec-the-first-step-says-everything-that-is-true
+   */
+  it('reads a trace whose lines end in a carriage return and a line feed', () => {
+    const lines = sayWorld(ENDING.replace(/\n/g, '\r\n'), MODEL, READINGS, SCENARIO);
+    expect(lines.slice(0, 3)).toEqual(['c is claim_1', 'step 0:', '  lane_1 holds claim_1']);
   });
 
   /**
@@ -141,6 +151,15 @@ describe('the sentences of tuples', () => {
   });
 
   /**
+   * @canon spec-a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature
+   */
+  it('keeps the first thing of a field of a signature that is not one, whatever places its reading has', () => {
+    const readings = parseReadings('noun Desk: desk\nnoun Claim: claim\nbusy: {1} is busy with {2} | {1} is not busy with {2}');
+    const text = trace(state(0, ['this/Claim={Claim$0}', 'this/Lane={Lane$0}', 'this/Desk={Desk$0}', 'this/Desk<:busy={Desk$0->Claim$0->Lane$0}'], true));
+    expect(sayWorld(text, MODEL, readings, SCENARIO)).toContain('  desk_1 is busy with claim_1');
+  });
+
+  /**
    * @canon spec-a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing
    */
   it('says a set whose reading has no variable once when it has a thing, and not when it is empty', () => {
@@ -158,11 +177,31 @@ describe('the sentences of tuples', () => {
   });
 
   /**
-   * @canon spec-a-signature-that-names-its-own-things-is-not-said
+   * @canon spec-a-thing-that-another-sentence-names-is-not-said-to-exist
    */
-  it('says nothing of a signature whose things carry its name or the name of a signature that extends it', () => {
+  it('says nothing more of a thing that another sentence names, at any step', () => {
+    const text = trace(
+      state(0, ['this/Lane={Lane$0}', 'this/Lane<:claim={}', 'this/Claim={Claim$0}']),
+      state(1, ['this/Lane={Lane$0}', 'this/Lane<:claim={Lane$0->Claim$0}', 'this/Claim={Claim$0}'], true)
+    );
+    const lines = sayWorld(text, MODEL, READINGS, SCENARIO);
+    expect(lines.filter(line => line.includes('exists'))).toEqual([]);
+  });
+
+  /**
+   * @canon spec-a-thing-that-no-sentence-names-is-said-to-exist
+   */
+  it('says that a thing no sentence names exists, once, under its own signature', () => {
     const text = trace(state(0, ['this/Engine={AtOnce$0}', 'this/AtOnce={AtOnce$0}', 'this/Claim={Claim$0}'], true));
-    expect(sayWorld(text, MODEL, READINGS, SCENARIO)).toEqual(['step 0:', '  nothing is true', 'then back to step 0']);
+    expect(sayWorld(text, MODEL, READINGS, SCENARIO)).toEqual(['step 0:', '  AtOnce$0 exists', '  claim_1 exists', 'then back to step 0']);
+  });
+
+  /**
+   * @canon spec-a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in
+   */
+  it('says that a thing of a var signature exists at each step that holds it', () => {
+    const text = trace(state(0, ['this/Live={}']), state(1, ['this/Live={Live$0}']), state(2, ['this/Live={}'], true));
+    expect(sayWorld(text, MODEL, READINGS, SCENARIO)).toEqual(['step 0:', '  nothing is true', 'step 1:', '  + Live$0 exists', 'step 2:', '  - Live$0 exists', 'then back to step 2']);
   });
 
   /**

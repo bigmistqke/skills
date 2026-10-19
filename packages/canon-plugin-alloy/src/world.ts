@@ -4,6 +4,7 @@
  * each with the tuples that hold at it.
  */
 import { articleFor, unbracketed, type Readings } from './verbalize.ts';
+import { signaturesIn } from './words.ts';
 
 /** One state of a trace: the tuples of each set and field, by Alloy name, and the things the variables of skolemized predicates stand for. */
 interface State {
@@ -27,7 +28,7 @@ const tuplesOf = (value: string): string[][] =>
 function parseTrace(text: string): { states: State[]; loop: number } {
   const states: State[] = [];
   let loop = 0;
-  for (const line of text.split('\n')) {
+  for (const line of text.split(/\r?\n/)) {
     const head = /^-+State (\d+)( \(loop\))?-+$/.exec(line);
     if (head) {
       if (head[2] !== undefined) loop = Number(head[1]);
@@ -49,18 +50,8 @@ function parseTrace(text: string): { states: State[]; loop: number } {
   return { states, loop };
 }
 
-/**
- * The signatures a model declares inside another with `in`, such as `Ended` in
- * `var sig Ended in Claim`. Their things carry the name of another signature;
- * the things of every other signature carry its own name, or the name of a
- * signature that extends it.
- */
-const subsetsOf = (model: string): Set<string> =>
-  new Set(
-    [...model.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ').matchAll(/\bsig\s+([\w\s,]+?)\s+in\b/g)].flatMap(m =>
-      (m[1] as string).split(',').map(name => name.trim())
-    )
-  );
+/** What the model declares of a signature: `var`, `one`, and whether it sits inside another with `in`. */
+type Signature = { var: boolean; one: boolean; subset: boolean };
 
 /** The name of a thing: its noun and its number from 1, `claim_1` for `Claim$0`, or the analyzer's name when its signature has no noun. */
 function nameOf(thing: string, readings: Readings | undefined): string {
@@ -73,17 +64,26 @@ function nameOf(thing: string, readings: Readings | undefined): string {
 /** The highest place a reading has a variable for, `{2}` is 2; 0 when it has none. */
 const places = (words: string): number => Math.max(0, ...[...words.matchAll(/\{(\d+)\}/g)].map(m => Number(m[1])));
 
-/** The sentences that a state holds, in the order of its words, each once. */
-function sentences(state: State, readings: Readings | undefined, subsets: Set<string>): string[] {
+/**
+ * The sentences that a state holds, in the order of its words, each once, and
+ * the things they name. A thing of a signature with no reading that sits in no
+ * other is said to exist when its signature is `var`, or when no sentence of
+ * the world names it: `named` is what the world names, once it is known.
+ */
+function sentences(state: State, readings: Readings | undefined, signatures: Map<string, Signature>, named?: Set<string>): { said: string[]; names: Set<string> } {
   const said = new Set<string>();
+  const names = new Set<string>();
   for (const word of state.words) {
     const reading = readings?.atoms.get(word.name) ?? (word.field === undefined ? undefined : readings?.atoms.get(word.field.field));
-    const name = (thing: string): string => nameOf(thing, readings);
+    const name = (thing: string): string => {
+      names.add(thing);
+      return nameOf(thing, readings);
+    };
     if (reading !== undefined) {
       const words = unbracketed(reading.positive);
       for (const tuple of word.tuples) {
-        // A field of a `one` signature is a relation the signature only holds: its reading has no place for the signature's thing.
-        const things = places(words) < tuple.length ? tuple.slice(1) : tuple;
+        // A field of a `one` signature is a relation the signature only holds: its reading may have no place for the signature's thing.
+        const things = word.field !== undefined && signatures.get(word.field.holder)?.one && places(words) < tuple.length ? tuple.slice(1) : tuple;
         said.add(words.replace(/\{(\d+)\}/g, (_, n: string) => name(things[Number(n) - 1] ?? '?')));
       }
       continue;
@@ -92,8 +92,15 @@ function sentences(state: State, readings: Readings | undefined, subsets: Set<st
       for (const tuple of word.tuples) said.add(`${word.name}: ${tuple.map(name).join(' -> ')}`);
       continue;
     }
-    // A signature whose things carry its name, or the name of a signature that extends it, is said by the names of its things.
-    if (!subsets.has(word.name)) continue;
+    const signature = signatures.get(word.name);
+    if (!signature?.subset) {
+      // Its own things carry its name; those of a signature that extends it are said under that signature.
+      for (const [thing] of word.tuples) {
+        if (named === undefined || !(thing as string).startsWith(`${word.name}$`)) continue;
+        if (signature?.var || !named.has(thing as string)) said.add(`${nameOf(thing as string, readings)} exists`);
+      }
+      continue;
+    }
     const noun = readings?.nouns.get(word.name);
     for (const [thing] of word.tuples) {
       if (noun === undefined) {
@@ -104,7 +111,7 @@ function sentences(state: State, readings: Readings | undefined, subsets: Set<st
       said.add(`${name(thing as string)} is ${readings?.articles.get(word.name) ?? articleFor(plain).trim()} ${plain}`);
     }
   }
-  return [...said];
+  return { said: [...said], names };
 }
 
 /**
@@ -116,7 +123,8 @@ function sentences(state: State, readings: Readings | undefined, subsets: Set<st
  */
 export function sayWorld(text: string, model: string, readings: Readings | undefined, scenario: string): string[] {
   const { states, loop } = parseTrace(text);
-  const subsets = subsetsOf(model);
+  const signatures = new Map(signaturesIn(model).map(({ name, ...rest }) => [name, rest]));
+  const named = new Set(states.flatMap(state => [...sentences(state, readings, signatures).names]));
   const out: string[] = [];
   for (const [skolem, tuples] of states[0]?.skolems ?? []) {
     if (!skolem.startsWith(`${scenario}_`)) continue;
@@ -124,7 +132,7 @@ export function sayWorld(text: string, model: string, readings: Readings | undef
   }
   let before: string[] | undefined;
   states.forEach((state, i) => {
-    const now = sentences(state, readings, subsets);
+    const now = sentences(state, readings, signatures, named).said;
     out.push(`step ${i}:`);
     if (before === undefined) {
       out.push(...(now.length === 0 ? ['nothing is true'] : now).map(s => `  ${s}`));
