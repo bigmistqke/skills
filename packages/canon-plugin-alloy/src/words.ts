@@ -28,10 +28,16 @@ export interface WordFinding {
   message: string;
 }
 
-const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ');
+/** A text of Alloy without its comments. */
+export const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ');
 
 /** Whether a block is Alloy paragraphs, a vocabulary or a definition, and not a bare formula. */
 export const PARAGRAPHS = /^\s*(?:(?:var|one|lone|some|abstract|private)\s+)*(?:sig|pred|fun|fact|assert|enum|open|let|run|check)\b/;
+
+/** The signatures that the text of a module declares, as the parser reads them, with what their declaration says of them. */
+export function signaturesIn(body: string): { name: string; var: boolean; one: boolean; subset: boolean }[] {
+  return parseModule(body).paragraphs.flatMap(p => (p.t === 'sig' ? p.names.map(name => ({ name, var: p.var === true, one: p.mult === 'one', subset: p.parent?.kind === 'in' })) : []));
+}
 
 /**
  * The words that one model block declares: its signatures, the fields of a

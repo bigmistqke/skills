@@ -101,3 +101,5 @@ logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/jav
 ```
 
 `CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths, and a path in the frontmatter wins. `canon logic --review <unit>` marks a map reviewed, for a unit whose statement a person wrote in a document that keeps no readings.
+
+`canon logic --show <scenario>` prints a world in which a scenario happens, step by step, in the readings of the document. A scenario that can happen shows only that the model allows it, so read its world when the result looks too easy.

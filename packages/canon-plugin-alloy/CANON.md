@@ -18,6 +18,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
 - [`@term search`](#term-search) — A search is one run of the analyzer over some units: it asks whether they can hold, with a scenario or without.
 - [`@term group`](#term-group) — A group is a set of units linked through the words they share.
 - [`@term lone-formula`](#term-lone-formula) — A formula is lone on a signature when it uses the signature, no other unit names the signature, and no scenario names it.
+- [`@term world`](#term-world) — A world is what the analyzer finds when a search can hold. It has the things of each signature and the tuples of each field, at each step of a trace.
 - [`@axiom a-statement-says-what-its-logic-says`](#axiom-a-statement-says-what-its-logic-says) — For every [document_1](../canon/CANON.md#term-document) and every [unit_1](../canon/CANON.md#term-unit): when all of these hold: - document_1 keeps readings - document_1 [holds](../canon/CANON.md#term-hold) unit_1 - unit_1 holds a formula - the [statement](#term-generated-statement) of unit_1 is not current then [checker](../canon/CANON.md#term-checker) reports the statement of unit_1.
   - [`@spec a-document-that-keeps-no-readings-is-left-as-it-is`](#spec-a-document-that-keeps-no-readings-is-left-as-it-is) — For every [document_1](../canon/CANON.md#term-document) and every [unit_1](../canon/CANON.md#term-unit): when document_1 [holds](../canon/CANON.md#term-hold) unit_1 and keeps no readings, then all of these hold: - [checker](../canon/CANON.md#term-checker) does not write the [statement](#term-generated-statement) of unit_1 when it generates - checker does not report the statement of unit_1
   - [`@spec a-document-that-does-not-name-the-plugin-is-left-as-it-is`](#spec-a-document-that-does-not-name-the-plugin-is-left-as-it-is) — The checker neither writes nor reports the statements of a document that the [Alloy plugin](#term-alloy-plugin) does not run over.
@@ -115,6 +116,32 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-lone-formula-fails-check`](#spec-a-lone-formula-fails-check) — For every [run_1](../canon/CANON.md#term-run) and every [check_command_1](#term-alloy-plugin) and every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word): when run_1 asks for check_command_1 and [checker](../canon/CANON.md#term-checker) reports the formula of unit_1 as lone on word_1, run_1 does not exit with code 0.
 - [`@axiom check-runs-wherever-node-runs`](#axiom-check-runs-wherever-node-runs) — Every check of `canon check` runs with Node alone. Only `canon logic` needs Java and the Alloy analyzer.
   - [`@spec the-lone-check-reads-text-only`](#spec-the-lone-check-reads-text-only) — The checker finds the formulas that are [lone](#term-lone-formula) on a signature by reading the text of the blocks, without the Alloy analyzer.
+- [`@axiom a-scenario-that-can-happen-can-be-read`](#axiom-a-scenario-that-can-happen-can-be-read) — The author can read a [world](#term-world) in which a scenario happens while every held unit holds, in the words of the canon.
+  - [`@spec show-prints-the-world-of-each-scenario-it-names`](#spec-show-prints-the-world-of-each-scenario-it-names) — `canon logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
+  - [`@spec show-of-a-scenario-that-cannot-happen-prints-no-world`](#spec-show-of-a-scenario-that-cannot-happen-prints-no-world) — `canon logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
+  - [`@spec show-of-a-name-that-is-no-scenario-stops-logic`](#spec-show-of-a-name-that-is-no-scenario-stops-logic) — A run of `logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
+  - [`@spec show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit`](#spec-show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit) — `--show scenario-<n>-<unit>` shows the `n`th scenario of the unit in the document, whichever [group](#term-group) the analyzer asks about it in.
+  - [`@spec show-prints-a-world-once-under-the-document-that-holds-its-scenario`](#spec-show-prints-a-world-once-under-the-document-that-holds-its-scenario) — `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
+  - [`@spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands`](#spec-a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands) — When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
+  - [`@spec a-world-is-said-step-by-step`](#spec-a-world-is-said-step-by-step) — The checker says a world as its steps in order, each under `step <n>:`, counted from 0.
+    - [`@spec a-tuple-true-at-every-step-is-said-under-throughout`](#spec-a-tuple-true-at-every-step-is-said-under-throughout) — A world says each tuple that is true at every step of its trace once, under `throughout:`, before its first step.
+    - [`@spec the-first-step-says-everything-else-that-is-true`](#spec-the-first-step-says-everything-else-that-is-true) — The first step says every tuple that is true at it and not at every step. A first step with no such tuple says `nothing else is true`, or `nothing is true` when the world has no tuple under `throughout:`.
+    - [`@spec a-later-step-says-only-what-changed`](#spec-a-later-step-says-only-what-changed) — A later step says each tuple that became true, after `+`, and each tuple that became false, after `-`. A step where nothing changed says `nothing changes`.
+    - [`@spec a-world-says-the-step-its-trace-loops-back-to`](#spec-a-world-says-the-step-its-trace-loops-back-to) — A world ends with `then back to step <n>`, the step that its trace loops back to.
+  - [`@spec a-thing-is-named-after-its-noun-and-its-number`](#spec-a-thing-is-named-after-its-noun-and-its-number) — The checker names a thing after the noun of its signature and its number counted from 1, such as `claim_1` for `Claim$0`.
+    - [`@spec a-thing-of-a-signature-with-a-noun-is-named-after-the-noun-without-its-brackets`](#spec-a-thing-of-a-signature-with-a-noun-is-named-after-the-noun-without-its-brackets) — The checker names a thing whose signature has a noun after the words of the noun, without the brackets of a term. The noun `a [lane]` names `Lane$0` `lane_1`.
+    - [`@spec a-thing-of-a-signature-with-no-noun-keeps-the-name-the-analyzer-gives-it`](#spec-a-thing-of-a-signature-with-no-noun-keeps-the-name-the-analyzer-gives-it) — A thing whose signature has no noun keeps the name the analyzer gives it, such as `Claim$0`.
+  - [`@spec a-tuple-is-said-with-the-positive-reading-of-its-word`](#spec-a-tuple-is-said-with-the-positive-reading-of-its-word) — The checker says a tuple of a set or of a field with the positive reading of its word. The names of its things take the places of the variables.
+    - [`@spec a-thing-of-a-set-is-said-with-the-reading-of-the-set`](#spec-a-thing-of-a-set-is-said-with-the-reading-of-the-set) — The checker says a thing of a set with the reading of the set: `claim_1 has ended`.
+    - [`@spec a-tuple-of-a-field-is-said-with-the-reading-of-the-field`](#spec-a-tuple-of-a-field-is-said-with-the-reading-of-the-field) — The checker says a tuple of a field with the reading of the field, its first thing in `{1}` and the next in `{2}`: `lane_1 holds claim_1`.
+    - [`@spec a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature`](#spec-a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature) — A field can belong to a `one` signature and have a reading with a place fewer than its tuples have things. The checker then leaves out the first thing of each tuple, the thing of that signature.
+    - [`@spec a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing`](#spec-a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing) — The checker says a set whose reading has no variable, such as a `var lone sig Teardown`, once when it has a thing. It says nothing of the set when it is empty.
+    - [`@spec a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun`](#spec-a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun) — The checker says a thing of a set that has a noun and no reading as one of that noun: `claim_1 is an app motion`.
+    - [`@spec a-thing-that-another-sentence-names-is-not-said-to-exist`](#spec-a-thing-that-another-sentence-names-is-not-said-to-exist) — Take a thing of a signature with no reading, not declared with `in` or `var`. The checker says nothing more of it when another sentence of the world names it.
+    - [`@spec a-thing-that-no-sentence-names-is-said-to-exist`](#spec-a-thing-that-no-sentence-names-is-said-to-exist) — The checker says a thing of a signature with no reading, not declared with `in` or `var`, as `<thing> exists` when no other sentence of the world names it: `AtOnce$0 exists`.
+    - [`@spec a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in`](#spec-a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in) — The checker says a thing of a `var` signature with no reading, not declared with `in`, as `<thing> exists` at each step that holds it.
+    - [`@spec a-word-with-no-reading-is-said-with-its-alloy-name`](#spec-a-word-with-no-reading-is-said-with-its-alloy-name) — The checker says a tuple of a word with no reading and no noun in Alloy. It gives the name of the word, then its things: `Ended: claim_1`, `Lane.claim: lane_1 -> claim_1`.
+  - [`@spec a-world-says-which-thing-each-variable-of-the-scenario-is`](#spec-a-world-says-which-thing-each-variable-of-the-scenario-is) — A world opens with the thing that each variable of its scenario stands for, as `c is claim_1`.
 - [`@fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature`](#fact-only-solving-a-model-decides-whether-a-formula-constrains-a-signature) — Whether the other formulas of a model constrain a signature, or can contradict a formula, depends on what the formulas mean. Only solving the model decides it. The names that a block writes do not.
 <!-- toc:end -->
 
@@ -300,6 +327,12 @@ Expose.rel: [checker](../canon/CANON.md#term-checker) reports the formula of {1}
 Unchallenged: no other formula can contradict the formula of {1} | another formula can contradict the formula of {1}
 loneOn: the formula of {1} is [lone](#term-lone-formula) on {2} | the formula of {1} is not lone on {2}
 ```
+
+### @term world
+
+> A world is what the analyzer finds when a search can hold. It has the things of each signature and the tuples of each field, at each step of a trace.
+
+A thing is an element of a signature, which the analyzer names after the signature and a number, such as `Claim$0`. A trace has a step for each moment, and ends by looping back to one of its steps, which makes it go on for ever.
 
 ## @axiom a-statement-says-what-its-logic-says
 
@@ -1568,6 +1601,168 @@ A project runs `canon check` on every change, in its continuous integration too.
 > The checker finds the formulas that are [lone](#term-lone-formula) on a signature by reading the text of the blocks, without the Alloy analyzer.
 
 This follows because the lone check is part of `canon check`.
+
+## @axiom a-scenario-that-can-happen-can-be-read
+
+> The author can read a [world](#term-world) in which a scenario happens while every held unit holds, in the words of the canon.
+
+A scenario that cannot happen is a strong result: no world within the scope has it. A scenario that can happen is a weak one.
+
+It shows only that the model allows the scenario. The model may allow it through a way out that the system does not have. A claim that is too weak can let the analyzer reach the scenario by a path the system never takes. So can a word that nothing ties down.
+
+The report cannot tell these apart. Only the world shows which path the analyzer took. So the checker shows the world when the author asks for it. It uses the readings of the statements, so that the author reads the world as the canon and not in the analyzer's names.
+
+#### @spec show-prints-the-world-of-each-scenario-it-names
+
+> `canon logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
+
+This follows because the author asks about the scenarios whose result they doubt, and a world for every scenario would bury them.
+
+The author names a scenario by the id of its statement, such as `scenario-1-spec-a-claim-ends`.
+
+#### @spec show-of-a-scenario-that-cannot-happen-prints-no-world
+
+> `canon logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
+
+This follows because no world has the scenario, and the units the report names are where the author looks instead.
+
+#### @spec show-of-a-name-that-is-no-scenario-stops-logic
+
+> A run of `logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
+
+This follows because a misspelt name would otherwise show nothing, and the author would take the silence for an answer.
+
+#### @spec show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit
+
+> `--show scenario-<n>-<unit>` shows the `n`th scenario of the unit in the document, whichever [group](#term-group) the analyzer asks about it in.
+
+This follows because the author reads the name off the statement of the scenario, which counts the scenarios of the unit in the document.
+
+#### @spec show-prints-a-world-once-under-the-document-that-holds-its-scenario
+
+> `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
+
+This follows because a document that extends another asks about its scenarios again. A second copy of the world would read as a second scenario.
+
+#### @spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands
+
+> When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
+
+This follows because the world is a view that the author asked for. The check ran, and its result does not depend on the view.
+
+#### @spec a-world-is-said-step-by-step
+
+> The checker says a world as its steps in order, each under `step <n>:`, counted from 0.
+
+This follows because a scenario is about how things change, and the author follows the change one step at a time.
+
+##### @spec a-tuple-true-at-every-step-is-said-under-throughout
+
+> A world says each tuple that is true at every step of its trace once, under `throughout:`, before its first step.
+
+This follows because a tuple that never changes is part of the setting of the world and not of its story. The reader learns that it never changes from the world itself, and does not have to look for it in every step.
+
+##### @spec the-first-step-says-everything-else-that-is-true
+
+> The first step says every tuple that is true at it and not at every step. A first step with no such tuple says `nothing else is true`, or `nothing is true` when the world has no tuple under `throughout:`.
+
+This follows because the first step has no step before it to differ from.
+
+##### @spec a-later-step-says-only-what-changed
+
+> A later step says each tuple that became true, after `+`, and each tuple that became false, after `-`. A step where nothing changed says `nothing changes`.
+
+This follows because the way out that the author looks for is a change, and the tuples that stay the same would hide it.
+
+##### @spec a-world-says-the-step-its-trace-loops-back-to
+
+> A world ends with `then back to step <n>`, the step that its trace loops back to.
+
+This follows because what happens after the last step is part of the world. A claim with `always` or `eventually` holds or fails over the loop.
+
+#### @spec a-thing-is-named-after-its-noun-and-its-number
+
+> The checker names a thing after the noun of its signature and its number counted from 1, such as `claim_1` for `Claim$0`.
+
+This follows because the statements name their variables the same way, so a world reads as the canon does.
+
+##### @spec a-thing-of-a-signature-with-a-noun-is-named-after-the-noun-without-its-brackets
+
+> The checker names a thing whose signature has a noun after the words of the noun, without the brackets of a term. The noun `a [lane]` names `Lane$0` `lane_1`.
+
+This follows because the brackets of a noun make a link in a statement, and a world is plain text.
+
+##### @spec a-thing-of-a-signature-with-no-noun-keeps-the-name-the-analyzer-gives-it
+
+> A thing whose signature has no noun keeps the name the analyzer gives it, such as `Claim$0`.
+
+This follows because no word of the canon says what it is, and a made-up name would say what the canon does not.
+
+#### @spec a-tuple-is-said-with-the-positive-reading-of-its-word
+
+> The checker says a tuple of a set or of a field with the positive reading of its word. The names of its things take the places of the variables.
+
+This follows because a reading is how the canon says that a word holds of its things.
+
+##### @spec a-thing-of-a-set-is-said-with-the-reading-of-the-set
+
+> The checker says a thing of a set with the reading of the set: `claim_1 has ended`.
+
+This follows because the thing is the one variable of the reading.
+
+##### @spec a-tuple-of-a-field-is-said-with-the-reading-of-the-field
+
+> The checker says a tuple of a field with the reading of the field, its first thing in `{1}` and the next in `{2}`: `lane_1 holds claim_1`.
+
+This follows because the reading of a field gives a place to each thing of the tuple.
+
+##### @spec a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature
+
+> A field can belong to a `one` signature and have a reading with a place fewer than its tuples have things. The checker then leaves out the first thing of each tuple, the thing of that signature.
+
+This follows because a field of a `one` signature, such as `Probe.rel`, is a relation that the signature only holds. Its reading says the relation.
+
+##### @spec a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing
+
+> The checker says a set whose reading has no variable, such as a `var lone sig Teardown`, once when it has a thing. It says nothing of the set when it is empty.
+
+This follows because the reading says that the set is not empty, and its things have no name of their own to say.
+
+##### @spec a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun
+
+> The checker says a thing of a set that has a noun and no reading as one of that noun: `claim_1 is an app motion`.
+
+This follows because the noun says what a thing of the set is.
+
+##### @spec a-thing-that-another-sentence-names-is-not-said-to-exist
+
+> Take a thing of a signature with no reading, not declared with `in` or `var`. The checker says nothing more of it when another sentence of the world names it.
+
+This follows because the name of the thing already says its signature, and the sentence that names it shows that it exists.
+
+##### @spec a-thing-that-no-sentence-names-is-said-to-exist
+
+> The checker says a thing of a signature with no reading, not declared with `in` or `var`, as `<thing> exists` when no other sentence of the world names it: `AtOnce$0 exists`.
+
+This follows because whether such a thing exists can be the way out that the author looks for, and no other sentence would show it.
+
+##### @spec a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in
+
+> The checker says a thing of a `var` signature with no reading, not declared with `in`, as `<thing> exists` at each step that holds it.
+
+This follows because the things of a `var` signature come and go from step to step, and the change is part of the world.
+
+##### @spec a-word-with-no-reading-is-said-with-its-alloy-name
+
+> The checker says a tuple of a word with no reading and no noun in Alloy. It gives the name of the word, then its things: `Ended: claim_1`, `Lane.claim: lane_1 -> claim_1`.
+
+This follows because a tuple that the author cannot see could be the way out. A missing reading makes the world say less, and leaves nothing out.
+
+#### @spec a-world-says-which-thing-each-variable-of-the-scenario-is
+
+> A world opens with the thing that each variable of its scenario stands for, as `c is claim_1`.
+
+This follows because a scenario says that some things exist. The author has to know which things of the world they are to follow them.
 
 ## @fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature
 

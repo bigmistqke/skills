@@ -5,12 +5,12 @@
  * they cannot, which units a repair has to touch.
  */
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { availableParallelism, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { readUnits } from '@bigmistqke/canon/units';
-import { declaredIn, PARAGRAPHS } from './words.ts';
+import { declaredIn, PARAGRAPHS, strip } from './words.ts';
 
 export interface AlloyOptions {
   /** A Java 17 or later; `CANON_JAVA`, or `java`. */
@@ -27,6 +27,8 @@ export interface AlloyOptions {
   leave?: string[] | Record<string, string[]>;
   /** The text of the documents the document extends: their claims join the model, and what only they hold is left to them. */
   context?: string[];
+  /** The names of the scenario predicates whose world to keep, for the scenarios that can happen. */
+  show?: string[];
 }
 
 /** Which runs a program holds: the units together and each scenario with them, the units left out one by one, or both. */
@@ -41,9 +43,20 @@ export interface ScenarioFailure {
   conflict: string[];
 }
 
+/**
+ * A world in which a scenario happens while every held unit holds: the
+ * analyzer's text of its trace, and the model it is a world of. A scenario that
+ * can happen has no trace when the analyzer wrote none.
+ */
+export interface World {
+  scenario: string;
+  trace?: string;
+  model: string;
+}
+
 export type AlloyResult =
-  | { ok: true; units: string[]; scenarios: number }
-  | { ok: false; units: string[]; scenarios: number; failures: ScenarioFailure[] }
+  | { ok: true; units: string[]; scenarios: number; worlds: World[] }
+  | { ok: false; units: string[]; scenarios: number; failures: ScenarioFailure[]; worlds: World[] }
   | { ok: false; error: string };
 
 /** The default scope, when no `alloy bounds` block gives one. */
@@ -60,6 +73,14 @@ function paragraphs(block: Block): string {
 /** The name of the predicate that states a scenario: the unit that holds it, and its place among that unit's scenarios. */
 const scenarioName = (unit: string, nth: number): string => `scenario_${nth}_${predicateName(unit)}`;
 
+/** The name of each scenario among the blocks, by its place among the scenarios of its unit; the same place its statement goes by. */
+const scenarioNames = (blocks: Block[]): Map<Block, string> =>
+  new Map(
+    blocks
+      .filter(b => b.role === 'scenario')
+      .map((block, i, all) => [block, scenarioName(block.unit, all.slice(0, i).filter(o => o.unit === block.unit).length + 1)])
+  );
+
 /** The blocks of a document that the Alloy backend reads. */
 const alloyBlocks = (src: string): Block[] => readBlocks(src, readUnits(src)).filter(b => b.lang === 'alloy');
 
@@ -73,15 +94,14 @@ type Program = { program: string; model: string; commands: string[]; units: stri
  * The Alloy file of some blocks: their vocabulary, each unit's predicate, and
  * for each scenario a run of the units together with it, and a run for each
  * unit left out. With no scenario the units are run on their own, which only
- * finds units that contradict each other in every trace.
+ * finds units that contradict each other in every trace. Each scenario goes
+ * by its name in `named`, so a group's scenarios keep the names of their document.
  */
-function build(blocks: Block[], bounds: string, runs: Runs, only?: Only): Program {
+function build(blocks: Block[], bounds: string, runs: Runs, only?: Only, named: Map<Block, string> = scenarioNames(blocks)): Program {
   // A unit that holds only definitions, such as a term that defines a predicate, is part of the model and not a claim to hold.
   const units = [...new Set(blocks.filter(b => b.role === 'unit' && !PARAGRAPHS.test(b.body)).map(b => b.unit))];
   const names = units.map(predicateName);
-  const scenarios = blocks
-    .filter(b => b.role === 'scenario')
-    .map((block, i, all) => ({ block, name: scenarioName(block.unit, all.slice(0, i).filter(o => o.unit === block.unit).length + 1) }));
+  const scenarios = blocks.filter(b => b.role === 'scenario').map(block => ({ block, name: named.get(block) as string }));
   const all = (extra: string[], leaving?: number): string =>
     [...names.filter((_, j) => j !== leaving), ...extra].join(' and ') || 'some none';
   const together = runs === 'blame' ? [] : [`run consistent { ${all([])} } ${bounds}`, ...scenarios.map(({ name }) => `run ${name}_with_all { ${all([name])} } ${bounds}`)];
@@ -107,8 +127,14 @@ export function alloyProgram(src: string, runs: Runs = 'all', only?: Only, conte
 }
 
 /** The identifiers of a block, outside its comments. */
-const mentions = (body: string): Set<string> =>
-  new Set(body.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ').match(/[A-Za-z_]\w*/g) ?? []);
+const mentions = (body: string): Set<string> => new Set(strip(body).match(/[A-Za-z_]\w*/g) ?? []);
+
+/** The blocks that a document is checked with, those of the documents it extends first; which of them are its own; and the name of each scenario. */
+function blocksOf(src: string, context: string[]): { blocks: Block[]; own: Set<Block>; named: Map<Block, string> } {
+  const own = alloyBlocks(src);
+  const blocks = [...context.flatMap(alloyBlocks), ...own];
+  return { blocks, own: new Set(own), named: scenarioNames(blocks) };
+}
 
 /**
  * The groups of blocks that share a word: a block joins the blocks that declare
@@ -118,8 +144,12 @@ const mentions = (body: string): Set<string> =>
  * left out.
  */
 export function groups(src: string, context: string[] = []): Block[][] {
-  const own = new Set(alloyBlocks(src));
-  const blocks = [...context.flatMap(alloyBlocks), ...own].filter(b => b.role !== 'bounds');
+  return groupsOf(blocksOf(src, context));
+}
+
+/** The groups of the blocks of a document, as `groups` says. */
+function groupsOf({ blocks: all, own }: { blocks: Block[]; own: Set<Block> }): Block[][] {
+  const blocks = all.filter(b => b.role !== 'bounds');
   const parent = blocks.map((_, i) => i);
   const find = (i: number): number => {
     while (parent[i] !== i) i = parent[i] = parent[parent[i] as number] as number;
@@ -160,11 +190,19 @@ const solved = (receipt: string): Map<string, boolean> =>
     ]),
   );
 
-/** Run the analyzer over a model and one of its runs, and say whether the run found an instance. */
-function solveOne(model: string, command: string, java: string, jar: string): Promise<{ found: Map<string, boolean> } | { error: string }> {
+type Solved = { found: Map<string, boolean>; traces: Map<string, string> };
+
+/** The name of a run: `run <name> { … }`. */
+const runName = (command: string): string => /^run\s+(\w+)/.exec(command)?.[1] ?? '';
+
+/**
+ * Run the analyzer over a model and one of its runs, and say whether the run
+ * found an instance; with `keep`, the analyzer's text of the instance it found.
+ */
+function solveOne(model: string, command: string, java: string, jar: string, keep = false): Promise<Solved | { error: string }> {
   return new Promise(resolve => {
     const dir = mkdtempSync(join(tmpdir(), 'canon-alloy-'));
-    const done = (result: { found: Map<string, boolean> } | { error: string }): void => {
+    const done = (result: Solved | { error: string }): void => {
       rmSync(dir, { recursive: true, force: true });
       resolve(result);
     };
@@ -178,7 +216,13 @@ function solveOne(model: string, command: string, java: string, jar: string): Pr
     child.on('error', error => done({ error: error.message }));
     child.on('close', () => {
       try {
-        done({ found: solved(readFileSync(join(dir, 'out', 'receipt.json'), 'utf8')) });
+        const found = solved(readFileSync(join(dir, 'out', 'receipt.json'), 'utf8'));
+        const traces = new Map<string, string>();
+        const name = runName(command);
+        // The text of an instance holds what the receipt leaves out: the signatures declared with `in`, and the step the trace loops back to.
+        const trace = join(dir, 'out', `${name}-solution-0.txt`);
+        if (keep && found.get(name) && existsSync(trace)) traces.set(name, readFileSync(trace, 'utf8'));
+        done({ found, traces });
       } catch {
         done({ error: log.trim() || 'the Alloy analyzer wrote no receipt' });
       }
@@ -200,17 +244,23 @@ async function pool<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]>
   return results;
 }
 
-/** Ask the analyzer about the runs of several programs at once, each run in a process of its own; whether each run of each program found an instance, or the first error. */
-async function solveAll(programs: Program[], java: string, jar: string): Promise<Map<string, boolean>[] | { error: string }> {
-  const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, java, jar).then(result => ({ i, result }))));
+/**
+ * Ask the analyzer about the runs of several programs at once, each run in a
+ * process of its own; whether each run of each program found an instance, or
+ * the first error. The runs named in `keep` keep the text of their instance.
+ */
+async function solveAll(programs: Program[], java: string, jar: string, keep: Set<string> = new Set()): Promise<{ found: Map<string, boolean>[]; traces: Map<string, string>[] } | { error: string }> {
+  const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, java, jar, keep.has(runName(command))).then(result => ({ i, result }))));
   // As many processes as there are processors, unless `CANON_ALLOY_JOBS` says fewer: a test runner that asks about several documents at once should not start them all.
   const answers = await pool(tasks, Number(process.env.CANON_ALLOY_JOBS) || availableParallelism());
   const found: Map<string, boolean>[] = programs.map(() => new Map());
+  const traces: Map<string, string>[] = programs.map(() => new Map());
   for (const { i, result } of answers) {
     if ('error' in result) return { error: result.error };
     for (const [name, yes] of result.found) (found[i] as Map<string, boolean>).set(name, yes);
+    for (const [name, text] of result.traces) (traces[i] as Map<string, string>).set(name, text);
   }
-  return found;
+  return { found, traces };
 }
 
 /**
@@ -227,16 +277,25 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
   const context = options.context ?? [];
   const bounds = boundsOf([...alloyBlocks(src), ...context.flatMap(alloyBlocks)]);
-  const parts = groups(src, context).map(group => ({ group, scope: boundsFor(bounds, group) }));
-  const asked = parts.map(({ group, scope }) => build(group, scope, 'check'));
-  const first = await solveAll(asked, java, jar);
+  const document = blocksOf(src, context);
+  const parts = groupsOf(document).map(group => ({ group, scope: boundsFor(bounds, group) }));
+  const asked = parts.map(({ group, scope }) => build(group, scope, 'check', undefined, document.named));
+  // Only the document's own scenarios are shown: one of a document it extends is shown where that document is checked.
+  const ownNames = new Set([...document.named].filter(([block]) => document.own.has(block)).map(([, name]) => name));
+  const shown = new Set((options.show ?? []).filter(name => ownNames.has(name)));
+  const first = await solveAll(asked, java, jar, new Set([...shown].map(name => `${name}_with_all`)));
   if ('error' in first) return { ok: false, error: first.error };
+  const worlds: World[] = asked.flatMap((a, index) =>
+    a.scenarios
+      .filter(({ name }) => shown.has(name) && first.found[index]?.get(`${name}_with_all`))
+      .map(({ name }) => ({ scenario: name, trace: first.traces[index]?.get(`${name}_with_all`), model: a.model }))
+  );
   const units = asked.flatMap(a => a.units);
   const scenarios = asked.reduce((sum, a) => sum + a.scenarios.length, 0);
   const failures: ScenarioFailure[] = [];
   const blamed: { index: number; cannot: { name: string; unit: string }[] }[] = [];
   asked.forEach((a, index) => {
-    const found = first[index] as Map<string, boolean>;
+    const found = first.found[index] as Map<string, boolean>;
     if (!found.get('consistent')) {
       failures.push({ scenario: 'consistent', conflict: a.units });
       return;
@@ -245,17 +304,19 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
     if (cannot.length > 0) blamed.push({ index, cannot });
   });
   const second = await solveAll(
-    blamed.map(({ index, cannot }) => build((parts[index] as (typeof parts)[number]).group, (parts[index] as (typeof parts)[number]).scope, 'blame', { scenarios: cannot.map(c => c.name), leave: options.leave })),
+    blamed.map(({ index, cannot }) =>
+      build((parts[index] as (typeof parts)[number]).group, (parts[index] as (typeof parts)[number]).scope, 'blame', { scenarios: cannot.map(c => c.name), leave: options.leave }, document.named)
+    ),
     java,
     jar
   );
   if ('error' in second) return { ok: false, error: second.error };
   blamed.forEach(({ index, cannot }, k) => {
-    const found = second[k] as Map<string, boolean>;
+    const found = second.found[k] as Map<string, boolean>;
     // A unit whose removal lets the scenario happen is in every conflict: the repair has to touch one of them.
     for (const { name, unit } of cannot) {
       failures.push({ scenario: name, unit, conflict: (asked[index] as Program).units.filter(other => found.get(`${name}_without_${predicateName(other)}`)) });
     }
   });
-  return failures.length === 0 ? { ok: true, units, scenarios } : { ok: false, units, scenarios, failures };
+  return failures.length === 0 ? { ok: true, units, scenarios, worlds } : { ok: false, units, scenarios, failures, worlds };
 }

@@ -67,12 +67,12 @@ ${claim}
 \`\`\`
 ${own}`;
 
-/** A project whose documents are the child only; `generate` has run over it, and then `command`. */
-function project(files: Record<string, string>, command: string[]) {
+/** A project whose documents are the child only, unless `documents` names others; `generate` has run over it, and then `command`. */
+function project(files: Record<string, string>, command: string[], documents = ['alloy/CANON.md']) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-extends-logic-'));
   DIRS.push(dir);
   mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
-  writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['alloy/CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents, suites: 'test/canon', sources: ['test'], command: 'canon' } }));
   install(dir);
   for (const [name, text] of Object.entries(files)) {
     mkdirSync(dirname(join(dir, name)), { recursive: true });
@@ -125,6 +125,17 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic of a document that exte
     expect(out).toContain('axiom-a-child-value');
     expect(out).toContain('axiom-every-node-is-done');
     expect(code).toBe(1);
+  });
+
+  /**
+   * @canon spec-show-prints-a-world-once-under-the-document-that-holds-its-scenario
+   */
+  it('prints the world of a scenario of the extended document once, under that document', { timeout: 120_000 }, () => {
+    const parent = `---\nplugins: ["@bigmistqke/canon-plugin-alloy"]\n---\n${PARENT}\n\`\`\`alloy bounds\nfor 3\n\`\`\`\n\n\`\`\`alloy scenario\nsome n: Node | n in Done\n\`\`\`\n`;
+    const { out, code } = project({ 'alloy/CANON.md': child('all n: Node | n in Done'), 'canon/CANON.md': parent }, ['logic', '--show', 'scenario-1-axiom-every-node-is-done'], ['canon/CANON.md', 'alloy/CANON.md']);
+    expect(out.split('the world of scenario-1-axiom-every-node-is-done').length - 1).toBe(1);
+    expect(out.indexOf('the world of')).toBeLessThan(out.indexOf('alloy/CANON.md:'));
+    expect(code).toBe(0);
   });
 
   /**

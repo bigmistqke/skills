@@ -150,6 +150,8 @@ const LINK_MARK = /\u0002([^\u0002]*)\u0002([^\u0002]*)\u0002/g;
 /** A word in brackets, with the href it links to when it names one. */
 const BRACKETED = /\[([^\]]+)\](?:\(([^)\s]*#[^)\s]+)\))?/g;
 
+/** Words of a reading or a noun without the brackets and the links of their terms: `[checker](#term-checker)` is "checker". */
+export const unbracketed = (words: string): string => words.replace(BRACKETED, (_, word: string) => word);
 
 function balanced(line: string): void {
   if (/[[\]]/.test(line.replace(BRACKETED, ''))) throw new Error(`a bracket in the line of readings has no partner: ${line}`);
@@ -384,7 +386,7 @@ class Verbalizer {
     const typeName = nameOf(type, 'the type of a quantified variable');
     const written = this.readings.nouns.get(typeName);
     if (written === undefined) throw new Error(`no noun for "${typeName}"`);
-    const noun = written.replace(BRACKETED, (_, word: string) => word).trim();
+    const noun = unbracketed(written).trim();
     const base = noun.replace(/\s+/g, '_');
     let n = 1;
     while (this.used.has(`${base}_${n}`)) n++;
@@ -725,7 +727,7 @@ class Verbalizer {
     }
 
     const noun = mark(written, this.readings.nounTargets.get(typeName));
-    const nounText = written.replace(BRACKETED, (_, word: string) => word).trim();
+    const nounText = unbracketed(written).trim();
     const article = this.written(type) ?? articleFor(nounText);
     let phrase: string;
     if (q === 'no') phrase = `no ${noun}${suffix}`;
@@ -897,7 +899,7 @@ function coordinate(words: string[], word: 'and' | 'or'): string {
 }
 
 /** "a failing cleanup c": the article before the first word of the noun, by the sound of the word: "a unit", "an owner". */
-function articleFor(phrase: string): string {
+export function articleFor(phrase: string): string {
   if (/^(?:uni|use|usu|uti|eu|one|once)/i.test(phrase)) return 'a ';
   return /^[aeiou]/i.test(phrase) ? 'an ' : 'a ';
 }
