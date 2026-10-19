@@ -168,7 +168,7 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
  * link in it to an anchor of its own document, `(#term-checker)`, goes through the path.
  */
 export function parseReadings(text: string, target?: string, base?: string): Readings {
-  const readings: Readings = { nouns: new Map(), nounTargets: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set(), holders: new Map(), functions: new Map(), macros: new Map() };
+  const readings: Readings = { nouns: new Map([['Int', 'integer'], ['seq/Int', 'sequence index']]), nounTargets: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set(), holders: new Map(), functions: new Map(), macros: new Map() };
   for (const raw of text.split('\n')) {
     const line = (base === undefined ? raw : raw.replace(/\]\(#([^)\s]+)\)/g, `](${base}#$1)`)).trim();
     if (line === '' || line.startsWith('#')) continue;
@@ -244,7 +244,7 @@ const holeOf = (level: number): string => String.fromCharCode(3 + level);
 const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
 
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
-const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including)\b/;
+const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including|in integers that wrap)\b/;
 
 /** Whether a clause begins with a time phrase, which covers what follows it in the sentence. */
 const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_MARK, (_, __, word: string) => word).replaceAll(VARIABLE, ''));
@@ -266,7 +266,17 @@ const NEVER = 'this formula says nothing: it never holds, so it claims what cann
 /** A formula that never holds, as `x in none` is: the negation of the empty block. */
 const FALSE: Node = { t: 'not', f: { t: 'true' } };
 /** The names Alloy gives its own sets, which are never variables. */
-const BUILTIN = new Set(['none', 'univ', 'iden', 'Int', 'String', 'steps', 'seq/Int']);
+const BUILTIN = new Set(['none', 'univ', 'iden', 'Int', 'String', 'steps', 'seq/Int', 'next', 'min', 'max']);
+
+/** What a comparison of integers says, by its operator. */
+const COMPARED: Record<string, string> = {
+  '<': 'is less than', '>': 'is greater than', '=<': 'is at most', '>=': 'is at least', '=': 'is equal to',
+  '!<': 'is not less than', '!>': 'is not greater than', '!=<': 'is not at most', '!>=': 'is not at least', '!=': 'is not equal to'
+};
+/** The negation of each operator of a comparison of integers. */
+const NEGATED: Record<string, string> = { '<': '!<', '>': '!>', '=<': '!=<', '>=': '!>=', '=': '!=', '!<': '<', '!>': '>', '!=<': '=<', '!>=': '>=', '!=': '=' };
+/** The words of a comparison of integers, which say that they wrap. */
+const WRAP = "in integers that wrap around at the analyzer's bit width, ";
 const MULTIPLIED = 'says how many each side relates, and no reading says that';
 
 /** What a formula becomes before it is laid out: a clause, a list that ends in a colon, or a rule. */
@@ -742,6 +752,7 @@ class Verbalizer {
     switch (e.t) {
       case 'name': {
         if (e.name === 'iden') return ['univ', 'univ'];
+        if (e.name === 'next') return ['Int', 'Int'];
         if (e.name === 'univ') return ['univ'];
         if (this.isVariable(e.name)) return [''];
         const field = this.readings.fields.get(e.name);
@@ -889,7 +900,8 @@ class Verbalizer {
 
   /** A refusal for an expression whose types the vocabulary does not tell, which names the construct that has no words, if it holds one. */
   private untyped(e: Node): Error {
-    const words = new Set(['name', 'prime', 'transpose', 'join', 'union', 'inter', 'diff', 'arrow', 'call', 'box']);
+    const words = new Set(['name', 'prime', 'transpose', 'join', 'union', 'inter', 'diff', 'arrow', 'call', 'box', 'closure', 'rclosure', 'override', 'domain', 'range', 'comprehension']);
+    if (this.integer(e)) return new Error(`"${shown(e)}" is a number outside an integer comparison`);
     const odd = (n: Node): Node | undefined => {
       if (!words.has(n.t)) return n;
       for (const child of Object.values(n)) {
@@ -909,6 +921,160 @@ class Verbalizer {
       if (c?.length === 1 && c[0] !== '') return c[0] as string;
     }
     throw this.untyped(sides[0] as Node);
+  }
+
+  /** Whether an expression is a number: a literal, a count, a sum, a cast, an operation of integers, `min` or `max`. */
+  private integer(e: Node): boolean {
+    const operation = (name: string): boolean => ['plus', 'minus', 'mul', 'div', 'rem'].includes(name) && !this.readings.definitions.has(name) && !this.readings.functions.has(name);
+    switch (e.t) {
+      case 'number':
+      case 'card':
+      case 'cast':
+      case 'arith':
+        return true;
+      case 'quant':
+        return e.q === 'sum';
+      case 'name':
+        return e.name === 'min' || e.name === 'max';
+      case 'call':
+        return operation(e.name);
+      case 'box':
+        return e.e.t === 'join' && e.e.r.t === 'name' && operation(e.e.r.name);
+      default:
+        return false;
+    }
+  }
+
+  /** Whether a comparison compares integers: by its operator, or by `=` or `!=` with a number on a side. */
+  private comparesIntegers(node: Extract<Node, { t: 'cmp' }>): boolean {
+    if (node.op in COMPARED && node.op !== '=' && node.op !== '!=') return true;
+    return (node.op === '=' || node.op === '!=') && (this.integer(node.l) || this.integer(node.r));
+  }
+
+  /**
+   * A comparison of integers, said in integers that wrap: "in integers that wrap
+   * around at the analyzer's bit width, number_1 is greater than 2, where
+   * number_1 is the number of values of owner_1 such that c is on owner_1".
+   */
+  private integers(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Doc {
+    const { l, r } = node;
+    if (node.op === '=' || node.op === '!=') {
+      const [number, other] = this.integer(l) ? [l, r] : [r, l];
+      if (!this.integer(other) && !this.isValue(other)) throw new Error(`"${node.op}" between the set "${shown(other)}" and the number "${shown(number)}" compares sets, which the words would have to say with the wrap of the number`);
+    }
+    const defs: string[] = [];
+    const [a, b] = [this.number(l, defs).words, this.number(r, defs).words];
+    const op = negative ? (NEGATED[node.op] as string) : node.op;
+    const main = `${WRAP}${a} ${COMPARED[op]} ${b}`;
+    if (defs.length === 0) return main;
+    if (defs.length === 1) return `${main}, where ${defs[0]}`;
+    return { kind: 'list', intro: `${main}, where:`, items: defs };
+  }
+
+  /** A new name for a number that the words define after "where": number_1, number_2. */
+  private numberName(): string {
+    let n = 1;
+    while (this.used.has(`number_${n}`)) n++;
+    this.used.add(`number_${n}`);
+    return `number_${n}`;
+  }
+
+  /**
+   * The words of a number. A count, a sum or a division is named, and its
+   * words go to `defs`, which a comparison says after "where". Inside a sum,
+   * `defs` is undefined: a part there names the variable of the sum, so it is
+   * said in place, and only as the last words of the sum.
+   */
+  private number(given: Node, defs: string[] | undefined): { words: string; open: boolean } {
+    const e = this.shape(given);
+    const named = (words: string, open: boolean): { words: string; open: boolean } => {
+      if (defs === undefined) return { words, open };
+      const name = this.numberName();
+      defs.push(`${name} is ${words}`);
+      return { words: name, open: false };
+    };
+    const closed = (part: { words: string; open: boolean }): string => {
+      if (part.open) throw new Error(`"${shown(given)}" holds a count or a sum before other words, which would read two ways`);
+      return part.words;
+    };
+    switch (e.t) {
+      case 'number':
+        return { words: String(e.value), open: false };
+      case 'name':
+        if (e.name === 'min' || e.name === 'max') return { words: e.name === 'min' ? 'the least integer' : 'the greatest integer', open: false };
+        if (this.isValue(e)) return { words: `${VARIABLE}${this.variable(e, 'a number')}${VARIABLE}`, open: false };
+        return named(this.summed(e), true);
+      case 'card':
+        return named(this.countOf(e.e), true);
+      case 'cast':
+        if (this.isValue(e.e)) return { words: `${VARIABLE}${this.variable(e.e, 'a number')}${VARIABLE}`, open: false };
+        return named(this.summed(e.e), true);
+      case 'quant': {
+        if (e.q !== 'sum') break;
+        const scope = new Map(this.bound);
+        const vars = e.decls.flatMap(({ names, type }) =>
+          names.map(name => {
+            const variable = this.fresh(this.plainType(type));
+            scope.set(name, variable.name);
+            return variable;
+          })
+        );
+        const body = new Verbalizer(this.readings, scope, this.chain, this.used, this.level).number(e.body, undefined);
+        return named(`the sum, over every ${vars.map(v => v.shown).join(' and every ')}, of ${body.words}`, true);
+      }
+      case 'arith':
+      case 'call':
+      case 'box': {
+        const [op, args] =
+          e.t === 'arith' ? [e.op, [e.l, e.r]] : e.t === 'call' ? [e.name, e.args] : [nameOf((e.e as Extract<Node, { t: 'join' }>).r, ''), [(e.e as Extract<Node, { t: 'join' }>).l, ...e.args]];
+        if (op === '<<' || op === '>>' || op === '>>>') throw new Error(`"${op}" shifts by the lowest bits of the amount, which the words do not say`);
+        if (args.length !== 2) throw new Error(`"${op}" takes two numbers, not ${args.length}`);
+        const [x, y] = [closed(this.number(args[0] as Node, defs)), this.number(args[1] as Node, defs)];
+        const words: Record<string, string> = { add: 'plus', plus: 'plus', sub: 'minus', minus: 'minus', mul: 'times' };
+        if (words[op] !== undefined) return { words: `${x} ${words[op]} ${y.words}`, open: y.open };
+        if (defs === undefined) throw new Error(`"${shown(given)}" divides inside a sum, which the words would have to say in the middle of it`);
+        const z = closed(y);
+        if (op === 'div' || op === 'divide') return named(`${x} divided by ${z}, rounded toward zero; when ${z} is 0, it is -1, 0 or 1 as ${x} is positive, zero or negative`, false);
+        if (op === 'rem') return named(`the remainder of ${x} divided by ${z}, with the sign of ${x}; when ${z} is 0, it is ${x}`, false);
+        throw new Error(`"${op}" has no words`);
+      }
+      default:
+        break;
+    }
+    // A set of integers where a number belongs: the sum of its members.
+    return named(this.summed(e), true);
+  }
+
+  /** The type of a declaration as one name, the way `plain()` reads it. */
+  private plainType(type: Node): Node {
+    const node = this.plain({ t: 'quant', q: 'some', decls: [{ names: ['\u0000type'], type }], body: { t: 'true' } });
+    return (node.decls[0] as Decl).type;
+  }
+
+  /** `#e`: "the number of values of owner_1 such that c is on owner_1". */
+  private countOf(e: Node): string {
+    const types = this.columns(e);
+    if (types === undefined || types.includes('')) throw this.untyped(e);
+    const vars = types.map(type => this.fresh({ t: 'name', name: type }));
+    const ms = vars.map((_, i): Node => ({ t: 'name', name: `\u0000count${i}` }));
+    const condition = this.within(vars, ms, e);
+    return vars.length === 1 ? `the number of values of ${(vars[0] as { shown: string }).shown} such that ${condition}` : `the number of combinations of ${vars.map(v => v.shown).join(' and ')} such that ${condition}`;
+  }
+
+  /** A set of integers where a number belongs: "the sum of the values of integer_1 such that c counts integer_1". */
+  private summed(e: Node): string {
+    const types = this.columns(e);
+    if (types?.length !== 1 || this.kind(types[0] as string) !== 'Int') throw new Error(`"${shown(e)}" is not a number or a set of integers`);
+    const value = this.fresh({ t: 'name', name: 'Int' });
+    return `the sum of the values of ${value.shown} such that ${this.within([value], [{ t: 'name', name: '\u0000count0' }], e)}`;
+  }
+
+  /** That members, named by `vars`, are in an expression, as one clause or a run of them. */
+  private within(vars: { name: string }[], ms: Node[], e: Node): string {
+    const scope = new Map([...this.bound, ...ms.map((m, i): [string, string] => [nameOf(m, ''), (vars[i] as { name: string }).name])]);
+    const said = new Verbalizer(this.readings, scope, this.chain, this.used, this.level).doc(this.inside(ms, e));
+    if (typeof said !== 'string') throw new Error(`what "${shown(e)}" holds is more than a sentence, so its count has no words`);
+    return said;
   }
 
   /** `e in s` for an expression `e` of a variable, member by member: for every member of `e`, it is in `s`. */
@@ -953,7 +1119,8 @@ class Verbalizer {
    */
   private lowered(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Node | undefined {
     const { op } = node;
-    if (op !== 'in' && op !== 'not in' && op !== '=' && op !== '!=') throw new Error(`"${op}" compares integers, which the words do not cover`);
+    if (this.comparesIntegers(node)) return undefined;
+    if ((op === 'in' || op === 'not in') && this.integer(node.l)) throw this.untyped(node.l);
     const [l, r] = [this.shape(node.l), this.shape(node.r)];
     const flip = negative !== (op === 'not in' || op === '!=');
     const not = (f: Node): Node => (flip ? { t: 'not', f } : f);
@@ -985,6 +1152,7 @@ class Verbalizer {
 
   /** A comparison, as the atoms it stands for: a union on the left or a difference on the right is spelled out. */
   private comparison(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Doc {
+    if (this.comparesIntegers(node)) return this.integers(node, negative);
     const formula = this.lowered(node, negative);
     if (formula !== undefined) return this.doc(formula);
     const { op } = node;
@@ -1013,6 +1181,7 @@ class Verbalizer {
       }
       if (this.signature(r) && l.t === 'name') return this.isA(l, r as Extract<Node, { t: 'name' }>, flip);
       if ((r.t === 'closure' || r.t === 'rclosure') && l.t === 'arrow') return this.reach(l, r, flip);
+      if (r.t === 'name' && r.name === 'next' && l.t === 'arrow') return `${VARIABLE}${this.variable(l.r, 'a side of "->"')}${VARIABLE} is ${flip ? 'not ' : ''}the integer after ${VARIABLE}${this.variable(l.l, 'a side of "->"')}${VARIABLE}`;
       // y in f[x]: the reading of the function, with its arguments and then the member.
       if (r.t === 'call' && this.readFunction(r)) return this.say(r.name, [...r.args.map(a => this.variable(a, 'an argument')), this.variable(l, 'the left of "in"')], flip);
       const slots = l.t === 'arrow' ? [this.variable(l.l, 'a side of "->"'), this.variable(l.r, 'a side of "->"')] : [this.variable(l, 'the left of "in"')];
@@ -1175,6 +1344,7 @@ class Verbalizer {
    */
   private counted(node: Extract<Node, { t: 'mult' }>, negative: boolean): Node | undefined {
     const given = this.shape(node.e);
+    if (this.integer(given)) throw this.untyped(given);
     if (given.t === 'name' && given.name === 'none') {
       const holds = (node.q === 'no' || node.q === 'lone') !== negative;
       return holds ? { t: 'true' } : FALSE;
@@ -1354,6 +1524,7 @@ class Verbalizer {
     const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff' && !values(n) && !reaches(n);
     // A comparison said through members is a clause only where its formula is one: a noun phrase, and never a list.
     const lowered = (n: Extract<Node, { t: 'cmp' }>, negative: boolean): string | undefined => {
+      if (this.comparesIntegers(n)) return undefined;
       const f = this.lowered(n, negative);
       return f === undefined ? (plainCmp(n) ? text(this.comparison(n, negative)) : undefined) : this.clause(f);
     };

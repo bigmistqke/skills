@@ -1438,6 +1438,140 @@ describe('relations and atoms', () => {
   });
 });
 
+describe('integers', () => {
+  const INTS = withDefinitions(
+    parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\non: {1} is on {2} | {1} is not on {2}\nn: {1} counts {2} | {1} does not count {2}\nRan: {1} has run | {1} has not run'),
+    'sig Owner {} sig Cleanup { on: set Owner, n: set Int } var sig Ran in Cleanup {}'
+  );
+  const WRAP = "In integers that wrap around at the analyzer's bit width, ";
+  const said = (formula: string): string => verbalize(formula, INTS);
+
+  /**
+   * @canon spec-two-numbers-are-compared-with-the-words-of-their-operator
+   */
+  it('says an integer comparison in integers that wrap, with the words of its operator', () => {
+    expect(said('x < y')).toBe(`${WRAP}x is less than y.`);
+    expect(said('x > y')).toBe(`${WRAP}x is greater than y.`);
+    expect(said('x =< y')).toBe(`${WRAP}x is at most y.`);
+    expect(said('x >= y')).toBe(`${WRAP}x is at least y.`);
+    expect(said('x !< y')).toBe(`${WRAP}x is not less than y.`);
+    expect(said('not x < y')).toBe(`${WRAP}x is not less than y.`);
+    expect(said('x !>= y')).toBe(`${WRAP}x is not at least y.`);
+    expect(said('x = 2')).toBe(`${WRAP}x is equal to 2.`);
+    expect(said('x != 2')).toBe(`${WRAP}x is not equal to 2.`);
+    expect(said('x < y and c in Ran')).toBe("All of these hold:\n  - in integers that wrap around at the analyzer's bit width, x is less than y\n  - c has run");
+  });
+
+  /**
+   * @canon spec-a-count-is-said-as-the-number-of-values
+   */
+  it('says a count as the number of values', () => {
+    expect(said('#c.on > 2')).toBe(`${WRAP}number_1 is greater than 2, where number_1 is the number of values of owner_1 such that c is on owner_1.`);
+    expect(said('#on > 2')).toBe(`${WRAP}number_1 is greater than 2, where number_1 is the number of combinations of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.`);
+  });
+
+  /**
+   * @canon spec-a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it
+   */
+  it('names each part that is more than a number, and says it after where', () => {
+    expect(said('#c.on != #d.on')).toBe(
+      [`${WRAP}number_1 is not equal to number_2, where:`, '  - number_1 is the number of values of owner_1 such that c is on owner_1', '  - number_2 is the number of values of owner_2 such that d is on owner_2'].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-a-sum-over-a-variable-is-said-as-the-sum-over-every-value
+   */
+  it('says a sum over a variable as the sum over every value', () => {
+    expect(said('(sum x: Cleanup | #x.on) > 3')).toBe(
+      `${WRAP}number_1 is greater than 3, where number_1 is the sum, over every cleanup_1, of the number of values of owner_1 such that cleanup_1 is on owner_1.`
+    );
+  });
+
+  /**
+   * @canon spec-a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members
+   */
+  it('says a set of integers where a number belongs as the sum of its members', () => {
+    for (const formula of ['c.n < 3', 'int[c.n] < 3', 'int c.n < 3', 'sum c.n < 3', 'c.n.sum < 3']) {
+      expect(said(formula)).toBe(`${WRAP}number_1 is less than 3, where number_1 is the sum of the values of integer_1 such that c counts integer_1.`);
+    }
+  });
+
+  /**
+   * @canon spec-plus-minus-and-mul-are-said-as-plus-minus-and-times
+   */
+  it('says plus, minus and mul as plus, minus and times', () => {
+    expect(said('plus[x, 1] = y')).toBe(`${WRAP}x plus 1 is equal to y.`);
+    expect(said('x.minus[1] < 2')).toBe(`${WRAP}x minus 1 is less than 2.`);
+    expect(said('mul[x, y] > 0')).toBe(`${WRAP}x times y is greater than 0.`);
+    expect(said('plus[#c.on, 1] > 2')).toBe(`${WRAP}number_1 plus 1 is greater than 2, where number_1 is the number of values of owner_1 such that c is on owner_1.`);
+  });
+
+  /**
+   * @canon spec-a-division-is-said-with-its-rounding-and-its-rule-for-zero
+   */
+  it('says a division with its rounding and its rule for zero', () => {
+    expect(said('div[x, y] = 1')).toBe(`${WRAP}number_1 is equal to 1, where number_1 is x divided by y, rounded toward zero; when y is 0, it is -1, 0 or 1 as x is positive, zero or negative.`);
+    expect(said('rem[x, y] = 1')).toBe(`${WRAP}number_1 is equal to 1, where number_1 is the remainder of x divided by y, with the sign of x; when y is 0, it is x.`);
+  });
+
+  /**
+   * @canon spec-a-number-is-said-as-itself
+   */
+  it('says a number as itself, in decimal', () => {
+    expect(said('x = 0x1F')).toBe(`${WRAP}x is equal to 31.`);
+    expect(said('x = 0b101')).toBe(`${WRAP}x is equal to 5.`);
+    expect(said('x > -3')).toBe(`${WRAP}x is greater than -3.`);
+  });
+
+  /**
+   * @canon spec-min-and-max-are-said-as-the-least-and-the-greatest-integer
+   */
+  it('says min and max as the least and the greatest integer', () => {
+    expect(said('x =< max')).toBe(`${WRAP}x is at most the greatest integer.`);
+    expect(said('min < x')).toBe(`${WRAP}the least integer is less than x.`);
+  });
+
+  /**
+   * @canon spec-a-shift-is-refused
+   */
+  it('refuses a shift', () => {
+    for (const shift of ['<<', '>>', '>>>']) expect(() => said(`(x ${shift} 1) > 0`)).toThrow('shifts by the lowest bits of the amount');
+  });
+
+  /**
+   * @canon spec-a-set-compared-with-a-number-is-refused
+   */
+  it('refuses a set compared with a number', () => {
+    expect(() => said('c.n = 2')).toThrow('"=" between the set "c.n" and the number "2" compares sets');
+  });
+
+  /**
+   * @canon spec-a-number-outside-an-integer-comparison-is-refused
+   */
+  it('refuses a number outside an integer comparison', () => {
+    expect(() => said('2 in c.n')).toThrow('"2" is a number outside an integer comparison');
+    expect(() => said('some #c.on')).toThrow('is a number outside an integer comparison');
+  });
+
+  /**
+   * @canon spec-the-next-integer-is-said-as-the-integer-after
+   */
+  it('says the next integer as the integer after', () => {
+    expect(said('x->y in next')).toBe('y is the integer after x.');
+    expect(said('y in x.next')).toBe('y is the integer after x.');
+    expect(said('x->y not in next')).toBe('y is not the integer after x.');
+  });
+
+  /**
+   * @canon spec-int-and-seq-int-have-nouns-of-their-own
+   */
+  it('says Int and seq/Int with nouns of their own', () => {
+    expect(said('some i: Int | i in c.n')).toBe('c counts an integer.');
+    expect(said('all i: seq/Int | i in c.n')).toBe('For every sequence_index_1:\n  c counts sequence_index_1.');
+  });
+});
+
 describe('connectives, quantifiers and let', () => {
   /**
    * @canon spec-an-equivalence-of-two-clauses-is-said-with-exactly-when
@@ -1626,6 +1760,8 @@ describe('connectives, quantifiers and let', () => {
     expect(() => say('all c: Cleanup, | c in Ran')).toThrow('expected a name, found "|"');
     expect(() => say('all , c: Cleanup | c in Ran')).toThrow();
     expect(() => say('all var c: Cleanup | c in Ran')).toThrow('cannot read "all" here');
+    expect(() => say('4 / 2 = 2')).toThrow();
+    expect(() => say('5 % 2 = 1')).toThrow();
   });
 });
 
@@ -1759,7 +1895,7 @@ describe('what it refuses', () => {
    * @canon spec-a-construct-the-words-do-not-cover-is-refused
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
-    for (const op of ['<', '>', '=<', '>=', '!<', 'not >']) expect(() => say(`c ${op} d`)).toThrow('compares integers, which the words do not cover');
+    expect(() => say('some ^(on + ~on)')).toThrow('the vocabulary does not tell what kind of thing');
   });
 
   /**

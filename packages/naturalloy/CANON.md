@@ -23,6 +23,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or list_1 has two clauses or fewer - list_1 fits a line when it is put in a sentence - list_1 has no clause before its last that begins with a time phrase
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
 - [`@fact every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment) — In Alloy 6, a trace is infinite: every moment has exactly one next moment.
+- [`@fact the-analyzer-wraps-integers-at-their-bit-width`](#fact-the-analyzer-wraps-integers-at-their-bit-width) — With its default options, the analyzer keeps every integer in a fixed bit width. A number that leaves that range wraps around into it.
+- [`@fact the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero`](#fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero) — The analyzer rounds `div[a, b]` toward zero, and gives -1, 0 or 1 for `div[a, 0]` as `a` is positive, zero or negative. `rem[a, b]` has the sign of `a`, and `rem[a, 0]` is `a`.
+- [`@fact the-analyzer-shifts-by-the-lowest-bits-of-the-amount`](#fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount) — The analyzer shifts by the number in the lowest bits of the amount: as many bits as it takes to count to the bit width.
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
@@ -151,6 +154,21 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-name-of-another-module-is-said-by-its-own-reading`](#spec-a-name-of-another-module-is-said-by-its-own-reading) — The verbalizer says a name of another module, such as `m/Ran`, by the reading of that whole name.
   - [`@spec a-comment-in-a-formula-is-left-out`](#spec-a-comment-in-a-formula-is-left-out) — The verbalizer leaves out a comment in a formula: `--`, `//`, `/* … */` and `/** … */`.
   - [`@spec a-typographic-prime-is-said-as-a-prime`](#spec-a-typographic-prime-is-said-as-a-prime) — The verbalizer says `‘` and `’` as it says `'`.
+  - [`@spec an-integer-comparison-is-said-in-integers-that-wrap`](#spec-an-integer-comparison-is-said-in-integers-that-wrap) — The verbalizer says `<`, `>`, `=<`, `>=` and their negations, and `=` and `!=` between two numbers, after "in integers that wrap around at the analyzer's bit width".
+    - [`@spec two-numbers-are-compared-with-the-words-of-their-operator`](#spec-two-numbers-are-compared-with-the-words-of-their-operator) — The verbalizer says `<` as "is less than", `>` as "is greater than", `=<` as "is at most", `>=` as "is at least" and `=` as "is equal to". It says a negation with "not".
+    - [`@spec a-count-is-said-as-the-number-of-values`](#spec-a-count-is-said-as-the-number-of-values) — The verbalizer says `#e` as "the number of values of" a member of the type of `e`, "such that" the member is in `e`.
+    - [`@spec a-sum-over-a-variable-is-said-as-the-sum-over-every-value`](#spec-a-sum-over-a-variable-is-said-as-the-sum-over-every-value) — The verbalizer says `sum x: T | e` as "the sum, over every" member of `T`, "of" `e`.
+    - [`@spec a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members`](#spec-a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members) — The verbalizer says a set of integers where a number belongs, as in `c.n < 3` or `int[c.n]`, as `"the sum of the values of"` an integer in it.
+    - [`@spec plus-minus-and-mul-are-said-as-plus-minus-and-times`](#spec-plus-minus-and-mul-are-said-as-plus-minus-and-times) — The verbalizer says `plus[a, b]`, `minus[a, b]` and `mul[a, b]` as `a` "plus", "minus" or "times" `b`.
+    - [`@spec a-division-is-said-with-its-rounding-and-its-rule-for-zero`](#spec-a-division-is-said-with-its-rounding-and-its-rule-for-zero) — The verbalizer says `div[a, b]` as `a` "divided by" `b`, rounded toward zero, with its value when `b` is zero. It says `rem[a, b]` as `"the remainder of"` `a` divided by `b`, with its sign and its value when `b` is zero.
+    - [`@spec a-number-is-said-as-itself`](#spec-a-number-is-said-as-itself) — The verbalizer says a number in decimal, whether the formula writes it in decimal, in hexadecimal or in binary.
+    - [`@spec min-and-max-are-said-as-the-least-and-the-greatest-integer`](#spec-min-and-max-are-said-as-the-least-and-the-greatest-integer) — The verbalizer says `min` and `max` as "the least integer" and "the greatest integer".
+    - [`@spec a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it`](#spec-a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it) — The verbalizer names a count, a sum or a division in an integer comparison as `number_1`, `number_2` and so on, and says after "where" what each is.
+    - [`@spec a-shift-is-refused`](#spec-a-shift-is-refused) — The verbalizer refuses `<<`, `>>` and `>>>`, and says that the analyzer shifts by the lowest bits of the amount.
+    - [`@spec a-set-compared-with-a-number-is-refused`](#spec-a-set-compared-with-a-number-is-refused) — The verbalizer refuses `=` and `!=` between a set and a number, such as `c.n = 2`, and names them.
+    - [`@spec a-number-outside-an-integer-comparison-is-refused`](#spec-a-number-outside-an-integer-comparison-is-refused) — The verbalizer refuses a number or a count outside an integer comparison, and names it.
+  - [`@spec the-next-integer-is-said-as-the-integer-after`](#spec-the-next-integer-is-said-as-the-integer-after) — The verbalizer says `x->y in next` as `y` "is the integer after" `x`.
+  - [`@spec int-and-seq-int-have-nouns-of-their-own`](#spec-int-and-seq-int-have-nouns-of-their-own) — The verbalizer says `Int` with the noun "integer", and `seq/Int` with the noun "sequence index", unless the readings give another.
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The verbalizer refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The verbalizer refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The verbalizer refuses a formula that quantifies a type with no noun, and names the type.
@@ -613,6 +631,30 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 > In Alloy 6, a trace is infinite: every moment has exactly one next moment.
 
 The analyzer checks temporal formulas over traces that loop back, so `after f` is never true for want of a next moment. The [Alloy 6 documentation](https://alloytools.org/alloy6.html) says so.
+
+## @fact the-analyzer-wraps-integers-at-their-bit-width
+
+> With its default options, the analyzer keeps every integer in a fixed bit width. A number that leaves that range wraps around into it.
+
+Checked with the analyzer of Alloy 6.2.0, with the default of 4 bits, which holds the integers from -8 to 7:
+
+- `plus[7, 1]` is -8.
+- `9 = -7` holds.
+- A count of 9 things is -7.
+
+`A4Options.noOverflow` is false unless a run sets it, and the canon plugin runs the analyzer with its defaults.
+
+## @fact the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero
+
+> The analyzer rounds `div[a, b]` toward zero, and gives -1, 0 or 1 for `div[a, 0]` as `a` is positive, zero or negative. `rem[a, b]` has the sign of `a`, and `rem[a, 0]` is `a`.
+
+Checked with the analyzer of Alloy 6.2.0: `div[-7, 2] = -3`, `div[5, 0] = -1`, `div[-5, 0] = 1`, `div[0, 0] = 0`, `rem[-7, 2] = -1`.
+
+## @fact the-analyzer-shifts-by-the-lowest-bits-of-the-amount
+
+> The analyzer shifts by the number in the lowest bits of the amount: as many bits as it takes to count to the bit width.
+
+With 5 bits, `1 << 9` is `1 << 1`, and `1 << 7` and `1 << -1` are 0. Checked with the analyzer of Alloy 6.2.0.
 
 ## @axiom a-formula-is-said-without-loss
 
@@ -1419,6 +1461,102 @@ This follows because Alloy reads a comment as nothing, so it claims nothing.
 > The verbalizer says `‘` and `’` as it says `'`.
 
 This follows because Alloy reads all three as the prime.
+
+#### @spec an-integer-comparison-is-said-in-integers-that-wrap
+
+> The verbalizer says `<`, `>`, `=<`, `>=` and their negations, and `=` and `!=` between two numbers, after "in integers that wrap around at the analyzer's bit width".
+
+Derives from: [`fact-the-analyzer-wraps-integers-at-their-bit-width`](#fact-the-analyzer-wraps-integers-at-their-bit-width)
+
+This follows because the words of arithmetic say what the analyzer computes only when the reader knows that its integers wrap around.
+
+##### @spec two-numbers-are-compared-with-the-words-of-their-operator
+
+> The verbalizer says `<` as "is less than", `>` as "is greater than", `=<` as "is at most", `>=` as "is at least" and `=` as "is equal to". It says a negation with "not".
+
+This follows because those words say the order of two numbers, and the words before them say the wrap once.
+
+##### @spec a-count-is-said-as-the-number-of-values
+
+> The verbalizer says `#e` as "the number of values of" a member of the type of `e`, "such that" the member is in `e`.
+
+This follows because `#e` counts the members of `e`.
+
+##### @spec a-sum-over-a-variable-is-said-as-the-sum-over-every-value
+
+> The verbalizer says `sum x: T | e` as "the sum, over every" member of `T`, "of" `e`.
+
+This follows because the sum adds the value of `e` for each member of `T`.
+
+##### @spec a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members
+
+> The verbalizer says a set of integers where a number belongs, as in `c.n < 3` or `int[c.n]`, as `"the sum of the values of"` an integer in it.
+
+This follows because the analyzer reads a set of integers where a number belongs as the sum of its members, as `int` says.
+
+##### @spec plus-minus-and-mul-are-said-as-plus-minus-and-times
+
+> The verbalizer says `plus[a, b]`, `minus[a, b]` and `mul[a, b]` as `a` "plus", "minus" or "times" `b`.
+
+This follows because those are the words of the operations, and the comparison says that they wrap.
+
+##### @spec a-division-is-said-with-its-rounding-and-its-rule-for-zero
+
+> The verbalizer says `div[a, b]` as `a` "divided by" `b`, rounded toward zero, with its value when `b` is zero. It says `rem[a, b]` as `"the remainder of"` `a` divided by `b`, with its sign and its value when `b` is zero.
+
+Derives from: [`fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero`](#fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero)
+
+This follows because the analyzer divides by zero, and rounds, in ways that ordinary words for division leave open.
+
+##### @spec a-number-is-said-as-itself
+
+> The verbalizer says a number in decimal, whether the formula writes it in decimal, in hexadecimal or in binary.
+
+This follows because the value is what the formula claims, and the comparison says that it wraps.
+
+##### @spec min-and-max-are-said-as-the-least-and-the-greatest-integer
+
+> The verbalizer says `min` and `max` as "the least integer" and "the greatest integer".
+
+This follows because they are the ends of the range that the bit width gives.
+
+##### @spec a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it
+
+> The verbalizer names a count, a sum or a division in an integer comparison as `number_1`, `number_2` and so on, and says after "where" what each is.
+
+This follows because the words of a count end in a clause of their own. Two of them in one sentence would read two ways.
+
+##### @spec a-shift-is-refused
+
+> The verbalizer refuses `<<`, `>>` and `>>>`, and says that the analyzer shifts by the lowest bits of the amount.
+
+Derives from: [`fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount`](#fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount)
+
+This follows because words for a shift by an amount the bits do not hold would have to count bits. Plain words would say a different shift.
+
+##### @spec a-set-compared-with-a-number-is-refused
+
+> The verbalizer refuses `=` and `!=` between a set and a number, such as `c.n = 2`, and names them.
+
+This follows because Alloy reads them as sets, which compare the set with the one integer of the number. The words would have to say both the sets and the wrap of the number.
+
+##### @spec a-number-outside-an-integer-comparison-is-refused
+
+> The verbalizer refuses a number or a count outside an integer comparison, and names it.
+
+This follows because outside a comparison, the number is an integer atom of the analyzer's range. No words there say that it wraps.
+
+#### @spec the-next-integer-is-said-as-the-integer-after
+
+> The verbalizer says `x->y in next` as `y` "is the integer after" `x`.
+
+This follows because `next` pairs each integer with the one after it, and the greatest integer with none. The integer after the greatest is not in the range, so `y` cannot be it.
+
+#### @spec int-and-seq-int-have-nouns-of-their-own
+
+> The verbalizer says `Int` with the noun "integer", and `seq/Int` with the noun "sequence index", unless the readings give another.
+
+This follows because Alloy declares both signatures, so no vocabulary gives them a noun.
 
 #### @spec a-name-with-no-reading-is-refused-and-named
 
