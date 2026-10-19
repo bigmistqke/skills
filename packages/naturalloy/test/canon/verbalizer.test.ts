@@ -867,6 +867,186 @@ describe('the items of a list said in a sentence', () => {
   });
 });
 
+describe('connectives, quantifiers and let', () => {
+  /**
+   * @canon spec-an-equivalence-of-two-clauses-is-said-with-exactly-when
+   */
+  it('says an equivalence of two clauses with "exactly when"', () => {
+    expect(say('c in Ran iff d in Ran')).toBe('c has run exactly when d has run.');
+    expect(say('c in Ran <=> d not in Ran')).toBe('c has run exactly when d has not run.');
+  });
+
+  /**
+   * @canon spec-an-equivalence-of-more-than-clauses-is-said-as-both-or-neither
+   */
+  it('says an equivalence with a side of more than one clause as both or neither', () => {
+    expect(say('(c in Ran and d in Ran) iff c in Registered')).toBe('Both or neither of these hold:\n  - c has run and d has run\n  - code has registered c');
+    expect(say('c in Ran iff eventually d in Ran')).toBe('Both or neither of these hold:\n  - c has run\n  - now or at a later moment, d has run');
+  });
+
+  /**
+   * @canon spec-an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither
+   */
+  it('says an equivalence that is a side of a rule, a temporal operator or a definition as both or neither', () => {
+    expect(say('c in Registered implies (c in Ran iff d in Ran)')).toBe('When code has registered c\nthen both or neither of these hold:\n       - c has run\n       - d has run');
+    expect(() => say('(c in Ran iff d in Ran) until d in Registered')).toThrow('"until" is supported only between two clauses');
+    const readings = withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\nsame: {1} goes with {2} | {1} does not go with {2}'), 'sig Cleanup {}');
+    expect(verbalizeDefinition('pred same[c, d: Cleanup] { c in Ran iff d in Ran }', readings)).toBe(
+      'For every cleanup_1 and every cleanup_2:\n  cleanup_1 goes with cleanup_2 exactly when both or neither of these hold:\n    - cleanup_1 has run\n    - cleanup_2 has run'
+    );
+  });
+
+  /**
+   * @canon spec-an-else-is-said-as-otherwise
+   */
+  it('says an else as "otherwise"', () => {
+    expect(say('c in Ran implies d in Ran else d in Registered')).toBe('When c has run, d has run; otherwise, code has registered d.');
+    expect(say('(c in Ran and d in Ran and c in Registered and d in Registered) implies d in Disposed else c in Disposed')).toBe(
+      ['When all of these hold:', '  - c has run', '  - d has run', '  - code has registered c', '  - code has registered d', 'then pulse has disposed d', 'otherwise pulse has disposed c.'].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-one-as-a-quantifier-is-said-as-exactly-one
+   */
+  it('says "one" as exactly one', () => {
+    expect(say('one c: Cleanup | c in Ran')).toBe('There is exactly one cleanup_1 such that cleanup_1 has run.');
+    expect(say('one c: Cleanup, o: Owner | c.on = o')).toBe('There is exactly one combination of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.');
+  });
+
+  /**
+   * @canon spec-lone-as-a-quantifier-is-said-as-at-most-one
+   */
+  it('says "lone" as at most one', () => {
+    expect(say('lone c: Cleanup | c in Ran')).toBe('There is at most one cleanup_1 such that cleanup_1 has run.');
+    expect(say('lone c: Cleanup, o: Owner | c.on = o')).toBe('There is at most one combination of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.');
+  });
+
+  /**
+   * @canon spec-a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together
+   */
+  it('says a block as the body of a quantifier as its formulas together', () => {
+    expect(say('all c: Cleanup { c in Ran c in Registered }')).toBe('For every cleanup_1:\n  cleanup_1 has run and code has registered cleanup_1.');
+  });
+
+  /**
+   * @canon spec-not-before-an-and-is-said-as-at-least-one-negation
+   */
+  it('says not before an and as at least one negation', () => {
+    expect(say('not (c in Ran and d in Ran)')).toBe('c has not run or d has not run.');
+  });
+
+  /**
+   * @canon spec-not-before-an-or-is-said-as-every-negation
+   */
+  it('says not before an or as every negation', () => {
+    expect(say('not (c in Ran or d in Ran)')).toBe('c has not run and d has not run.');
+  });
+
+  /**
+   * @canon spec-not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence
+   */
+  it('says not before a rule as its condition and the negation of its consequence', () => {
+    expect(say('not (c in Ran implies d in Ran)')).toBe('c has run and d has not run.');
+  });
+
+  /**
+   * @canon spec-not-before-an-equivalence-is-said-as-exactly-one-of-its-sides
+   */
+  it('says not before an equivalence as exactly one of its sides', () => {
+    expect(say('not (c in Ran iff d in Ran)')).toBe('Exactly one of these holds:\n  - c has run\n  - d has run');
+  });
+
+  /**
+   * @canon spec-not-before-an-else-is-said-as-the-rule-with-each-side-negated
+   */
+  it('says not before an else as the rule with each side negated', () => {
+    expect(say('not (c in Ran implies d in Ran else d in Registered)')).toBe('When c has run, d has not run; otherwise, code has not registered d.');
+  });
+
+  /**
+   * @canon spec-not-before-some-or-no-is-said-as-the-other
+   */
+  it('says not before some or no as the other', () => {
+    expect(say('not some c: Cleanup | c in Ran')).toBe('There is no cleanup_1 such that cleanup_1 has run.');
+    expect(say('not no c: Cleanup | c in Ran')).toBe('There is a cleanup_1 such that cleanup_1 has run.');
+  });
+
+  /**
+   * @canon spec-not-before-all-is-said-as-some-with-the-body-negated
+   */
+  it('says not before all as some with the body negated', () => {
+    expect(say('not all c: Cleanup | c in Ran')).toBe('There is a cleanup_1 such that cleanup_1 has not run.');
+    expect(say('not all c: Cleanup - Ran | c in Registered')).toBe('There is a cleanup_1 such that cleanup_1 has not run and code has not registered cleanup_1.');
+  });
+
+  /**
+   * @canon spec-not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated
+   */
+  it('says not before always or eventually as the other with the formula negated', () => {
+    expect(say('not eventually c in Ran')).toBe('Now and at every later moment, c has not run.');
+    expect(say('not always c in Ran')).toBe('Now or at a later moment, c has not run.');
+  });
+
+  /**
+   * @canon spec-not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated
+   */
+  it('says not before historically or once as the other with the formula negated', () => {
+    expect(say('not once c in Ran')).toBe('Now and at every earlier moment, c has not run.');
+    expect(say('not historically c in Ran')).toBe('Now or at an earlier moment, c has not run.');
+  });
+
+  /**
+   * @canon spec-not-before-after-is-said-as-after-with-the-formula-negated
+   */
+  it('says not before after as after with the formula negated', () => {
+    expect(say('not after c in Ran')).toBe('At the next moment, c has not run.');
+  });
+
+  /**
+   * @canon spec-a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that
+   */
+  it('says a not with no formula to move into as "it is not the case that", with the formula set apart', () => {
+    expect(say('not one c: Cleanup | c in Ran')).toBe('It is not the case that:\n  there is exactly one cleanup_1 such that cleanup_1 has run.');
+    expect(say('not lone c: Cleanup | c in Ran')).toBe('It is not the case that:\n  there is at most one cleanup_1 such that cleanup_1 has run.');
+    expect(say('not before c in Ran')).toBe('It is not the case that:\n  there is a moment before, and at it, c has run.');
+    expect(say('not (runNow[d] releases runNow[c])')).toBe('It is not the case that:\n  up to and including the first moment where d runs, if one comes, c runs.');
+  });
+
+  /**
+   * @canon spec-a-let-is-said-with-its-value-in-the-place-of-its-name
+   */
+  it('says a let with its value in the place of its name', () => {
+    expect(say('let x = c | x in Ran')).toBe('c has run.');
+    expect(say('let x = c.on | no x')).toBe('c is on no owner.');
+    expect(say('let x = c, y = x | y in Ran')).toBe('c has run.');
+    expect(say('not let x = c | x in Ran')).toBe('c has not run.');
+    expect(say('let x = c | some x: Cleanup | x in Ran')).toBe('There is a cleanup_1 such that cleanup_1 has run.');
+  });
+
+  /**
+   * @canon spec-a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused
+   */
+  it('refuses a let whose value a quantifier of its body would capture', () => {
+    expect(() => say('let x = c | some c: Cleanup | c in x.on')).toThrow('the body of the "let" of "x" declares "c", which its value names');
+  });
+
+  /**
+   * @canon spec-the-spellings-of-not-in-and-not-equal-are-said-alike
+   */
+  it('says the spellings of not in and not equal alike', () => {
+    for (const formula of ['c !in Ran', 'c ! in Ran', 'c not in Ran']) expect(say(formula)).toBe('c has not run.');
+    for (const formula of ['c not = d', 'c ! = d', 'c != d']) expect(say(formula)).toBe('c and d are different.');
+  });
+
+  /**
+   * @canon spec-text-that-alloy-does-not-read-is-refused
+   */
+  it('refuses text that Alloy does not read, such as ==', () => {
+    expect(() => say('c == d')).toThrow('cannot read "=" here');
+  });
+});
+
 describe('what it refuses', () => {
   /**
    * @canon spec-a-name-with-no-reading-is-refused-and-named
@@ -931,9 +1111,7 @@ describe('what it refuses', () => {
    * @canon spec-a-construct-the-words-do-not-cover-is-refused
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
-    expect(() => say('lone c: Cleanup | c in Ran')).toThrow('"lone" as a quantifier is not supported');
-    expect(() => say('one c: Cleanup | c in Ran')).toThrow('"one" as a quantifier is not supported');
-    expect(() => say('not eventually c in Ran')).toThrow('"not" is supported only before a comparison or a call');
+    expect(() => say('some ^on')).toThrow('a set must be a name, not a closure');
     expect(() => say('(all c: Cleanup | c in Ran) releases d in Ran')).toThrow('"releases" is supported only between two clauses');
     expect(() => say('some ~on')).toThrow('a set must be a name, not a transpose');
   });

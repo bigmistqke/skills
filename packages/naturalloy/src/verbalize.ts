@@ -220,13 +220,16 @@ const NEXT = 'at the next moment, ';
 
 const ALL = 'all of these hold:';
 const ANY = 'at least one of these holds:';
+const BOTH = 'both or neither of these hold:';
+const ONE = 'exactly one of these holds:';
+const UNTRUE = 'it is not the case that:';
 
 /** What a formula becomes before it is laid out: a clause, a list that ends in a colon, or a rule. */
 type Doc =
   | string
   | { kind: 'list'; intro: string; items: Doc[] }
   | { kind: 'block'; intro: string; body: Doc }
-  | { kind: 'rule'; when: Doc; then: Doc };
+  | { kind: 'rule'; when: Doc; then: Doc; otherwise?: Doc };
 
 const isList = (doc: Doc): doc is Extract<Doc, { kind: 'list' }> => typeof doc !== 'string' && doc.kind === 'list';
 
@@ -244,7 +247,10 @@ function holdsBinary(node: Node): boolean {
     case 'implies':
     case 'iff':
       return holdsBinary(node.l) || holdsBinary(node.r);
+    case 'ite':
+      return holdsBinary(node.c) || holdsBinary(node.a) || holdsBinary(node.b);
     case 'quant':
+    case 'let':
       return holdsBinary(node.body);
     default:
       return false;
@@ -277,6 +283,86 @@ function untrue(doc: Doc): Doc {
   if (typeof doc === 'string') return `it is not the case that ${doc}`;
   if (doc.kind === 'list') return { ...doc, intro: `it is not the case that ${doc.intro}` };
   throw new Error('a definition that is a rule or has a "for every" cannot be said as untrue; give it a reading');
+}
+
+/** The names an expression uses. */
+function namesIn(node: unknown, found = new Set<string>()): Set<string> {
+  if (Array.isArray(node)) for (const n of node) namesIn(n, found);
+  else if (node !== null && typeof node === 'object') {
+    const o = node as Record<string, unknown>;
+    if (o.t === 'name') found.add(o.name as string);
+    else for (const [key, value] of Object.entries(o)) if (key !== 'span') namesIn(value, found);
+  }
+  return found;
+}
+
+/**
+ * A formula with `value` in the place of the name `name`, the `let` of `of`.
+ * A quantifier or a `let` that declares the name again hides it from there on;
+ * one that declares a name the value uses, where the name is put, would
+ * capture it, and is refused.
+ */
+function substitute(node: Node, name: string, value: Node, of: string): Node {
+  const free = namesIn(value);
+  const walk = (n: unknown): unknown => {
+    if (Array.isArray(n)) return n.map(walk);
+    if (n === null || typeof n !== 'object') return n;
+    const o = n as Node;
+    if (o.t === 'name') return o.name === name ? value : o;
+    if (o.t === 'quant' || o.t === 'comprehension') {
+      const declared = o.decls.flatMap(d => d.names);
+      const decls = o.decls.map(d => ({ ...d, type: walk(d.type) as Node }));
+      if (declared.includes(name)) return { ...o, decls };
+      const captured = declared.find(x => free.has(x));
+      if (captured !== undefined && namesIn(o.body).has(name)) throw new Error(`the body of the "let" of "${of}" declares "${captured}", which its value names`);
+      return { ...o, decls, body: walk(o.body) as Node };
+    }
+    if (o.t === 'let') {
+      const binds = o.binds.map(b => ({ ...b, value: walk(b.value) as Node }));
+      if (o.binds.some(b => b.name === name)) return { ...o, binds };
+      const captured = o.binds.find(b => free.has(b.name));
+      if (captured !== undefined && namesIn(o.body).has(name)) throw new Error(`the body of the "let" of "${of}" declares "${captured.name}", which its value names`);
+      return { ...o, binds, body: walk(o.body) as Node };
+    }
+    return Object.fromEntries(Object.entries(o).map(([key, v]) => [key, key === 'span' ? v : walk(v)]));
+  };
+  return walk(node) as Node;
+}
+
+/** The body of a `let` with each value in the place of its name: `let a = e, b = f | g` is `let a = e | let b = f | g`. */
+function expanded(node: Extract<Node, { t: 'let' }>): Node {
+  return node.binds.reduceRight((body, bind) => substitute(body, bind.name, bind.value, bind.name), node.body);
+}
+
+/**
+ * The formula that `not node` equals with the `not` moved one step inward,
+ * where there is one: `not (a and b)` is `not a or not b`, `not all x | f` is
+ * `some x | not f`, `not always f` is `eventually not f`. Undefined for a formula
+ * whose negation has no such form: `one`, `lone`, `before` and the binary temporal operators.
+ */
+function inward(node: Node): Node | undefined {
+  const not = (f: Node): Node => ({ t: 'not', f });
+  switch (node.t) {
+    case 'and':
+      return { t: 'or', items: node.items.map(not) };
+    case 'or':
+      return { t: 'and', items: node.items.map(not) };
+    case 'implies':
+      return { t: 'and', items: [node.l, not(node.r)] };
+    case 'ite':
+      return { ...node, a: not(node.a), b: not(node.b) };
+    case 'quant': {
+      const dual: Partial<Record<string, Node>> = { some: { ...node, q: 'no' }, no: { ...node, q: 'some' }, all: { ...node, q: 'some', body: not(node.body) } };
+      return dual[node.q];
+    }
+    case 'unary': {
+      const dual: Partial<Record<string, string>> = { always: 'eventually', eventually: 'always', historically: 'once', once: 'historically', after: 'after' };
+      const op = dual[node.op];
+      return op === undefined ? undefined : ({ ...node, op, f: not(node.f) } as Node);
+    }
+    default:
+      return undefined;
+  }
 }
 
 class Verbalizer {
@@ -510,6 +596,15 @@ class Verbalizer {
     };
   }
 
+  /**
+   * A formula that is a side of a rule, of a binary temporal operator or of a
+   * definition. An equivalence there is said as both or neither, so that its
+   * "exactly when" cannot take the whole sentence for a side.
+   */
+  private side(node: Node): Doc {
+    return node.t === 'iff' ? { kind: 'list', intro: BOTH, items: [this.doc(node.l), this.doc(node.r)] } : this.doc(node);
+  }
+
   /** A formula said as a negation: only what has a reading of its own can be negated. */
   private negation(node: Node): Doc {
     switch (node.t) {
@@ -523,8 +618,14 @@ class Verbalizer {
         return this.call({ t: 'call', name: node.name, args: [] }, true);
       case 'mult':
         return this.mult(node, true);
-      default:
-        throw new Error(`"not" is supported only before a comparison or a call, not before a ${node.t}`);
+      case 'iff':
+        return { kind: 'list', intro: ONE, items: [this.doc(node.l), this.doc(node.r)] };
+      case 'let':
+        return this.negation(expanded(node));
+      default: {
+        const moved = inward(node);
+        return moved !== undefined ? this.doc(moved) : { kind: 'block', intro: UNTRUE, body: this.doc(node) };
+      }
     }
   }
 
@@ -620,8 +721,8 @@ class Verbalizer {
     const head =
       node.q === 'some'
         ? `there ${vars.length === 1 ? 'is' : 'are'} ${vars.length === 1 ? (vars[0] as { article: string }).article : ''}${each.join(' and ')} such that`
-        : node.q === 'no'
-          ? `there is no ${vars.length === 1 ? '' : 'combination of '}${each.join(' and ')} such that`
+        : node.q === 'no' || node.q === 'one' || node.q === 'lone'
+          ? `there is ${{ no: 'no', one: 'exactly one', lone: 'at most one' }[node.q]} ${vars.length === 1 ? '' : 'combination of '}${each.join(' and ')} such that`
           : (() => {
               throw new Error(`"${node.q}" as a quantifier is not supported`);
             })();
@@ -681,9 +782,13 @@ class Verbalizer {
       case 'not':
         if (node.f.t === 'cmp') return plainCmp(node.f) ? text(this.comparison(node.f, true)) : undefined;
         if (node.f.t === 'call') return this.readings.atoms.has(node.f.name) ? text(this.call(node.f, true)) : undefined;
+        if (node.f.t === 'quant' && (node.f.q === 'some' || node.f.q === 'no')) return this.clause(inward(node.f) as Node);
+        if (node.f.t === 'let') return this.clause({ t: 'not', f: expanded(node.f) });
         return undefined;
       case 'quant':
         return this.absorbed(node);
+      case 'let':
+        return this.clause(expanded(node));
       default:
         return undefined;
     }
@@ -866,7 +971,7 @@ class Verbalizer {
     });
     const head = this.say(name, vars.map(v => v.name), false);
     const byCases = vars.length === 1 ? this.cases(head, vars[0]!.name, body) : undefined;
-    const said = byCases ?? this.doc(body);
+    const said = byCases ?? this.side(body);
     let sentence: Doc;
     if (byCases !== undefined) sentence = byCases;
     else if (typeof said === 'string') sentence = `${head} exactly when ${said}`;
@@ -900,7 +1005,16 @@ class Verbalizer {
         return { kind: 'list', intro: ANY, items: this.items(node.items, () => true).flatMap(item => this.spliced(item, ANY)) };
       }
       case 'implies':
-        return { kind: 'rule', when: this.doc(node.l), then: this.doc(node.r) };
+        return { kind: 'rule', when: this.side(node.l), then: this.side(node.r) };
+      case 'ite':
+        return { kind: 'rule', when: this.side(node.c), then: this.side(node.a), otherwise: this.side(node.b) };
+      case 'iff': {
+        const [l, r] = [this.clause(node.l), this.clause(node.r)];
+        if (l !== undefined && r !== undefined) return `${l} exactly when ${r}`;
+        return { kind: 'list', intro: BOTH, items: [this.doc(node.l), this.doc(node.r)] };
+      }
+      case 'let':
+        return this.doc(expanded(node));
       case 'quant':
         return this.quantified(node);
       case 'unary': {
@@ -918,7 +1032,7 @@ class Verbalizer {
         // A chain of `;` reads in order; any other nesting of these clauses with commas reads in more than one way.
         const sides = node.op === ';' && node.r.t === 'binary' && node.r.op === ';' ? [node.l] : [node.l, node.r];
         if (sides.some(holdsBinary)) throw new Error(`"${node.op}" with a side that holds "until", "since", "releases", "triggered" or ";" reads in more than one way`);
-        const [l, r] = [this.doc(node.l), this.doc(node.r)];
+        const [l, r] = [this.side(node.l), this.side(node.r)];
         if (typeof l !== 'string' || typeof r !== 'string') throw new Error(`"${node.op}" is supported only between two clauses`);
         switch (node.op) {
           case 'until':
@@ -982,10 +1096,20 @@ function lines(doc: Doc): string[] {
   if (doc.kind === 'block') return [doc.intro, ...lines(doc.body).map(line => `  ${line}`)];
   const when = lines(doc.when);
   const then = lines(doc.then);
+  const otherwise = doc.otherwise === undefined ? undefined : lines(doc.otherwise);
+  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1)) return [oneLine(when, then, otherwise)];
   return [
-    `when ${when[0]}${when.length === 1 && then.length === 1 ? `, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}` : ''}`,
-    ...(when.length === 1 && then.length === 1 ? [] : [...when.slice(1), `then ${then[0]}`, ...then.slice(1).map(line => `     ${line}`)])
+    `when ${when[0]}`,
+    ...when.slice(1),
+    `then ${then[0]}`,
+    ...then.slice(1).map(line => `     ${line}`),
+    ...(otherwise === undefined ? [] : [`otherwise ${otherwise[0]}`, ...otherwise.slice(1).map(line => `          ${line}`)])
   ];
+}
+
+/** A rule of one-line sides on one line: "when a, b", or "when a, b; otherwise, c". */
+function oneLine(when: string[], then: string[], otherwise: string[] | undefined): string {
+  return `when ${when[0]}, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}${otherwise === undefined ? '' : `; otherwise, ${otherwise[0]}`}`;
 }
 
 /**
@@ -1008,8 +1132,16 @@ function markdownLines(doc: Doc): string[] {
   if (doc.kind === 'block') return [doc.intro, '', ...markdownLines(doc.body)];
   const when = markdownLines(doc.when);
   const then = markdownLines(doc.then);
-  if (when.length === 1 && then.length === 1) return [`when ${when[0]}, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}`];
-  return [`when ${when[0]}${when.length === 1 ? ',' : ''}`, ...when.slice(1), '', `then ${then[0]}`, ...then.slice(1)];
+  const otherwise = doc.otherwise === undefined ? undefined : markdownLines(doc.otherwise);
+  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1)) return [oneLine(when, then, otherwise)];
+  return [
+    `when ${when[0]}${when.length === 1 ? ',' : ''}`,
+    ...when.slice(1),
+    '',
+    `then ${then[0]}`,
+    ...then.slice(1),
+    ...(otherwise === undefined ? [] : ['', `otherwise ${otherwise[0]}`, ...otherwise.slice(1)])
+  ];
 }
 
 /**

@@ -22,6 +22,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 - [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or has two clauses or fewer - list_1 fits a line when it is put in a sentence
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
+- [`@fact every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment) — In Alloy 6, a trace is infinite: every moment has exactly one next moment.
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
@@ -31,6 +32,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec some-is-said-with-an-article-chosen-by-the-sound-of-the-noun`](#spec-some-is-said-with-an-article-chosen-by-the-sound-of-the-noun) — The verbalizer says `some` of a type with the article "a" or "an" that fits the sound of the noun.
   - [`@spec an-article-the-noun-is-written-with-wins-over-its-sound`](#spec-an-article-the-noun-is-written-with-wins-over-its-sound) — When the noun of a type carries an article, the verbalizer uses that article, whatever the sound of the noun.
   - [`@spec no-over-several-variables-is-said-as-no-combination`](#spec-no-over-several-variables-is-said-as-no-combination) — The verbalizer says `no` over variables of several types as no combination of the variables.
+  - [`@spec one-as-a-quantifier-is-said-as-exactly-one`](#spec-one-as-a-quantifier-is-said-as-exactly-one) — The verbalizer says `one` over a variable as "exactly one" of its noun, and over several variables as exactly one combination of them.
+  - [`@spec lone-as-a-quantifier-is-said-as-at-most-one`](#spec-lone-as-a-quantifier-is-said-as-at-most-one) — The verbalizer says `lone` over a variable as "at most one" of its noun, and over several variables as at most one combination of them.
+  - [`@spec a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together`](#spec-a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together) — The verbalizer says a quantifier whose body is a block, `all x: T { a b }`, as the quantifier with the formulas of the block holding together.
   - [`@spec a-call-of-a-predicate-gives-its-variables-numbers-that-are-free`](#spec-a-call-of-a-predicate-gives-its-variables-numbers-that-are-free) — When a called body quantifies a variable that the call already uses, the verbalizer gives it a number that no variable in use has.
   - [`@spec a-variable-of-a-body-never-takes-the-name-of-an-argument`](#spec-a-variable-of-a-body-never-takes-the-name-of-an-argument) — The verbalizer never gives a variable of a called body the name of an argument of the call.
   - [`@spec the-alternatives-of-a-list-reuse-a-name-and-keep-it-taken-for-what-follows`](#spec-the-alternatives-of-a-list-reuse-a-name-and-keep-it-taken-for-what-follows) — The verbalizer gives the same name to the variable in each alternative of a list, and keeps the name taken for what follows.
@@ -40,7 +44,21 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-negated-predicate-with-no-reading-is-said-as-untrue`](#spec-a-negated-predicate-with-no-reading-is-said-as-untrue) — The verbalizer says a negated call of a predicate with no reading as "it is not the case that", followed by the body.
   - [`@spec the-reading-of-the-table-wins-over-the-body`](#spec-the-reading-of-the-table-wins-over-the-body) — The verbalizer says a call of a predicate that has both a reading and a body with the reading.
   - [`@spec the-checker-reads-the-predicates-a-vocabulary-declares`](#spec-the-checker-reads-the-predicates-a-vocabulary-declares) — The verbalizer reads each predicate that a vocabulary declares: its name, what it takes and its body.
+  - [`@spec a-let-is-said-with-its-value-in-the-place-of-its-name`](#spec-a-let-is-said-with-its-value-in-the-place-of-its-name) — The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
+  - [`@spec a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused`](#spec-a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused) — The verbalizer refuses a `let` whose body declares a variable with a name that its value uses, and names the variable.
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — The verbalizer says the negation of a comparison or a call with the negative reading of what it negates.
+  - [`@spec not-before-a-compound-is-said-with-the-not-moved-inward`](#spec-not-before-a-compound-is-said-with-the-not-moved-inward) — The verbalizer says `not` before a list, a rule, an equivalence, a quantifier or a temporal operator as the formula it equals with the `not` moved inward. Where no such formula exists, it says "it is not the case that" before the formula, set apart.
+    - [`@spec not-before-an-and-is-said-as-at-least-one-negation`](#spec-not-before-an-and-is-said-as-at-least-one-negation) — The verbalizer says `not (a and b)` as `not a or not b`.
+    - [`@spec not-before-an-or-is-said-as-every-negation`](#spec-not-before-an-or-is-said-as-every-negation) — The verbalizer says `not (a or b)` as `not a and not b`.
+    - [`@spec not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence`](#spec-not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence) — The verbalizer says `not (a implies b)` as `a and not b`.
+    - [`@spec not-before-an-equivalence-is-said-as-exactly-one-of-its-sides`](#spec-not-before-an-equivalence-is-said-as-exactly-one-of-its-sides) — The verbalizer says `not (a iff b)` as exactly one of `a` and `b` holding.
+    - [`@spec not-before-an-else-is-said-as-the-rule-with-each-side-negated`](#spec-not-before-an-else-is-said-as-the-rule-with-each-side-negated) — The verbalizer says `not (c implies a else b)` as `c implies not a else not b`.
+    - [`@spec not-before-some-or-no-is-said-as-the-other`](#spec-not-before-some-or-no-is-said-as-the-other) — The verbalizer says `not some x: T | f` as `no x: T | f`, and `not no x: T | f` as `some x: T | f`.
+    - [`@spec not-before-all-is-said-as-some-with-the-body-negated`](#spec-not-before-all-is-said-as-some-with-the-body-negated) — The verbalizer says `not all x: T | f` as `some x: T | not f`.
+    - [`@spec not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated`](#spec-not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated) — The verbalizer says `not always f` as `eventually not f`, and `not eventually f` as `always not f`.
+    - [`@spec not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated`](#spec-not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated) — The verbalizer says `not historically f` as `once not f`, and `not once f` as `historically not f`.
+    - [`@spec not-before-after-is-said-as-after-with-the-formula-negated`](#spec-not-before-after-is-said-as-after-with-the-formula-negated) — The verbalizer says `not after f` as `after not f`.
+    - [`@spec a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that`](#spec-a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that) — The verbalizer says `not` before `one`, `lone`, `before` or a binary temporal operator as "it is not the case that", with the formula it negates set apart below it.
   - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — The verbalizer says a comparison with a union on its left as one statement for each member of the union.
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — The verbalizer says a comparison with a difference on its right as: the left side is in the first part and not in the second.
   - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The verbalizer says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
@@ -60,6 +78,10 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
   - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
+  - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
+  - [`@spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither`](#spec-an-equivalence-of-more-than-clauses-is-said-as-both-or-neither) — The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
+  - [`@spec an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither`](#spec-an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither) — As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
+  - [`@spec an-else-is-said-as-otherwise`](#spec-an-else-is-said-as-otherwise) — The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The verbalizer says `eventually` as "now or at a later moment".
@@ -73,6 +95,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes`](#spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes) — The verbalizer says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
   - [`@spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one`](#spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one) — The verbalizer says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
+  - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
+  - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The verbalizer refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The verbalizer refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The verbalizer refuses a formula that quantifies a type with no noun, and names the type.
@@ -495,6 +519,12 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 ```readings
 ```
 
+## @fact every-moment-has-a-next-moment
+
+> In Alloy 6, a trace is infinite: every moment has exactly one next moment.
+
+The analyzer checks temporal formulas over traces that loop back, so `after f` is never true for want of a next moment. The [Alloy 6 documentation](https://alloytools.org/alloy6.html) says so.
+
 ## @axiom a-formula-is-said-without-loss
 
 > The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
@@ -548,6 +578,24 @@ This follows because the author knows the word better than the sound rule, and a
 > The verbalizer says `no` over variables of several types as no combination of the variables.
 
 This follows because a statement that none of each variable exists would mean something else than none of them together.
+
+#### @spec one-as-a-quantifier-is-said-as-exactly-one
+
+> The verbalizer says `one` over a variable as "exactly one" of its noun, and over several variables as exactly one combination of them.
+
+This follows because `one` holds when the body holds for one value of the variables and for no other. Over several variables, the value is the combination.
+
+#### @spec lone-as-a-quantifier-is-said-as-at-most-one
+
+> The verbalizer says `lone` over a variable as "at most one" of its noun, and over several variables as at most one combination of them.
+
+This follows because `lone` holds when the body holds for no value of the variables or for one.
+
+#### @spec a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together
+
+> The verbalizer says a quantifier whose body is a block, `all x: T { a b }`, as the quantifier with the formulas of the block holding together.
+
+This follows because the formulas of a block hold together, as if `and` joined them.
 
 #### @spec a-call-of-a-predicate-gives-its-variables-numbers-that-are-free
 
@@ -603,11 +651,99 @@ This follows because the table is where the author says how a word sounds, and t
 
 This follows because the verbalizer can use only the body of a predicate that has no reading, and the body lives in the vocabulary.
 
+#### @spec a-let-is-said-with-its-value-in-the-place-of-its-name
+
+> The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
+
+This follows because a `let` only names a value, and the formula it holds means what it means with the value written out.
+
+#### @spec a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused
+
+> The verbalizer refuses a `let` whose body declares a variable with a name that its value uses, and names the variable.
+
+Derives from: [`spec-a-let-is-said-with-its-value-in-the-place-of-its-name`](#spec-a-let-is-said-with-its-value-in-the-place-of-its-name)
+
+This follows because the value put in place would then name the variable of the body, where the `let` names another thing.
+
 #### @spec a-negation-is-said-with-the-negative-reading-of-what-it-negates
 
 > The verbalizer says the negation of a comparison or a call with the negative reading of what it negates.
 
 This follows because the table gives each word a positive and a negative reading so that no sentence needs a clumsy "not".
+
+#### @spec not-before-a-compound-is-said-with-the-not-moved-inward
+
+> The verbalizer says `not` before a list, a rule, an equivalence, a quantifier or a temporal operator as the formula it equals with the `not` moved inward. Where no such formula exists, it says "it is not the case that" before the formula, set apart.
+
+This follows because the negative reading of each clause says the negation in the words of the table. Moving the `not` inward reaches those clauses without changing what the formula claims.
+
+##### @spec not-before-an-and-is-said-as-at-least-one-negation
+
+> The verbalizer says `not (a and b)` as `not a or not b`.
+
+This follows because a run of clauses fails exactly when one of them fails.
+
+##### @spec not-before-an-or-is-said-as-every-negation
+
+> The verbalizer says `not (a or b)` as `not a and not b`.
+
+This follows because a run of alternatives fails exactly when each of them fails.
+
+##### @spec not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence
+
+> The verbalizer says `not (a implies b)` as `a and not b`.
+
+This follows because a rule fails exactly when its condition holds and its consequence does not.
+
+##### @spec not-before-an-equivalence-is-said-as-exactly-one-of-its-sides
+
+> The verbalizer says `not (a iff b)` as exactly one of `a` and `b` holding.
+
+This follows because an equivalence fails exactly when one side holds and the other does not.
+
+##### @spec not-before-an-else-is-said-as-the-rule-with-each-side-negated
+
+> The verbalizer says `not (c implies a else b)` as `c implies not a else not b`.
+
+This follows because the condition picks one side, and the negation fails the side it picks.
+
+##### @spec not-before-some-or-no-is-said-as-the-other
+
+> The verbalizer says `not some x: T | f` as `no x: T | f`, and `not no x: T | f` as `some x: T | f`.
+
+This follows because `no` is the negation of `some`.
+
+##### @spec not-before-all-is-said-as-some-with-the-body-negated
+
+> The verbalizer says `not all x: T | f` as `some x: T | not f`.
+
+This follows because a claim about every value fails exactly when it fails for one.
+
+##### @spec not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated
+
+> The verbalizer says `not always f` as `eventually not f`, and `not eventually f` as `always not f`.
+
+This follows because a claim about every later moment fails exactly when it fails at one of them.
+
+##### @spec not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated
+
+> The verbalizer says `not historically f` as `once not f`, and `not once f` as `historically not f`.
+
+This follows because the past operators mirror the future ones.
+
+##### @spec not-before-after-is-said-as-after-with-the-formula-negated
+
+> The verbalizer says `not after f` as `after not f`.
+
+Derives from: [`fact-every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment)
+
+This follows because each moment has exactly one next moment, so `f` fails there exactly when `not f` holds there.
+
+##### @spec a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that
+
+> The verbalizer says `not` before `one`, `lone`, `before` or a binary temporal operator as "it is not the case that", with the formula it negates set apart below it.
+
+This follows because none of these has a negation the words say more simply. Setting the formula apart shows where the negation ends.
 
 #### @spec a-union-on-the-left-is-spelled-out
 
@@ -735,6 +871,30 @@ This follows because a short rule is clearest as one sentence, "when this, that"
 all f: Series | f in OneLineRule implies f in OneLine
 ```
 
+#### @spec an-equivalence-of-two-clauses-is-said-with-exactly-when
+
+> The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
+
+This follows because "exactly when" says that each side holds when the other does, which is what `iff` claims.
+
+#### @spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither
+
+> The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
+
+This follows because "exactly when" between two lists or rules would not show where each side ends.
+
+#### @spec an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither
+
+> As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
+
+This follows because "exactly when" inside "when …, …", or after the "exactly when" of a definition, could take the whole sentence as its side.
+
+#### @spec an-else-is-said-as-otherwise
+
+> The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
+
+This follows because `b` is claimed exactly when `c` does not hold, which is what "otherwise" says.
+
 #### @spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words
 
 > A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
@@ -812,6 +972,18 @@ This follows because triggered is releases turned to the past. It holds the seco
 > The verbalizer says `a ; b` as "a, and at the next moment, b".
 
 This follows because the semicolon says that the first side holds now and the second side holds at the next moment.
+
+#### @spec the-spellings-of-not-in-and-not-equal-are-said-alike
+
+> The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
+
+This follows because Alloy reads each spelling as the same comparison.
+
+#### @spec text-that-alloy-does-not-read-is-refused
+
+> The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
+
+This follows because a formula the analyzer cannot read claims nothing, so no words can say it.
 
 #### @spec a-name-with-no-reading-is-refused-and-named
 
