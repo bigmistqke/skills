@@ -1573,6 +1573,9 @@ Usage:
                                    scenario can happen while every unit holds, and whether each unit's
                                    map from its statement to its predicate is current; exit 1 if not
   ${COMMAND} logic --review <unit> mark the unit's map reviewed as it now stands (repeat for more units)
+  ${COMMAND} logic --show <scenario>
+                                   print a world in which the scenario happens, step by step, in the
+                                   document's readings (repeat for more scenarios)
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
 
@@ -1881,6 +1884,7 @@ async function main(argv: string[]): Promise<void> {
         suspect: { type: 'string' },
         offline: { type: 'boolean' },
         review: { type: 'string', multiple: true },
+        show: { type: 'string', multiple: true },
         help: { type: 'boolean', short: 'h' }
       }
     });
