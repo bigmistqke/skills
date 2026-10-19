@@ -1,11 +1,11 @@
 /**
  * Say an Alloy formula in words, the same words every time. The formula is
- * read by `alloy-parse.ts`, and what each name stands for comes from a table of
+ * read by `@bigmistqke/parse-alloy`, and what each name stands for comes from a table of
  * readings kept next to the vocabulary. Nothing is guessed:
  * a construct or a name with no reading is an error, so a rendering never says
  * more or less than the formula does.
  */
-import { type Decl, type Node, parseFormula } from './alloy-parse.ts';
+import { type Decl, type Node, parseFormula } from '@bigmistqke/parse-alloy';
 
 /** How one thing is said, with `{1}`, `{2}` for the variables it is about. */
 interface Reading {
