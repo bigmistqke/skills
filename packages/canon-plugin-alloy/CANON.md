@@ -121,6 +121,9 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The checker refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The checker refuses a formula that quantifies a type with no noun, and names the type.
   - [`@spec a-reading-that-uses-a-slot-the-formula-does-not-give-is-refused`](#spec-a-reading-that-uses-a-slot-the-formula-does-not-give-is-refused) — The checker refuses a formula whose reading of a word uses a place that the formula does not fill, and names the place.
+  - [`@spec a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused`](#spec-a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused) — The checker refuses a formula whose reading of a word leaves out a place that the formula fills, and names the place.
+  - [`@spec a-binary-temporal-operator-inside-a-side-of-another-is-refused`](#spec-a-binary-temporal-operator-inside-a-side-of-another-is-refused) — The checker refuses `until`, `since`, `releases`, `triggered` or `;` with a side that holds one of them, except a `;` after a `;`.
+  - [`@spec a-primed-relation-of-a-variable-signature-is-refused`](#spec-a-primed-relation-of-a-variable-signature-is-refused) — The checker refuses a prime on a relation `Sig.rel` that has a reading of its own when `Sig` is a `var sig`.
   - [`@spec a-construct-the-words-do-not-cover-is-refused`](#spec-a-construct-the-words-do-not-cover-is-refused) — The checker refuses a formula with a construct that the words do not cover, and names the construct.
   - [`@spec a-line-of-readings-that-cannot-be-read-is-refused`](#spec-a-line-of-readings-that-cannot-be-read-is-refused) — The checker refuses a [line](#term-line) of readings that has neither a noun nor a key, and says that it cannot read the line.
   - [`@spec a-bracket-with-no-partner-is-refused`](#spec-a-bracket-with-no-partner-is-refused) — The checker refuses a line of readings with a bracket that has no partner, and says so.
@@ -143,6 +146,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec some-with-a-declaration-is-a-quantifier`](#spec-some-with-a-declaration-is-a-quantifier) — The checker reads `some` before variables and a bar as a quantifier over those variables.
   - [`@spec a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition) — The checker reads text that starts with the keyword `pred` as a definition.
   - [`@spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter`](#spec-a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter) — The checker says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
+  - [`@spec a-definition-that-marks-its-variables-disj-is-said-with-them-different`](#spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different) — The checker says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
   - [`@spec a-definition-with-a-body-of-one-clause-is-said-on-one-line`](#spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line) — The checker says a definition whose body is one clause on one line after the "for every".
   - [`@spec a-definition-says-each-parameter-with-the-noun-of-its-type`](#spec-a-definition-says-each-parameter-with-the-noun-of-its-type) — The checker says each parameter of a definition with the noun of its type.
   - [`@spec a-definition-is-said-in-markdown-the-way-a-formula-is`](#spec-a-definition-is-said-in-markdown-the-way-a-formula-is) — In the Markdown layout, the checker says a definition with a blank line between its paragraphs.
@@ -1654,6 +1658,24 @@ This follows because a quantifier without a noun for its type cannot say what it
 
 This follows because the reading talks about something the formula does not mention, and any word put there would be invented.
 
+#### @spec a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused
+
+> The checker refuses a formula whose reading of a word leaves out a place that the formula fills, and names the place.
+
+This follows because the variable in that place would drop out of the statement, which would then say less than the formula.
+
+#### @spec a-binary-temporal-operator-inside-a-side-of-another-is-refused
+
+> The checker refuses `until`, `since`, `releases`, `triggered` or `;` with a side that holds one of them, except a `;` after a `;`.
+
+This follows because the words of each one are a clause with commas, and two of them nested read in more than one way. A chain of `;` reads in order.
+
+#### @spec a-primed-relation-of-a-variable-signature-is-refused
+
+> The checker refuses a prime on a relation `Sig.rel` that has a reading of its own when `Sig` is a `var sig`.
+
+This follows because the prime then moves the signature to the next moment too. "At the next moment" in front would say that, but the reading of the relation names the signature as it is now.
+
 #### @spec a-construct-the-words-do-not-cover-is-refused
 
 > The checker refuses a formula with a construct that the words do not cover, and names the construct.
@@ -1785,6 +1807,12 @@ This follows because the keyword is how the author says that the text defines a 
 > The checker says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
 
 This follows because a definition fixes the meaning of a word for every value, and "exactly when" says that it holds in both directions.
+
+#### @spec a-definition-that-marks-its-variables-disj-is-said-with-them-different
+
+> The checker says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
+
+This follows because `disj` before the variables of a predicate adds that condition to its body.
 
 #### @spec a-definition-with-a-body-of-one-clause-is-said-on-one-line
 

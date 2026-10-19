@@ -37,6 +37,8 @@ export interface Readings {
   definitions: Map<string, Definition>;
   /** The fields the vocabulary declares, each with the signature that declares it and the type it points at: `on` is from `Cleanup` to `Owner`. */
   fields: Map<string, Field>;
+  /** The signatures the vocabulary declares `var`, whose members change from one moment to the next. */
+  variables: Set<string>;
 }
 
 /** A field of a signature, from the signature to the type it points at. Its owner is unknown when one declaration declares it for several signatures. */
@@ -61,8 +63,10 @@ export function parseDefinitions(vocabulary: string): Map<string, Definition> {
       end++;
     }
     if (depth !== 0) throw new Error(`the predicate "${m[1]}" has no closing brace`);
-    const params = (m[2] ?? '').split(',').map(part => part.split(':')[0]!.trim()).filter(name => name !== '');
-    definitions.set(m[1] as string, { params, body: vocabulary.slice((m.index ?? 0) + m[0].length, end - 1) });
+    const groups = parameterGroups(m[2] ?? '');
+    const body = vocabulary.slice((m.index ?? 0) + m[0].length, end - 1);
+    const different = differences(groups).map(([a, b]) => `${a} != ${b}`);
+    definitions.set(m[1] as string, { params: groups.flatMap(g => g.names), body: different.length === 0 ? body : `${different.join(' and ')} and (${body})` });
   }
   return definitions;
 }
@@ -110,7 +114,8 @@ export function parseFields(vocabulary: string): Map<string, Field> {
 export const withDefinitions = (readings: Readings, vocabulary: string): Readings => ({
   ...readings,
   definitions: parseDefinitions(vocabulary),
-  fields: parseFields(vocabulary)
+  fields: parseFields(vocabulary),
+  variables: new Set([...vocabulary.matchAll(/\bvar\s+(?:(?:abstract|one|lone|some)\s+)*sig\s+([\w\s,]+?)\s*(?:extends\b|in\b|\{|=)/g)].flatMap(m => (m[1] as string).split(',').map(name => name.trim())))
 });
 
 /**
@@ -125,7 +130,7 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
  * link in it to a unit of its own document, `(#term-checker)`, goes through the path.
  */
 export function parseReadings(text: string, unit?: string, base?: string): Readings {
-  const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map() };
+  const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set() };
   for (const raw of text.split('\n')) {
     const line = (base === undefined ? raw : raw.replace(/\]\(#([^)\s]+)\)/g, `](${base}#$1)`)).trim();
     if (line === '' || line.startsWith('#')) continue;
@@ -223,6 +228,27 @@ type Doc =
 
 const isList = (doc: Doc): doc is Extract<Doc, { kind: 'list' }> => typeof doc !== 'string' && doc.kind === 'list';
 
+/** Whether a formula holds `until`, `since`, `releases`, `triggered` or `;` anywhere in it. */
+function holdsBinary(node: Node): boolean {
+  switch (node.t) {
+    case 'binary':
+      return true;
+    case 'not':
+    case 'unary':
+      return holdsBinary(node.f);
+    case 'and':
+    case 'or':
+      return node.items.some(holdsBinary);
+    case 'implies':
+    case 'iff':
+      return holdsBinary(node.l) || holdsBinary(node.r);
+    case 'quant':
+      return holdsBinary(node.body);
+    default:
+      return false;
+  }
+}
+
 /** Put words in front of a doc, on its first line. */
 function prefix(words: string, doc: Doc): Doc {
   if (typeof doc === 'string') return words + doc;
@@ -280,10 +306,20 @@ class Verbalizer {
 
   /** The expression without its prime, and whether it had one: `Ran'`, `c.on'` and `(c.on)'` are each one name primed. */
   private unprimed(node: Node): { e: Node; primed: boolean } {
-    if (node.t === 'prime') return { e: node.e, primed: true };
-    if (node.t === 'join' && node.r.t === 'prime') return { e: { ...node, r: node.r.e }, primed: true };
-    if (node.t === 'join' && node.l.t === 'prime') return { e: { ...node, l: node.l.e }, primed: true };
-    return { e: node, primed: false };
+    const found =
+      node.t === 'prime'
+        ? { e: node.e, primed: true }
+        : node.t === 'join' && node.r.t === 'prime'
+          ? { e: { ...node, r: node.r.e }, primed: true }
+          : node.t === 'join' && node.l.t === 'prime'
+            ? { e: { ...node, l: node.l.e }, primed: true }
+            : { e: node, primed: false };
+    // `Sig.rel` read as a relation of its own: the prime moves `Sig` as well, and its reading names `Sig` as it is now.
+    const { e } = found;
+    if (found.primed && e.t === 'join' && e.l.t === 'name' && e.r.t === 'name' && this.readings.atoms.has(`${e.l.name}.${e.r.name}`) && this.readings.variables.has(e.l.name)) {
+      throw new Error(`"${e.l.name}" is a var sig, so a prime on "${e.l.name}.${e.r.name}" moves it too`);
+    }
+    return found;
   }
 
   /** A primed name that the readings give a line of its own, as `Throwing'`. */
@@ -337,11 +373,14 @@ class Verbalizer {
     if (!reading) throw new Error(`no reading for "${key}"`);
     const words = negative ? reading.negative : reading.positive;
     if (words === undefined) throw new Error(`no negative reading for "${key}"`);
-    return mark(words, reading.unit).replace(/\{(\d+)\}/g, (_, n: string) => {
+    const said = mark(words, reading.unit).replace(/\{(\d+)\}/g, (_, n: string) => {
       const slot = slots[Number(n) - 1];
       if (slot === undefined) throw new Error(`the reading of "${key}" uses {${n}}, which the formula does not give`);
       return `${VARIABLE}${slot}${VARIABLE}`;
     });
+    const missing = slots.findIndex((_, i) => !words.includes(`{${i + 1}}`));
+    if (missing !== -1) throw new Error(`the reading of "${key}" leaves out {${missing + 1}}, which the formula gives`);
+    return said;
   }
 
   /** The article a noun was written with, with the space that follows it. */
@@ -824,6 +863,9 @@ class Verbalizer {
         return prefix(words[node.op], this.doc(node.f));
       }
       case 'binary': {
+        // A chain of `;` reads in order; any other nesting of these clauses with commas reads in more than one way.
+        const sides = node.op === ';' && node.r.t === 'binary' && node.r.op === ';' ? [node.l] : [node.l, node.r];
+        if (sides.some(holdsBinary)) throw new Error(`"${node.op}" with a side that holds "until", "since", "releases", "triggered" or ";" reads in more than one way`);
         const [l, r] = [this.doc(node.l), this.doc(node.r)];
         if (typeof l !== 'string' || typeof r !== 'string') throw new Error(`"${node.op}" is supported only between two clauses`);
         switch (node.op) {
@@ -928,20 +970,33 @@ const DEFINITION = /^\s*pred\s+(\w+)\s*(?:\[([^\]]*)\])?\s*\{([\s\S]*)\}\s*$/;
 /** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
 export const isDefinition = (source: string): boolean => /^\s*pred\b/.test(source);
 
-/** The parameters of a definition, `a, b: T, c: U`, each with its type. */
-function parameters(text: string): { name: string; type: string }[] {
-  const found: { name: string; type: string }[] = [];
-  let pending: string[] = [];
+/** The parameters of a definition, `disj a, b: T, c: U`, in groups that share a type; a group marked `disj` stands for different things. */
+function parameterGroups(text: string): { names: string[]; type?: string; disj: boolean }[] {
+  const groups: { names: string[]; type?: string; disj: boolean }[] = [];
+  let pending: { names: string[]; disj: boolean } = { names: [], disj: false };
   for (const part of text.split(',').map(p => p.trim()).filter(p => p !== '')) {
-    const [names, type] = part.includes(':') ? part.split(':').map(p => p.trim()) : [part, undefined];
-    pending.push(names as string);
+    const [rawNames, type] = part.includes(':') ? part.split(':').map(p => p.trim()) : [part, undefined];
+    const disj = /^disj\s+/.test(rawNames as string);
+    pending = { names: [...pending.names, (rawNames as string).replace(/^disj\s+/, '')], disj: pending.disj || disj };
     if (type !== undefined) {
-      found.push(...pending.map(name => ({ name, type })));
-      pending = [];
+      groups.push({ ...pending, type });
+      pending = { names: [], disj: false };
     }
   }
-  if (pending.length > 0) throw new Error(`the parameter "${pending[0]}" has no type`);
-  return found;
+  if (pending.names.length > 0) groups.push(pending);
+  return groups;
+}
+
+/** The pairs of parameters that `disj` says are different. */
+const differences = (groups: { names: string[]; disj: boolean }[]): [string, string][] =>
+  groups.filter(g => g.disj).flatMap(g => g.names.flatMap((a, i) => g.names.slice(i + 1).map((b): [string, string] => [a, b])));
+
+/** The parameters of a definition, `a, b: T, c: U`, each with its type. */
+function parameters(text: string): { name: string; type: string }[] {
+  const groups = parameterGroups(text);
+  const untyped = groups.find(g => g.type === undefined);
+  if (untyped !== undefined) throw new Error(`the parameter "${untyped.names[0]}" has no type`);
+  return groups.flatMap(g => g.names.map(name => ({ name, type: g.type as string })));
 }
 
 /**
@@ -951,7 +1006,10 @@ function parameters(text: string): { name: string; type: string }[] {
 export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
   const m = DEFINITION.exec(source);
   if (!m) throw new Error('a definition is written `pred name[parameters] { formula }`');
-  const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), parseFormula(m[3] as string));
+  const body = parseFormula(m[3] as string);
+  const different: Node[] = differences(parameterGroups(m[2] ?? '')).map(([a, b]) => ({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } }));
+  const all: Node = different.length === 0 ? body : { t: 'and', items: [...different, ...(body.t === 'and' ? body.items : [body])] };
+  const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), all);
   return finish(doc, layout, self);
 }
 

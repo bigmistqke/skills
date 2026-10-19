@@ -482,6 +482,18 @@ describe('a definition', () => {
   });
 
   /**
+   * @canon spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different
+   */
+  it('says a definition with disj variables, and a call of it by its body, with the variables different', () => {
+    const vocabulary = 'sig Cleanup {} var sig Ran in Cleanup {} pred pair[disj c, d: Cleanup] { c in Ran } pred both[disj c, d: Cleanup] { c in Ran }';
+    const readings = withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\npair: {1} pairs with {2} | {1} does not pair with {2}'), vocabulary);
+    expect(verbalizeDefinition('pred pair[disj c, d: Cleanup] { c in Ran }', readings)).toBe(
+      'For every cleanup_1 and every cleanup_2:\n  cleanup_1 pairs with cleanup_2 exactly when cleanup_1 and cleanup_2 are different and cleanup_1 has run.'
+    );
+    expect(say('both[a, b]', readings)).toBe('a and b are different and a has run.');
+  });
+
+  /**
    * @canon spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line
    */
   it('says a body of one clause on one line', () => {
@@ -895,6 +907,35 @@ describe('what it refuses', () => {
   it('says when a reading uses a variable the formula does not give', () => {
     const readings = parseReadings('on: {1} is on {3}');
     expect(() => say('c->o in on', readings)).toThrow('uses {3}');
+  });
+
+  /**
+   * @canon spec-a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused
+   */
+  it('refuses a reading that leaves out a place the formula fills', () => {
+    expect(() => say('dispose[c, d]')).toThrow('the reading of "dispose" leaves out {2}');
+    expect(() => say('c->d in Ran')).toThrow('the reading of "Ran" leaves out {2}');
+    expect(() => verbalizeDefinition('pred dispose[c, d: Cleanup] { c in Ran }', READINGS)).toThrow('the reading of "dispose" leaves out {2}');
+  });
+
+  /**
+   * @canon spec-a-binary-temporal-operator-inside-a-side-of-another-is-refused
+   */
+  it('refuses a binary temporal operator inside a side of another, but reads a chain of ";"', () => {
+    expect(() => say('c in Ran until (d in Ran until c in Registered)')).toThrow('reads in more than one way');
+    expect(() => say('(c in Ran since d in Ran) until c in Registered')).toThrow('reads in more than one way');
+    expect(() => say('(c in Ran until d in Ran) ; c in Registered')).toThrow('reads in more than one way');
+    expect(say('c in Ran ; d in Ran ; c in Registered')).toBe('c has run, and at the next moment, d has run, and at the next moment, code has registered c.');
+  });
+
+  /**
+   * @canon spec-a-primed-relation-of-a-variable-signature-is-refused
+   */
+  it('refuses a prime on a relation of a var sig, and says one of a sig that does not change', () => {
+    const queue = withDefinitions(parseReadings('Queue.older: code queued {1} before {2} | code did not queue {1} before {2}'), 'sig Cleanup {} var sig Queue { older: Cleanup -> Cleanup }');
+    expect(() => say("c->d in Queue.older'", queue)).toThrow('"Queue" is a var sig');
+    expect(() => say("c->d in (Queue.older)'", queue)).toThrow('"Queue" is a var sig');
+    expect(say("c->d in Clock.older'")).toBe('At the next moment, code registered c before d.');
   });
 
   /**
