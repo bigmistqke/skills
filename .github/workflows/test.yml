@@ -28,12 +28,13 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: node scripts/kinds.ts --check
+      - run: node scripts/graph.ts --check
       - name: Check the canons
         run: |
-          for p in canon naturalloy parse-alloy canon-plugin-alloy; do
+          for p in canon naturalloy parse-alloy canon-plugin-alloy canon-plugin-pele; do
             (cd "packages/$p" && node ../canon/src/cli.ts check --offline)
           done
-          for p in naturalloy parse-alloy canon-plugin-alloy; do
+          for p in naturalloy parse-alloy canon-plugin-alloy canon-plugin-pele; do
             (cd "packages/$p" && node ../canon/src/cli.ts lint CANON.md)
           done
 
@@ -43,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [canon, canon-plugin-retext, canon-plugin-alloy, naturalloy, parse-alloy]
+        package: [canon, canon-plugin-retext, canon-plugin-alloy, canon-plugin-pele, naturalloy, parse-alloy]
     env:
       CANON_ALLOY_JAR: ${{ github.workspace }}/../alloy.jar
     steps:
