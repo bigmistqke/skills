@@ -152,6 +152,82 @@ describe('the words of a document', () => {
     const src = doc({ node: 'sig Node { rel: lone Node }\none sig Other { rel: Node -> Node }\nvar sig Done in Node {}', reading: 'noun Node: node\nOther.rel: {1} is before {2} | {1} is not before {2}\nNode.rel: {2} follows {1} | {2} does not follow {1}\nDone: {1} is done | {1} is not done', spec: 'always all n: Node | n in Done or n->n in Other.rel' });
     expect(checkWords(src).map(f => f.message)).toEqual(['declares "Node.rel", which no claim, definition or fact uses']);
   });
+
+  /**
+   * @canon spec-a-field-named-after-a-dot-is-used
+   */
+  it('count a field as used when a formula names it after a dot', () => {
+    expect(checkWords(doc({ spec: 'always all n: Node | n in Done or no n.next' }))).toEqual([]);
+  });
+
+  /**
+   * @canon spec-a-field-named-before-a-dot-is-used
+   */
+  it('count a field as used when a formula names it before a dot', () => {
+    expect(checkWords(doc({ spec: 'always all n: Node | n in Done or no next.n' }))).toEqual([]);
+  });
+
+  /**
+   * @canon spec-a-field-named-on-its-own-is-used
+   */
+  it('count a field as used when a formula names it on its own', () => {
+    expect(checkWords(doc({ spec: 'always all n, m: Node | n->m in next implies m in Done' }))).toEqual([]);
+    expect(checkWords(doc({ spec: 'always all n: Node | n in Done', extra: '\n```alloy\nfact f { next in Node -> Node }\n```\n' }))).toEqual([]);
+  });
+
+  /**
+   * The lanes of a globe: two fields are used only as `l->g in ended` by the
+   * claims, and on their own by a fact of the vocabulary. The holder of a
+   * claim is used only by a scenario.
+   *
+   * @canon spec-a-field-named-on-its-own-is-used
+   * @canon spec-a-word-that-a-scenario-names-is-used
+   */
+  it('count the fields of a lane as used when the claims, a fact or a scenario name them on their own', () => {
+    const src = `# Canon
+
+## @term lane
+
+\`\`\`alloy vocabulary
+sig Holder {}
+sig Lane { var holder: set Holder, var ended: set Holder, var started: set Holder }
+sig Claim { kind: one Holder }
+fact an_edge_names_the_holder_it_brackets { always (ended in holder and started in holder') }
+\`\`\`
+
+\`\`\`readings
+noun Holder: holder
+noun Lane: lane
+holder: {2} holds {1} | {2} does not hold {1}
+ended: {1} reports the end of {2} | {1} does not report the end of {2}
+started: {1} reports the start of {2} | {1} does not report the start of {2}
+noun Claim: claim
+kind: {1} is of {2} | {1} is not of {2}
+\`\`\`
+
+## ${AXIOM} an-end-and-a-start-come-together
+
+\`\`\`alloy
+always all l: Lane | (some g: Holder | l->g in ended) implies (some h: Holder | l->h in started)
+\`\`\`
+
+\`\`\`alloy scenario
+some c: Claim, k: Holder | c->k in kind
+\`\`\`
+`;
+    expect(checkWords(src)).toEqual([]);
+  });
+
+  /**
+   * @canon spec-a-field-that-only-its-declaration-names-is-unused
+   */
+  it('count a field as unused when only the declaration of its signature names it', () => {
+    const src = doc({ node: 'sig Node { next: lone Node, idle, spare: set Node }\nvar sig Done in Node {}' });
+    expect(checkWords(src).map(f => f.message)).toEqual([
+      'declares "Node.idle", which no claim, definition or fact uses',
+      'declares "Node.spare", which no claim, definition or fact uses'
+    ]);
+  });
 });
 
 describe('the command line', () => {
