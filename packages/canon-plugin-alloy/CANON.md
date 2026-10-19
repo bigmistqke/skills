@@ -60,6 +60,11 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-declared-word-that-no-claim-uses-is-unused`](#spec-a-declared-word-that-no-claim-uses-is-unused) — For every [word_1](#term-word): when all of these hold: - a [unit](../canon/CANON.md#term-unit) declares word_1 - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1 then word_1 is a word that no claim, definition or fact uses.
   - [`@spec a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used`](#spec-a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used) — A word that a fact, a parent signature or a predicate names counts as used.
   - [`@spec a-field-that-another-signature-shares-is-used-only-through-its-own-signature`](#spec-a-field-that-another-signature-shares-is-used-only-through-its-own-signature) — When two signatures give a field the same name, a unit uses the field only through its own signature.
+  - [`@spec a-field-is-used-wherever-a-formula-names-it`](#spec-a-field-is-used-wherever-a-formula-names-it) — A unit uses a field wherever a formula of it names the field: after a dot, before a dot, or on its own.
+    - [`@spec a-field-named-after-a-dot-is-used`](#spec-a-field-named-after-a-dot-is-used) — A field that a formula names after a dot, as in `x.field`, counts as used.
+    - [`@spec a-field-named-before-a-dot-is-used`](#spec-a-field-named-before-a-dot-is-used) — A field that a formula names before a dot, as in `field.x`, counts as used.
+    - [`@spec a-field-named-on-its-own-is-used`](#spec-a-field-named-on-its-own-is-used) — A field that a formula names on its own, as in `x->y in field` or `field in other`, counts as used.
+    - [`@spec a-field-that-only-its-declaration-names-is-unused`](#spec-a-field-that-only-its-declaration-names-is-unused) — A field that only the declaration of its signature names counts as unused.
   - [`@spec a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported`](#spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported) — For every [term_1](../canon/CANON.md#term-term) and every [word_1](#term-word): when all of these hold: - term_1 declares word_1 - a reading in term_1 says word_1 - there is a [unit_1](../canon/CANON.md#term-unit) such that a claim, a definition or a fact of unit_1 uses word_1 then all of these hold: - word_1 is not a word that a reading says and nothing declares - word_1 is not a word declared in a unit that is not a term - word_1 is not a word whose reading is in another unit than its declaration - word_1 is not a word that no claim, definition or fact uses - [checker](../canon/CANON.md#term-checker) does not report the word word_1
   - [`@spec a-document-that-keeps-no-readings-has-no-word-reported`](#spec-a-document-that-keeps-no-readings-has-no-word-reported) — For every [document_1](../canon/CANON.md#term-document) and every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word): when document_1 keeps no readings, [holds](../canon/CANON.md#term-hold) unit_1 and unit_1 declares word_1, then all of these hold: - word_1 is not a word that a reading says and nothing declares - word_1 is not a word declared in a unit that is not a term - word_1 is not a word whose reading is in another unit than its declaration - word_1 is not a word that no claim, definition or fact uses - [checker](../canon/CANON.md#term-checker) does not report the word word_1
   - [`@spec a-signature-a-field-and-a-predicate-are-declared-words`](#spec-a-signature-a-field-and-a-predicate-are-declared-words) — A unit declares each signature, field and predicate that a model block of it writes.
@@ -1184,6 +1189,36 @@ This follows because the model relies on such a word even where no claim names i
 > When two signatures give a field the same name, a unit uses the field only through its own signature.
 
 This follows because a use of the field of another signature says nothing about this field.
+
+#### @spec a-field-is-used-wherever-a-formula-names-it
+
+> A unit uses a field wherever a formula of it names the field: after a dot, before a dot, or on its own.
+
+This follows because Alloy reads the name of a field as its relation in each of these places. A claim that names the field in any of them relies on it. The readings say that a pair is in a field as `x->y in field`, and a statement may say such a field.
+
+##### @spec a-field-named-after-a-dot-is-used
+
+> A field that a formula names after a dot, as in `x.field`, counts as used.
+
+This follows because `x.field` joins a value with the relation of the field.
+
+##### @spec a-field-named-before-a-dot-is-used
+
+> A field that a formula names before a dot, as in `field.x`, counts as used.
+
+This follows because `field.x` joins the relation of the field with a value.
+
+##### @spec a-field-named-on-its-own-is-used
+
+> A field that a formula names on its own, as in `x->y in field` or `field in other`, counts as used.
+
+This follows because the field on its own is the whole relation. The readings say that a pair is in a field only in this form.
+
+##### @spec a-field-that-only-its-declaration-names-is-unused
+
+> A field that only the declaration of its signature names counts as unused.
+
+This follows because a declaration makes the field and says nothing of it, so no claim relies on it yet.
 
 #### @spec a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported
 

@@ -206,11 +206,13 @@ const declarations = (words: Word[], word: Word): number => words.filter(w => w.
 
 /**
  * How many times a field is used: written `Holder.field`, or, when no other
- * signature has a field of that name, written after any value, `x.field`.
+ * signature has a field of that name, named anywhere apart from its
+ * declaration, `x.field`, `field.x`, `x->y in field` or `field` alone.
  */
 function usesOfField(text: string, words: Word[], word: Word): number {
   const [holder, field] = word.name.split('.') as [string, string];
   const shared = words.filter(w => w.kind === 'field' && w.name.endsWith(`.${field}`)).length > 1;
-  const pattern = shared ? new RegExp(`\\b${holder}\\s*\\.\\s*${field}\\b`, 'g') : new RegExp(`\\.\\s*${field}\\b`, 'g');
-  return (text.match(pattern) ?? []).length;
+  if (shared) return (text.match(new RegExp(`\\b${holder}\\s*\\.\\s*${field}\\b`, 'g')) ?? []).length;
+  // the declaration of the field names it once
+  return (text.match(new RegExp(`\\b${field}\\b`, 'g')) ?? []).length - 1;
 }
