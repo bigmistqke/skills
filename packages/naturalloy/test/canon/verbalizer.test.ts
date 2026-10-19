@@ -767,6 +767,15 @@ describe('a quantifier said as a noun phrase', () => {
   });
 
   /**
+   * @canon spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full
+   */
+  it('is said in full when a time phrase begins one of several conditions', () => {
+    expect(verbalize("some o: Owner | o in c.on' and p in o.parent", READINGS)).toBe('There is an owner_1 such that all of these hold:\n  - at the next moment, c is on owner_1\n  - p is the parent of owner_1');
+    expect(verbalize("p in c.on'.parent", READINGS)).toBe('There is an owner_1 such that all of these hold:\n  - at the next moment, c is on owner_1\n  - p is the parent of owner_1');
+    expect(verbalize("some o: Owner | o in c.on'", READINGS)).toBe('At the next moment, c is on an owner.');
+  });
+
+  /**
    * @canon spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full
    * @canon spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full
    * @canon spec-no-with-another-is-said-in-full
@@ -833,6 +842,14 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
+   * @canon spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own
+   */
+  it('put the "then" of a rule on a line of its own when the first side begins with a time phrase', () => {
+    expect(say("c in Ran' implies d in Ran")).toBe('When at the next moment, c has run\nthen d has run.');
+    expect(verbalize("c in Ran' implies d in Ran", READINGS, 'markdown')).toBe('When at the next moment, c has run,\n\nthen d has run.');
+  });
+
+  /**
    * @canon spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own
    */
   it('put the "then" of a rule on a line of its own when a side is a list, whatever follows it', () => {
@@ -854,6 +871,14 @@ describe('the items of a list said in a sentence', () => {
    */
   it('say a subject once, when clauses beside each other begin with it', () => {
     expect(said('u in Spec and (no v: Unit | u->v in Sit.rel)')).toBe('unit_1 is a spec and sits in no unit.');
+  });
+
+  /**
+   * @canon spec-a-subject-is-said-again-after-a-relative-clause
+   */
+  it('say the subject again after a clause with a relative clause', () => {
+    expect(said('(some v: Unit | u->v in Sit.rel and v in Spec) and u in Axiom')).toBe('unit_1 sits in a unit that is a spec and unit_1 is an axiom.');
+    expect(say('some c.on & Disposed and c in Ran')).toBe('c is on an owner that pulse has disposed and c has run.');
   });
 
   /**

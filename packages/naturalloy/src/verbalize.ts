@@ -1247,6 +1247,8 @@ class Verbalizer {
       if (clause === undefined || clause.split(hole).length !== 2) return undefined;
       said.push(clause);
     }
+    // A time phrase in the phrase would cover the other conditions too.
+    if (said.length > 1 && said.some(timed)) return undefined;
     // The main clause puts the variable beside something else, and preferably at the end: "test_1 carries a tag". The others say more of the variable.
     const others = (s: string): boolean => (s.match(/\u0001[^\u0001]*\u0001/g) ?? []).length >= 2;
     const at = said.findIndex(s => others(s) && s.endsWith(hole));
@@ -1441,7 +1443,8 @@ function shareSubject(clauses: string[]): string[] {
   return clauses.map((clause, i) => {
     const subject = subjectOf(clause);
     const before = clauses[i - 1];
-    if (i === 0 || subject === undefined || before === undefined || subjectOf(before) !== subject) return clause;
+    // After a relative clause, a clause without its subject would read as more of it.
+    if (i === 0 || subject === undefined || before === undefined || subjectOf(before) !== subject || /\bthat\b/.test(plain(before))) return clause;
     const rest = clause.slice(subject.length + 1);
     const pairLike = (c: string): boolean => /^(?:and|or)\b/.test(c.slice(subject.length + 1));
     return pairLike(clause) || pairLike(before) ? clause : rest;
@@ -1474,7 +1477,7 @@ function lines(doc: Doc): string[] {
   const when = lines(doc.when);
   const then = lines(doc.then);
   const otherwise = doc.otherwise === undefined ? undefined : lines(doc.otherwise);
-  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1)) return [oneLine(when, then, otherwise)];
+  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1) && !timed(when[0] as string)) return [oneLine(when, then, otherwise)];
   return [
     `when ${when[0]}`,
     ...when.slice(1),
@@ -1510,7 +1513,7 @@ function markdownLines(doc: Doc): string[] {
   const when = markdownLines(doc.when);
   const then = markdownLines(doc.then);
   const otherwise = doc.otherwise === undefined ? undefined : markdownLines(doc.otherwise);
-  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1)) return [oneLine(when, then, otherwise)];
+  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1) && !timed(when[0] as string)) return [oneLine(when, then, otherwise)];
   return [
     `when ${when[0]}${when.length === 1 ? ',' : ''}`,
     ...when.slice(1),
