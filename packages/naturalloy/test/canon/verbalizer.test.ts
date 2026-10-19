@@ -1700,6 +1700,7 @@ describe('what it refuses', () => {
    */
   it('says which name has no reading', () => {
     expect(() => say('frobnicate[o]')).toThrow('no reading for "frobnicate"');
+    expect(() => say('pred/totalOrder[Owner, o, p]')).toThrow('no reading for "pred/totalOrder"');
   });
 
   /**
