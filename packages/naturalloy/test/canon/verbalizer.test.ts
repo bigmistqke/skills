@@ -253,7 +253,7 @@ describe('the words', () => {
     const beside = say('(c.on = o and c in Ran) implies c in Registered', withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}\nRan: {1} has run | {1} has not run\nRegistered: code has registered {1} | code has not registered {1}'), 'sig Owner {} sig Cleanup { var on: set Owner }'));
     expect(beside).toContain('for every owner_1:');
     expect(beside).not.toContain('owner_2');
-    expect(() => say('c.on != o', many)).toThrow('"!=" between a field of many values and a variable is not supported');
+    expect(say('c.on != o', many)).toBe('There is an owner_1 such that exactly one of these holds:\n  - c is on owner_1\n  - owner_1 and o are the same');
   });
 
   /**
@@ -265,7 +265,7 @@ describe('the words', () => {
     const beside = say('(c.on = d.on and c in Ran) implies c in Registered');
     expect(beside).toContain('for every owner_1:');
     expect(beside).not.toContain('owner_2');
-    expect(() => say('c.on != d.on')).toThrow('two values are compared only with "="');
+    expect(say('c.on != d.on')).toBe('There is an owner_1 such that exactly one of these holds:\n  - c is on owner_1\n  - d is on owner_1');
   });
 
   /**
@@ -876,6 +876,184 @@ describe('the items of a list said in a sentence', () => {
   });
 });
 
+describe('an expression said through the types of its columns', () => {
+  /**
+   * @canon spec-a-union-on-the-right-is-said-as-or
+   */
+  it('says a union on the right as or', () => {
+    expect(say('c in Ran + Registered')).toBe('c has run or code has registered c.');
+    expect(say('c not in Ran + Registered')).toBe('c has not run and code has not registered c.');
+    expect(say('o->p in parent + handler')).toBe('p is the parent of o or is the nearest error handler or boundary above o.');
+  });
+
+  /**
+   * @canon spec-an-intersection-on-the-right-is-said-as-and
+   */
+  it('says an intersection on the right as and', () => {
+    expect(say('c in Ran & Registered')).toBe('c has run and code has registered c.');
+  });
+
+  /**
+   * @canon spec-not-in-before-a-difference-is-said-as-the-negation-of-in
+   */
+  it('says not in before a difference as the negation of in', () => {
+    expect(say('c not in Registered - Ran')).toBe('At least one of these holds:\n  - code has not registered c\n  - c has run');
+  });
+
+  /**
+   * @canon spec-membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it
+   */
+  it('says membership in a navigation of an expression as a pair in it', () => {
+    expect(say('o in c.(on + reached)')).toBe('c is on o or the error of c has reached o.');
+    expect(say('c in (on + reached).o')).toBe('c is on o or the error of c has reached o.');
+  });
+
+  /**
+   * @canon spec-a-pair-in-a-product-is-said-as-each-side-in-its-part
+   */
+  it('says a pair in a product as each side in its part', () => {
+    expect(say('c->o in Cleanup -> Owner')).toBe('c is a cleanup and o is an owner.');
+  });
+
+  /**
+   * @canon spec-membership-in-a-chain-of-navigations-is-said-through-a-member-between
+   */
+  it('says membership in a chain of navigations through a member between', () => {
+    expect(say('p in c.on.parent')).toBe('c is on an owner that p is the parent of.');
+  });
+
+  /**
+   * @canon spec-membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it
+   */
+  it('says membership in a navigation from a signature through a member of it', () => {
+    expect(say('o in Cleanup.on')).toBe('A cleanup is on o.');
+    expect(say('o not in Cleanup.on')).toBe('No cleanup is on o.');
+  });
+
+  /**
+   * @canon spec-membership-in-a-signature-with-no-reading-is-said-with-its-noun
+   */
+  it('says membership in a signature with no reading with its noun', () => {
+    expect(say('c in Cleanup')).toBe('c is a cleanup.');
+    expect(say('o not in Owner')).toBe('o is not an owner.');
+  });
+
+  /**
+   * @canon spec-a-primed-expression-is-said-at-the-next-moment
+   */
+  it('says a primed expression at the next moment', () => {
+    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, c has run or code has registered c.');
+  });
+
+  /**
+   * @canon spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member
+   */
+  it('says an expression of a variable on the left member by member', () => {
+    expect(say('c.on in Disposed')).toBe('For every owner_1:\n  when c is on owner_1, pulse has disposed owner_1.');
+    expect(say('c.on not in Disposed')).toBe('c is on an owner that pulse has not disposed.');
+  });
+
+  /**
+   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   */
+  it('refuses two sets compared, primed or not', () => {
+    expect(() => say("Throwing' in Throwing")).toThrow('"Throwing\'" is a set or a field, where a variable must be');
+    expect(() => say('Ran + Registered in Disposed')).toThrow('is a set or a field, where a variable must be');
+    expect(() => say('Ran = Registered')).toThrow('is a set or a field, where a variable must be');
+  });
+
+  /**
+   * @canon spec-two-expressions-that-are-equal-are-said-member-by-member
+   */
+  it('says two expressions that are equal member by member', () => {
+    expect(say('c.on.parent = o')).toBe('For every owner_1:\n  c is on an owner that owner_1 is the parent of exactly when owner_1 and o are the same.');
+    expect(say('c.on.parent != o')).toBe('There is an owner_1 such that exactly one of these holds:\n  - c is on an owner that owner_1 is the parent of\n  - owner_1 and o are the same');
+  });
+
+  /**
+   * @canon spec-some-or-no-of-an-expression-is-said-over-the-types-of-its-columns
+   */
+  it('says some or no of an expression over the types of its columns', () => {
+    expect(say('no Ran & Registered')).toBe('There is no cleanup_1 such that cleanup_1 has run and code has registered cleanup_1.');
+    expect(say('some Ran - Registered')).toBe('There is a cleanup_1 such that cleanup_1 has run and code has not registered cleanup_1.');
+    expect(say('some c.on & Disposed')).toBe('c is on an owner that pulse has disposed.');
+    expect(say('no on')).toBe('There is no combination of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.');
+    expect(say('some ~on')).toBe('There are owner_1 and cleanup_1 such that cleanup_1 is on owner_1.');
+  });
+
+  /**
+   * @canon spec-one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one
+   */
+  it('says one or lone of an expression as exactly or at most one', () => {
+    expect(say('one Ran')).toBe('There is exactly one cleanup_1 such that cleanup_1 has run.');
+    expect(say('lone c.on')).toBe('There is at most one owner_1 such that c is on owner_1.');
+  });
+
+  /**
+   * @canon spec-an-expression-whose-types-the-vocabulary-does-not-tell-is-refused
+   */
+  it('refuses an expression whose column types the vocabulary does not tell', () => {
+    expect(() => say('some Ran + Disposed')).toThrow('the vocabulary does not tell what kind of thing "Ran + Disposed" holds');
+  });
+
+  /**
+   * @canon spec-set-or-seq-before-an-expression-is-refused
+   */
+  it('refuses set or seq before an expression', () => {
+    expect(() => say('set Ran')).toThrow('"set" before an expression is not a formula; Alloy reads it only in a declaration');
+    expect(() => say('seq Ran')).toThrow('"seq" before an expression is not a formula');
+  });
+});
+
+describe('calls', () => {
+  /**
+   * @canon spec-a-call-written-as-a-join-is-said-as-the-call
+   */
+  it('says a call written as a join as the call', () => {
+    expect(say('o.dispose')).toBe('Pulse disposes o.');
+    expect(say('not o.dispose')).toBe('Pulse does not dispose o.');
+    expect(say('c.runByCall[o]')).toContain('Code disposes o after pulse disposed it, and that call runs c');
+  });
+
+  /**
+   * @canon spec-a-box-join-of-a-field-is-said-as-the-navigation
+   */
+  it('says a box join of a field as the navigation', () => {
+    expect(say('o in on[c]')).toBe('c is on o.');
+    expect(say('no on[c]')).toBe('c is on no owner.');
+  });
+
+  /**
+   * @canon spec-a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place
+   */
+  it('says a call with an expression by the body, with the expression in place', () => {
+    const readings = withDefinitions(parseReadings(read('readings.txt')), `${read('vocabulary.als')}\npred settled[x: Cleanup] { x in Registered and x not in Ran }`);
+    expect(say('settled[on.o]', readings)).toBe(
+      ['All of these hold:', '  - for every cleanup_1:', '      when cleanup_1 is on o, code has registered cleanup_1', '  - a cleanup that has not run is on o'].join('\n')
+    );
+  });
+
+  const ONE = withDefinitions(
+    parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\nholder: {1} belongs to {2} | {1} does not belong to {2}\non: {1} is on {2} | {1} is not on {2}\ndispose: pulse disposes {1} | pulse does not dispose {1}'),
+    'sig Owner {} sig Cleanup { holder: Owner, on: lone Owner } pred dispose[o: Owner] { some o }'
+  );
+
+  /**
+   * @canon spec-a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument
+   */
+  it('says a call with an argument of one value through the member in it', () => {
+    expect(say('dispose[c.holder]', ONE)).toBe('c belongs to an owner that pulse disposes.');
+    expect(say('not dispose[c.holder]', ONE)).toBe('c belongs to an owner that pulse does not dispose.');
+  });
+
+  /**
+   * @canon spec-a-call-with-an-argument-of-none-or-several-values-is-refused
+   */
+  it('refuses a call with an argument of none or several values', () => {
+    expect(() => say('dispose[c.on]', ONE)).toThrow('the reading of "dispose" takes one thing, and "c.on" can hold none or several');
+  });
+});
+
 describe('connectives, quantifiers and let', () => {
   /**
    * @canon spec-an-equivalence-of-two-clauses-is-said-with-exactly-when
@@ -1128,9 +1306,8 @@ describe('what it refuses', () => {
    * @canon spec-a-construct-the-words-do-not-cover-is-refused
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
-    expect(() => say('some ^on')).toThrow('a set must be a name, not a closure');
+    expect(() => say('some ^on')).toThrow('"^on" holds a closure, which has no words');
     expect(() => say('(all c: Cleanup | c in Ran) releases d in Ran')).toThrow('"releases" is supported only between two clauses');
-    expect(() => say('some ~on')).toThrow('a set must be a name, not a transpose');
   });
 
   /**

@@ -44,6 +44,11 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-negated-predicate-with-no-reading-is-said-as-untrue`](#spec-a-negated-predicate-with-no-reading-is-said-as-untrue) — The verbalizer says a negated call of a predicate with no reading as "it is not the case that", followed by the body.
   - [`@spec the-reading-of-the-table-wins-over-the-body`](#spec-the-reading-of-the-table-wins-over-the-body) — The verbalizer says a call of a predicate that has both a reading and a body with the reading.
   - [`@spec the-checker-reads-the-predicates-a-vocabulary-declares`](#spec-the-checker-reads-the-predicates-a-vocabulary-declares) — The verbalizer reads each predicate that a vocabulary declares: its name, what it takes and its body.
+  - [`@spec a-call-written-as-a-join-is-said-as-the-call`](#spec-a-call-written-as-a-join-is-said-as-the-call) — The verbalizer says `x.p` and `x.p[y]`, for a predicate `p`, as `p[x]` and `p[x, y]`.
+  - [`@spec a-box-join-of-a-field-is-said-as-the-navigation`](#spec-a-box-join-of-a-field-is-said-as-the-navigation) — The verbalizer says `f[x]`, for a field `f`, as `x.f`.
+  - [`@spec a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place`](#spec-a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place) — The verbalizer says a call of a predicate with no reading by its body also when an argument is an expression. The expression takes the place of the parameter.
+  - [`@spec a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument`](#spec-a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument) — The verbalizer says a call of a predicate with a reading and an argument of one value through a member of its type. That member is the one in the argument.
+  - [`@spec a-call-with-an-argument-of-none-or-several-values-is-refused`](#spec-a-call-with-an-argument-of-none-or-several-values-is-refused) — The verbalizer refuses a call of a predicate with a reading, with an argument that can hold none or several values, and names the argument.
   - [`@spec a-let-is-said-with-its-value-in-the-place-of-its-name`](#spec-a-let-is-said-with-its-value-in-the-place-of-its-name) — The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
   - [`@spec a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused`](#spec-a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused) — The verbalizer refuses a `let` whose body declares a variable with a name that its value uses, and names the variable.
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — The verbalizer says the negation of a comparison or a call with the negative reading of what it negates.
@@ -75,8 +80,24 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The verbalizer says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
   - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The verbalizer refuses a formula that puts a set or a field where a reading takes a variable, and names it.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
-  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
-  - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
+  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+  - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
+  - [`@spec an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns) — The verbalizer says a formula about an expression through members of the types of its columns. This holds for an expression that is more than a set or a navigation of a variable.
+    - [`@spec a-union-on-the-right-is-said-as-or`](#spec-a-union-on-the-right-is-said-as-or) — The verbalizer says `x in a + b`, for a variable or a pair `x`, as `x in a` or `x in b`.
+    - [`@spec an-intersection-on-the-right-is-said-as-and`](#spec-an-intersection-on-the-right-is-said-as-and) — The verbalizer says `x in a & b`, for a variable or a pair `x`, as `x in a` and `x in b`.
+    - [`@spec not-in-before-a-difference-is-said-as-the-negation-of-in`](#spec-not-in-before-a-difference-is-said-as-the-negation-of-in) — The verbalizer says `x not in a - b` as the negation of `x in a - b`: `x not in a` or `x in b`.
+    - [`@spec membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it`](#spec-membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it) — The verbalizer says `x in y.e`, for a variable `y`, as `y->x in e`, and `x in e.y` as `x->y in e`.
+    - [`@spec a-pair-in-a-product-is-said-as-each-side-in-its-part`](#spec-a-pair-in-a-product-is-said-as-each-side-in-its-part) — The verbalizer says `x->y in a -> b` as `x in a` and `y in b`.
+    - [`@spec membership-in-a-chain-of-navigations-is-said-through-a-member-between`](#spec-membership-in-a-chain-of-navigations-is-said-through-a-member-between) — The verbalizer says `x in e.f`, where `e` is not one variable, as `some m: T | m in e and x in m.f`. `T` is the type of the last column of `e`.
+    - [`@spec membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it`](#spec-membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it) — The verbalizer says `x in S.f`, for a signature `S` where `S.f` has no reading of its own, as `some m: S | m->x in f`: "a cleanup is on x".
+    - [`@spec membership-in-a-signature-with-no-reading-is-said-with-its-noun`](#spec-membership-in-a-signature-with-no-reading-is-said-with-its-noun) — The verbalizer says `x in S`, for a signature `S` with a noun and no reading, as `x` "is" the noun with its article: "c is a cleanup".
+    - [`@spec a-primed-expression-is-said-at-the-next-moment`](#spec-a-primed-expression-is-said-at-the-next-moment) — The verbalizer says `x in e'`, for an expression `e`, as "at the next moment" before `x in e`.
+    - [`@spec an-expression-of-a-variable-on-the-left-is-said-member-by-member`](#spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member) — The verbalizer says `e in s`, for an expression `e` that names a variable, as: for every member `m` of the type of `e`, when `m in e`, `m in s`.
+    - [`@spec two-expressions-that-are-equal-are-said-member-by-member`](#spec-two-expressions-that-are-equal-are-said-member-by-member) — The verbalizer says `a = b`, for sides that the specs above do not say, as: for every member `m` of their type, `m in a` exactly when `m in b`. It says `a != b` as the negation of that.
+    - [`@spec some-or-no-of-an-expression-is-said-over-the-types-of-its-columns`](#spec-some-or-no-of-an-expression-is-said-over-the-types-of-its-columns) — The verbalizer says `some e` and `no e`, for an expression the specs above do not say, as `some` or `no` over its column types, with the members in `e`.
+    - [`@spec one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one`](#spec-one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one) — The verbalizer says `one e` and `lone e` as exactly one or at most one member of the types of the columns of `e` in `e`.
+    - [`@spec an-expression-whose-types-the-vocabulary-does-not-tell-is-refused`](#spec-an-expression-whose-types-the-vocabulary-does-not-tell-is-refused) — The verbalizer refuses a formula about an expression whose column types the vocabulary does not tell, and names the expression.
+  - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
   - [`@spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither`](#spec-an-equivalence-of-more-than-clauses-is-said-as-both-or-neither) — The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
@@ -656,6 +677,38 @@ This follows because the table is where the author says how a word sounds, and t
 
 This follows because the verbalizer can use only the body of a predicate that has no reading, and the body lives in the vocabulary.
 
+#### @spec a-call-written-as-a-join-is-said-as-the-call
+
+> The verbalizer says `x.p` and `x.p[y]`, for a predicate `p`, as `p[x]` and `p[x, y]`.
+
+This follows because Alloy reads a join with a predicate as a call with the left side as its first argument.
+
+#### @spec a-box-join-of-a-field-is-said-as-the-navigation
+
+> The verbalizer says `f[x]`, for a field `f`, as `x.f`.
+
+This follows because Alloy reads `f[x]` as the join `x.f`.
+
+#### @spec a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place
+
+> The verbalizer says a call of a predicate with no reading by its body also when an argument is an expression. The expression takes the place of the parameter.
+
+Derives from: [`spec-a-predicate-with-no-reading-is-said-by-its-body`](#spec-a-predicate-with-no-reading-is-said-by-its-body)
+
+This follows because Alloy binds the parameter to the value of the expression, whatever it holds.
+
+#### @spec a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument
+
+> The verbalizer says a call of a predicate with a reading and an argument of one value through a member of its type. That member is the one in the argument.
+
+This follows because an argument that holds exactly one value is that value, and the reading says something of one thing in each slot. The declarations make a navigation of `one` fields from a variable one value.
+
+#### @spec a-call-with-an-argument-of-none-or-several-values-is-refused
+
+> The verbalizer refuses a call of a predicate with a reading, with an argument that can hold none or several values, and names the argument.
+
+This follows because the reading says something of one thing, and the predicate gets every value of the argument at once.
+
 #### @spec a-let-is-said-with-its-value-in-the-place-of-its-name
 
 > The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
@@ -852,15 +905,111 @@ This follows because a field of at most one value equals `y` exactly when `y` is
 
 #### @spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
 
-> For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
+> For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
 
 This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half.
 
 #### @spec two-values-that-are-equal-are-said-member-by-member
 
-> The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
+> The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
 
 This follows because two sets are equal exactly when they have the same members. The type of the field holds every member that either side can have.
+
+#### @spec an-expression-is-said-through-the-types-of-its-columns
+
+> The verbalizer says a formula about an expression through members of the types of its columns. This holds for an expression that is more than a set or a navigation of a variable.
+
+This follows because the vocabulary declares the types of what an expression can hold. A claim about what it holds is then a claim about each member of those types, which the readings say.
+
+##### @spec a-union-on-the-right-is-said-as-or
+
+> The verbalizer says `x in a + b`, for a variable or a pair `x`, as `x in a` or `x in b`.
+
+This follows because a member of a union is a member of one of its parts.
+
+##### @spec an-intersection-on-the-right-is-said-as-and
+
+> The verbalizer says `x in a & b`, for a variable or a pair `x`, as `x in a` and `x in b`.
+
+This follows because a member of an intersection is a member of both of its parts.
+
+##### @spec not-in-before-a-difference-is-said-as-the-negation-of-in
+
+> The verbalizer says `x not in a - b` as the negation of `x in a - b`: `x not in a` or `x in b`.
+
+This follows because `not in` is the negation of `in`.
+
+##### @spec membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it
+
+> The verbalizer says `x in y.e`, for a variable `y`, as `y->x in e`, and `x in e.y` as `x->y in e`.
+
+This follows because `y` is one thing, so `y.e` holds what `e` pairs with `y`.
+
+##### @spec a-pair-in-a-product-is-said-as-each-side-in-its-part
+
+> The verbalizer says `x->y in a -> b` as `x in a` and `y in b`.
+
+This follows because a product holds every pair of a member of `a` and a member of `b`, and nothing else.
+
+##### @spec membership-in-a-chain-of-navigations-is-said-through-a-member-between
+
+> The verbalizer says `x in e.f`, where `e` is not one variable, as `some m: T | m in e and x in m.f`. `T` is the type of the last column of `e`.
+
+This follows because `e.f` holds what `f` gives a member of `e`, and every member of `e` is a member of `T`.
+
+##### @spec membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it
+
+> The verbalizer says `x in S.f`, for a signature `S` where `S.f` has no reading of its own, as `some m: S | m->x in f`: "a cleanup is on x".
+
+This follows because `S.f` holds what `f` gives some member of `S`.
+
+##### @spec membership-in-a-signature-with-no-reading-is-said-with-its-noun
+
+> The verbalizer says `x in S`, for a signature `S` with a noun and no reading, as `x` "is" the noun with its article: "c is a cleanup".
+
+This follows because to be in a signature is to be one of its kind, which its noun names.
+
+##### @spec a-primed-expression-is-said-at-the-next-moment
+
+> The verbalizer says `x in e'`, for an expression `e`, as "at the next moment" before `x in e`.
+
+This follows because a variable is the same thing at every moment, so the prime moves only `e`.
+
+##### @spec an-expression-of-a-variable-on-the-left-is-said-member-by-member
+
+> The verbalizer says `e in s`, for an expression `e` that names a variable, as: for every member `m` of the type of `e`, when `m in e`, `m in s`.
+
+This follows because one set is in another exactly when each of its members is.
+
+##### @spec two-expressions-that-are-equal-are-said-member-by-member
+
+> The verbalizer says `a = b`, for sides that the specs above do not say, as: for every member `m` of their type, `m in a` exactly when `m in b`. It says `a != b` as the negation of that.
+
+This follows because two sets are equal exactly when they have the same members.
+
+##### @spec some-or-no-of-an-expression-is-said-over-the-types-of-its-columns
+
+> The verbalizer says `some e` and `no e`, for an expression the specs above do not say, as `some` or `no` over its column types, with the members in `e`.
+
+This follows because an expression holds something exactly when some members of its types are in it.
+
+##### @spec one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one
+
+> The verbalizer says `one e` and `lone e` as exactly one or at most one member of the types of the columns of `e` in `e`.
+
+This follows because `one e` holds when `e` holds one member, and `lone e` when it holds at most one.
+
+##### @spec an-expression-whose-types-the-vocabulary-does-not-tell-is-refused
+
+> The verbalizer refuses a formula about an expression whose column types the vocabulary does not tell, and names the expression.
+
+This follows because a member of a type the verbalizer guessed could leave out what the expression holds.
+
+#### @spec set-or-seq-before-an-expression-is-refused
+
+> The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
+
+This follows because the analyzer does not read either as a formula, so neither claims anything.
 
 #### @spec a-rule-of-two-clauses-is-said-on-one-line
 
