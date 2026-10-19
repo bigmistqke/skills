@@ -1,33 +1,30 @@
 /**
- * The verbalizer: the Alloy formulas of a unit, said in words by a table of
- * readings.
+ * The verbalizer: Alloy formulas said in words by a table of readings.
  */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseFormula } from '../../src/alloy-parse.ts';
-import { readBlocks } from '@bigmistqke/canon/blocks';
-import { readingsOf } from '../../src/statements.ts';
-import { isDefinition, parseDefinitions, parseReadings, type Readings, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
+import { isDefinition, parseDefinitions, parseReadings, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures', 'lifetimes');
 const read = (name: string): string => readFileSync(join(FIXTURE, name), 'utf8');
 
-const READINGS = readingsOf(read('CANON.md')) as Readings;
+/** The readings and the vocabulary of the lifetimes example. */
+const READINGS = withDefinitions(parseReadings(read('readings.txt')), read('vocabulary.als'));
 const say = (formula: string, readings = READINGS): string => verbalize(formula, readings);
 
-describe('the units of the lifetimes fixture', () => {
-  const src = read('CANON.md');
-  const blocks = readBlocks(src).filter(b => b.lang === 'alloy' && (b.role === 'unit' || b.role === 'scenario'));
+describe('the formulas of the lifetimes example', () => {
+  const formulas = read('formulas.als').split(/\n\s*\n/).filter(block => !block.startsWith('--'));
 
   /**
    * @canon spec-a-formula-is-said-in-full
    */
   it('says all seven formulas, the scenario included, without leaving anything out', () => {
-    expect(blocks).toHaveLength(7);
-    for (const block of blocks) {
-      const words = say(block.body);
+    expect(formulas).toHaveLength(7);
+    for (const formula of formulas) {
+      const words = say(formula);
       expect(words.length).toBeGreaterThan(0);
       expect(words).not.toMatch(/\{\d\}|\u0001/);
     }
@@ -37,7 +34,7 @@ describe('the units of the lifetimes fixture', () => {
    * @canon spec-a-formula-is-said-the-same-way-every-time
    */
   it('says them the same way every time', () => {
-    const all = (): string[] => blocks.map(b => say(b.body, READINGS));
+    const all = (): string[] => formulas.map(formula => say(formula));
     expect(all()).toEqual(all());
   });
 });
@@ -56,6 +53,32 @@ describe('the parser', () => {
         q: 'all',
         body: { t: 'implies', l: { t: 'cmp', op: 'in' }, r: { t: 'unary', op: 'eventually', f: { t: 'cmp', op: 'in' } } }
       }
+    });
+  });
+
+  /**
+   * @canon spec-a-semicolon-takes-everything-after-it
+   */
+  it('binds ";" looser than every connective, and groups it to the right', () => {
+    expect(parseFormula('a in A or b in B ; c in C implies d in D ; e in E')).toMatchObject({
+      t: 'binary',
+      op: ';',
+      l: { t: 'or' },
+      r: { t: 'binary', op: ';', l: { t: 'implies' }, r: { t: 'cmp' } }
+    });
+    expect(parseFormula('c in Ran or all d: Cleanup | d in Ran ; c in Registered')).toMatchObject({
+      t: 'or',
+      items: [{ t: 'cmp' }, { t: 'binary', op: ';', l: { t: 'quant', body: { t: 'cmp' } }, r: { t: 'cmp' } }]
+    });
+  });
+
+  /**
+   * @canon spec-disj-before-the-variables-of-a-quantifier-is-read
+   */
+  it('reads "disj" as a mark on the declaration it stands before', () => {
+    expect(parseFormula('all disj c, d: Cleanup, o: Owner | c in Ran')).toMatchObject({
+      t: 'quant',
+      decls: [{ names: ['c', 'd'], disj: true }, { names: ['o'] }]
     });
   });
 
@@ -162,6 +185,98 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-a-disj-quantifier-is-said-with-its-variables-different
+   */
+  it('says a "disj" quantifier with the condition that its variables are different', () => {
+    expect(say('all disj c, d: Cleanup | c in Ran implies d in Ran')).toBe(
+      'For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different and cleanup_1 has run, cleanup_2 has run.'
+    );
+    expect(say('all disj c, d: Cleanup | d in Ran')).toBe('For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different, cleanup_2 has run.');
+    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('There are cleanup_1 and cleanup_2 such that cleanup_1 and cleanup_2 are different, cleanup_1 has run and cleanup_2 has run.');
+  });
+
+  /**
+   * @canon spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition
+   */
+  it('says a difference as the type of a quantifier as a condition on the variable', () => {
+    expect(say('all c: Cleanup - d | c in Ran')).toBe('For every cleanup_1:\n  when cleanup_1 and d are different, cleanup_1 has run.');
+    expect(say('all c: Cleanup - Ran | c in Registered')).toBe('For every cleanup_1:\n  when cleanup_1 has not run, code has registered cleanup_1.');
+  });
+
+  /**
+   * @canon spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field
+   */
+  it('says membership in a navigation with the reading of its field', () => {
+    expect(say('o in c.on')).toBe('c is on o.');
+    expect(say('c in on.o')).toBe('c is on o.');
+    expect(say('o not in c.on')).toBe('c is not on o.');
+  });
+
+  /**
+   * @canon spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field
+   */
+  it('says no or some of a navigation as a noun phrase of the type of the field', () => {
+    expect(say('no c.on')).toBe('c is on no owner.');
+    expect(say('some c.on')).toBe('c is on an owner.');
+    expect(say('some on.o')).toBe('A cleanup is on o.');
+    expect(say('not no c.on')).toBe('c is on an owner.');
+  });
+
+  /**
+   * @canon spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment
+   */
+  it('says a clause with one primed name as the clause at the next moment', () => {
+    expect(say("c in Ran'")).toBe('At the next moment, c has run.');
+    expect(say("c not in Ran'")).toBe('At the next moment, c has not run.');
+    expect(say("o in c.on'")).toBe('At the next moment, c is on o.');
+    expect(say("no c.on'")).toBe('At the next moment, c is on no owner.');
+    expect(say("no Throwing'")).toBe('Right after, no call is throwing.');
+  });
+
+  /**
+   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   */
+  it('refuses a set or a field where a reading takes a variable', () => {
+    expect(() => say("Ran in Ran'")).toThrow('"Ran" is a set or a field, where a variable must be');
+    expect(() => say('on in Registered')).toThrow('"on" is a set or a field, where a variable must be');
+  });
+
+  /**
+   * @canon spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading
+   */
+  it('says a field of at most one value that equals a variable with the reading of the field', () => {
+    expect(say('c.on = o')).toBe('c is on o.');
+    expect(say('o = c.on')).toBe('c is on o.');
+    expect(say('c.on != o')).toBe('c is not on o.');
+  });
+
+  /**
+   * @canon spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
+   */
+  it('says a field of many values that equals a variable member by member', () => {
+    const many = withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { var on: set Owner }');
+    expect(say('c.on = o', many)).toBe('For every owner_1:\n  c is on owner_1 exactly when owner_1 and o are the same.');
+    expect(say('o = c.on', many)).toBe('For every owner_1:\n  c is on owner_1 exactly when owner_1 and o are the same.');
+    expect(say("c.on' = o", many)).toBe('For every owner_1:\n  c is on owner_1 at the next moment exactly when owner_1 and o are the same.');
+    const beside = say('(c.on = o and c in Ran) implies c in Registered', withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}\nRan: {1} has run | {1} has not run\nRegistered: code has registered {1} | code has not registered {1}'), 'sig Owner {} sig Cleanup { var on: set Owner }'));
+    expect(beside).toContain('for every owner_1:');
+    expect(beside).not.toContain('owner_2');
+    expect(() => say('c.on != o', many)).toThrow('"!=" between a field of many values and a variable is not supported');
+  });
+
+  /**
+   * @canon spec-two-values-that-are-equal-are-said-member-by-member
+   */
+  it('says two values that are equal member by member, over the type of the field', () => {
+    expect(say('c.on = d.on')).toBe('For every owner_1:\n  c is on owner_1 exactly when d is on owner_1.');
+    expect(say("c.on' = c.on")).toBe('For every owner_1:\n  c is on owner_1 at the next moment exactly when c is on owner_1 now.');
+    const beside = say('(c.on = d.on and c in Ran) implies c in Registered');
+    expect(beside).toContain('for every owner_1:');
+    expect(beside).not.toContain('owner_2');
+    expect(() => say('c.on != d.on')).toThrow('two values are compared only with "="');
+  });
+
+  /**
    * @canon spec-a-rule-of-two-clauses-is-said-on-one-line
    */
   it('writes a rule on one line when both sides are one clause', () => {
@@ -187,6 +302,34 @@ describe('the words', () => {
     expect(say('(not runNow[c]) until runNow[d]')).toBe(
       'At every moment before the first moment where d runs, c does not run, and d runs now or at a later moment.'
     );
+  });
+
+  /**
+   * @canon spec-always-is-said-as-now-and-at-every-later-moment
+   * @canon spec-before-is-said-as-there-is-a-moment-before-and-at-it
+   * @canon spec-once-is-said-as-now-or-at-an-earlier-moment
+   * @canon spec-historically-is-said-as-now-and-at-every-earlier-moment
+   */
+  it('says always and the past operators of one formula', () => {
+    expect(say('always c in Ran')).toBe('Now and at every later moment, c has run.');
+    expect(say('before c in Ran')).toBe('There is a moment before, and at it, c has run.');
+    expect(say('once c in Ran')).toBe('Now or at an earlier moment, c has run.');
+    expect(say('historically c in Ran')).toBe('Now and at every earlier moment, c has run.');
+  });
+
+  /**
+   * @canon spec-since-is-said-as-at-every-moment-after-the-last-moment-where
+   * @canon spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes
+   * @canon spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one
+   * @canon spec-a-sequence-is-said-as-and-at-the-next-moment
+   */
+  it('says since, releases, triggered and the semicolon', () => {
+    expect(say('(not runNow[c]) since runNow[d]')).toBe(
+      'At every moment after the last moment where d runs, c does not run, and d runs now or at an earlier moment.'
+    );
+    expect(say('runNow[d] releases (not runNow[c])')).toBe('Up to and including the first moment where d runs, if one comes, c does not run.');
+    expect(say('runNow[d] triggered (not runNow[c])')).toBe('Back to and including the last moment where d runs, if there was one, c does not run.');
+    expect(say('runNow[c] ; runNow[d]')).toBe('c runs, and at the next moment, d runs.');
   });
 });
 
@@ -336,6 +479,18 @@ describe('a definition', () => {
   });
 
   /**
+   * @canon spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different
+   */
+  it('says a definition with disj variables, and a call of it by its body, with the variables different', () => {
+    const vocabulary = 'sig Cleanup {} var sig Ran in Cleanup {} pred pair[disj c, d: Cleanup] { c in Ran } pred both[disj c, d: Cleanup] { c in Ran }';
+    const readings = withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\npair: {1} pairs with {2} | {1} does not pair with {2}'), vocabulary);
+    expect(verbalizeDefinition('pred pair[disj c, d: Cleanup] { c in Ran }', readings)).toBe(
+      'For every cleanup_1 and every cleanup_2:\n  cleanup_1 pairs with cleanup_2 exactly when cleanup_1 and cleanup_2 are different and cleanup_1 has run.'
+    );
+    expect(say('both[a, b]', readings)).toBe('a and b are different and a has run.');
+  });
+
+  /**
    * @canon spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line
    */
   it('says a body of one clause on one line', () => {
@@ -466,7 +621,7 @@ describe('two variables', () => {
 describe('a word that names a term', () => {
   const readings = parseReadings(
     ['noun Unit: [unit]', 'noun Owner: an [owner]', 'Ran: {1} has [run] | {1} has not [run]', 'Done: {1} is [done] | {1} is not [done]', 'Told: [checker](#term-checker) tells {1} | [checker](#term-checker) tells no one', 'Alarm: [alarm] rings for {1} | no [alarm] rings for {1}'].join('\n'),
-    'term-x'
+    '#term-x'
   );
   const markdown = (source: string, self?: string): string => verbalize(source, readings, 'markdown', self);
 
@@ -497,8 +652,8 @@ describe('a word that names a term', () => {
    * @canon spec-a-word-never-links-to-the-unit-its-sentence-is-in
    */
   it('is never a link to the unit the sentence is in', () => {
-    expect(markdown('a in Ran', 'term-x')).toBe('a has run.');
-    expect(markdown('a in Ran and b in Told', 'term-x')).toContain('[checker](#term-checker) tells b');
+    expect(markdown('a in Ran', '#term-x')).toBe('a has run.');
+    expect(markdown('a in Ran and b in Told', '#term-x')).toContain('[checker](#term-checker) tells b');
   });
 
   /**
@@ -509,9 +664,9 @@ describe('a word that names a term', () => {
   });
 
   /**
-   * @canon spec-a-word-of-an-extended-document-links-to-that-document
+   * @canon spec-a-link-in-a-table-held-in-another-document-goes-through-its-path
    */
-  it('goes through the path of the document that holds a reading, for a link in it to a unit of that document', () => {
+  it('goes through the path of the document that holds a reading, for a link in it to an anchor of that document', () => {
     const other = parseReadings('Told: [checker](#term-checker) tells {1} | [checker](#term-checker) tells no one', 'canon/CANON.md#term-x', 'canon/CANON.md');
     expect(verbalize('a in Told', other, 'markdown')).toBe('[Checker](canon/CANON.md#term-checker) tells a.');
   });
@@ -520,7 +675,7 @@ describe('a word that names a term', () => {
    * @canon spec-a-reading-that-points-at-a-unit-links-to-it
    */
   it('links to a unit of another document by its whole target, when the reading points at one', () => {
-    const other = parseReadings('Told: [checker](../canon/CANON.md#term-checker) tells {1} | [checker](../canon/CANON.md#term-checker) tells no one', 'term-x');
+    const other = parseReadings('Told: [checker](../canon/CANON.md#term-checker) tells {1} | [checker](../canon/CANON.md#term-checker) tells no one', '#term-x');
     expect(verbalize('a in Told', other, 'markdown')).toBe('[Checker](../canon/CANON.md#term-checker) tells a.');
   });
 
@@ -640,7 +795,7 @@ describe('a quantifier said as a noun phrase', () => {
 describe('the items of a list said in a sentence', () => {
   const readings = parseReadings(
     ['noun Unit: unit', 'Spec: {1} is a spec | {1} is not a spec', 'Axiom: {1} is an axiom | {1} is not an axiom', 'Fact: {1} is a fact | {1} is not a fact', 'Sit.rel: {1} sits in {2} | {1} does not sit in {2}', 'Alarm: [alarm] rings for {1} | no [alarm] rings for {1}'].join('\n'),
-    'term-x'
+    '#term-x'
   );
   const said = (formula: string): string => verbalize(`all u: Unit | ${formula}`, readings).split('\n').slice(1).join('\n').trim();
 
@@ -714,6 +869,8 @@ describe('the items of a list said in a sentence', () => {
   it('keep the "then" of a rule when what follows is a time phrase, and drop it otherwise', () => {
     expect(said('u in Spec implies eventually u in Axiom')).toBe('when unit_1 is a spec, then now or at a later moment, unit_1 is an axiom.');
     expect(said('u in Spec implies after u in Axiom')).toBe('when unit_1 is a spec, then at the next moment, unit_1 is an axiom.');
+    expect(said('u in Spec implies once u in Axiom')).toBe('when unit_1 is a spec, then now or at an earlier moment, unit_1 is an axiom.');
+    expect(said('u in Spec implies before u in Axiom')).toBe('when unit_1 is a spec, then there is a moment before, and at it, unit_1 is an axiom.');
     expect(said('u in Spec implies u in Axiom')).toBe('when unit_1 is a spec, unit_1 is an axiom.');
   });
 });
@@ -746,17 +903,46 @@ describe('what it refuses', () => {
    */
   it('says when a reading uses a variable the formula does not give', () => {
     const readings = parseReadings('on: {1} is on {3}');
-    expect(() => say('c.on = o', readings)).toThrow('uses {3}');
+    expect(() => say('c->o in on', readings)).toThrow('uses {3}');
+  });
+
+  /**
+   * @canon spec-a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused
+   */
+  it('refuses a reading that leaves out a place the formula fills', () => {
+    expect(() => say('dispose[c, d]')).toThrow('the reading of "dispose" leaves out {2}');
+    expect(() => say('c->d in Ran')).toThrow('the reading of "Ran" leaves out {2}');
+    expect(() => verbalizeDefinition('pred dispose[c, d: Cleanup] { c in Ran }', READINGS)).toThrow('the reading of "dispose" leaves out {2}');
+  });
+
+  /**
+   * @canon spec-a-binary-temporal-operator-inside-a-side-of-another-is-refused
+   */
+  it('refuses a binary temporal operator inside a side of another, but reads a chain of ";"', () => {
+    expect(() => say('c in Ran until (d in Ran until c in Registered)')).toThrow('reads in more than one way');
+    expect(() => say('(c in Ran since d in Ran) until c in Registered')).toThrow('reads in more than one way');
+    expect(() => say('(c in Ran until d in Ran) ; c in Registered')).toThrow('reads in more than one way');
+    expect(say('c in Ran ; d in Ran ; c in Registered')).toBe('c has run, and at the next moment, d has run, and at the next moment, code has registered c.');
+  });
+
+  /**
+   * @canon spec-a-primed-relation-of-a-variable-signature-is-refused
+   */
+  it('refuses a prime on a relation of a var sig, and says one of a sig that does not change', () => {
+    const queue = withDefinitions(parseReadings('Queue.older: code queued {1} before {2} | code did not queue {1} before {2}'), 'sig Cleanup {} var sig Queue { older: Cleanup -> Cleanup }');
+    expect(() => say("c->d in Queue.older'", queue)).toThrow('"Queue" is a var sig');
+    expect(() => say("c->d in (Queue.older)'", queue)).toThrow('"Queue" is a var sig');
+    expect(say("c->d in Clock.older'")).toBe('At the next moment, code registered c before d.');
   });
 
   /**
    * @canon spec-a-construct-the-words-do-not-cover-is-refused
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
-    expect(() => say('before c in Ran')).toThrow('"before" is not supported');
+    expect(() => say('lone c: Cleanup | c in Ran')).toThrow('"lone" as a quantifier is not supported');
     expect(() => say('one c: Cleanup | c in Ran')).toThrow('"one" as a quantifier is not supported');
     expect(() => say('not eventually c in Ran')).toThrow('"not" is supported only before a comparison or a call');
-    expect(() => say('c in Ran releases d in Ran')).toThrow('"releases" is not supported');
+    expect(() => say('(all c: Cleanup | c in Ran) releases d in Ran')).toThrow('"releases" is supported only between two clauses');
   });
 
   /**

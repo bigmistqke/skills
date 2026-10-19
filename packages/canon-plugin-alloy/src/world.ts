@@ -3,7 +3,7 @@
  * trace of a run, read from the text the analyzer writes for it, as its steps,
  * each with the tuples that hold at it.
  */
-import { articleFor, unbracketed, type Readings } from './verbalize.ts';
+import { articleFor, unbracketed, type Readings } from '@bigmistqke/naturalloy';
 import { signaturesIn } from './words.ts';
 
 /** One state of a trace: the tuples of each set and field, by Alloy name, and the things the variables of skolemized predicates stand for. */

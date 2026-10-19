@@ -12,7 +12,7 @@
 import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { beginMarker, regionAt, replaceRegion } from '@bigmistqke/canon/regions';
 import { readUnits } from '@bigmistqke/canon/units';
-import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from './verbalize.ts';
+import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from '@bigmistqke/naturalloy';
 
 /** The name of the region that holds the generated statement of a unit. */
 export const regionName = (unit: string): string => `statement-${unit}`;
@@ -59,9 +59,9 @@ export function readingsOf(src: string, context: Context[] = []): Readings | und
   const merged = parseReadings('');
   for (const { path, blocks } of documents) {
     for (const block of blocks.filter(b => b.lang === 'readings')) {
-      const part = parseReadings(block.body, path === undefined ? block.unit : `${path}#${block.unit}`, path);
+      const part = parseReadings(block.body, `${path ?? ''}#${block.unit}`, path);
       for (const [key, value] of part.nouns) merged.nouns.set(key, value);
-      for (const [key, value] of part.nounUnits) merged.nounUnits.set(key, value);
+      for (const [key, value] of part.nounTargets) merged.nounTargets.set(key, value);
       for (const [key, value] of part.articles) merged.articles.set(key, value);
       for (const [key, value] of part.atoms) merged.atoms.set(key, value);
     }
@@ -97,7 +97,7 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     let words: string;
     try {
       const { body } = predicates[0] as { body: string };
-      words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown', unit.id) : verbalize(body, readings, 'markdown', unit.id));
+      words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown', `#${unit.id}`) : verbalize(body, readings, 'markdown', `#${unit.id}`));
     } catch (error) {
       found.push({ unit: unit.id, kind: 'unsayable', message: (error as Error).message });
       continue;
@@ -105,12 +105,12 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     const region = regionName(unit.id);
     const at = regionAt(src, region, endMarker(region));
     if (at !== undefined) found.push({ unit: unit.id, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
-    else found.push({ unit: unit.id, kind: unit.statement === undefined ? 'missing' : 'handwritten', quote: words });
+    else found.push({ unit: unit.id, kind: statedByAPerson(unit.own, unit.id) ? 'handwritten' : 'missing', quote: words });
   }
   for (const { key, unit, body } of scenarios(src, blocks)) {
     let words: string;
     try {
-      words = quote(`It must be possible that:\n\n${verbalize(body, readings, 'markdown', unit)}`);
+      words = quote(`It must be possible that:\n\n${verbalize(body, readings, 'markdown', `#${unit}`)}`);
     } catch (error) {
       found.push({ unit: key, kind: 'unsayable', message: (error as Error).message });
       continue;
@@ -121,6 +121,16 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     else found.push({ unit: key, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
   }
   return found;
+}
+
+/**
+ * Whether the unit's own text holds a quote that a person wrote. The
+ * generated statement of a scenario is a quote too, but it says what must be
+ * possible, and is not the statement of the unit.
+ */
+function statedByAPerson(own: string, unit: string): boolean {
+  const scenario = new RegExp(`<!-- statement-scenario-\\d+-${unit}:begin[^]*?<!-- statement-scenario-\\d+-${unit}:end -->`, 'g');
+  return own.replace(scenario, '').split('\n').some(line => line.startsWith('>') && line.slice(1).trim() !== '');
 }
 
 /** The scenarios of a document, each with the key its statement goes by: its place among the scenarios of its unit, and the unit. */

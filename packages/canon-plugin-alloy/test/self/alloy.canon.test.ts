@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { CLI, CORE, PACKAGE } from '../canon/cli.ts';
+import { CLI, CORE, NATURALLOY, PACKAGE } from '../canon/cli.ts';
 import { alloyProgram, checkAlloy } from '../../src/alloy.ts';
 
 const CANON = readFileSync(join(CORE, 'CANON.md'), 'utf8');
@@ -37,7 +37,13 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the canon of the checker', () => 
     expect(run.code).toBe(0);
   });
 
-  it('holds together for the Alloy plugin too, with the claims of the canon it extends', { timeout: 300_000 }, async () => {
+  it('holds together for naturalloy too', { timeout: 300_000 }, async () => {
+    const run = await solved(NATURALLOY);
+    expect(run.out).toMatch(/^CANON\.md: \d+ units, \d+ scenarios$/m);
+    expect(run.code).toBe(0);
+  });
+
+  it('holds together for the Alloy plugin too, with the claims of the canons it extends', { timeout: 300_000 }, async () => {
     const run = await solved(PACKAGE);
     expect(run.out).toMatch(/^CANON\.md: \d+ units, \d+ scenarios$/m);
     expect(run.code).toBe(0);

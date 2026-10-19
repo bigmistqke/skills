@@ -14,6 +14,9 @@ export const PACKAGE = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 /** The package of the checker, which the plugin extends. */
 export const CORE = dirname(createRequire(import.meta.url).resolve('@bigmistqke/canon/package.json'));
 
+/** The package of naturalloy, which says the formulas in words. */
+export const NATURALLOY = dirname(createRequire(import.meta.url).resolve('@bigmistqke/naturalloy/package.json'));
+
 /** The command line of the checker, as it is built. */
 export const CLI = join(CORE, 'dist', 'cli.js');
 

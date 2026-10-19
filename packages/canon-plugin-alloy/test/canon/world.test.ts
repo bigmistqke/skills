@@ -4,7 +4,7 @@
  * the analyzer writes for a run that found an instance.
  */
 import { describe, expect, it } from 'vitest';
-import { parseReadings } from '../../src/verbalize.ts';
+import { parseReadings } from '@bigmistqke/naturalloy';
 import { sayWorld } from '../../src/world.ts';
 
 /** A state of a trace, as the analyzer writes it: its lines after the built-in sets. */

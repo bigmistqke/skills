@@ -11,7 +11,7 @@ import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from '@bigmistqke/canon/plugin';
 import * as statements from './statements.ts';
 import type { Context } from './statements.ts';
-import type { Readings } from './verbalize.ts';
+import type { Readings } from '@bigmistqke/naturalloy';
 import { checkLoneFormulas, checkWords } from './words.ts';
 import { sayWorld } from './world.ts';
 
