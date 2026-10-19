@@ -220,7 +220,10 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
 - [`@axiom a-scenario-that-can-happen-can-be-read`](#axiom-a-scenario-that-can-happen-can-be-read) — The author can read a [world](#term-world) in which a scenario happens while every held unit holds, in the words of the canon.
   - [`@spec show-prints-the-world-of-each-scenario-it-names`](#spec-show-prints-the-world-of-each-scenario-it-names) — `canon logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
   - [`@spec show-of-a-scenario-that-cannot-happen-prints-no-world`](#spec-show-of-a-scenario-that-cannot-happen-prints-no-world) — `canon logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
-  - [`@spec show-of-a-name-that-is-no-scenario-stops-logic`](#spec-show-of-a-name-that-is-no-scenario-stops-logic) — A run of `logic` exits with code 2 and prints no report when `--show` names no scenario of the documents.
+  - [`@spec show-of-a-name-that-is-no-scenario-stops-logic`](#spec-show-of-a-name-that-is-no-scenario-stops-logic) — A run of `logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
+  - [`@spec show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit`](#spec-show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit) — `--show scenario-<n>-<unit>` shows the `n`th scenario of the unit in the document, whichever [group](#term-group) the analyzer asks about it in.
+  - [`@spec show-prints-a-world-once-under-the-document-that-holds-its-scenario`](#spec-show-prints-a-world-once-under-the-document-that-holds-its-scenario) — `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
+  - [`@spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands`](#spec-a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands) — When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
   - [`@spec a-world-is-said-step-by-step`](#spec-a-world-is-said-step-by-step) — The checker says a world as its steps in order, each under `step <n>:`, counted from 0.
     - [`@spec the-first-step-says-everything-that-is-true`](#spec-the-first-step-says-everything-that-is-true) — The first step says every tuple of every word that is true at it. A first step where no tuple is true says `nothing is true`.
     - [`@spec a-later-step-says-only-what-changed`](#spec-a-later-step-says-only-what-changed) — A later step says each tuple that became true, after `+`, and each tuple that became false, after `-`. A step where nothing changed says `nothing changes`.
@@ -231,10 +234,12 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-tuple-is-said-with-the-positive-reading-of-its-word`](#spec-a-tuple-is-said-with-the-positive-reading-of-its-word) — The checker says a tuple of a set or of a field with the positive reading of its word. The names of its things take the places of the variables.
     - [`@spec a-thing-of-a-set-is-said-with-the-reading-of-the-set`](#spec-a-thing-of-a-set-is-said-with-the-reading-of-the-set) — The checker says a thing of a set with the reading of the set: `claim_1 has ended`.
     - [`@spec a-tuple-of-a-field-is-said-with-the-reading-of-the-field`](#spec-a-tuple-of-a-field-is-said-with-the-reading-of-the-field) — The checker says a tuple of a field with the reading of the field, its first thing in `{1}` and the next in `{2}`: `lane_1 holds claim_1`.
-    - [`@spec a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature`](#spec-a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature) — When the reading of a field has a place fewer than its tuples have things, the checker leaves out the first thing of each tuple. That thing is of the signature that declares the field.
+    - [`@spec a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature`](#spec-a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature) — A field can belong to a `one` signature and have a reading with a place fewer than its tuples have things. The checker then leaves out the first thing of each tuple, the thing of that signature.
     - [`@spec a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing`](#spec-a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing) — The checker says a set whose reading has no variable, such as a `var lone sig Teardown`, once when it has a thing. It says nothing of the set when it is empty.
     - [`@spec a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun`](#spec-a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun) — The checker says a thing of a set that has a noun and no reading as one of that noun: `claim_1 is an app motion`.
-    - [`@spec a-signature-that-names-its-own-things-is-not-said`](#spec-a-signature-that-names-its-own-things-is-not-said) — The checker says nothing of a signature with no reading whose things each carry its name, or the name of a signature that extends it.
+    - [`@spec a-thing-that-another-sentence-names-is-not-said-to-exist`](#spec-a-thing-that-another-sentence-names-is-not-said-to-exist) — Take a thing of a signature with no reading, not declared with `in` or `var`. The checker says nothing more of it when another sentence of the world names it.
+    - [`@spec a-thing-that-no-sentence-names-is-said-to-exist`](#spec-a-thing-that-no-sentence-names-is-said-to-exist) — The checker says a thing of a signature with no reading, not declared with `in` or `var`, as `<thing> exists` when no other sentence of the world names it: `AtOnce$0 exists`.
+    - [`@spec a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in`](#spec-a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in) — The checker says a thing of a `var` signature with no reading, not declared with `in`, as `<thing> exists` at each step that holds it.
     - [`@spec a-word-with-no-reading-is-said-with-its-alloy-name`](#spec-a-word-with-no-reading-is-said-with-its-alloy-name) — The checker says a tuple of a word with no reading and no noun in Alloy. It gives the name of the word, then its things: `Ended: claim_1`, `Lane.claim: lane_1 -> claim_1`.
   - [`@spec a-world-says-which-thing-each-variable-of-the-scenario-is`](#spec-a-world-says-which-thing-each-variable-of-the-scenario-is) — A world opens with the thing that each variable of its scenario stands for, as `c is claim_1`.
 - [`@fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature`](#fact-only-solving-a-model-decides-whether-a-formula-constrains-a-signature) — Whether the other formulas of a model constrain a signature, or can contradict a formula, depends on what the formulas mean. Only solving the model decides it. The names that a block writes do not.
@@ -2822,9 +2827,27 @@ This follows because no world has the scenario, and the units the report names a
 
 #### @spec show-of-a-name-that-is-no-scenario-stops-logic
 
-> A run of `logic` exits with code 2 and prints no report when `--show` names no scenario of the documents.
+> A run of `logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
 
 This follows because a misspelt name would otherwise show nothing, and the author would take the silence for an answer.
+
+#### @spec show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit
+
+> `--show scenario-<n>-<unit>` shows the `n`th scenario of the unit in the document, whichever [group](#term-group) the analyzer asks about it in.
+
+This follows because the author reads the name off the statement of the scenario, which counts the scenarios of the unit in the document.
+
+#### @spec show-prints-a-world-once-under-the-document-that-holds-its-scenario
+
+> `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
+
+This follows because a document that extends another asks about its scenarios again. A second copy of the world would read as a second scenario.
+
+#### @spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands
+
+> When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
+
+This follows because the world is a view that the author asked for. The check ran, and its result does not depend on the view.
 
 #### @spec a-world-is-said-step-by-step
 
@@ -2888,7 +2911,7 @@ This follows because the reading of a field gives a place to each thing of the t
 
 ##### @spec a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature
 
-> When the reading of a field has a place fewer than its tuples have things, the checker leaves out the first thing of each tuple. That thing is of the signature that declares the field.
+> A field can belong to a `one` signature and have a reading with a place fewer than its tuples have things. The checker then leaves out the first thing of each tuple, the thing of that signature.
 
 This follows because a field of a `one` signature, such as `Probe.rel`, is a relation that the signature only holds. Its reading says the relation.
 
@@ -2904,11 +2927,23 @@ This follows because the reading says that the set is not empty, and its things 
 
 This follows because the noun says what a thing of the set is.
 
-##### @spec a-signature-that-names-its-own-things-is-not-said
+##### @spec a-thing-that-another-sentence-names-is-not-said-to-exist
 
-> The checker says nothing of a signature with no reading whose things each carry its name, or the name of a signature that extends it.
+> Take a thing of a signature with no reading, not declared with `in` or `var`. The checker says nothing more of it when another sentence of the world names it.
 
-This follows because the name of each thing already says that the thing is of the signature. A signature declared with `in`, such as `Ended in Claim`, has things named after another signature, so the checker says it.
+This follows because the name of the thing already says its signature, and the sentence that names it shows that it exists.
+
+##### @spec a-thing-that-no-sentence-names-is-said-to-exist
+
+> The checker says a thing of a signature with no reading, not declared with `in` or `var`, as `<thing> exists` when no other sentence of the world names it: `AtOnce$0 exists`.
+
+This follows because whether such a thing exists can be the way out that the author looks for, and no other sentence would show it.
+
+##### @spec a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in
+
+> The checker says a thing of a `var` signature with no reading, not declared with `in`, as `<thing> exists` at each step that holds it.
+
+This follows because the things of a `var` signature come and go from step to step, and the change is part of the world.
 
 ##### @spec a-word-with-no-reading-is-said-with-its-alloy-name
 
