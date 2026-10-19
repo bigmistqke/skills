@@ -15,13 +15,28 @@ How parse-alloy reads Alloy, and why. It is the canon of the package `@bigmistqk
   - [`@spec a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read`](#spec-a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read) — The parser refuses a [formula](#term-parsed-formula) with a construct, a stray character or an unclosed bracket that it cannot read, and names it.
   - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The parser reads everything after the bar of a quantifier as its body, up to a `;`.
   - [`@spec a-temporal-operator-takes-the-formula-next-to-it`](#spec-a-temporal-operator-takes-the-formula-next-to-it) — The parser reads the formula next to a temporal operator as its operand.
-  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The parser reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
+  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The parser reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. A `;` after the bar of a quantifier ends the body of the quantifier, and still takes everything back to the start.
   - [`@spec disj-before-the-variables-of-a-quantifier-is-read`](#spec-disj-before-the-variables-of-a-quantifier-is-read) — The parser reads `disj` before the variables of a declaration as a mark on that declaration.
   - [`@spec and-binds-tighter-than-implies`](#spec-and-binds-tighter-than-implies) — The parser reads an `and` beside an `implies` before the `implies`.
   - [`@spec a-chain-of-and-is-one-list`](#spec-a-chain-of-and-is-one-list) — The parser reads a chain of `and` as one list.
   - [`@spec not-in-a-join-a-prime-and-a-call-are-read`](#spec-not-in-a-join-a-prime-and-a-call-are-read) — The parser reads `not in`, a join, a prime and a call.
   - [`@spec some-of-a-set-is-a-multiplicity`](#spec-some-of-a-set-is-a-multiplicity) — The parser reads `some` before a set as a statement about the set, and not as a quantifier.
   - [`@spec some-with-a-declaration-is-a-quantifier`](#spec-some-with-a-declaration-is-a-quantifier) — The parser reads `some` before variables and a bar as a quantifier over those variables.
+  - [`@spec a-module-is-read-as-its-header-its-opens-and-its-paragraphs`](#spec-a-module-is-read-as-its-header-its-opens-and-its-paragraphs) — The parser reads a module as its `module` header, its `open` lines and its paragraphs. A paragraph is a signature with its fields and fact, a predicate, a function, a fact, an assertion, an enumeration, a macro or a command.
+  - [`@spec every-model-the-analyzer-ships-is-read`](#spec-every-model-the-analyzer-ships-is-read) — The parser reads every model that the jar of the Alloy analyzer holds.
+  - [`@spec every-formula-is-grouped-as-the-analyzer-groups-it`](#spec-every-formula-is-grouped-as-the-analyzer-groups-it) — Take the body of a fact, an assertion, a predicate or a function in a model that the jar of the analyzer holds. The analyzer finds no counterexample to it being equal to the same body printed with every group in parentheses.
+  - [`@spec print-writes-every-group-in-parentheses`](#spec-print-writes-every-group-in-parentheses) — The parser prints a tree as Alloy with every group in parentheses, and reads what it prints as the same tree.
+  - [`@spec a-refusal-names-its-line-and-column`](#spec-a-refusal-names-its-line-and-column) — The parser refuses a text it cannot read with an error that says what it expected. The error holds the place as a span, a line and a column.
+  - [`@spec a-quantifier-keyword-starts-a-declaration-only-before-names-and-a-colon`](#spec-a-quantifier-keyword-starts-a-declaration-only-before-names-and-a-colon) — The parser reads `all`, `no`, `some`, `lone`, `one` and `sum` as a quantifier when names and a colon follow them, and not right after a colon or `disj`. Otherwise it reads `no`, `some`, `lone` and `one` as a multiplicity.
+  - [`@spec not-before-a-comparison-is-one-operator`](#spec-not-before-a-comparison-is-one-operator) — The parser reads `not` or `!` right before `in`, `=`, `<`, `=<`, `>` or `>=` as one negated comparison, whatever stands between them.
+  - [`@spec a-multiplicity-beside-an-arrow-belongs-to-the-arrow`](#spec-a-multiplicity-beside-an-arrow-belongs-to-the-arrow) — The parser reads `some`, `one`, `lone` or `set` right before or after `->` as a multiplicity of that arrow.
+  - [`@spec a-minus-before-a-number-is-a-negative-number-unless-it-follows-an-operand`](#spec-a-minus-before-a-number-is-a-negative-number-unless-it-follows-an-operand) — The parser reads `-` right before a number as a negative number. A `-` that follows a name, a number, a closing bracket or another token that ends an operand stays a minus.
+  - [`@spec a-quantifier-on-the-right-of-an-operator-takes-everything-after-it`](#spec-a-quantifier-on-the-right-of-an-operator-takes-everything-after-it) — The parser reads a quantifier or a `let` on the right of an operator as taking everything after it, up to a `;`.
+  - [`@spec an-else-belongs-to-the-nearest-implies`](#spec-an-else-belongs-to-the-nearest-implies) — The parser reads `else` as the third part of the nearest `implies` before it. It refuses an `else` after an open `implies` or a quantifier that no parentheses or block close.
+  - [`@spec joins-and-boxes-are-read-left-to-right`](#spec-joins-and-boxes-are-read-left-to-right) — The parser reads a run of joins and boxes from left to right: `a.b[c].d` is `((a.b)[c]).d`.
+  - [`@spec arrows-group-to-the-right`](#spec-arrows-group-to-the-right) — The parser reads a run of arrows from the right: `a -> b -> c` is `a -> (b -> c)`.
+  - [`@spec a-prefix-operator-binds-tighter-than-a-prime`](#spec-a-prefix-operator-binds-tighter-than-a-prime) — The parser reads `~`, `^` and `*` before an operand as binding tighter than a prime after it: `~a'` is `(~a)'`.
+  - [`@spec a-name-stays-unresolved`](#spec-a-name-stays-unresolved) — The parser leaves a name as the text spells it. It reads `p[x]` with a name before the bracket as a call, which may also be a box join.
 <!-- toc:end -->
 
 ## Terms
@@ -56,7 +71,7 @@ This follows because the analyzer binds `always`, `eventually`, `after` and the 
 
 #### @spec a-semicolon-takes-everything-after-it
 
-> The parser reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
+> The parser reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. A `;` after the bar of a quantifier ends the body of the quantifier, and still takes everything back to the start.
 
 This follows because the Alloy analyzer binds the semicolon looser than every connective and groups it to the right.
 
@@ -95,3 +110,93 @@ This follows because some followed by a set says the set is not empty, and it de
 > The parser reads `some` before variables and a bar as a quantifier over those variables.
 
 This follows because some followed by variables and a bar declares those variables.
+
+#### @spec a-module-is-read-as-its-header-its-opens-and-its-paragraphs
+
+> The parser reads a module as its `module` header, its `open` lines and its paragraphs. A paragraph is a signature with its fields and fact, a predicate, a function, a fact, an assertion, an enumeration, a macro or a command.
+
+This follows because a vocabulary is a module, and a tool that reads declarations from text would otherwise guess at them.
+
+#### @spec every-model-the-analyzer-ships-is-read
+
+> The parser reads every model that the jar of the Alloy analyzer holds.
+
+This follows because the analyzer reads each of them, so a model the parser refuses marks a part of the syntax it does not read.
+
+#### @spec every-formula-is-grouped-as-the-analyzer-groups-it
+
+> Take the body of a fact, an assertion, a predicate or a function in a model that the jar of the analyzer holds. The analyzer finds no counterexample to it being equal to the same body printed with every group in parentheses.
+
+This follows because the analyzer is the reference for the grouping, and a grouping that differs from it changes what a formula means.
+
+#### @spec print-writes-every-group-in-parentheses
+
+> The parser prints a tree as Alloy with every group in parentheses, and reads what it prints as the same tree.
+
+This follows because the analyzer reads a text with every group in parentheses the same way, whatever the precedence of its operators. The printed text then shows the grouping the parser read.
+
+#### @spec a-refusal-names-its-line-and-column
+
+> The parser refuses a text it cannot read with an error that says what it expected. The error holds the place as a span, a line and a column.
+
+This follows because the author must know where the text stops being Alloy.
+
+#### @spec a-quantifier-keyword-starts-a-declaration-only-before-names-and-a-colon
+
+> The parser reads `all`, `no`, `some`, `lone`, `one` and `sum` as a quantifier when names and a colon follow them, and not right after a colon or `disj`. Otherwise it reads `no`, `some`, `lone` and `one` as a multiplicity.
+
+This follows because the token filter of the analyzer decides it so.
+
+#### @spec not-before-a-comparison-is-one-operator
+
+> The parser reads `not` or `!` right before `in`, `=`, `<`, `=<`, `>` or `>=` as one negated comparison, whatever stands between them.
+
+This follows because the token filter of the analyzer joins them, so `a not in b` is `a !in b`, and not `a` and `not in b`.
+
+#### @spec a-multiplicity-beside-an-arrow-belongs-to-the-arrow
+
+> The parser reads `some`, `one`, `lone` or `set` right before or after `->` as a multiplicity of that arrow.
+
+This follows because the token filter of the analyzer joins them into one arrow.
+
+#### @spec a-minus-before-a-number-is-a-negative-number-unless-it-follows-an-operand
+
+> The parser reads `-` right before a number as a negative number. A `-` that follows a name, a number, a closing bracket or another token that ends an operand stays a minus.
+
+This follows because the token filter of the analyzer decides it so.
+
+#### @spec a-quantifier-on-the-right-of-an-operator-takes-everything-after-it
+
+> The parser reads a quantifier or a `let` on the right of an operator as taking everything after it, up to a `;`.
+
+This follows because the grammar of the analyzer lets a binding stand on the right of every binary operator. Its body runs to the end.
+
+#### @spec an-else-belongs-to-the-nearest-implies
+
+> The parser reads `else` as the third part of the nearest `implies` before it. It refuses an `else` after an open `implies` or a quantifier that no parentheses or block close.
+
+This follows because the grammar of the analyzer allows an `else` only after a closed formula.
+
+#### @spec joins-and-boxes-are-read-left-to-right
+
+> The parser reads a run of joins and boxes from left to right: `a.b[c].d` is `((a.b)[c]).d`.
+
+This follows because the grammar of the analyzer puts the join and the box at one level.
+
+#### @spec arrows-group-to-the-right
+
+> The parser reads a run of arrows from the right: `a -> b -> c` is `a -> (b -> c)`.
+
+This follows because the grammar of the analyzer groups the arrow to the right.
+
+#### @spec a-prefix-operator-binds-tighter-than-a-prime
+
+> The parser reads `~`, `^` and `*` before an operand as binding tighter than a prime after it: `~a'` is `(~a)'`.
+
+This follows because the precedence of the analyzer's grammar ranks the three above the prime.
+
+#### @spec a-name-stays-unresolved
+
+> The parser leaves a name as the text spells it. It reads `p[x]` with a name before the bracket as a call, which may also be a box join.
+
+This follows because the type of a name decides whether it is a variable, a signature, a field, a predicate or a function. The analyzer decides it after reading, and a tool that knows the types tells them apart.

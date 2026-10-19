@@ -1,1 +1,29 @@
-export { parseFormula, type BinaryTemporal, type Decl, type Node, type Quantifier, type UnaryTemporal } from './parse.ts';
+export {
+  AlloyParseError,
+  parseExpression,
+  parseFormula,
+  parseModule,
+  position,
+  type Arithmetic,
+  type ArrowMultiplicity,
+  type Assert,
+  type BinaryTemporal,
+  type Command,
+  type Comparison,
+  type Decl,
+  type Enum,
+  type Fact,
+  type Fun,
+  type Macro,
+  type Module,
+  type Multiplicity,
+  type Node,
+  type Open,
+  type Paragraph,
+  type Pred,
+  type Quantifier,
+  type Sig,
+  type Span,
+  type UnaryTemporal
+} from './parse.ts';
+export { print, printDecl } from './print.ts';
