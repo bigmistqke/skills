@@ -212,7 +212,11 @@ class Parser {
     } while (this.is(',') && this.take());
     if (this.is('{')) throw new Error('a block after a quantifier is not supported; write "| formula"');
     this.take('|');
-    return { t: 'quant', q, decls, body: this.formula() };
+    // The body ends at a `;`, and the `;` then takes the whole quantifier as its first side, as the analyzer reads it.
+    const quant: Node = { t: 'quant', q, decls, body: this.or() };
+    if (!this.is(';')) return quant;
+    this.take();
+    return { t: 'binary', op: ';', l: quant, r: this.formula() };
   }
 
   /** Whether the tokens ahead are names separated by commas and then a colon. */

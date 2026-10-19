@@ -132,9 +132,9 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-definition-whose-body-is-a-rule-is-refused`](#spec-a-definition-whose-body-is-a-rule-is-refused) — The checker refuses a definition whose body is a rule, and says that no words follow "exactly when".
   - [`@spec a-definition-of-a-word-with-no-reading-is-refused`](#spec-a-definition-of-a-word-with-no-reading-is-refused) — The checker refuses a definition of a word that has no reading, and names the word.
   - [`@spec a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read`](#spec-a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read) — The checker refuses a [formula](#term-parsed-formula) with a construct, a stray character or an unclosed bracket that it cannot read, and names it.
-  - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The checker reads everything after the bar of a quantifier as its body.
+  - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The checker reads everything after the bar of a quantifier as its body, up to a `;`.
   - [`@spec a-temporal-operator-takes-the-formula-next-to-it`](#spec-a-temporal-operator-takes-the-formula-next-to-it) — The checker reads the formula next to a temporal operator as its operand.
-  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included.
+  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
   - [`@spec disj-before-the-variables-of-a-quantifier-is-read`](#spec-disj-before-the-variables-of-a-quantifier-is-read) — The checker reads `disj` before the variables of a declaration as a mark on that declaration.
   - [`@spec and-binds-tighter-than-implies`](#spec-and-binds-tighter-than-implies) — The checker reads an `and` beside an `implies` before the `implies`.
   - [`@spec a-chain-of-and-is-one-list`](#spec-a-chain-of-and-is-one-list) — The checker reads a chain of `and` as one list.
@@ -1722,7 +1722,7 @@ This follows because a formula that the parser reads in part would get words for
 
 #### @spec a-quantifier-takes-everything-after-its-bar
 
-> The checker reads everything after the bar of a quantifier as its body.
+> The checker reads everything after the bar of a quantifier as its body, up to a `;`.
 
 This follows because the bar ends the declaration, and what follows is the claim about the variables.
 
@@ -1734,7 +1734,7 @@ This follows because always, eventually and after apply to one formula, so that 
 
 #### @spec a-semicolon-takes-everything-after-it
 
-> The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included.
+> The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
 
 This follows because the Alloy analyzer binds the semicolon looser than every connective and groups it to the right. A statement of any other reading would say what the logic does not.
 

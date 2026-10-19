@@ -69,6 +69,10 @@ describe('the parser', () => {
       l: { t: 'or' },
       r: { t: 'binary', op: ';', l: { t: 'implies' }, r: { t: 'cmp' } }
     });
+    expect(parseFormula('c in Ran or all d: Cleanup | d in Ran ; c in Registered')).toMatchObject({
+      t: 'or',
+      items: [{ t: 'cmp' }, { t: 'binary', op: ';', l: { t: 'quant', body: { t: 'cmp' } }, r: { t: 'cmp' } }]
+    });
   });
 
   /**
