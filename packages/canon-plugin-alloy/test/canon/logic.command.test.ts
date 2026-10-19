@@ -122,7 +122,8 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command with --show', (
     expect(out).toContain('CANON.md: 2 units, 1 scenario');
     const world = out.slice(out.indexOf('the world of scenario-1-axiom-a-pear-is-sweet:'));
     expect(world).toMatch(/a is apple_\d/);
-    expect(world).toMatch(/step 0:\n\s+apple_\d is ripe/);
+    expect(world).toMatch(/throughout:\n\s+apple_\d is ripe/);
+    expect(world).toContain('step 0:');
     expect(world).toContain('then back to step 0');
     expect(code).toBe(0);
   });

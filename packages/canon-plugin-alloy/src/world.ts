@@ -116,7 +116,8 @@ function sentences(state: State, readings: Readings | undefined, signatures: Map
 
 /**
  * A world in lines: first the thing each variable of the scenario stands for,
- * then each step, the first with every sentence that is true at it and each
+ * then under `throughout:` what is true at every step, then each step, the
+ * first with every other sentence that is true at it and each
  * later one with what became true (`+`) and false (`-`), then the step the
  * trace loops back to. `model` is the Alloy of the run, and `scenario` the
  * name of the scenario's predicate.
@@ -130,12 +131,16 @@ export function sayWorld(text: string, model: string, readings: Readings | undef
     if (!skolem.startsWith(`${scenario}_`)) continue;
     out.push(`${skolem.slice(scenario.length + 1)} is ${tuples.map(t => t.map(thing => nameOf(thing, readings)).join(' -> ')).join(', ')}`);
   }
+  const said = states.map(state => sentences(state, readings, signatures, named).said);
+  // What holds at every step is the setting of the world, said once before its story.
+  const throughout = (said[0] ?? []).filter(s => said.every(step => step.includes(s)));
+  if (throughout.length > 0) out.push('throughout:', ...throughout.map(s => `  ${s}`));
   let before: string[] | undefined;
-  states.forEach((state, i) => {
-    const now = sentences(state, readings, signatures, named).said;
+  said.forEach((now, i) => {
     out.push(`step ${i}:`);
     if (before === undefined) {
-      out.push(...(now.length === 0 ? ['nothing is true'] : now).map(s => `  ${s}`));
+      const rest = now.filter(s => !throughout.includes(s));
+      out.push(...(rest.length > 0 ? rest : [throughout.length > 0 ? 'nothing else is true' : 'nothing is true']).map(s => `  ${s}`));
     } else {
       const was = new Set(before);
       const is = new Set(now);

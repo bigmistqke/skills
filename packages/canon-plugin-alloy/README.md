@@ -81,6 +81,8 @@ A scenario that cannot happen is a strong result: no world within the bounds has
 ```
   the world of scenario-1-spec-a-claim-ends:
     c is claim_1
+    throughout:
+      claim_1 belongs to holder_1
     step 0:
       lane_1 holds claim_1
     step 1:
@@ -90,7 +92,7 @@ A scenario that cannot happen is a strong result: no world within the bounds has
     then back to step 1
 ```
 
-A thing is named after its noun and its number, as a variable of a statement is. The first step says every tuple that is true, and each later step says what became true (`+`) and false (`-`).
+A thing is named after its noun and its number, as a variable of a statement is. A tuple that is true at every step appears once, under `throughout:`. The first step says every other tuple that is true, and each later step says what became true (`+`) and false (`-`).
 
 The positive reading of a word says each of its tuples. A word with no reading appears in Alloy, `Ended: claim_1`. A thing that no sentence names gets a line of its own, `AtOnce$0 exists`. So the world keeps every tuple. A scenario that cannot happen has no world, and its report names the units to change.
 

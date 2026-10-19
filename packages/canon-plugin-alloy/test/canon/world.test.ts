@@ -57,15 +57,36 @@ const ENDING = trace(
 
 describe('the steps of a world', () => {
   /**
-   * @canon spec-the-first-step-says-everything-that-is-true
+   * @canon spec-the-first-step-says-everything-else-that-is-true
    */
-  it('says every true tuple at the first step', () => {
+  it('says every true tuple at the first step that is not true at every step', () => {
     const lines = sayWorld(ENDING, MODEL, READINGS, SCENARIO);
     expect(lines.slice(lines.indexOf('step 0:'), lines.indexOf('step 1:'))).toEqual(['step 0:', '  lane_1 holds claim_1']);
   });
 
   /**
-   * @canon spec-the-first-step-says-everything-that-is-true
+   * @canon spec-the-first-step-says-everything-else-that-is-true
+   */
+  it('says that nothing else is true at a first step whose every tuple holds throughout', () => {
+    const same = ['this/Lane={Lane$0}', 'this/Lane<:claim={Lane$0->Claim$0}', 'this/Claim={Claim$0}'];
+    const lines = sayWorld(trace(state(0, same), state(1, same, true)), MODEL, READINGS, SCENARIO);
+    expect(lines).toEqual(['throughout:', '  lane_1 holds claim_1', 'step 0:', '  nothing else is true', 'step 1:', '  nothing changes', 'then back to step 1']);
+  });
+
+  /**
+   * @canon spec-a-tuple-true-at-every-step-is-said-under-throughout
+   */
+  it('says a tuple that is true at every step once, under throughout, before the first step', () => {
+    const text = trace(
+      state(0, ['this/Lane={Lane$0}', 'this/Lane<:claim={Lane$0->Claim$1}', 'this/Claim={Claim$0, Claim$1}', 'this/Ended={}', `skolem $${SCENARIO}_c={Claim$0}`]),
+      state(1, ['this/Lane={Lane$0}', 'this/Lane<:claim={Lane$0->Claim$1}', 'this/Claim={Claim$0, Claim$1}', 'this/Ended={Claim$0}', `skolem $${SCENARIO}_c={Claim$0}`], true)
+    );
+    const lines = sayWorld(text, MODEL, READINGS, SCENARIO);
+    expect(lines).toEqual(['c is claim_1', 'throughout:', '  lane_1 holds claim_2', 'step 0:', '  nothing else is true', 'step 1:', '  + claim_1 has ended', 'then back to step 1']);
+  });
+
+  /**
+   * @canon spec-the-first-step-says-everything-else-that-is-true
    */
   it('reads a trace whose lines end in a carriage return and a line feed', () => {
     const lines = sayWorld(ENDING.replace(/\n/g, '\r\n'), MODEL, READINGS, SCENARIO);
@@ -193,7 +214,7 @@ describe('the sentences of tuples', () => {
    */
   it('says that a thing no sentence names exists, once, under its own signature', () => {
     const text = trace(state(0, ['this/Engine={AtOnce$0}', 'this/AtOnce={AtOnce$0}', 'this/Claim={Claim$0}'], true));
-    expect(sayWorld(text, MODEL, READINGS, SCENARIO)).toEqual(['step 0:', '  AtOnce$0 exists', '  claim_1 exists', 'then back to step 0']);
+    expect(sayWorld(text, MODEL, READINGS, SCENARIO)).toEqual(['throughout:', '  AtOnce$0 exists', '  claim_1 exists', 'step 0:', '  nothing else is true', 'then back to step 0']);
   });
 
   /**
