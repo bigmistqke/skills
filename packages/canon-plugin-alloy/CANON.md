@@ -175,6 +175,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [checker](../canon/CANON.md#term-checker) says list_1 with "then" at the start of the second side, on a line of its own.
   - [`@spec a-scenario-gets-a-statement-that-says-it-must-be-possible`](#spec-a-scenario-gets-a-statement-that-says-it-must-be-possible) — When the checker can say the formula of a [scenario](#term-scenario), its statement opens with "It must be possible that:".
   - [`@spec the-statement-of-a-scenario-sits-just-above-its-block`](#spec-the-statement-of-a-scenario-sits-just-above-its-block) — The checker writes the statement of a scenario just above its block.
+  - [`@spec the-statement-of-a-scenario-is-not-the-statement-of-its-unit`](#spec-the-statement-of-a-scenario-is-not-the-statement-of-its-unit) — The checker does not take the generated statement of a scenario for the statement of the unit that holds the scenario.
   - [`@spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale`](#spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale) — Generate writes the statement of a scenario that is not what its formula says, when the checker can say the formula.
   - [`@spec generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is`](#spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is) — Generate leaves the statement of a scenario that is current as it is.
   - [`@spec check-reports-a-statement-of-a-scenario-that-is-not-current`](#spec-check-reports-a-statement-of-a-scenario-that-is-not-current) — Check reports the statement of a scenario that is not what its formula says.
@@ -2166,6 +2167,12 @@ This follows because a scenario is a claim that something can happen. A reader w
 > The checker writes the statement of a scenario just above its block.
 
 This follows because a reader looks for the words of a formula where the formula is.
+
+#### @spec the-statement-of-a-scenario-is-not-the-statement-of-its-unit
+
+> The checker does not take the generated statement of a scenario for the statement of the unit that holds the scenario.
+
+This follows because the statement of a scenario says what must be possible, and the statement of a unit says what its formula claims. A unit whose only quote is the statement of its scenario has no statement yet.
 
 #### @spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale
 

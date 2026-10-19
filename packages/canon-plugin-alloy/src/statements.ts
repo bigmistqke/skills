@@ -105,7 +105,7 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     const region = regionName(unit.id);
     const at = regionAt(src, region, endMarker(region));
     if (at !== undefined) found.push({ unit: unit.id, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
-    else found.push({ unit: unit.id, kind: unit.statement === undefined ? 'missing' : 'handwritten', quote: words });
+    else found.push({ unit: unit.id, kind: statedByAPerson(unit.own, unit.id) ? 'handwritten' : 'missing', quote: words });
   }
   for (const { key, unit, body } of scenarios(src, blocks)) {
     let words: string;
@@ -121,6 +121,16 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     else found.push({ unit: key, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
   }
   return found;
+}
+
+/**
+ * Whether the unit's own text holds a quote that a person wrote. The
+ * generated statement of a scenario is a quote too, but it says what must be
+ * possible, and is not the statement of the unit.
+ */
+function statedByAPerson(own: string, unit: string): boolean {
+  const scenario = new RegExp(`<!-- statement-scenario-\\d+-${unit}:begin[^]*?<!-- statement-scenario-\\d+-${unit}:end -->`, 'g');
+  return own.replace(scenario, '').split('\n').some(line => line.startsWith('>') && line.slice(1).trim() !== '');
 }
 
 /** The scenarios of a document, each with the key its statement goes by: its place among the scenarios of its unit, and the unit. */

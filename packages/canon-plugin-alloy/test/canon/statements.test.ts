@@ -178,6 +178,18 @@ describe('the statements of scenarios', () => {
   });
 
   /**
+   * @canon spec-the-statement-of-a-scenario-is-not-the-statement-of-its-unit
+   */
+  it('finds a unit whose only quote is the statement of its scenario missing, and writes its statement below the heading', () => {
+    const scenarioOnly = write(scened()).src.replace(/<!-- statement-spec-a-leaf:begin[^]*?:end -->\n\n/, '');
+    expect(scenarioOnly).toContain('> It must be possible that:');
+    expect(states(scenarioOnly).find(s => s.unit === 'spec-a-leaf')).toMatchObject({ kind: 'missing' });
+    const { src, written } = write(scenarioOnly);
+    expect(written).toEqual(['spec-a-leaf']);
+    expect(src).toContain(`### @spec a-leaf\n\n<!-- ${REGION}:begin`);
+  });
+
+  /**
    * @canon spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is
    */
   it('leaves a scenario statement that is current as it is', () => {
