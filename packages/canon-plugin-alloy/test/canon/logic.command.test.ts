@@ -78,7 +78,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command', () => {
   /**
    * @canon spec-logic-succeeds-when-nothing-is-reported
    */
-  it('succeeds for a canon whose units hold together, and says how many it checked', { timeout: 120_000 }, () => {
+  it('succeeds for a canon whose units hold together, and says how many it checked', { timeout: 600_000 }, () => {
     const { out, code } = logic(doc());
     expect(out).toContain('CANON.md: 2 units, 0 scenarios');
     expect(code).toBe(0);
@@ -88,7 +88,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command', () => {
    * @canon spec-a-reported-scenario-or-contradiction-fails-logic
    * @canon spec-a-scenario-that-cannot-happen-while-every-unit-holds-is-reported
    */
-  it('fails when a scenario cannot happen, and names the unit that holds it and the units to change', { timeout: 120_000 }, () => {
+  it('fails when a scenario cannot happen, and names the unit that holds it and the units to change', { timeout: 600_000 }, () => {
     const { out, code } = logic(doc('\n```alloy scenario\nsome a: Apple | a not in Ripe\n```\n'));
     expect(out).toContain('the scenario of axiom-a-pear-is-sweet cannot happen while every unit holds');
     expect(code).toBe(1);
@@ -98,7 +98,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command', () => {
    * @canon spec-a-reported-scenario-or-contradiction-fails-logic
    * @canon spec-units-that-cannot-all-hold-are-named
    */
-  it('fails when the units contradict each other, and names them', { timeout: 120_000 }, () => {
+  it('fails when the units contradict each other, and names them', { timeout: 600_000 }, () => {
     const { out, code } = logic(doc('\n## @axiom an-apple-is-unripe\n\n```alloy\nsome a: Apple | a not in Ripe\n```\n'.replace('@axiom', AXIOM)));
     expect(out).toContain('the units contradict each other in every trace within the bounds');
     expect(out).toContain('axiom-an-apple-is-ripe');

@@ -49,6 +49,19 @@
         "$TURBO_ROOT$/packages/canon/CANON.md",
         "$TURBO_ROOT$/packages/naturalloy/CANON.md"
       ]
+    },
+    "@bigmistqke/parse-alloy#test": {
+      "dependsOn": [
+        "build",
+        "@bigmistqke/canon#build",
+        "@bigmistqke/canon-plugin-retext#build",
+        "@bigmistqke/canon#test",
+        "@bigmistqke/canon-plugin-alloy#test"
+      ],
+      "env": [
+        "CANON_ALLOY_JAR",
+        "CANON_JAVA"
+      ]
     }
   }
 }

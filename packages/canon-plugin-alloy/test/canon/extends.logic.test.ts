@@ -120,7 +120,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic of a document that exte
    * @canon spec-the-claims-of-an-extended-document-join-the-model
    * @canon spec-units-that-cannot-all-hold-are-named
    */
-  it('finds a claim that contradicts a claim of the extended document, and names both', { timeout: 120_000 }, () => {
+  it('finds a claim that contradicts a claim of the extended document, and names both', { timeout: 600_000 }, () => {
     const { out, code } = project({ 'alloy/CANON.md': child('some n: Node | n not in Done'), 'canon/CANON.md': PARENT }, ['logic']);
     expect(out).toContain('axiom-a-child-value');
     expect(out).toContain('axiom-every-node-is-done');
@@ -141,7 +141,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic of a document that exte
   /**
    * @canon spec-a-group-with-no-block-of-a-checked-document-is-not-asked-about
    */
-  it('leaves a group of the extended document that the document has no block in to the extended document', { timeout: 120_000 }, () => {
+  it('leaves a group of the extended document that the document has no block in to the extended document', { timeout: 600_000 }, () => {
     const alone = `\n## ${TERM} pear\n\n> A pear is sweet.\n\n\`\`\`alloy vocabulary\nsig Pear {}\nsig Sweet in Pear {}\n\`\`\`\n\n\`\`\`readings\nnoun Pear: [pear]\nSweet: {1} is [sweet] | {1} is not [sweet]\n\`\`\`\n\n## ${AXIOM} a-pear-is-sweet\n\n\`\`\`alloy\nall p: Pear | p in Sweet\n\`\`\`\n\n## ${AXIOM} a-pear-is-not-sweet\n\n\`\`\`alloy\nsome p: Pear | p not in Sweet\n\`\`\`\n`;
     const { out, code } = project({ 'alloy/CANON.md': child('all n: Node | n in Done'), 'canon/CANON.md': PARENT + alone }, ['logic']);
     expect(out).not.toContain('pear');

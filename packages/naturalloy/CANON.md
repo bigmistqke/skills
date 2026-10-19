@@ -16,7 +16,6 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term quantifier`](#term-quantifier) — A quantifier is a formula that declares a variable and says something of it, which the verbalizer may say as a noun phrase.
 - [`@term fit`](#term-fit) — For every [quantifier_1](#term-quantifier): quantifier_1 fits a noun phrase exactly when all of these hold: - quantifier_1 is not a quantifier whose reading says the variable twice - quantifier_1 is not a quantifier with no fact for its variable beside another thing - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition - quantifier_1 is not a quantifier whose condition is not about its variable
 - [`@term predicate-call`](#term-predicate-call) — A predicate call is a formula that names a predicate and gives its arguments.
-- [`@term parsed-formula`](#term-parsed-formula) — A parsed formula is a formula as the parser reads it: its operators, their operands and their grouping.
 - [`@term definition-passage`](#term-definition-passage) — A definition is a predicate with a body that the verbalizer says as what its name means exactly when the body holds.
 - [`@term by-kind`](#term-by-kind) — For every [definition_1](#term-definition-passage): definition_1 can be said kind by kind exactly when all of these hold: - definition_1 is not a definition with an alternative that does not begin with its kind - definition_1 is not a definition with a run of and beside another alternative of its kind - definition_1 is not a definition with an alternative that says something about another unit
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
@@ -84,16 +83,6 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-parameter-with-no-type-is-refused`](#spec-a-parameter-with-no-type-is-refused) — The verbalizer refuses a definition with a parameter that has no type, and says so.
   - [`@spec a-definition-whose-body-is-a-rule-is-refused`](#spec-a-definition-whose-body-is-a-rule-is-refused) — The verbalizer refuses a definition whose body is a rule, and says that no words follow "exactly when".
   - [`@spec a-definition-of-a-word-with-no-reading-is-refused`](#spec-a-definition-of-a-word-with-no-reading-is-refused) — The verbalizer refuses a definition of a word that has no reading, and names the word.
-  - [`@spec a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read`](#spec-a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read) — The verbalizer refuses a [formula](#term-parsed-formula) with a construct, a stray character or an unclosed bracket that it cannot read, and names it.
-  - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The verbalizer reads everything after the bar of a quantifier as its body, up to a `;`.
-  - [`@spec a-temporal-operator-takes-the-formula-next-to-it`](#spec-a-temporal-operator-takes-the-formula-next-to-it) — The verbalizer reads the formula next to a temporal operator as its operand.
-  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The verbalizer reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
-  - [`@spec disj-before-the-variables-of-a-quantifier-is-read`](#spec-disj-before-the-variables-of-a-quantifier-is-read) — The verbalizer reads `disj` before the variables of a declaration as a mark on that declaration.
-  - [`@spec and-binds-tighter-than-implies`](#spec-and-binds-tighter-than-implies) — The verbalizer reads an `and` beside an `implies` before the `implies`.
-  - [`@spec a-chain-of-and-is-one-list`](#spec-a-chain-of-and-is-one-list) — The verbalizer reads a chain of `and` as one list.
-  - [`@spec not-in-a-join-a-prime-and-a-call-are-read`](#spec-not-in-a-join-a-prime-and-a-call-are-read) — The verbalizer reads `not in`, a join, a prime and a call.
-  - [`@spec some-of-a-set-is-a-multiplicity`](#spec-some-of-a-set-is-a-multiplicity) — The verbalizer reads `some` before a set as a statement about the set, and not as a quantifier.
-  - [`@spec some-with-a-declaration-is-a-quantifier`](#spec-some-with-a-declaration-is-a-quantifier) — The verbalizer reads `some` before variables and a bar as a quantifier over those variables.
   - [`@spec a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition) — The verbalizer reads text that starts with the keyword `pred` as a definition.
   - [`@spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter`](#spec-a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter) — The verbalizer says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
   - [`@spec a-definition-that-marks-its-variables-disj-is-said-with-them-different`](#spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different) — The verbalizer says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
@@ -273,16 +262,6 @@ fits: {1} [fits] a noun phrase | {1} does not [fit] a noun phrase
 ### @term predicate-call
 
 > A predicate call is a formula that names a predicate and gives its arguments.
-
-```alloy vocabulary
-```
-
-```readings
-```
-
-### @term parsed-formula
-
-> A parsed formula is a formula as the parser reads it: its operators, their operands and their grouping.
 
 ```alloy vocabulary
 ```
@@ -882,66 +861,6 @@ This follows because a definition says exactly when its body holds, and a rule h
 > The verbalizer refuses a definition of a word that has no reading, and names the word.
 
 This follows because the statement of a definition says the word it defines, and without a reading it would say nothing.
-
-#### @spec a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read
-
-> The verbalizer refuses a [formula](#term-parsed-formula) with a construct, a stray character or an unclosed bracket that it cannot read, and names it.
-
-This follows because a formula that the parser reads in part would get words for that part only. The author must know which part failed.
-
-#### @spec a-quantifier-takes-everything-after-its-bar
-
-> The verbalizer reads everything after the bar of a quantifier as its body, up to a `;`.
-
-This follows because the bar ends the declaration, and what follows is the claim about the variables.
-
-#### @spec a-temporal-operator-takes-the-formula-next-to-it
-
-> The verbalizer reads the formula next to a temporal operator as its operand.
-
-This follows because always, eventually and after apply to one formula, so that what follows them is plain.
-
-#### @spec a-semicolon-takes-everything-after-it
-
-> The verbalizer reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
-
-This follows because the Alloy analyzer binds the semicolon looser than every connective and groups it to the right. A statement of any other reading would say what the logic does not.
-
-#### @spec disj-before-the-variables-of-a-quantifier-is-read
-
-> The verbalizer reads `disj` before the variables of a declaration as a mark on that declaration.
-
-This follows because `disj` belongs to the declaration it stands before, and a formula the parser refuses gets no words.
-
-#### @spec and-binds-tighter-than-implies
-
-> The verbalizer reads an `and` beside an `implies` before the `implies`.
-
-This follows because a rule reads "when these hold together, that holds", and the other reading makes it a conjunction of a rule.
-
-#### @spec a-chain-of-and-is-one-list
-
-> The verbalizer reads a chain of `and` as one list.
-
-This follows because three conditions joined by and are one list of three, and not an and of an and.
-
-#### @spec not-in-a-join-a-prime-and-a-call-are-read
-
-> The verbalizer reads `not in`, a join, a prime and a call.
-
-This follows because the formulas of a canon use these four, and a formula without them would be less than the logic.
-
-#### @spec some-of-a-set-is-a-multiplicity
-
-> The verbalizer reads `some` before a set as a statement about the set, and not as a quantifier.
-
-This follows because some followed by a set says the set is not empty, and it declares no variable.
-
-#### @spec some-with-a-declaration-is-a-quantifier
-
-> The verbalizer reads `some` before variables and a bar as a quantifier over those variables.
-
-This follows because some followed by variables and a bar declares those variables.
 
 #### @spec a-passage-that-starts-with-pred-is-a-definition
 

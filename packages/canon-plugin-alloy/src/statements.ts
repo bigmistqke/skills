@@ -12,6 +12,7 @@
 import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { beginMarker, regionAt, replaceRegion } from '@bigmistqke/canon/regions';
 import { readUnits } from '@bigmistqke/canon/units';
+import { PARAGRAPHS } from './words.ts';
 import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from '@bigmistqke/naturalloy';
 
 /** The name of the region that holds the generated statement of a unit. */
@@ -53,8 +54,8 @@ export function readingsOf(src: string, context: Context[] = []): Readings | und
   const own = readBlocks(src);
   const documents = [...[...context].reverse().map(c => ({ path: c.path, blocks: readBlocks(c.src) })), { path: undefined, blocks: own }];
   if (!documents.some(d => d.blocks.some(b => b.lang === 'readings'))) return undefined;
-  // The predicates a document defines, in its vocabulary and in the units that define them.
-  const model = documents.flatMap(d => d.blocks).filter(b => b.lang === 'alloy' && b.role !== 'bounds' && b.role !== 'scenario');
+  // The predicates a document defines, in its vocabulary and in the units that define them: the blocks that are Alloy paragraphs, and not bare formulas.
+  const model = documents.flatMap(d => d.blocks).filter(b => b.lang === 'alloy' && (b.role === 'vocabulary' || (b.role === 'unit' && PARAGRAPHS.test(b.body))));
   // Each block is read for the unit that holds it, so that a word in brackets links to the term that says it.
   const merged = parseReadings('');
   for (const { path, blocks } of documents) {

@@ -19,7 +19,7 @@ const CORE_CANON = read(CORE);
 const NATURALLOY_CANON = read(NATURALLOY);
 const CANONS = [
   { name: 'the checker', dir: CORE, src: CORE_CANON, context: [] as { path: string; src: string }[], least: 100 },
-  { name: 'naturalloy', dir: NATURALLOY, src: NATURALLOY_CANON, context: [] as { path: string; src: string }[], least: 120 },
+  { name: 'naturalloy', dir: NATURALLOY, src: NATURALLOY_CANON, context: [] as { path: string; src: string }[], least: 117 },
   {
     name: 'the Alloy plugin',
     dir: PACKAGE,

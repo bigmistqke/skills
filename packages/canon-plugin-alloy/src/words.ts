@@ -7,6 +7,7 @@
  * on. These checks read text only and need no solver.
  */
 import { readBlocks } from '@bigmistqke/canon/blocks';
+import { parseModule } from '@bigmistqke/parse-alloy';
 import { readUnits } from '@bigmistqke/canon/units';
 
 export type WordKind = 'signature' | 'field' | 'predicate';
@@ -30,61 +31,36 @@ export interface WordFinding {
 /** A text of Alloy without its comments. */
 export const strip = (text: string): string => text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(?:--|\/\/)[^\n]*/g, ' ');
 
-/** The text between the brace at `open` and its closing brace, and where the closing brace is. */
-function braced(text: string, open: number): { body: string; end: number } {
-  let depth = 0;
-  for (let i = open; i < text.length; i++) {
-    if (text[i] === '{') depth++;
-    else if (text[i] === '}' && --depth === 0) return { body: text.slice(open + 1, i), end: i };
-  }
-  return { body: text.slice(open + 1), end: text.length };
-}
+/** Whether a block is Alloy paragraphs, a vocabulary or a definition, and not a bare formula. */
+export const PARAGRAPHS = /^\s*(?:(?:var|one|lone|some|abstract|private)\s+)*(?:sig|pred|fun|fact|assert|enum|open|let|run|check)\b/;
 
-/** The names a field declaration list gives: `a: T, b, c: U` gives a, b and c, split at the commas outside any bracket. */
-function fieldNames(body: string): string[] {
-  const names: string[] = [];
-  let depth = 0;
-  let segment = '';
-  const flush = (): void => {
-    const colon = segment.indexOf(':');
-    const head = colon === -1 ? segment : segment.slice(0, colon);
-    for (const name of head.replace(/\bvar\b/g, ' ').split(',')) if (/^\s*\w+\s*$/.test(name)) names.push(name.trim());
-    segment = '';
-  };
-  for (const ch of body) {
-    if ('([{'.includes(ch)) depth++;
-    else if (')]}'.includes(ch)) depth--;
-    if (ch === ',' && depth === 0) {
-      // a name with no type yet belongs to the declaration that follows it, `a, b: T`
-      if (segment.includes(':')) flush();
-      else segment += ch;
-    } else segment += ch;
-  }
-  flush();
-  return names;
-}
-
-/** A declaration of signatures: its keywords, its names, and whether it puts them inside another with `extends` or `in`; it ends at the brace of the fields. */
-const SIGNATURES = /\b((?:(?:var|one|lone|some|abstract|private)\s+)*)sig\s+([\w\s,]+?)(?:\s+(extends|in)\s+[\w\s+]+?)?\s*\{/g;
-
-/** The signatures that the text of one model block declares, outside its comments, with what their declaration says of them. */
+/** The signatures that the text of a module declares, as the parser reads them, with what their declaration says of them. */
 export function signaturesIn(body: string): { name: string; var: boolean; one: boolean; subset: boolean }[] {
-  return [...strip(body).matchAll(SIGNATURES)].flatMap(m =>
-    (m[2] as string).split(',').map(name => ({ name: name.trim(), var: /\bvar\b/.test(m[1] as string), one: /\bone\b/.test(m[1] as string), subset: m[3] === 'in' }))
-  );
+  return parseModule(body).paragraphs.flatMap(p => (p.t === 'sig' ? p.names.map(name => ({ name, var: p.var === true, one: p.mult === 'one', subset: p.parent?.kind === 'in' })) : []));
 }
 
-/** The words that the text of one model block declares, outside its comments. */
+/**
+ * The words that one model block declares: its signatures, the fields of a
+ * signature it declares alone, `Holder.field`, and its predicates, as the
+ * parser reads them. A bare formula declares nothing, and neither does a block
+ * the parser cannot read, which the statements report.
+ */
 export function declaredIn(body: string): { name: string; kind: WordKind }[] {
-  const found: { name: string; kind: WordKind }[] = [];
-  const text = strip(body);
-  for (const m of text.matchAll(SIGNATURES)) {
-    const { body: fields } = braced(text, (m.index ?? 0) + m[0].length - 1);
-    const names = (m[2] as string).split(',').map(n => n.trim());
-    for (const name of names) found.push({ name, kind: 'signature' });
-    if (names.length === 1) for (const field of fieldNames(fields)) found.push({ name: `${names[0]}.${field}`, kind: 'field' });
+  if (!PARAGRAPHS.test(strip(body))) return [];
+  let module;
+  try {
+    module = parseModule(body);
+  } catch {
+    return [];
   }
-  for (const m of text.matchAll(/\bpred\s+(\w+)/g)) found.push({ name: m[1] as string, kind: 'predicate' });
+  const found: { name: string; kind: WordKind }[] = [];
+  for (const p of module.paragraphs) {
+    if (p.t === 'sig') {
+      for (const name of p.names) found.push({ name, kind: 'signature' });
+      if (p.names.length === 1) for (const field of p.fields.flatMap(d => d.names)) found.push({ name: `${p.names[0]}.${field}`, kind: 'field' });
+    }
+    if (p.t === 'pred') found.push({ name: p.name, kind: 'predicate' });
+  }
   return found;
 }
 
