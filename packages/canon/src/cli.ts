@@ -1576,6 +1576,8 @@ Usage:
   ${COMMAND} logic --show <scenario>
                                    print a world in which the scenario happens, step by step, in the
                                    document's readings (repeat for more scenarios)
+  ${COMMAND} graph [--svg]         print the derivations of the documents as a Mermaid flowchart, or with
+                                   --svg as the SVG that Pele renders from it
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
 
@@ -1584,8 +1586,9 @@ Options for tree:
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
-The commands lint and logic come from plugins: @bigmistqke/canon-plugin-retext and
-@bigmistqke/canon-plugin-alloy. The Alloy plugin also adds to generate and check: a
+The commands lint, logic and graph come from plugins:
+@bigmistqke/canon-plugin-retext, @bigmistqke/canon-plugin-alloy and
+@bigmistqke/canon-plugin-pele. The Alloy plugin also adds to generate and check: a
 document with a "readings" block has the statement of each unit with a
 predicate written from the predicate, and check reports one that is stale. It
 also reports the words of such a document that are undeclared, misplaced,
@@ -1885,6 +1888,7 @@ async function main(argv: string[]): Promise<void> {
         offline: { type: 'boolean' },
         review: { type: 'string', multiple: true },
         show: { type: 'string', multiple: true },
+        svg: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' }
       }
     });
