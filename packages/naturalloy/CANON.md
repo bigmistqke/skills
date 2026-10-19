@@ -14,14 +14,18 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term formula`](#term-formula) — A formula is a piece of Alloy that states a claim, and that the verbalizer says in words.
 - [`@term quantified-formula`](#term-quantified-formula) — A quantified formula is a formula that declares variables, and the verbalizer names them and says their types.
 - [`@term quantifier`](#term-quantifier) — A quantifier is a formula that declares a variable and says something of it, which the verbalizer may say as a noun phrase.
-- [`@term fit`](#term-fit) — For every [quantifier_1](#term-quantifier): quantifier_1 fits a noun phrase exactly when all of these hold: - quantifier_1 is not a quantifier whose reading says the variable twice - quantifier_1 is not a quantifier with no fact for its variable beside another thing - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition - quantifier_1 is not a quantifier whose condition is not about its variable
+- [`@term fit`](#term-fit) — For every [quantifier_1](#term-quantifier): quantifier_1 fits a noun phrase exactly when all of these hold: - quantifier_1 is not a quantifier whose reading says the variable twice - quantifier_1 is not a quantifier with no fact for its variable beside another thing - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition - quantifier_1 is not a quantifier whose condition is not about its variable - quantifier_1 is not a quantifier with several conditions, one of which begins with a time phrase
 - [`@term predicate-call`](#term-predicate-call) — A predicate call is a formula that names a predicate and gives its arguments.
 - [`@term definition-passage`](#term-definition-passage) — A definition is a predicate with a body that the verbalizer says as what its name means exactly when the body holds.
 - [`@term by-kind`](#term-by-kind) — For every [definition_1](#term-definition-passage): definition_1 can be said kind by kind exactly when all of these hold: - definition_1 is not a definition with an alternative that does not begin with its kind - definition_1 is not a definition with a run of and beside another alternative of its kind - definition_1 is not a definition with an alternative that says something about another unit
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
-- [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or has two clauses or fewer - list_1 fits a line when it is put in a sentence
+- [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or list_1 has two clauses or fewer - list_1 fits a line when it is put in a sentence - list_1 has no clause before its last that begins with a time phrase
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
+- [`@fact every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment) — In Alloy 6, a trace is infinite: every moment has exactly one next moment.
+- [`@fact the-analyzer-wraps-integers-at-their-bit-width`](#fact-the-analyzer-wraps-integers-at-their-bit-width) — With its default options, the analyzer keeps every integer in a fixed bit width. A number that leaves that range wraps around into it.
+- [`@fact the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero`](#fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero) — The analyzer rounds `div[a, b]` toward zero, and gives -1, 0 or 1 for `div[a, 0]` as `a` is positive, zero or negative. `rem[a, b]` has the sign of `a`, and `rem[a, 0]` is `a`.
+- [`@fact the-analyzer-shifts-by-the-lowest-bits-of-the-amount`](#fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount) — The analyzer shifts by the number in the lowest bits of the amount: as many bits as it takes to count to the bit width.
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
@@ -31,6 +35,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec some-is-said-with-an-article-chosen-by-the-sound-of-the-noun`](#spec-some-is-said-with-an-article-chosen-by-the-sound-of-the-noun) — The verbalizer says `some` of a type with the article "a" or "an" that fits the sound of the noun.
   - [`@spec an-article-the-noun-is-written-with-wins-over-its-sound`](#spec-an-article-the-noun-is-written-with-wins-over-its-sound) — When the noun of a type carries an article, the verbalizer uses that article, whatever the sound of the noun.
   - [`@spec no-over-several-variables-is-said-as-no-combination`](#spec-no-over-several-variables-is-said-as-no-combination) — The verbalizer says `no` over variables of several types as no combination of the variables.
+  - [`@spec one-as-a-quantifier-is-said-as-exactly-one`](#spec-one-as-a-quantifier-is-said-as-exactly-one) — The verbalizer says `one` over a variable as "exactly one" of its noun, and over several variables as exactly one combination of them.
+  - [`@spec lone-as-a-quantifier-is-said-as-at-most-one`](#spec-lone-as-a-quantifier-is-said-as-at-most-one) — The verbalizer says `lone` over a variable as "at most one" of its noun, and over several variables as at most one combination of them.
+  - [`@spec a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together`](#spec-a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together) — The verbalizer says a quantifier whose body is a block, `all x: T { a b }`, as the quantifier with the formulas of the block holding together.
   - [`@spec a-call-of-a-predicate-gives-its-variables-numbers-that-are-free`](#spec-a-call-of-a-predicate-gives-its-variables-numbers-that-are-free) — When a called body quantifies a variable that the call already uses, the verbalizer gives it a number that no variable in use has.
   - [`@spec a-variable-of-a-body-never-takes-the-name-of-an-argument`](#spec-a-variable-of-a-body-never-takes-the-name-of-an-argument) — The verbalizer never gives a variable of a called body the name of an argument of the call.
   - [`@spec the-alternatives-of-a-list-reuse-a-name-and-keep-it-taken-for-what-follows`](#spec-the-alternatives-of-a-list-reuse-a-name-and-keep-it-taken-for-what-follows) — The verbalizer gives the same name to the variable in each alternative of a list, and keeps the name taken for what follows.
@@ -40,12 +47,36 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-negated-predicate-with-no-reading-is-said-as-untrue`](#spec-a-negated-predicate-with-no-reading-is-said-as-untrue) — The verbalizer says a negated call of a predicate with no reading as "it is not the case that", followed by the body.
   - [`@spec the-reading-of-the-table-wins-over-the-body`](#spec-the-reading-of-the-table-wins-over-the-body) — The verbalizer says a call of a predicate that has both a reading and a body with the reading.
   - [`@spec the-checker-reads-the-predicates-a-vocabulary-declares`](#spec-the-checker-reads-the-predicates-a-vocabulary-declares) — The verbalizer reads each predicate that a vocabulary declares: its name, what it takes and its body.
+  - [`@spec a-call-written-as-a-join-is-said-as-the-call`](#spec-a-call-written-as-a-join-is-said-as-the-call) — The verbalizer says `x.p` and `x.p[y]`, for a predicate `p`, as `p[x]` and `p[x, y]`.
+  - [`@spec a-box-join-of-a-field-is-said-as-the-navigation`](#spec-a-box-join-of-a-field-is-said-as-the-navigation) — The verbalizer says `f[x]`, for a field `f`, as `x.f`.
+  - [`@spec a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place`](#spec-a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place) — The verbalizer says a call of a predicate with no reading by its body also when an argument is an expression. The expression takes the place of the parameter.
+  - [`@spec a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument`](#spec-a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument) — The verbalizer says a call of a predicate with a reading and an argument of one value through a member of its type. That member is the one in the argument.
+  - [`@spec a-call-with-an-argument-of-none-or-several-values-is-refused`](#spec-a-call-with-an-argument-of-none-or-several-values-is-refused) — The verbalizer refuses a call of a predicate with a reading, with an argument that can hold none or several values, and names the argument.
+  - [`@spec a-let-is-said-with-its-value-in-the-place-of-its-name`](#spec-a-let-is-said-with-its-value-in-the-place-of-its-name) — The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
+  - [`@spec a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused`](#spec-a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused) — The verbalizer refuses a `let` whose body declares a variable with a name that its value uses, and names the variable.
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — The verbalizer says the negation of a comparison or a call with the negative reading of what it negates.
+  - [`@spec not-before-a-compound-is-said-with-the-not-moved-inward`](#spec-not-before-a-compound-is-said-with-the-not-moved-inward) — The verbalizer says `not` before a list, a rule, an equivalence, a quantifier or a temporal operator as the formula it equals with the `not` moved inward. Where no such formula exists, it says "it is not the case that" before the formula, set apart.
+    - [`@spec not-before-an-and-is-said-as-at-least-one-negation`](#spec-not-before-an-and-is-said-as-at-least-one-negation) — The verbalizer says `not (a and b)` as `not a or not b`.
+    - [`@spec not-before-an-or-is-said-as-every-negation`](#spec-not-before-an-or-is-said-as-every-negation) — The verbalizer says `not (a or b)` as `not a and not b`.
+    - [`@spec not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence`](#spec-not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence) — The verbalizer says `not (a implies b)` as `a and not b`.
+    - [`@spec not-before-an-equivalence-is-said-as-exactly-one-of-its-sides`](#spec-not-before-an-equivalence-is-said-as-exactly-one-of-its-sides) — The verbalizer says `not (a iff b)` as exactly one of `a` and `b` holding.
+    - [`@spec not-before-an-else-is-said-as-the-rule-with-each-side-negated`](#spec-not-before-an-else-is-said-as-the-rule-with-each-side-negated) — The verbalizer says `not (c implies a else b)` as `c implies not a else not b`.
+    - [`@spec not-before-some-or-no-is-said-as-the-other`](#spec-not-before-some-or-no-is-said-as-the-other) — The verbalizer says `not some x: T | f` as `no x: T | f`, and `not no x: T | f` as `some x: T | f`.
+    - [`@spec not-before-all-is-said-as-some-with-the-body-negated`](#spec-not-before-all-is-said-as-some-with-the-body-negated) — The verbalizer says `not all x: T | f` as `some x: T | not f`.
+    - [`@spec not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated`](#spec-not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated) — The verbalizer says `not always f` as `eventually not f`, and `not eventually f` as `always not f`.
+    - [`@spec not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated`](#spec-not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated) — The verbalizer says `not historically f` as `once not f`, and `not once f` as `historically not f`.
+    - [`@spec not-before-after-is-said-as-after-with-the-formula-negated`](#spec-not-before-after-is-said-as-after-with-the-formula-negated) — The verbalizer says `not after f` as `after not f`.
+    - [`@spec a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that`](#spec-a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that) — The verbalizer says `not` before `one`, `lone`, `before` or a binary temporal operator as "it is not the case that", with the formula it negates set apart below it.
   - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — The verbalizer says a comparison with a union on its left as one statement for each member of the union.
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — The verbalizer says a comparison with a difference on its right as: the left side is in the first part and not in the second.
   - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The verbalizer says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
   - [`@spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
   - [`@spec a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over a set `S` with no noun over the signature that holds `S`, with the condition that the variable is in `S`.
+  - [`@spec an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over an expression `e`, such as `all o: c.on | …`, as one over the type of `e`, with the condition that the variable is in `e`.
+  - [`@spec a-disj-after-the-colon-is-said-as-a-disj-before-the-names`](#spec-a-disj-after-the-colon-is-said-as-a-disj-before-the-names) — The verbalizer says `x, y: disj T` as it says `disj x, y: T`.
+  - [`@spec one-before-the-type-of-a-variable-is-said-as-the-type`](#spec-one-before-the-type-of-a-variable-is-said-as-the-type) — The verbalizer says `x: one T`, of a quantifier or of a parameter, as `x: T`.
+  - [`@spec a-variable-that-can-hold-several-things-or-none-is-refused`](#spec-a-variable-that-can-hold-several-things-or-none-is-refused) — The verbalizer refuses a variable declared `lone`, `some` or `set`, or with an arrow in its type, and says that it can hold none or several things.
+  - [`@spec private-before-a-variable-of-a-quantifier-is-refused`](#spec-private-before-a-variable-of-a-quantifier-is-refused) — The verbalizer refuses `private` before a variable of a quantifier, which Alloy does not read.
   - [`@spec membership-in-a-navigation-is-said-with-the-reading-of-its-field`](#spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field) — The verbalizer says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
   - [`@spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field`](#spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field) — The verbalizer says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
   - [`@spec a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way`](#spec-a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way) — The verbalizer says `y.~f` as `f.y`, and `~f.y` as `y.f`.
@@ -57,9 +88,45 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The verbalizer says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
   - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The verbalizer refuses a formula that puts a set or a field where a reading takes a variable, and names it.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
-  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
-  - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
-  - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
+  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+  - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
+  - [`@spec an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns) — The verbalizer says a formula about an expression through members of the types of its columns. This holds for an expression that is more than a set or a navigation of a variable.
+    - [`@spec a-union-on-the-right-is-said-as-or`](#spec-a-union-on-the-right-is-said-as-or) — The verbalizer says `x in a + b`, for a variable or a pair `x`, as `x in a` or `x in b`.
+    - [`@spec an-intersection-on-the-right-is-said-as-and`](#spec-an-intersection-on-the-right-is-said-as-and) — The verbalizer says `x in a & b`, for a variable or a pair `x`, as `x in a` and `x in b`.
+    - [`@spec not-in-before-a-difference-is-said-as-the-negation-of-in`](#spec-not-in-before-a-difference-is-said-as-the-negation-of-in) — The verbalizer says `x not in a - b` as the negation of `x in a - b`: `x not in a` or `x in b`.
+    - [`@spec membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it`](#spec-membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it) — The verbalizer says `x in y.e`, for a variable `y`, as `y->x in e`, and `x in e.y` as `x->y in e`.
+    - [`@spec a-pair-in-a-product-is-said-as-each-side-in-its-part`](#spec-a-pair-in-a-product-is-said-as-each-side-in-its-part) — The verbalizer says `x->y in a -> b` as `x in a` and `y in b`.
+    - [`@spec membership-in-a-chain-of-navigations-is-said-through-a-member-between`](#spec-membership-in-a-chain-of-navigations-is-said-through-a-member-between) — The verbalizer says `x in e.f`, where `e` is not one variable, as `some m: T | m in e and x in m.f`. `T` is the type of the last column of `e`.
+    - [`@spec membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it`](#spec-membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it) — The verbalizer says `x in S.f`, for a signature `S` where `S.f` has no reading of its own, as `some m: S | m->x in f`: "a cleanup is on x".
+    - [`@spec membership-in-a-signature-with-no-reading-is-said-with-its-noun`](#spec-membership-in-a-signature-with-no-reading-is-said-with-its-noun) — The verbalizer says `x in S`, for a signature `S` with a noun and no reading, as `x` "is" the noun with its article: "c is a cleanup".
+    - [`@spec a-primed-expression-is-said-at-the-next-moment`](#spec-a-primed-expression-is-said-at-the-next-moment) — The verbalizer says `x in e'`, for an expression `e`, as "at the next moment" before `x in e`.
+    - [`@spec an-expression-of-a-variable-on-the-left-is-said-member-by-member`](#spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member) — The verbalizer says `e in s`, for an expression `e` that names a variable, as: for every member `m` of the type of `e`, when `m in e`, `m in s`.
+    - [`@spec two-expressions-that-are-equal-are-said-member-by-member`](#spec-two-expressions-that-are-equal-are-said-member-by-member) — The verbalizer says `a = b`, for sides that the specs above do not say, as: for every member `m` of their type, `m in a` exactly when `m in b`. It says `a != b` as the negation of that.
+    - [`@spec some-or-no-of-an-expression-is-said-over-the-types-of-its-columns`](#spec-some-or-no-of-an-expression-is-said-over-the-types-of-its-columns) — The verbalizer says `some e` and `no e`, for an expression the specs above do not say, as `some` or `no` over its column types, with the members in `e`.
+    - [`@spec one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one`](#spec-one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one) — The verbalizer says `one e` and `lone e` as exactly one or at most one member of the types of the columns of `e` in `e`.
+    - [`@spec an-expression-whose-types-the-vocabulary-does-not-tell-is-refused`](#spec-an-expression-whose-types-the-vocabulary-does-not-tell-is-refused) — The verbalizer refuses a formula about an expression whose column types the vocabulary does not tell, and names the expression.
+  - [`@spec an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left`](#spec-an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left) — The verbalizer says `x->y in r ++ s` as `x->y in s`, or `x->y in r` and `no x.s`. For sets, `x in a ++ b` is `x in a + b`.
+  - [`@spec a-domain-restriction-is-said-as-the-first-member-in-the-set`](#spec-a-domain-restriction-is-said-as-the-first-member-in-the-set) — The verbalizer says `x->y in a <: r` as `x in a` and `x->y in r`.
+  - [`@spec a-range-restriction-is-said-as-the-last-member-in-the-set`](#spec-a-range-restriction-is-said-as-the-last-member-in-the-set) — The verbalizer says `x->y in r :> b` as `x->y in r` and `y in b`.
+  - [`@spec an-arrow-with-a-multiplicity-is-refused`](#spec-an-arrow-with-a-multiplicity-is-refused) — The verbalizer refuses an arrow with a multiplicity, such as `a one -> lone b`, and says that it says how many each side relates.
+  - [`@spec a-closure-is-said-as-reaching-in-one-or-more-steps`](#spec-a-closure-is-said-as-reaching-in-one-or-more-steps) — The verbalizer says `x->y in ^r` as `x` "reaches" `y` "in one or more steps", and says what a step is with the reading of `r`.
+  - [`@spec a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps`](#spec-a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps) — The verbalizer says `x->y in *r` as `x` "reaches" `y` "in zero or more steps", and says what a step is with the reading of `r`.
+  - [`@spec some-or-no-of-a-reflexive-closure-is-refused`](#spec-some-or-no-of-a-reflexive-closure-is-refused) — The verbalizer refuses `some`, `no`, `one` or `lone` of a reflexive closure, and says that it holds every member of every type.
+  - [`@spec none-is-said-as-nothing`](#spec-none-is-said-as-nothing) — The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding.
+  - [`@spec a-formula-that-never-holds-is-refused`](#spec-a-formula-that-never-holds-is-refused) — The verbalizer refuses a formula that never holds, such as `some none`, and says that it claims what cannot be.
+  - [`@spec a-formula-that-never-holds-is-left-out-of-an-or`](#spec-a-formula-that-never-holds-is-left-out-of-an-or) — The verbalizer leaves a formula that never holds, such as `x in none`, out of an `or`.
+  - [`@spec a-pair-in-iden-is-said-as-the-same`](#spec-a-pair-in-iden-is-said-as-the-same) — The verbalizer says `x->y in iden` as `x` and `y` being the same.
+  - [`@spec univ-is-said-as-a-signature-of-its-own`](#spec-univ-is-said-as-a-signature-of-its-own) — The verbalizer says `univ` as a signature that holds every atom, with the noun the readings give it.
+  - [`@spec a-set-comprehension-is-said-through-its-variables`](#spec-a-set-comprehension-is-said-through-its-variables) — The verbalizer says `x in { y: T | f }` as `x in T` and `f` with `x` in the place of `y`, and `{ y: T }` as `T`.
+  - [`@spec disj-of-expressions-is-said-as-no-two-sharing-a-member`](#spec-disj-of-expressions-is-said-as-no-two-sharing-a-member) — The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
+  - [`@spec a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes) — The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
+  - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
+  - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
+  - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
+  - [`@spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither`](#spec-an-equivalence-of-more-than-clauses-is-said-as-both-or-neither) — The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
+  - [`@spec an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither`](#spec-an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither) — As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
+  - [`@spec an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither`](#spec-an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither) — The verbalizer says `a iff b` as both or neither of its sides when `a` begins with a time phrase.
+  - [`@spec an-else-is-said-as-otherwise`](#spec-an-else-is-said-as-otherwise) — The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The verbalizer says `eventually` as "now or at a later moment".
@@ -73,6 +140,35 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes`](#spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes) — The verbalizer says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
   - [`@spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one`](#spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one) — The verbalizer says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
+  - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
+  - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
+  - [`@spec a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart) — The verbalizer says `until`, `since`, `releases`, `triggered` or `;` with a side of more than one clause by setting each side apart below the words that place it in time.
+    - [`@spec until-with-a-side-of-more-than-a-clause-is-said-as-two-parts`](#spec-until-with-a-side-of-more-than-a-clause-is-said-as-two-parts) — The verbalizer says `a until b` with a side of more than one clause in two parts. They are `b` "now or at a later moment", and `a` "at every moment before the first such moment".
+    - [`@spec since-with-a-side-of-more-than-a-clause-is-said-as-two-parts`](#spec-since-with-a-side-of-more-than-a-clause-is-said-as-two-parts) — The verbalizer says `a since b` with a side of more than one clause in two parts. They are `b` "now or at an earlier moment", and `a` "at every moment after the last such moment".
+    - [`@spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until`](#spec-releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until) — The verbalizer says `a releases b`, with a side of more than one clause, as `always b or (b until (a and b))`.
+    - [`@spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since`](#spec-triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since) — The verbalizer says `a triggered b`, with a side of more than one clause, as `historically b or (b since (a and b))`.
+    - [`@spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment`](#spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b`, with a side of more than one clause, as `a and after b`.
+  - [`@spec this-outside-a-definition-of-a-signature-is-refused`](#spec-this-outside-a-definition-of-a-signature-is-refused) — The verbalizer refuses `this` outside a predicate or a function of a signature, which Alloy does not read.
+  - [`@spec steps-in-a-formula-is-refused`](#spec-steps-in-a-formula-is-refused) — The verbalizer refuses `steps` in a formula, and says that Alloy reads it only in a scope.
+  - [`@spec a-name-of-this-module-is-said-as-the-name`](#spec-a-name-of-this-module-is-said-as-the-name) — The verbalizer says `this/Ran` and `@Ran` as it says `Ran`.
+  - [`@spec a-name-of-another-module-is-said-by-its-own-reading`](#spec-a-name-of-another-module-is-said-by-its-own-reading) — The verbalizer says a name of another module, such as `m/Ran`, by the reading of that whole name.
+  - [`@spec a-comment-in-a-formula-is-left-out`](#spec-a-comment-in-a-formula-is-left-out) — The verbalizer leaves out a comment in a formula: `--`, `//`, `/* … */` and `/** … */`.
+  - [`@spec a-typographic-prime-is-said-as-a-prime`](#spec-a-typographic-prime-is-said-as-a-prime) — The verbalizer says `‘` and `’` as it says `'`.
+  - [`@spec an-integer-comparison-is-said-in-integers-that-wrap`](#spec-an-integer-comparison-is-said-in-integers-that-wrap) — The verbalizer says `<`, `>`, `=<`, `>=` and their negations, and `=` and `!=` between two numbers, after "in integers that wrap around at the analyzer's bit width".
+    - [`@spec two-numbers-are-compared-with-the-words-of-their-operator`](#spec-two-numbers-are-compared-with-the-words-of-their-operator) — The verbalizer says `<` as "is less than", `>` as "is greater than", `=<` as "is at most", `>=` as "is at least" and `=` as "is equal to". It says a negation with "not".
+    - [`@spec a-count-is-said-as-the-number-of-values`](#spec-a-count-is-said-as-the-number-of-values) — The verbalizer says `#e` as "the number of values of" a member of the type of `e`, "such that" the member is in `e`.
+    - [`@spec a-sum-over-a-variable-is-said-as-the-sum-over-every-value`](#spec-a-sum-over-a-variable-is-said-as-the-sum-over-every-value) — The verbalizer says `sum x: T | e` as "the sum, over every" member of `T`, "of" `e`.
+    - [`@spec a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members`](#spec-a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members) — The verbalizer says a set of integers where a number belongs, as in `c.n < 3` or `int[c.n]`, as `"the sum of the values of"` an integer in it.
+    - [`@spec plus-minus-and-mul-are-said-as-plus-minus-and-times`](#spec-plus-minus-and-mul-are-said-as-plus-minus-and-times) — The verbalizer says `plus[a, b]`, `minus[a, b]` and `mul[a, b]` as `a` "plus", "minus" or "times" `b`.
+    - [`@spec a-division-is-said-with-its-rounding-and-its-rule-for-zero`](#spec-a-division-is-said-with-its-rounding-and-its-rule-for-zero) — The verbalizer says `div[a, b]` as `a` "divided by" `b`, rounded toward zero, with its value when `b` is zero. It says `rem[a, b]` as `"the remainder of"` `a` divided by `b`, with its sign and its value when `b` is zero.
+    - [`@spec a-number-is-said-as-itself`](#spec-a-number-is-said-as-itself) — The verbalizer says a number in decimal, whether the formula writes it in decimal, in hexadecimal or in binary.
+    - [`@spec min-and-max-are-said-as-the-least-and-the-greatest-integer`](#spec-min-and-max-are-said-as-the-least-and-the-greatest-integer) — The verbalizer says `min` and `max` as "the least integer" and "the greatest integer".
+    - [`@spec a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it`](#spec-a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it) — The verbalizer names a count, a sum or a division in an integer comparison as `number_1`, `number_2` and so on, and says after "where" what each is.
+    - [`@spec a-shift-is-refused`](#spec-a-shift-is-refused) — The verbalizer refuses `<<`, `>>` and `>>>`, and says that the analyzer shifts by the lowest bits of the amount.
+    - [`@spec a-set-compared-with-a-number-is-refused`](#spec-a-set-compared-with-a-number-is-refused) — The verbalizer refuses `=` and `!=` between a set and a number, such as `c.n = 2`, and names them.
+    - [`@spec a-number-outside-an-integer-comparison-is-refused`](#spec-a-number-outside-an-integer-comparison-is-refused) — The verbalizer refuses a number or a count outside an integer comparison, and names it.
+  - [`@spec the-next-integer-is-said-as-the-integer-after`](#spec-the-next-integer-is-said-as-the-integer-after) — The verbalizer says `x->y in next` as `y` "is the integer after" `x`.
+  - [`@spec int-and-seq-int-have-nouns-of-their-own`](#spec-int-and-seq-int-have-nouns-of-their-own) — The verbalizer says `Int` with the noun "integer", and `seq/Int` with the noun "sequence index", unless the readings give another.
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The verbalizer refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The verbalizer refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The verbalizer refuses a formula that quantifies a type with no noun, and names the type.
@@ -88,9 +184,24 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-call-with-the-wrong-number-of-arguments-is-refused`](#spec-a-call-with-the-wrong-number-of-arguments-is-refused) — The verbalizer refuses a call with the wrong number of arguments, and says how many the predicate takes.
   - [`@spec text-that-is-not-a-definition-is-refused`](#spec-text-that-is-not-a-definition-is-refused) — The verbalizer refuses text given as a definition that is not one, and says how to write a definition.
   - [`@spec a-parameter-with-no-type-is-refused`](#spec-a-parameter-with-no-type-is-refused) — The verbalizer refuses a definition with a parameter that has no type, and says so.
-  - [`@spec a-definition-whose-body-is-a-rule-is-refused`](#spec-a-definition-whose-body-is-a-rule-is-refused) — The verbalizer refuses a definition whose body is a rule, and says that no words follow "exactly when".
+  - [`@spec a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart`](#spec-a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart) — The verbalizer says a definition whose body is a rule or a "for every" as what it names "exactly when the following holds". It sets the body apart below.
   - [`@spec a-definition-of-a-word-with-no-reading-is-refused`](#spec-a-definition-of-a-word-with-no-reading-is-refused) — The verbalizer refuses a definition of a word that has no reading, and names the word.
   - [`@spec a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition) — The verbalizer reads text that starts with the keyword `pred` as a definition.
+  - [`@spec a-passage-that-starts-with-fun-is-a-definition`](#spec-a-passage-that-starts-with-fun-is-a-definition) — The verbalizer reads text that starts with the keyword `fun` as a definition.
+  - [`@spec private-before-a-definition-changes-nothing-that-is-said`](#spec-private-before-a-definition-changes-nothing-that-is-said) — The verbalizer says a `private pred` or a `private fun` as it says the same definition without `private`.
+  - [`@spec parameters-in-round-brackets-are-read-as-in-square-ones`](#spec-parameters-in-round-brackets-are-read-as-in-square-ones) — The verbalizer reads `pred p(x: T)` as `pred p[x: T]`.
+  - [`@spec a-comma-before-or-after-the-parameters-is-read-as-none`](#spec-a-comma-before-or-after-the-parameters-is-read-as-none) — The verbalizer reads `pred p[, x: T]` and `pred p[x: T,]` as `pred p[x: T]`.
+  - [`@spec a-predicate-of-a-signature-takes-this-as-its-first-parameter`](#spec-a-predicate-of-a-signature-takes-this-as-its-first-parameter) — The verbalizer reads `pred T.p[x: U] { … }` as `pred p[this: T, x: U] { … }`, for its definition and for a call of it.
+  - [`@spec a-body-of-several-formulas-is-said-as-them-holding-together`](#spec-a-body-of-several-formulas-is-said-as-them-holding-together) — The verbalizer says a block of formulas on lines of their own, as a body or as a formula, as the formulas holding together.
+  - [`@spec an-empty-body-is-said-as-what-the-definition-names`](#spec-an-empty-body-is-said-as-what-the-definition-names) — The verbalizer says a definition with an empty body as what it names, for every parameter.
+  - [`@spec a-formula-that-always-holds-is-left-out-of-an-and`](#spec-a-formula-that-always-holds-is-left-out-of-an-and) — The verbalizer leaves a formula that always holds out of an `and`. An empty block is one, and so is a call of a predicate with an empty body.
+  - [`@spec a-formula-that-only-always-holds-is-refused`](#spec-a-formula-that-only-always-holds-is-refused) — The verbalizer refuses a formula that always holds and is not part of an `and`, and says that it claims nothing.
+  - [`@spec a-parameter-that-can-hold-several-things-or-none-is-refused`](#spec-a-parameter-that-can-hold-several-things-or-none-is-refused) — The verbalizer refuses a definition with a parameter declared with `lone`, `some` or `set`, or with an arrow, and names the parameter.
+  - [`@spec a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does`](#spec-a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does) — The verbalizer says `fun f[x: T]: U { e }` as: for every `x` and every member `u` of `U`, the reading of `f` of `x` and `u` "exactly when" `u in e`.
+  - [`@spec a-call-of-a-function-with-a-reading-is-said-with-its-reading`](#spec-a-call-of-a-function-with-a-reading-is-said-with-its-reading) — The verbalizer says `y in f[x]`, for a function `f` with a reading, with the reading of `f`, with `x` and then `y` in its slots.
+  - [`@spec a-call-of-a-function-with-no-reading-is-said-by-its-body`](#spec-a-call-of-a-function-with-no-reading-is-said-by-its-body) — The verbalizer says a call of a function with no reading by its body, with each argument in the place of its parameter.
+  - [`@spec a-call-of-a-macro-is-said-by-its-body`](#spec-a-call-of-a-macro-is-said-by-its-body) — The verbalizer says a call of a macro, `let m[x] = …` or `let m[x] { … }`, by its body with each argument in the place of its parameter.
+  - [`@spec a-macro-as-a-definition-is-refused`](#spec-a-macro-as-a-definition-is-refused) — The verbalizer refuses a macro given as a definition, and says that a parameter of a macro has no type.
   - [`@spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter`](#spec-a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter) — The verbalizer says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
   - [`@spec a-definition-that-marks-its-variables-disj-is-said-with-them-different`](#spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different) — The verbalizer says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
   - [`@spec a-definition-with-a-body-of-one-clause-is-said-on-one-line`](#spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line) — The verbalizer says a definition whose body is one clause on one line after the "for every".
@@ -121,18 +232,22 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — For every [list_1](#term-series): when list_1 can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says list_1 in a sentence.
   - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — For every [list_1](#term-series): when list_1 is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has more than three clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
-    - [`@spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets`](#spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has an item that holds a comma and has more than two clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
+    - [`@spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets`](#spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has an item that holds a comma and list_1 has more than two clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — For every [list_1](#term-series): when list_1 is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says list_1 as bullets.
+    - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — For every [list_1](#term-series): when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list_1](#term-series): when list_1 has an item that is more than one clause, [verbalizer](#term-verbalizer) says list_1 as bullets.
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
+  - [`@spec a-subject-is-said-again-after-a-relative-clause`](#spec-a-subject-is-said-again-after-a-relative-clause) — In a list said as a sentence, the verbalizer says the subject again in a clause that follows a clause with a relative clause.
   - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
-  - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause and is a rule whose second side begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 with "then" before the time phrase.
-  - [`@spec a-rule-drops-its-then-before-anything-else`](#spec-a-rule-drops-its-then-before-anything-else) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose second side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 without "then".
+  - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase - list_1 is a rule whose second side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 with "then" before the time phrase.
+  - [`@spec a-rule-drops-its-then-before-anything-else`](#spec-a-rule-drops-its-then-before-anything-else) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase - list_1 is not a rule whose second side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 without "then".
+  - [`@spec a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
   - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
 <!-- toc:end -->
 
@@ -176,7 +291,7 @@ for 6
 sig Quantifier {}
 sig VariableOnce, AsNounPhrase, VariableSubject, AsSubjectPhrase, VariableWithCondition, RelativeClause in Quantifier {}
 sig OneNegation, SaysAnother, NestsPhrases in Quantifier {}
-sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, InFull in Quantifier {}
+sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, TimedCondition, InFull in Quantifier {}
 fact quantifier_wordings { no AsNounPhrase & InFull and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
 ```
 
@@ -195,6 +310,7 @@ VariableTwice: {1} is a quantifier whose reading says the variable twice | {1} i
 NothingToAttach: {1} is a quantifier with no fact for its variable beside another thing | {1} is not a quantifier with no fact for its variable beside another thing
 NoWithAnother: {1} is a quantifier that says no variable differs from another and holds a condition | {1} is not a quantifier that says no variable differs from another and holds a condition
 ConditionAside: {1} is a quantifier whose condition is not about its variable | {1} is not a quantifier whose condition is not about its variable
+TimedCondition: {1} is a quantifier with several conditions, one of which begins with a time phrase | {1} is not a quantifier with several conditions, one of which begins with a time phrase
 InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and the numbered name | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and the numbered name
 ```
 
@@ -256,10 +372,11 @@ some f: Quantifier | f in VariableWithCondition and f in NothingToAttach
 > - quantifier_1 is not a quantifier with no fact for its variable beside another thing
 > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
 > - quantifier_1 is not a quantifier whose condition is not about its variable
+> - quantifier_1 is not a quantifier with several conditions, one of which begins with a time phrase
 <!-- statement-term-fit:end -->
 
 ```alloy
-pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside }
+pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside and f not in TimedCondition }
 ```
 
 ```readings
@@ -372,21 +489,22 @@ byKind: {1} can be said [kind by kind] | {1} cannot be said [kind by kind]
 
 > A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 
-A list becomes a sentence only if four things hold:
+A list becomes a sentence only if five things hold:
 
 - It has three clauses or fewer.
 - Every item is one clause.
 - No item holds a comma, unless the list has two clauses.
 - The sentence fits a line.
+- No clause before the last begins with a time phrase.
 
 Any other list becomes bullets.
 
 ```alloy vocabulary
 sig Series {}
-sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr in Series {}
+sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr, TimeBeforeLast in Series {}
 sig AsSentence, AsBullets, KeepsAndApart, SharedSubject, PairInList in Series {}
-sig OneLineRule, TimeSecond, OneLine, KeepsThen, DropsThen, ThenOwnLine in Series {}
-fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + SharedSubject + PairInList) in Items and (OneLineRule + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule }
+sig OneLineRule, TimeFirst, TimeSecond, OneLine, KeepsThen, DropsThen, ThenOwnLine in Series {}
+fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + TimeBeforeLast + SharedSubject + PairInList) in Items and (OneLineRule + TimeFirst + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule }
 ```
 
 ```readings
@@ -399,6 +517,7 @@ MoreThanTwo: {1} has more than two clauses | {1} has two clauses or fewer
 NotClause: {1} has an item that is more than one clause | {1} has only items that are one clause
 CommaItem: {1} has an item that holds a comma | {1} has no item that holds a comma
 TooLong: {1} is longer than a line when it is put in a sentence | {1} fits a line when it is put in a sentence
+TimeBeforeLast: {1} has a clause before its last that begins with a time phrase | {1} has no clause before its last that begins with a time phrase
 AndInOr: {1} is a list of alternatives where one alternative holds an and | {1} is not a list of alternatives where one alternative holds an and
 AsSentence: [verbalizer](#term-verbalizer) says {1} in a sentence | [verbalizer](#term-verbalizer) does not say {1} in a sentence
 AsBullets: [verbalizer](#term-verbalizer) says {1} as bullets | [verbalizer](#term-verbalizer) does not say {1} as bullets
@@ -406,6 +525,7 @@ KeepsAndApart: [verbalizer](#term-verbalizer) says {1} as bullets that cannot be
 SharedSubject: {1} has clauses that begin with the same subject | {1} has no clauses that begin with the same subject
 PairInList: {1} has a clause about a pair of variables | {1} has no clause about a pair of variables
 OneLineRule: {1} is a rule whose two sides are each one clause | {1} is not a rule whose two sides are each one clause
+TimeFirst: {1} is a rule whose first side begins with a time phrase | {1} is not a rule whose first side begins with a time phrase
 TimeSecond: {1} is a rule whose second side begins with a time phrase | {1} is not a rule whose second side begins with a time phrase
 OneLine: [verbalizer](#term-verbalizer) says {1} on one line, as "when" the first side, the second side | [verbalizer](#term-verbalizer) does not say {1} on one line, as "when" the first side, the second side
 KeepsThen: [verbalizer](#term-verbalizer) says {1} with "then" before the time phrase | [verbalizer](#term-verbalizer) does not say {1} with "then" before the time phrase
@@ -416,7 +536,7 @@ ThenOwnLine: [verbalizer](#term-verbalizer) says {1} with "then" at the start of
 <!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that list_1 has three clauses or fewer, has an item that holds a comma and has more than two clauses.
+> There is a list_1 such that list_1 has three clauses or fewer, has an item that holds a comma and list_1 has more than two clauses.
 <!-- statement-scenario-1-term-series:end -->
 
 ```alloy scenario
@@ -436,7 +556,7 @@ some f: Series | f in Few and f in TooLong
 <!-- statement-scenario-3-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that list_1 has clauses that begin with the same subject and has more than three clauses.
+> There is a list_1 such that list_1 has clauses that begin with the same subject and list_1 has more than three clauses.
 <!-- statement-scenario-3-term-series:end -->
 
 ```alloy scenario
@@ -465,6 +585,16 @@ some f: Series | f in PairInList and f in NotClause
 some f: Series | f in TimeSecond and f not in OneLineRule
 ```
 
+<!-- statement-scenario-6-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list_1 such that list_1 is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase.
+<!-- statement-scenario-6-term-series:end -->
+
+```alloy scenario
+some f: Series | f in OneLineRule and f in TimeFirst
+```
+
 ### @term sentenceable
 
 <!-- statement-term-sentenceable:begin — generated by `canon generate`; edits are overwritten -->
@@ -473,12 +603,13 @@ some f: Series | f in TimeSecond and f not in OneLineRule
 > list_1 can be put in a sentence exactly when all of these hold:
 > - list_1 has three clauses or fewer
 > - list_1 has only items that are one clause
-> - list_1 has no item that holds a comma or has two clauses or fewer
+> - list_1 has no item that holds a comma or list_1 has two clauses or fewer
 > - list_1 fits a line when it is put in a sentence
+> - list_1 has no clause before its last that begins with a time phrase
 <!-- statement-term-sentenceable:end -->
 
 ```alloy
-pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong }
+pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast }
 ```
 
 ```readings
@@ -494,6 +625,36 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 
 ```readings
 ```
+
+## @fact every-moment-has-a-next-moment
+
+> In Alloy 6, a trace is infinite: every moment has exactly one next moment.
+
+The analyzer checks temporal formulas over traces that loop back, so `after f` is never true for want of a next moment. The [Alloy 6 documentation](https://alloytools.org/alloy6.html) says so.
+
+## @fact the-analyzer-wraps-integers-at-their-bit-width
+
+> With its default options, the analyzer keeps every integer in a fixed bit width. A number that leaves that range wraps around into it.
+
+Checked with the analyzer of Alloy 6.2.0, with the default of 4 bits, which holds the integers from -8 to 7:
+
+- `plus[7, 1]` is -8.
+- `9 = -7` holds.
+- A count of 9 things is -7.
+
+`A4Options.noOverflow` is false unless a run sets it, and the canon plugin runs the analyzer with its defaults.
+
+## @fact the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero
+
+> The analyzer rounds `div[a, b]` toward zero, and gives -1, 0 or 1 for `div[a, 0]` as `a` is positive, zero or negative. `rem[a, b]` has the sign of `a`, and `rem[a, 0]` is `a`.
+
+Checked with the analyzer of Alloy 6.2.0: `div[-7, 2] = -3`, `div[5, 0] = -1`, `div[-5, 0] = 1`, `div[0, 0] = 0`, `rem[-7, 2] = -1`.
+
+## @fact the-analyzer-shifts-by-the-lowest-bits-of-the-amount
+
+> The analyzer shifts by the number in the lowest bits of the amount: as many bits as it takes to count to the bit width.
+
+With 5 bits, `1 << 9` is `1 << 1`, and `1 << 7` and `1 << -1` are 0. Checked with the analyzer of Alloy 6.2.0.
 
 ## @axiom a-formula-is-said-without-loss
 
@@ -549,6 +710,24 @@ This follows because the author knows the word better than the sound rule, and a
 
 This follows because a statement that none of each variable exists would mean something else than none of them together.
 
+#### @spec one-as-a-quantifier-is-said-as-exactly-one
+
+> The verbalizer says `one` over a variable as "exactly one" of its noun, and over several variables as exactly one combination of them.
+
+This follows because `one` holds when the body holds for one value of the variables and for no other. Over several variables, the value is the combination.
+
+#### @spec lone-as-a-quantifier-is-said-as-at-most-one
+
+> The verbalizer says `lone` over a variable as "at most one" of its noun, and over several variables as at most one combination of them.
+
+This follows because `lone` holds when the body holds for no value of the variables or for one.
+
+#### @spec a-block-as-the-body-of-a-quantifier-is-said-as-its-formulas-together
+
+> The verbalizer says a quantifier whose body is a block, `all x: T { a b }`, as the quantifier with the formulas of the block holding together.
+
+This follows because the formulas of a block hold together, as if `and` joined them.
+
 #### @spec a-call-of-a-predicate-gives-its-variables-numbers-that-are-free
 
 > When a called body quantifies a variable that the call already uses, the verbalizer gives it a number that no variable in use has.
@@ -603,11 +782,131 @@ This follows because the table is where the author says how a word sounds, and t
 
 This follows because the verbalizer can use only the body of a predicate that has no reading, and the body lives in the vocabulary.
 
+#### @spec a-call-written-as-a-join-is-said-as-the-call
+
+> The verbalizer says `x.p` and `x.p[y]`, for a predicate `p`, as `p[x]` and `p[x, y]`.
+
+This follows because Alloy reads a join with a predicate as a call with the left side as its first argument.
+
+#### @spec a-box-join-of-a-field-is-said-as-the-navigation
+
+> The verbalizer says `f[x]`, for a field `f`, as `x.f`.
+
+This follows because Alloy reads `f[x]` as the join `x.f`.
+
+#### @spec a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place
+
+> The verbalizer says a call of a predicate with no reading by its body also when an argument is an expression. The expression takes the place of the parameter.
+
+Derives from: [`spec-a-predicate-with-no-reading-is-said-by-its-body`](#spec-a-predicate-with-no-reading-is-said-by-its-body)
+
+This follows because Alloy binds the parameter to the value of the expression, whatever it holds.
+
+#### @spec a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument
+
+> The verbalizer says a call of a predicate with a reading and an argument of one value through a member of its type. That member is the one in the argument.
+
+This follows because an argument that holds exactly one value is that value, and the reading says something of one thing in each slot. The declarations make a navigation of `one` fields from a variable one value.
+
+#### @spec a-call-with-an-argument-of-none-or-several-values-is-refused
+
+> The verbalizer refuses a call of a predicate with a reading, with an argument that can hold none or several values, and names the argument.
+
+This follows because the reading says something of one thing, and the predicate gets every value of the argument at once.
+
+#### @spec a-let-is-said-with-its-value-in-the-place-of-its-name
+
+> The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
+
+This follows because a `let` only names a value, and the formula it holds means what it means with the value written out.
+
+#### @spec a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused
+
+> The verbalizer refuses a `let` whose body declares a variable with a name that its value uses, and names the variable.
+
+Derives from: [`spec-a-let-is-said-with-its-value-in-the-place-of-its-name`](#spec-a-let-is-said-with-its-value-in-the-place-of-its-name)
+
+This follows because the value put in place would then name the variable of the body, where the `let` names another thing.
+
 #### @spec a-negation-is-said-with-the-negative-reading-of-what-it-negates
 
 > The verbalizer says the negation of a comparison or a call with the negative reading of what it negates.
 
 This follows because the table gives each word a positive and a negative reading so that no sentence needs a clumsy "not".
+
+#### @spec not-before-a-compound-is-said-with-the-not-moved-inward
+
+> The verbalizer says `not` before a list, a rule, an equivalence, a quantifier or a temporal operator as the formula it equals with the `not` moved inward. Where no such formula exists, it says "it is not the case that" before the formula, set apart.
+
+This follows because the negative reading of each clause says the negation in the words of the table. Moving the `not` inward reaches those clauses without changing what the formula claims.
+
+##### @spec not-before-an-and-is-said-as-at-least-one-negation
+
+> The verbalizer says `not (a and b)` as `not a or not b`.
+
+This follows because a run of clauses fails exactly when one of them fails.
+
+##### @spec not-before-an-or-is-said-as-every-negation
+
+> The verbalizer says `not (a or b)` as `not a and not b`.
+
+This follows because a run of alternatives fails exactly when each of them fails.
+
+##### @spec not-before-a-rule-is-said-as-its-condition-and-the-negation-of-its-consequence
+
+> The verbalizer says `not (a implies b)` as `a and not b`.
+
+This follows because a rule fails exactly when its condition holds and its consequence does not.
+
+##### @spec not-before-an-equivalence-is-said-as-exactly-one-of-its-sides
+
+> The verbalizer says `not (a iff b)` as exactly one of `a` and `b` holding.
+
+This follows because an equivalence fails exactly when one side holds and the other does not.
+
+##### @spec not-before-an-else-is-said-as-the-rule-with-each-side-negated
+
+> The verbalizer says `not (c implies a else b)` as `c implies not a else not b`.
+
+This follows because the condition picks one side, and the negation fails the side it picks.
+
+##### @spec not-before-some-or-no-is-said-as-the-other
+
+> The verbalizer says `not some x: T | f` as `no x: T | f`, and `not no x: T | f` as `some x: T | f`.
+
+This follows because `no` is the negation of `some`.
+
+##### @spec not-before-all-is-said-as-some-with-the-body-negated
+
+> The verbalizer says `not all x: T | f` as `some x: T | not f`.
+
+This follows because a claim about every value fails exactly when it fails for one.
+
+##### @spec not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated
+
+> The verbalizer says `not always f` as `eventually not f`, and `not eventually f` as `always not f`.
+
+This follows because a claim about every later moment fails exactly when it fails at one of them.
+
+##### @spec not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated
+
+> The verbalizer says `not historically f` as `once not f`, and `not once f` as `historically not f`.
+
+This follows because the past operators mirror the future ones.
+
+##### @spec not-before-after-is-said-as-after-with-the-formula-negated
+
+> The verbalizer says `not after f` as `after not f`.
+
+Derives from: [`fact-every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment)
+
+This follows because each moment has exactly one next moment, so `f` fails there exactly when `not f` holds there.
+
+##### @spec a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that
+
+> The verbalizer says `not` before `one`, `lone`, `before` or a binary temporal operator as "it is not the case that", with the formula it negates set apart below it.
+
+This follows because none of these has a negation the words say more simply. Setting the formula apart shows where the negation ends.
 
 #### @spec a-union-on-the-left-is-spelled-out
 
@@ -640,6 +939,40 @@ This follows because the variable ranges over the members of `A` that are not in
 Derives from: [`spec-some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature`](#spec-some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-its-signature)
 
 This follows because each member of `S` is a member of the signature that holds it. The variable ranges over the members of that signature that are in `S`.
+
+#### @spec an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition
+
+> The verbalizer says a quantifier over an expression `e`, such as `all o: c.on | …`, as one over the type of `e`, with the condition that the variable is in `e`.
+
+Derives from: [`spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition)
+
+This follows because the variable ranges over the members of `e`, and each is a member of its type.
+
+#### @spec a-disj-after-the-colon-is-said-as-a-disj-before-the-names
+
+> The verbalizer says `x, y: disj T` as it says `disj x, y: T`.
+
+Derives from: [`spec-a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different)
+
+This follows because Alloy reads `disj` in either place as the condition that the variables are different.
+
+#### @spec one-before-the-type-of-a-variable-is-said-as-the-type
+
+> The verbalizer says `x: one T`, of a quantifier or of a parameter, as `x: T`.
+
+This follows because `one` is what a declaration means when it names no multiplicity: the variable is one member of `T`.
+
+#### @spec a-variable-that-can-hold-several-things-or-none-is-refused
+
+> The verbalizer refuses a variable declared `lone`, `some` or `set`, or with an arrow in its type, and says that it can hold none or several things.
+
+This follows because a reading says something of one thing in each slot. The readings give no words for "for every" set of things.
+
+#### @spec private-before-a-variable-of-a-quantifier-is-refused
+
+> The verbalizer refuses `private` before a variable of a quantifier, which Alloy does not read.
+
+This follows because the analyzer rejects it, so the formula claims nothing.
 
 #### @spec membership-in-a-navigation-is-said-with-the-reading-of-its-field
 
@@ -711,29 +1044,261 @@ This follows because a field of at most one value equals `y` exactly when `y` is
 
 #### @spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
 
-> For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
+> For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
 
 This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half.
 
 #### @spec two-values-that-are-equal-are-said-member-by-member
 
-> The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
+> The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
 
 This follows because two sets are equal exactly when they have the same members. The type of the field holds every member that either side can have.
+
+#### @spec an-expression-is-said-through-the-types-of-its-columns
+
+> The verbalizer says a formula about an expression through members of the types of its columns. This holds for an expression that is more than a set or a navigation of a variable.
+
+This follows because the vocabulary declares the types of what an expression can hold. A claim about what it holds is then a claim about each member of those types, which the readings say.
+
+##### @spec a-union-on-the-right-is-said-as-or
+
+> The verbalizer says `x in a + b`, for a variable or a pair `x`, as `x in a` or `x in b`.
+
+This follows because a member of a union is a member of one of its parts.
+
+##### @spec an-intersection-on-the-right-is-said-as-and
+
+> The verbalizer says `x in a & b`, for a variable or a pair `x`, as `x in a` and `x in b`.
+
+This follows because a member of an intersection is a member of both of its parts.
+
+##### @spec not-in-before-a-difference-is-said-as-the-negation-of-in
+
+> The verbalizer says `x not in a - b` as the negation of `x in a - b`: `x not in a` or `x in b`.
+
+This follows because `not in` is the negation of `in`.
+
+##### @spec membership-in-a-navigation-of-an-expression-is-said-as-a-pair-in-it
+
+> The verbalizer says `x in y.e`, for a variable `y`, as `y->x in e`, and `x in e.y` as `x->y in e`.
+
+This follows because `y` is one thing, so `y.e` holds what `e` pairs with `y`.
+
+##### @spec a-pair-in-a-product-is-said-as-each-side-in-its-part
+
+> The verbalizer says `x->y in a -> b` as `x in a` and `y in b`.
+
+This follows because a product holds every pair of a member of `a` and a member of `b`, and nothing else.
+
+##### @spec membership-in-a-chain-of-navigations-is-said-through-a-member-between
+
+> The verbalizer says `x in e.f`, where `e` is not one variable, as `some m: T | m in e and x in m.f`. `T` is the type of the last column of `e`.
+
+This follows because `e.f` holds what `f` gives a member of `e`, and every member of `e` is a member of `T`.
+
+##### @spec membership-in-a-navigation-from-a-signature-is-said-through-a-member-of-it
+
+> The verbalizer says `x in S.f`, for a signature `S` where `S.f` has no reading of its own, as `some m: S | m->x in f`: "a cleanup is on x".
+
+This follows because `S.f` holds what `f` gives some member of `S`.
+
+##### @spec membership-in-a-signature-with-no-reading-is-said-with-its-noun
+
+> The verbalizer says `x in S`, for a signature `S` with a noun and no reading, as `x` "is" the noun with its article: "c is a cleanup".
+
+This follows because to be in a signature is to be one of its kind, which its noun names.
+
+##### @spec a-primed-expression-is-said-at-the-next-moment
+
+> The verbalizer says `x in e'`, for an expression `e`, as "at the next moment" before `x in e`.
+
+This follows because a variable is the same thing at every moment, so the prime moves only `e`.
+
+##### @spec an-expression-of-a-variable-on-the-left-is-said-member-by-member
+
+> The verbalizer says `e in s`, for an expression `e` that names a variable, as: for every member `m` of the type of `e`, when `m in e`, `m in s`.
+
+This follows because one set is in another exactly when each of its members is.
+
+##### @spec two-expressions-that-are-equal-are-said-member-by-member
+
+> The verbalizer says `a = b`, for sides that the specs above do not say, as: for every member `m` of their type, `m in a` exactly when `m in b`. It says `a != b` as the negation of that.
+
+This follows because two sets are equal exactly when they have the same members.
+
+##### @spec some-or-no-of-an-expression-is-said-over-the-types-of-its-columns
+
+> The verbalizer says `some e` and `no e`, for an expression the specs above do not say, as `some` or `no` over its column types, with the members in `e`.
+
+This follows because an expression holds something exactly when some members of its types are in it.
+
+##### @spec one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one
+
+> The verbalizer says `one e` and `lone e` as exactly one or at most one member of the types of the columns of `e` in `e`.
+
+This follows because `one e` holds when `e` holds one member, and `lone e` when it holds at most one.
+
+##### @spec an-expression-whose-types-the-vocabulary-does-not-tell-is-refused
+
+> The verbalizer refuses a formula about an expression whose column types the vocabulary does not tell, and names the expression.
+
+This follows because a member of a type the verbalizer guessed could leave out what the expression holds.
+
+#### @spec an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left
+
+> The verbalizer says `x->y in r ++ s` as `x->y in s`, or `x->y in r` and `no x.s`. For sets, `x in a ++ b` is `x in a + b`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because an override keeps the pairs of `s` and the pairs of `r` whose first member `s` relates to nothing. A set relates nothing, so its override is its union.
+
+#### @spec a-domain-restriction-is-said-as-the-first-member-in-the-set
+
+> The verbalizer says `x->y in a <: r` as `x in a` and `x->y in r`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because `a <: r` keeps the pairs of `r` whose first member is in `a`.
+
+#### @spec a-range-restriction-is-said-as-the-last-member-in-the-set
+
+> The verbalizer says `x->y in r :> b` as `x->y in r` and `y in b`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because `r :> b` keeps the pairs of `r` whose last member is in `b`.
+
+#### @spec an-arrow-with-a-multiplicity-is-refused
+
+> The verbalizer refuses an arrow with a multiplicity, such as `a one -> lone b`, and says that it says how many each side relates.
+
+This follows because a multiplicity on an arrow says how many things a relation pairs with each member, and no reading says that.
+
+#### @spec a-closure-is-said-as-reaching-in-one-or-more-steps
+
+> The verbalizer says `x->y in ^r` as `x` "reaches" `y` "in one or more steps", and says what a step is with the reading of `r`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because `^r` holds `x->y` exactly when a chain of pairs of `r` leads from `x` to `y`.
+
+#### @spec a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps
+
+> The verbalizer says `x->y in *r` as `x` "reaches" `y` "in zero or more steps", and says what a step is with the reading of `r`.
+
+Derives from: [`spec-a-closure-is-said-as-reaching-in-one-or-more-steps`](#spec-a-closure-is-said-as-reaching-in-one-or-more-steps)
+
+This follows because `*r` is `^r` with every member paired with itself, which a chain of no steps reaches.
+
+#### @spec some-or-no-of-a-reflexive-closure-is-refused
+
+> The verbalizer refuses `some`, `no`, `one` or `lone` of a reflexive closure, and says that it holds every member of every type.
+
+This follows because `*r` pairs every atom with itself, Int atoms included, and no type the vocabulary declares holds them all.
+
+#### @spec none-is-said-as-nothing
+
+> The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding.
+
+This follows because `none` holds nothing.
+
+#### @spec a-formula-that-never-holds-is-refused
+
+> The verbalizer refuses a formula that never holds, such as `some none`, and says that it claims what cannot be.
+
+This follows because no words of the readings say a formula that is always false, and words that seemed to would hide it.
+
+#### @spec a-formula-that-never-holds-is-left-out-of-an-or
+
+> The verbalizer leaves a formula that never holds, such as `x in none`, out of an `or`.
+
+This follows because `a or false` claims what `a` claims.
+
+#### @spec a-pair-in-iden-is-said-as-the-same
+
+> The verbalizer says `x->y in iden` as `x` and `y` being the same.
+
+This follows because `iden` pairs each atom with itself, and nothing else.
+
+#### @spec univ-is-said-as-a-signature-of-its-own
+
+> The verbalizer says `univ` as a signature that holds every atom, with the noun the readings give it.
+
+This follows because `univ` is the set of every atom, a signature that no declaration names. Without a noun of its own, a quantifier over it is refused as any type with no noun is.
+
+#### @spec a-set-comprehension-is-said-through-its-variables
+
+> The verbalizer says `x in { y: T | f }` as `x in T` and `f` with `x` in the place of `y`, and `{ y: T }` as `T`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because the comprehension holds the members of `T` for which `f` holds.
+
+#### @spec disj-of-expressions-is-said-as-no-two-sharing-a-member
+
+> The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
+
+This follows because `disj` holds when no two of its arguments share a member.
+
+#### @spec a-string-is-said-as-itself-in-quotes
+
+> The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
+
+This follows because a string is one thing, and its quotes show the reader where it starts and ends.
+
+#### @spec set-or-seq-before-an-expression-is-refused
+
+> The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
+
+This follows because the analyzer does not read either as a formula, so neither claims anything.
 
 #### @spec a-rule-of-two-clauses-is-said-on-one-line
 
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
+> when all of these hold:
+> - list_1 is a rule whose two sides are each one clause
+> - list_1 is not a rule whose first side begins with a time phrase
+>
+> then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:end -->
 
 This follows because a short rule is clearest as one sentence, "when this, that".
 
 ```alloy
-all f: Series | f in OneLineRule implies f in OneLine
+all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine
 ```
+
+#### @spec an-equivalence-of-two-clauses-is-said-with-exactly-when
+
+> The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
+
+This follows because "exactly when" says that each side holds when the other does, which is what `iff` claims.
+
+#### @spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither
+
+> The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
+
+This follows because "exactly when" between two lists or rules would not show where each side ends.
+
+#### @spec an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither
+
+> As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
+
+This follows because "exactly when" inside "when …, …", or after the "exactly when" of a definition, could take the whole sentence as its side.
+
+#### @spec an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither
+
+> The verbalizer says `a iff b` as both or neither of its sides when `a` begins with a time phrase.
+
+This follows because the time phrase at the start would read as covering both sides, where the formula has it cover `a`.
+
+#### @spec an-else-is-said-as-otherwise
+
+> The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
+
+This follows because `b` is claimed exactly when `c` does not hold, which is what "otherwise" says.
 
 #### @spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words
 
@@ -812,6 +1377,186 @@ This follows because triggered is releases turned to the past. It holds the seco
 > The verbalizer says `a ; b` as "a, and at the next moment, b".
 
 This follows because the semicolon says that the first side holds now and the second side holds at the next moment.
+
+#### @spec the-spellings-of-not-in-and-not-equal-are-said-alike
+
+> The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
+
+This follows because Alloy reads each spelling as the same comparison.
+
+#### @spec text-that-alloy-does-not-read-is-refused
+
+> The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
+
+This follows because a formula the analyzer cannot read claims nothing, so no words can say it.
+
+#### @spec a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart
+
+> The verbalizer says `until`, `since`, `releases`, `triggered` or `;` with a side of more than one clause by setting each side apart below the words that place it in time.
+
+This follows because the words of each operator are a clause with commas. A list in the place of a side would not show where it ends.
+
+##### @spec until-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+
+> The verbalizer says `a until b` with a side of more than one clause in two parts. They are `b` "now or at a later moment", and `a` "at every moment before the first such moment".
+
+This follows because until claims that `b` comes, now or later, and that `a` holds at every moment before it first does.
+
+##### @spec since-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+
+> The verbalizer says `a since b` with a side of more than one clause in two parts. They are `b` "now or at an earlier moment", and `a` "at every moment after the last such moment".
+
+This follows because since is until turned to the past.
+
+##### @spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until
+
+> The verbalizer says `a releases b`, with a side of more than one clause, as `always b or (b until (a and b))`.
+
+This follows because releases holds `b` up to and including the first moment where `a` holds, and for ever when that moment never comes. The two alternatives say each case.
+
+##### @spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since
+
+> The verbalizer says `a triggered b`, with a side of more than one clause, as `historically b or (b since (a and b))`.
+
+This follows because triggered is releases turned to the past.
+
+##### @spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment
+
+> The verbalizer says `a ; b`, with a side of more than one clause, as `a and after b`.
+
+This follows because `a ; b` claims `a` now and `b` at the next moment, which `a and after b` claims too.
+
+#### @spec this-outside-a-definition-of-a-signature-is-refused
+
+> The verbalizer refuses `this` outside a predicate or a function of a signature, which Alloy does not read.
+
+This follows because the analyzer finds no name `this` there, so the formula claims nothing.
+
+#### @spec steps-in-a-formula-is-refused
+
+> The verbalizer refuses `steps` in a formula, and says that Alloy reads it only in a scope.
+
+This follows because the analyzer finds no name `steps` in a formula.
+
+#### @spec a-name-of-this-module-is-said-as-the-name
+
+> The verbalizer says `this/Ran` and `@Ran` as it says `Ran`.
+
+This follows because `this/` names the module the formula is in, and outside the fact of a signature, `@` changes nothing.
+
+#### @spec a-name-of-another-module-is-said-by-its-own-reading
+
+> The verbalizer says a name of another module, such as `m/Ran`, by the reading of that whole name.
+
+This follows because two modules may each have a `Ran`, and the reading of one would not say the other.
+
+#### @spec a-comment-in-a-formula-is-left-out
+
+> The verbalizer leaves out a comment in a formula: `--`, `//`, `/* … */` and `/** … */`.
+
+This follows because Alloy reads a comment as nothing, so it claims nothing.
+
+#### @spec a-typographic-prime-is-said-as-a-prime
+
+> The verbalizer says `‘` and `’` as it says `'`.
+
+This follows because Alloy reads all three as the prime.
+
+#### @spec an-integer-comparison-is-said-in-integers-that-wrap
+
+> The verbalizer says `<`, `>`, `=<`, `>=` and their negations, and `=` and `!=` between two numbers, after "in integers that wrap around at the analyzer's bit width".
+
+Derives from: [`fact-the-analyzer-wraps-integers-at-their-bit-width`](#fact-the-analyzer-wraps-integers-at-their-bit-width)
+
+This follows because the words of arithmetic say what the analyzer computes only when the reader knows that its integers wrap around.
+
+##### @spec two-numbers-are-compared-with-the-words-of-their-operator
+
+> The verbalizer says `<` as "is less than", `>` as "is greater than", `=<` as "is at most", `>=` as "is at least" and `=` as "is equal to". It says a negation with "not".
+
+This follows because those words say the order of two numbers, and the words before them say the wrap once.
+
+##### @spec a-count-is-said-as-the-number-of-values
+
+> The verbalizer says `#e` as "the number of values of" a member of the type of `e`, "such that" the member is in `e`.
+
+This follows because `#e` counts the members of `e`.
+
+##### @spec a-sum-over-a-variable-is-said-as-the-sum-over-every-value
+
+> The verbalizer says `sum x: T | e` as "the sum, over every" member of `T`, "of" `e`.
+
+This follows because the sum adds the value of `e` for each member of `T`.
+
+##### @spec a-set-of-integers-where-a-number-belongs-is-said-as-the-sum-of-its-members
+
+> The verbalizer says a set of integers where a number belongs, as in `c.n < 3` or `int[c.n]`, as `"the sum of the values of"` an integer in it.
+
+This follows because the analyzer reads a set of integers where a number belongs as the sum of its members, as `int` says.
+
+##### @spec plus-minus-and-mul-are-said-as-plus-minus-and-times
+
+> The verbalizer says `plus[a, b]`, `minus[a, b]` and `mul[a, b]` as `a` "plus", "minus" or "times" `b`.
+
+This follows because those are the words of the operations, and the comparison says that they wrap.
+
+##### @spec a-division-is-said-with-its-rounding-and-its-rule-for-zero
+
+> The verbalizer says `div[a, b]` as `a` "divided by" `b`, rounded toward zero, with its value when `b` is zero. It says `rem[a, b]` as `"the remainder of"` `a` divided by `b`, with its sign and its value when `b` is zero.
+
+Derives from: [`fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero`](#fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero)
+
+This follows because the analyzer divides by zero, and rounds, in ways that ordinary words for division leave open.
+
+##### @spec a-number-is-said-as-itself
+
+> The verbalizer says a number in decimal, whether the formula writes it in decimal, in hexadecimal or in binary.
+
+This follows because the value is what the formula claims, and the comparison says that it wraps.
+
+##### @spec min-and-max-are-said-as-the-least-and-the-greatest-integer
+
+> The verbalizer says `min` and `max` as "the least integer" and "the greatest integer".
+
+This follows because they are the ends of the range that the bit width gives.
+
+##### @spec a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it
+
+> The verbalizer names a count, a sum or a division in an integer comparison as `number_1`, `number_2` and so on, and says after "where" what each is.
+
+This follows because the words of a count end in a clause of their own. Two of them in one sentence would read two ways.
+
+##### @spec a-shift-is-refused
+
+> The verbalizer refuses `<<`, `>>` and `>>>`, and says that the analyzer shifts by the lowest bits of the amount.
+
+Derives from: [`fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount`](#fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount)
+
+This follows because words for a shift by an amount the bits do not hold would have to count bits. Plain words would say a different shift.
+
+##### @spec a-set-compared-with-a-number-is-refused
+
+> The verbalizer refuses `=` and `!=` between a set and a number, such as `c.n = 2`, and names them.
+
+This follows because Alloy reads them as sets, which compare the set with the one integer of the number. The words would have to say both the sets and the wrap of the number.
+
+##### @spec a-number-outside-an-integer-comparison-is-refused
+
+> The verbalizer refuses a number or a count outside an integer comparison, and names it.
+
+This follows because outside a comparison, the number is an integer atom of the analyzer's range. No words there say that it wraps.
+
+#### @spec the-next-integer-is-said-as-the-integer-after
+
+> The verbalizer says `x->y in next` as `y` "is the integer after" `x`.
+
+This follows because `next` pairs each integer with the one after it, and the greatest integer with none. The integer after the greatest is not in the range, so `y` cannot be it.
+
+#### @spec int-and-seq-int-have-nouns-of-their-own
+
+> The verbalizer says `Int` with the noun "integer", and `seq/Int` with the noun "sequence index", unless the readings give another.
+
+This follows because Alloy declares both signatures, so no vocabulary gives them a noun.
 
 #### @spec a-name-with-no-reading-is-refused-and-named
 
@@ -903,11 +1648,11 @@ This follows because the verbalizer words a definition as one, and text that onl
 
 This follows because the statement says "for every" a noun of the type, and a parameter without a type has no noun.
 
-#### @spec a-definition-whose-body-is-a-rule-is-refused
+#### @spec a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart
 
-> The verbalizer refuses a definition whose body is a rule, and says that no words follow "exactly when".
+> The verbalizer says a definition whose body is a rule or a "for every" as what it names "exactly when the following holds". It sets the body apart below.
 
-This follows because a definition says exactly when its body holds, and a rule has no words to follow "exactly when".
+This follows because "exactly when" before a rule on the same line would leave the reader to guess where the body ends.
 
 #### @spec a-definition-of-a-word-with-no-reading-is-refused
 
@@ -920,6 +1665,104 @@ This follows because the statement of a definition says the word it defines, and
 > The verbalizer reads text that starts with the keyword `pred` as a definition.
 
 This follows because the keyword is how the author says that the text defines a word.
+
+#### @spec a-passage-that-starts-with-fun-is-a-definition
+
+> The verbalizer reads text that starts with the keyword `fun` as a definition.
+
+Derives from: [`spec-a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition)
+
+This follows because a function defines a word too: the name of its value.
+
+#### @spec private-before-a-definition-changes-nothing-that-is-said
+
+> The verbalizer says a `private pred` or a `private fun` as it says the same definition without `private`.
+
+This follows because `private` says where Alloy lets the name be used, and nothing about what it means.
+
+#### @spec parameters-in-round-brackets-are-read-as-in-square-ones
+
+> The verbalizer reads `pred p(x: T)` as `pred p[x: T]`.
+
+This follows because Alloy reads both brackets alike.
+
+#### @spec a-comma-before-or-after-the-parameters-is-read-as-none
+
+> The verbalizer reads `pred p[, x: T]` and `pred p[x: T,]` as `pred p[x: T]`.
+
+This follows because Alloy reads a comma at either end of the list as nothing.
+
+#### @spec a-predicate-of-a-signature-takes-this-as-its-first-parameter
+
+> The verbalizer reads `pred T.p[x: U] { … }` as `pred p[this: T, x: U] { … }`, for its definition and for a call of it.
+
+This follows because Alloy reads a predicate of a signature as one whose first parameter is `this`, of that signature.
+
+#### @spec a-body-of-several-formulas-is-said-as-them-holding-together
+
+> The verbalizer says a block of formulas on lines of their own, as a body or as a formula, as the formulas holding together.
+
+This follows because Alloy reads the formulas of a block as joined by `and`.
+
+#### @spec an-empty-body-is-said-as-what-the-definition-names
+
+> The verbalizer says a definition with an empty body as what it names, for every parameter.
+
+This follows because an empty body always holds, so the predicate holds for every value of each parameter.
+
+#### @spec a-formula-that-always-holds-is-left-out-of-an-and
+
+> The verbalizer leaves a formula that always holds out of an `and`. An empty block is one, and so is a call of a predicate with an empty body.
+
+This follows because `a and true` claims what `a` claims.
+
+#### @spec a-formula-that-only-always-holds-is-refused
+
+> The verbalizer refuses a formula that always holds and is not part of an `and`, and says that it claims nothing.
+
+This follows because no words of the readings say a formula that claims nothing, and a statement that said nothing would hide that.
+
+#### @spec a-parameter-that-can-hold-several-things-or-none-is-refused
+
+> The verbalizer refuses a definition with a parameter declared with `lone`, `some` or `set`, or with an arrow, and names the parameter.
+
+Derives from: [`spec-a-variable-that-can-hold-several-things-or-none-is-refused`](#spec-a-variable-that-can-hold-several-things-or-none-is-refused)
+
+This follows because the definition says "for every" value of each parameter, and the readings have no words for every set of things.
+
+#### @spec a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does
+
+> The verbalizer says `fun f[x: T]: U { e }` as: for every `x` and every member `u` of `U`, the reading of `f` of `x` and `u` "exactly when" `u in e`.
+
+This follows because a function names its value, and its value holds a member exactly when the body does.
+
+#### @spec a-call-of-a-function-with-a-reading-is-said-with-its-reading
+
+> The verbalizer says `y in f[x]`, for a function `f` with a reading, with the reading of `f`, with `x` and then `y` in its slots.
+
+This follows because the reading says when the value of `f` holds a member, which is what `y in f[x]` claims.
+
+#### @spec a-call-of-a-function-with-no-reading-is-said-by-its-body
+
+> The verbalizer says a call of a function with no reading by its body, with each argument in the place of its parameter.
+
+Derives from: [`spec-a-predicate-with-no-reading-is-said-by-its-body`](#spec-a-predicate-with-no-reading-is-said-by-its-body)
+
+This follows because the value of a call is the body with the arguments in place.
+
+#### @spec a-call-of-a-macro-is-said-by-its-body
+
+> The verbalizer says a call of a macro, `let m[x] = …` or `let m[x] { … }`, by its body with each argument in the place of its parameter.
+
+This follows because Alloy puts a macro's body in the place of each call, with an argument for each parameter.
+
+#### @spec a-macro-as-a-definition-is-refused
+
+> The verbalizer refuses a macro given as a definition, and says that a parameter of a macro has no type.
+
+Derives from: [`spec-a-parameter-with-no-type-is-refused`](#spec-a-parameter-with-no-type-is-refused)
+
+This follows because the verbalizer says a definition "for every" value of each parameter, and a parameter with no type has no noun.
 
 #### @spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter
 
@@ -1209,6 +2052,20 @@ This follows because "no" with "another" in one phrase would mean something else
 all f: Quantifier | f in NoWithAnother implies f in InFull
 ```
 
+#### @spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full
+
+<!-- statement-spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
+> For every [quantifier_1](#term-quantifier):
+>
+> when quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+<!-- statement-spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full:end -->
+
+This follows because a time phrase in a noun phrase would cover the other conditions too, where the formula has it cover one.
+
+```alloy
+all f: Quantifier | f in TimedCondition implies f in InFull
+```
+
 #### @spec a-condition-that-is-not-about-the-variable-is-said-in-full
 
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
@@ -1270,7 +2127,7 @@ all f: Series | f in Many implies f in AsBullets
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 has an item that holds a comma and has more than two clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when list_1 has an item that holds a comma and list_1 has more than two clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:end -->
 
 This follows because a comma inside an item makes a list of three read as a list of more.
@@ -1291,6 +2148,20 @@ This follows because a sentence that runs past a line is hard to take in at once
 
 ```alloy
 all f: Series | f in TooLong implies f in AsBullets
+```
+
+##### @spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets
+
+<!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
+<!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:end -->
+
+This follows because a time phrase at the start of a sentence reads as covering each clause after it. The formula has it cover one.
+
+```alloy
+all f: Series | f in TimeBeforeLast implies f in AsBullets
 ```
 
 ##### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets
@@ -1327,6 +2198,14 @@ all f: Series | f in AndInOr implies f in KeepsAndApart
 
 This follows because "unit_1 is a spec and sits in no unit" says it once, and repeating it adds nothing.
 
+#### @spec a-subject-is-said-again-after-a-relative-clause
+
+> In a list said as a sentence, the verbalizer says the subject again in a clause that follows a clause with a relative clause.
+
+Derives from: [`spec-a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it)
+
+This follows because a clause without its subject after "a unit that is a spec" would read as more of the relative clause.
+
 #### @spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
 
 > In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
@@ -1338,13 +2217,18 @@ This follows because "unit_1 and unit_2 are different" is about both, and cannot
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:begin — generated by `canon generate`; edits are overwritten -->
 > For every [list_1](#term-series):
 >
-> when list_1 is a rule whose two sides are each one clause and is a rule whose second side begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 with "then" before the time phrase.
+> when all of these hold:
+> - list_1 is a rule whose two sides are each one clause
+> - list_1 is not a rule whose first side begins with a time phrase
+> - list_1 is a rule whose second side begins with a time phrase
+>
+> then [verbalizer](#term-verbalizer) says list_1 with "then" before the time phrase.
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
 This follows because "when this, then now or at a later moment, that" reads better than two commas in a row.
 
 ```alloy
-all f: Series | (f in OneLineRule and f in TimeSecond) implies f in KeepsThen
+all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen
 ```
 
 #### @spec a-rule-drops-its-then-before-anything-else
@@ -1354,6 +2238,7 @@ all f: Series | (f in OneLineRule and f in TimeSecond) implies f in KeepsThen
 >
 > when all of these hold:
 > - list_1 is a rule whose two sides are each one clause
+> - list_1 is not a rule whose first side begins with a time phrase
 > - list_1 is not a rule whose second side begins with a time phrase
 >
 > then [verbalizer](#term-verbalizer) says list_1 without "then".
@@ -1362,7 +2247,21 @@ all f: Series | (f in OneLineRule and f in TimeSecond) implies f in KeepsThen
 This follows because a "then" after every "when" fills the one-line sentence with words that add nothing.
 
 ```alloy
-all f: Series | (f in OneLineRule and f not in TimeSecond) implies f in DropsThen
+all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) implies f in DropsThen
+```
+
+#### @spec a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own
+
+<!-- statement-spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
+<!-- statement-spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own:end -->
+
+This follows because on one line, the reader would have to guess whether the time phrase covers the second side too.
+
+```alloy
+all f: Series | f in TimeFirst implies f in ThenOwnLine
 ```
 
 #### @spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own

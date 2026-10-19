@@ -41,9 +41,19 @@ A variable is named after its noun and the number it is, `unit_1`, `unit_2`, `sp
 
 The temporal operators read as moments: `always` is "now and at every later moment", `eventually` "now or at a later moment", `after` "at the next moment", `before` "there is a moment before, and at it", `once` "now or at an earlier moment", `historically` "now and at every earlier moment". `until`, `since`, `releases`, `triggered` and `;` read as one clause each. A primed set or field with no line of its own reads "at the next moment, …" when it is the one changing part of its clause.
 
-A field after a variable, `y.f`, is said with the reading of the field, and so is a transpose of it, `y.~f`, which is the navigation the other way. Two values compared, or a field of many values compared with a variable, are said member by member, over the type the field declares. `some S` and `no S` of a set whose reading takes a variable are said with a member of the signature that holds the set, "an edge is being delivered", and a quantifier over a set with no noun ranges over that signature.
+A field after a variable, `y.f`, is said with the reading of the field. A transpose of it, `y.~f`, is the navigation the other way. Two values compared, or a field of many values compared with a variable, are said member by member, over the type the field declares. In `some S` and `no S`, a member of the signature that holds `S` takes the place of the variable of its reading: "an edge is being delivered". A quantifier over a set with no noun ranges over that signature.
 
-Whatever cannot be said without loss is refused with the reason, never skipped: a name with no reading, a reading that leaves out a variable the formula gives, a set where a reading takes a variable, a construct with no words. [Issue #29](https://github.com/bigmistqke/skills/issues/29) lists, production by production of Alloy's grammar, what is said and what is not yet.
+The verbalizer says any other expression through members of the types of its columns, which the vocabulary declares. A union reads "or" and an intersection "and". A chain of navigations goes through a member between: "c is on an owner that p is the parent of". The verbalizer says an expression member by member where a comparison, an equality, or `some`, `no`, `one` or `lone` takes it.
+
+An override, a restriction, `iden`, `none` and a set comprehension each read as the memberships they mean. A closure reads "o reaches p in one or more steps", and a reading of the relation says what a step is. A call takes an expression where its body or its reading can say it. A function or a macro reads by its own reading, or else by its body.
+
+`iff` reads "exactly when", or "both or neither of these hold". `implies … else …` reads "when …, …; otherwise, …". `one` and `lone` read "exactly one" and "at most one". A `not` before a compound moves inward where an equal formula has it on clauses. Elsewhere it reads "it is not the case that:", with the formula set apart. A `let` reads with its values in place. 
+
+A time phrase at the start of a sentence covers the whole sentence. Where it covers one part, the parts are bullets.
+
+The analyzer keeps integers in a fixed bit width and wraps a number that leaves it. So a comparison of integers opens with "in integers that wrap around at the analyzer's bit width". A count, a sum or a division gets a name, `number_1`. The words after "where" say what it is: "the number of values of owner_1 such that c is on owner_1". A division says how it rounds and what dividing by zero gives.
+
+Whatever cannot be said without loss is refused with the reason, never skipped: a name with no reading, a reading that leaves out a variable the formula gives, a set where a reading takes a variable, a construct with no words. Among those constructs are two sets compared with no variable, a variable of several things, an arrow with a multiplicity and a shift. [Issue #29](https://github.com/bigmistqke/skills/issues/29) lists, production by production of Alloy's grammar, what is said and what is not yet.
 
 ## Links
 
