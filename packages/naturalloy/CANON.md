@@ -69,6 +69,11 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The verbalizer says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
   - [`@spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
   - [`@spec a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over a set `S` with no noun over the signature that holds `S`, with the condition that the variable is in `S`.
+  - [`@spec an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over an expression `e`, such as `all o: c.on | …`, as one over the type of `e`, with the condition that the variable is in `e`.
+  - [`@spec a-disj-after-the-colon-is-said-as-a-disj-before-the-names`](#spec-a-disj-after-the-colon-is-said-as-a-disj-before-the-names) — The verbalizer says `x, y: disj T` as it says `disj x, y: T`.
+  - [`@spec one-before-the-type-of-a-variable-is-said-as-the-type`](#spec-one-before-the-type-of-a-variable-is-said-as-the-type) — The verbalizer says `x: one T`, of a quantifier or of a parameter, as `x: T`.
+  - [`@spec a-variable-that-can-hold-several-things-or-none-is-refused`](#spec-a-variable-that-can-hold-several-things-or-none-is-refused) — The verbalizer refuses a variable declared `lone`, `some` or `set`, or with an arrow in its type, and says that it can hold none or several things.
+  - [`@spec private-before-a-variable-of-a-quantifier-is-refused`](#spec-private-before-a-variable-of-a-quantifier-is-refused) — The verbalizer refuses `private` before a variable of a quantifier, which Alloy does not read.
   - [`@spec membership-in-a-navigation-is-said-with-the-reading-of-its-field`](#spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field) — The verbalizer says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
   - [`@spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field`](#spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field) — The verbalizer says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
   - [`@spec a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way`](#spec-a-transpose-in-a-navigation-is-said-as-the-navigation-the-other-way) — The verbalizer says `y.~f` as `f.y`, and `~f.y` as `y.f`.
@@ -134,9 +139,24 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-call-with-the-wrong-number-of-arguments-is-refused`](#spec-a-call-with-the-wrong-number-of-arguments-is-refused) — The verbalizer refuses a call with the wrong number of arguments, and says how many the predicate takes.
   - [`@spec text-that-is-not-a-definition-is-refused`](#spec-text-that-is-not-a-definition-is-refused) — The verbalizer refuses text given as a definition that is not one, and says how to write a definition.
   - [`@spec a-parameter-with-no-type-is-refused`](#spec-a-parameter-with-no-type-is-refused) — The verbalizer refuses a definition with a parameter that has no type, and says so.
-  - [`@spec a-definition-whose-body-is-a-rule-is-refused`](#spec-a-definition-whose-body-is-a-rule-is-refused) — The verbalizer refuses a definition whose body is a rule, and says that no words follow "exactly when".
+  - [`@spec a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart`](#spec-a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart) — The verbalizer says a definition whose body is a rule or a "for every" as what it names "exactly when the following holds". It sets the body apart below.
   - [`@spec a-definition-of-a-word-with-no-reading-is-refused`](#spec-a-definition-of-a-word-with-no-reading-is-refused) — The verbalizer refuses a definition of a word that has no reading, and names the word.
   - [`@spec a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition) — The verbalizer reads text that starts with the keyword `pred` as a definition.
+  - [`@spec a-passage-that-starts-with-fun-is-a-definition`](#spec-a-passage-that-starts-with-fun-is-a-definition) — The verbalizer reads text that starts with the keyword `fun` as a definition.
+  - [`@spec private-before-a-definition-changes-nothing-that-is-said`](#spec-private-before-a-definition-changes-nothing-that-is-said) — The verbalizer says a `private pred` or a `private fun` as it says the same definition without `private`.
+  - [`@spec parameters-in-round-brackets-are-read-as-in-square-ones`](#spec-parameters-in-round-brackets-are-read-as-in-square-ones) — The verbalizer reads `pred p(x: T)` as `pred p[x: T]`.
+  - [`@spec a-comma-before-or-after-the-parameters-is-read-as-none`](#spec-a-comma-before-or-after-the-parameters-is-read-as-none) — The verbalizer reads `pred p[, x: T]` and `pred p[x: T,]` as `pred p[x: T]`.
+  - [`@spec a-predicate-of-a-signature-takes-this-as-its-first-parameter`](#spec-a-predicate-of-a-signature-takes-this-as-its-first-parameter) — The verbalizer reads `pred T.p[x: U] { … }` as `pred p[this: T, x: U] { … }`, for its definition and for a call of it.
+  - [`@spec a-body-of-several-formulas-is-said-as-them-holding-together`](#spec-a-body-of-several-formulas-is-said-as-them-holding-together) — The verbalizer says a body of several formulas, each on a line of its own, as the formulas holding together.
+  - [`@spec an-empty-body-is-said-as-what-the-definition-names`](#spec-an-empty-body-is-said-as-what-the-definition-names) — The verbalizer says a definition with an empty body as what it names, for every parameter.
+  - [`@spec a-formula-that-always-holds-is-left-out-of-an-and`](#spec-a-formula-that-always-holds-is-left-out-of-an-and) — The verbalizer leaves a formula that always holds out of an `and`. An empty block is one, and so is a call of a predicate with an empty body.
+  - [`@spec a-formula-that-only-always-holds-is-refused`](#spec-a-formula-that-only-always-holds-is-refused) — The verbalizer refuses a formula that always holds and is not part of an `and`, and says that it claims nothing.
+  - [`@spec a-parameter-that-can-hold-several-things-or-none-is-refused`](#spec-a-parameter-that-can-hold-several-things-or-none-is-refused) — The verbalizer refuses a definition with a parameter declared with `lone`, `some` or `set`, or with an arrow, and names the parameter.
+  - [`@spec a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does`](#spec-a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does) — The verbalizer says `fun f[x: T]: U { e }` as: for every `x` and every member `u` of `U`, the reading of `f` of `x` and `u` "exactly when" `u in e`.
+  - [`@spec a-call-of-a-function-with-a-reading-is-said-with-its-reading`](#spec-a-call-of-a-function-with-a-reading-is-said-with-its-reading) — The verbalizer says `y in f[x]`, for a function `f` with a reading, with the reading of `f`, with `x` and then `y` in its slots.
+  - [`@spec a-call-of-a-function-with-no-reading-is-said-by-its-body`](#spec-a-call-of-a-function-with-no-reading-is-said-by-its-body) — The verbalizer says a call of a function with no reading by its body, with each argument in the place of its parameter.
+  - [`@spec a-call-of-a-macro-is-said-by-its-body`](#spec-a-call-of-a-macro-is-said-by-its-body) — The verbalizer says a call of a macro, `let m[x] = …` or `let m[x] { … }`, by its body with each argument in the place of its parameter.
+  - [`@spec a-macro-as-a-definition-is-refused`](#spec-a-macro-as-a-definition-is-refused) — The verbalizer refuses a macro given as a definition, and says that a parameter of a macro has no type.
   - [`@spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter`](#spec-a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter) — The verbalizer says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
   - [`@spec a-definition-that-marks-its-variables-disj-is-said-with-them-different`](#spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different) — The verbalizer says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
   - [`@spec a-definition-with-a-body-of-one-clause-is-said-on-one-line`](#spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line) — The verbalizer says a definition whose body is one clause on one line after the "for every".
@@ -851,6 +871,40 @@ Derives from: [`spec-some-or-no-of-a-set-of-things-is-said-as-a-noun-phrase-of-i
 
 This follows because each member of `S` is a member of the signature that holds it. The variable ranges over the members of that signature that are in `S`.
 
+#### @spec an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition
+
+> The verbalizer says a quantifier over an expression `e`, such as `all o: c.on | …`, as one over the type of `e`, with the condition that the variable is in `e`.
+
+Derives from: [`spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-set-with-no-noun-as-the-type-of-a-quantifier-is-said-as-a-condition)
+
+This follows because the variable ranges over the members of `e`, and each is a member of its type.
+
+#### @spec a-disj-after-the-colon-is-said-as-a-disj-before-the-names
+
+> The verbalizer says `x, y: disj T` as it says `disj x, y: T`.
+
+Derives from: [`spec-a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different)
+
+This follows because Alloy reads `disj` in either place as the condition that the variables are different.
+
+#### @spec one-before-the-type-of-a-variable-is-said-as-the-type
+
+> The verbalizer says `x: one T`, of a quantifier or of a parameter, as `x: T`.
+
+This follows because `one` is what a declaration means when it names no multiplicity: the variable is one member of `T`.
+
+#### @spec a-variable-that-can-hold-several-things-or-none-is-refused
+
+> The verbalizer refuses a variable declared `lone`, `some` or `set`, or with an arrow in its type, and says that it can hold none or several things.
+
+This follows because a reading says something of one thing in each slot. The readings give no words for "for every" set of things.
+
+#### @spec private-before-a-variable-of-a-quantifier-is-refused
+
+> The verbalizer refuses `private` before a variable of a quantifier, which Alloy does not read.
+
+This follows because the analyzer rejects it, so the formula claims nothing.
+
 #### @spec membership-in-a-navigation-is-said-with-the-reading-of-its-field
 
 > The verbalizer says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
@@ -1255,11 +1309,11 @@ This follows because the verbalizer words a definition as one, and text that onl
 
 This follows because the statement says "for every" a noun of the type, and a parameter without a type has no noun.
 
-#### @spec a-definition-whose-body-is-a-rule-is-refused
+#### @spec a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart
 
-> The verbalizer refuses a definition whose body is a rule, and says that no words follow "exactly when".
+> The verbalizer says a definition whose body is a rule or a "for every" as what it names "exactly when the following holds". It sets the body apart below.
 
-This follows because a definition says exactly when its body holds, and a rule has no words to follow "exactly when".
+This follows because "exactly when" before a rule on the same line would leave the reader to guess where the body ends.
 
 #### @spec a-definition-of-a-word-with-no-reading-is-refused
 
@@ -1272,6 +1326,104 @@ This follows because the statement of a definition says the word it defines, and
 > The verbalizer reads text that starts with the keyword `pred` as a definition.
 
 This follows because the keyword is how the author says that the text defines a word.
+
+#### @spec a-passage-that-starts-with-fun-is-a-definition
+
+> The verbalizer reads text that starts with the keyword `fun` as a definition.
+
+Derives from: [`spec-a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition)
+
+This follows because a function defines a word too: the name of its value.
+
+#### @spec private-before-a-definition-changes-nothing-that-is-said
+
+> The verbalizer says a `private pred` or a `private fun` as it says the same definition without `private`.
+
+This follows because `private` says where Alloy lets the name be used, and nothing about what it means.
+
+#### @spec parameters-in-round-brackets-are-read-as-in-square-ones
+
+> The verbalizer reads `pred p(x: T)` as `pred p[x: T]`.
+
+This follows because Alloy reads both brackets alike.
+
+#### @spec a-comma-before-or-after-the-parameters-is-read-as-none
+
+> The verbalizer reads `pred p[, x: T]` and `pred p[x: T,]` as `pred p[x: T]`.
+
+This follows because Alloy reads a comma at either end of the list as nothing.
+
+#### @spec a-predicate-of-a-signature-takes-this-as-its-first-parameter
+
+> The verbalizer reads `pred T.p[x: U] { … }` as `pred p[this: T, x: U] { … }`, for its definition and for a call of it.
+
+This follows because Alloy reads a predicate of a signature as one whose first parameter is `this`, of that signature.
+
+#### @spec a-body-of-several-formulas-is-said-as-them-holding-together
+
+> The verbalizer says a body of several formulas, each on a line of its own, as the formulas holding together.
+
+This follows because Alloy reads the formulas of a block as joined by `and`.
+
+#### @spec an-empty-body-is-said-as-what-the-definition-names
+
+> The verbalizer says a definition with an empty body as what it names, for every parameter.
+
+This follows because an empty body always holds, so the predicate holds for every value of each parameter.
+
+#### @spec a-formula-that-always-holds-is-left-out-of-an-and
+
+> The verbalizer leaves a formula that always holds out of an `and`. An empty block is one, and so is a call of a predicate with an empty body.
+
+This follows because `a and true` claims what `a` claims.
+
+#### @spec a-formula-that-only-always-holds-is-refused
+
+> The verbalizer refuses a formula that always holds and is not part of an `and`, and says that it claims nothing.
+
+This follows because no words of the readings say a formula that claims nothing, and a statement that said nothing would hide that.
+
+#### @spec a-parameter-that-can-hold-several-things-or-none-is-refused
+
+> The verbalizer refuses a definition with a parameter declared with `lone`, `some` or `set`, or with an arrow, and names the parameter.
+
+Derives from: [`spec-a-variable-that-can-hold-several-things-or-none-is-refused`](#spec-a-variable-that-can-hold-several-things-or-none-is-refused)
+
+This follows because the definition says "for every" value of each parameter, and the readings have no words for every set of things.
+
+#### @spec a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does
+
+> The verbalizer says `fun f[x: T]: U { e }` as: for every `x` and every member `u` of `U`, the reading of `f` of `x` and `u` "exactly when" `u in e`.
+
+This follows because a function names its value, and its value holds a member exactly when the body does.
+
+#### @spec a-call-of-a-function-with-a-reading-is-said-with-its-reading
+
+> The verbalizer says `y in f[x]`, for a function `f` with a reading, with the reading of `f`, with `x` and then `y` in its slots.
+
+This follows because the reading says when the value of `f` holds a member, which is what `y in f[x]` claims.
+
+#### @spec a-call-of-a-function-with-no-reading-is-said-by-its-body
+
+> The verbalizer says a call of a function with no reading by its body, with each argument in the place of its parameter.
+
+Derives from: [`spec-a-predicate-with-no-reading-is-said-by-its-body`](#spec-a-predicate-with-no-reading-is-said-by-its-body)
+
+This follows because the value of a call is the body with the arguments in place.
+
+#### @spec a-call-of-a-macro-is-said-by-its-body
+
+> The verbalizer says a call of a macro, `let m[x] = …` or `let m[x] { … }`, by its body with each argument in the place of its parameter.
+
+This follows because Alloy puts a macro's body in the place of each call, with an argument for each parameter.
+
+#### @spec a-macro-as-a-definition-is-refused
+
+> The verbalizer refuses a macro given as a definition, and says that a parameter of a macro has no type.
+
+Derives from: [`spec-a-parameter-with-no-type-is-refused`](#spec-a-parameter-with-no-type-is-refused)
+
+This follows because the verbalizer says a definition "for every" value of each parameter, and a parameter with no type has no noun.
 
 #### @spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter
 

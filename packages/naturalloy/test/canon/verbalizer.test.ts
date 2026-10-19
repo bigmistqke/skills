@@ -517,12 +517,109 @@ describe('a definition', () => {
   /**
    * @canon spec-text-that-is-not-a-definition-is-refused
    * @canon spec-a-parameter-with-no-type-is-refused
-   * @canon spec-a-definition-whose-body-is-a-rule-is-refused
    */
-  it('refuses text that is not a definition, a parameter with no type, and a body that is a rule', () => {
+  it('refuses text that is not a definition, and a parameter with no type', () => {
     expect(() => verbalizeDefinition('u in Spec', readings)).toThrow('a definition is written');
     expect(() => verbalizeDefinition('pred orphan[u] { u in Spec }', readings)).toThrow('expected ":", found "]"');
-    expect(() => verbalizeDefinition('pred orphan[u: Unit] { u in Spec implies u in Spec }', readings)).toThrow('no words after "exactly when"');
+  });
+
+  /**
+   * @canon spec-a-definition-whose-body-is-a-rule-is-said-with-the-rule-set-apart
+   */
+  it('says a body that is a rule or a "for every" set apart, after "exactly when the following holds"', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] { u in Spec implies u in Spec }', readings)).toBe(
+      'For every unit_1:\n  unit_1 is an orphan exactly when the following holds:\n    when unit_1 is a spec, unit_1 is a spec.'
+    );
+    expect(verbalizeDefinition('pred orphan[u: Unit] { all v: Unit | u->v in Sits.rel }', readings)).toBe(
+      'For every unit_1:\n  unit_1 is an orphan exactly when the following holds:\n    for every unit_2:\n      unit_1 sits in unit_2.'
+    );
+  });
+
+  /**
+   * @canon spec-a-passage-that-starts-with-fun-is-a-definition
+   */
+  it('is recognized by the keyword fun too, and by private before either', () => {
+    expect(isDefinition('fun home[u: Unit]: Unit { u.(Sits.rel) }')).toBe(true);
+    expect(isDefinition('private pred orphan[u: Unit] { u in Spec }')).toBe(true);
+  });
+
+  /**
+   * @canon spec-private-before-a-definition-changes-nothing-that-is-said
+   */
+  it('says a private definition as the definition', () => {
+    expect(verbalizeDefinition('private pred orphan[u: Unit] { u in Spec }', readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec.');
+  });
+
+  /**
+   * @canon spec-parameters-in-round-brackets-are-read-as-in-square-ones
+   */
+  it('reads parameters in round brackets as in square ones', () => {
+    expect(verbalizeDefinition('pred orphan(u: Unit) { u in Spec }', readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec.');
+    expect(say('settled[d]', withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run'), 'sig Cleanup {} var sig Ran in Cleanup {} pred settled(x: Cleanup) { x in Ran }'))).toBe('d has run.');
+  });
+
+  /**
+   * @canon spec-a-comma-before-or-after-the-parameters-is-read-as-none
+   */
+  it('reads a comma at either end of the parameters as none', () => {
+    for (const params of ['[, u: Unit]', '[u: Unit,]']) expect(verbalizeDefinition(`pred orphan${params} { u in Spec }`, readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec.');
+  });
+
+  /**
+   * @canon spec-a-predicate-of-a-signature-takes-this-as-its-first-parameter
+   */
+  it('reads a predicate of a signature with this as its first parameter', () => {
+    expect(verbalizeDefinition('pred Unit.orphan { this in Spec }', readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec.');
+    expect(verbalizeDefinition('pred Unit.pair[v: Unit] { this->v in Sits.rel }', readings)).toBe('For every unit_1 and every unit_2:\n  unit_1 and unit_2 are a pair exactly when unit_1 sits in unit_2.');
+    const called = withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run'), 'sig Cleanup {} var sig Ran in Cleanup {} pred Cleanup.settled { this in Ran }');
+    expect(say('d.settled', called)).toBe('d has run.');
+    expect(say('settled[d]', called)).toBe('d has run.');
+  });
+
+  /**
+   * @canon spec-a-body-of-several-formulas-is-said-as-them-holding-together
+   */
+  it('says a body of several formulas as them holding together', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] {\n  u in Spec\n  no v: Unit | u->v in Sits.rel\n}', readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec that sits in no unit.');
+  });
+
+  /**
+   * @canon spec-an-empty-body-is-said-as-what-the-definition-names
+   */
+  it('says a definition with an empty body as what it names', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] {}', readings)).toBe('For every unit_1:\n  unit_1 is an orphan.');
+  });
+
+  /**
+   * @canon spec-a-parameter-that-can-hold-several-things-or-none-is-refused
+   */
+  it('refuses a parameter that can hold several things or none', () => {
+    expect(() => verbalizeDefinition('pred orphan[u: set Unit] { u in Spec }', readings)).toThrow('the parameter "u" can hold none or several things');
+    expect(() => verbalizeDefinition('pred orphan[u: Unit -> Unit] { some u }', readings)).toThrow('the parameter "u" can hold none or several things');
+  });
+
+  /**
+   * @canon spec-one-before-the-type-of-a-variable-is-said-as-the-type
+   */
+  it('says one before the type of a parameter as the type', () => {
+    expect(verbalizeDefinition('pred orphan[u: one Unit] { u in Spec }', readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec.');
+  });
+
+  /**
+   * @canon spec-a-function-is-said-as-its-value-holding-a-member-exactly-when-its-body-does
+   */
+  it('says a function as its value holding a member exactly when its body does', () => {
+    const homes = parseReadings(['noun Unit: unit', 'Sits.rel: {1} sits in {2} | {1} does not sit in {2}', 'home: {2} is a home of {1} | {2} is not a home of {1}'].join('\n'));
+    expect(verbalizeDefinition('fun home[u: Unit]: Unit { u.(Sits.rel) }', homes)).toBe('For every unit_1 and every unit_2:\n  unit_2 is a home of unit_1 exactly when unit_1 sits in unit_2.');
+    expect(verbalizeDefinition('fun home[u: Unit]: set Unit { u.(Sits.rel) }', homes)).toBe('For every unit_1 and every unit_2:\n  unit_2 is a home of unit_1 exactly when unit_1 sits in unit_2.');
+  });
+
+  /**
+   * @canon spec-a-macro-as-a-definition-is-refused
+   */
+  it('refuses a macro as a definition', () => {
+    expect(isDefinition('let m[x] = x in Spec')).toBe(true);
+    expect(() => verbalizeDefinition('let m[x] = x in Spec', readings)).toThrow('a parameter of a macro has no type');
   });
 });
 
@@ -1079,6 +1176,96 @@ describe('calls', () => {
   });
 });
 
+describe('declarations, and calls of functions and macros', () => {
+  /**
+   * @canon spec-an-expression-as-the-type-of-a-quantifier-is-said-as-a-condition
+   */
+  it('says an expression as the type of a quantifier as a condition', () => {
+    expect(say('all o: c.on | o in Disposed')).toBe('For every owner_1:\n  when c is on owner_1, pulse has disposed owner_1.');
+    expect(say('some o: c.on | o in Disposed')).toBe('c is on an owner that pulse has disposed.');
+  });
+
+  /**
+   * @canon spec-a-disj-after-the-colon-is-said-as-a-disj-before-the-names
+   */
+  it('says disj after the colon as disj before the names', () => {
+    expect(say('all c, d: disj Cleanup | c in Ran implies d in Ran')).toBe(say('all disj c, d: Cleanup | c in Ran implies d in Ran'));
+  });
+
+  /**
+   * @canon spec-one-before-the-type-of-a-variable-is-said-as-the-type
+   */
+  it('says one before the type of a variable as the type', () => {
+    expect(say('all c: one Cleanup | c in Ran')).toBe('For every cleanup_1:\n  cleanup_1 has run.');
+  });
+
+  /**
+   * @canon spec-a-variable-that-can-hold-several-things-or-none-is-refused
+   */
+  it('refuses a variable that can hold several things or none', () => {
+    expect(() => say('all c: set Cleanup | c in Ran')).toThrow('"c" can hold none or several things');
+    expect(() => say('some c: lone Cleanup | c in Ran')).toThrow('"c" can hold none or several things');
+    expect(() => say('some c: some Cleanup | c in Ran')).toThrow('"c" can hold none or several things');
+    expect(() => say('all r: Cleanup -> Owner | some r')).toThrow('"r" can hold none or several things');
+  });
+
+  /**
+   * @canon spec-private-before-a-variable-of-a-quantifier-is-refused
+   */
+  it('refuses private before a variable of a quantifier', () => {
+    expect(() => say('all private c: Cleanup | c in Ran')).toThrow('Alloy does not read "private" before the variable "c"');
+  });
+
+  /**
+   * @canon spec-a-formula-that-always-holds-is-left-out-of-an-and
+   */
+  it('leaves a formula that always holds out of an and', () => {
+    const readings = withDefinitions(parseReadings(read('readings.txt')), `${read('vocabulary.als')}\npred whatever[x: Cleanup] {}`);
+    expect(say('whatever[c] and c in Ran', readings)).toBe('c has run.');
+    expect(say('c in Ran and {}')).toBe('c has run.');
+  });
+
+  /**
+   * @canon spec-a-formula-that-only-always-holds-is-refused
+   */
+  it('refuses a formula that only always holds', () => {
+    const readings = withDefinitions(parseReadings(read('readings.txt')), `${read('vocabulary.als')}\npred whatever[x: Cleanup] {}`);
+    expect(() => say('whatever[c]', readings)).toThrow('it always holds, so it claims nothing');
+    expect(() => say('{}')).toThrow('it always holds, so it claims nothing');
+  });
+
+  const FUNCTIONS = withDefinitions(
+    parseReadings(`${read('readings.txt')}\nhome: {2} is a home of {1} | {2} is not a home of {1}`),
+    `${read('vocabulary.als')}\nfun home[c: Cleanup]: Owner { c.on } fun owners[c: Cleanup]: set Owner { c.on + c.reached } let settled[x] = x in Ran let held[x] { x.on }`
+  );
+
+  /**
+   * @canon spec-a-call-of-a-function-with-a-reading-is-said-with-its-reading
+   */
+  it('says a call of a function with a reading with its reading', () => {
+    expect(say('o in home[c]', FUNCTIONS)).toBe('o is a home of c.');
+    expect(say('o not in home[c]', FUNCTIONS)).toBe('o is not a home of c.');
+    expect(say('no home[c]', FUNCTIONS)).toBe('No owner is a home of c.');
+  });
+
+  /**
+   * @canon spec-a-call-of-a-function-with-no-reading-is-said-by-its-body
+   */
+  it('says a call of a function with no reading by its body', () => {
+    expect(say('o in owners[c]', FUNCTIONS)).toBe('c is on o or the error of c has reached o.');
+    expect(say('o in c.owners', FUNCTIONS)).toBe('c is on o or the error of c has reached o.');
+  });
+
+  /**
+   * @canon spec-a-call-of-a-macro-is-said-by-its-body
+   */
+  it('says a call of a macro by its body', () => {
+    expect(say('settled[c]', FUNCTIONS)).toBe('c has run.');
+    expect(say('not settled[c]', FUNCTIONS)).toBe('It is not the case that c has run.');
+    expect(say('o in held[c]', FUNCTIONS)).toBe('c is on o.');
+  });
+});
+
 describe('connectives, quantifiers and let', () => {
   /**
    * @canon spec-an-equivalence-of-two-clauses-is-said-with-exactly-when
@@ -1264,6 +1451,9 @@ describe('connectives, quantifiers and let', () => {
    */
   it('refuses text that Alloy does not read, such as ==', () => {
     expect(() => say('c == d')).toThrow('cannot read "=" here');
+    expect(() => say('all c: Cleanup, | c in Ran')).toThrow('expected a name, found "|"');
+    expect(() => say('all , c: Cleanup | c in Ran')).toThrow();
+    expect(() => say('all var c: Cleanup | c in Ran')).toThrow('cannot read "all" here');
   });
 });
 

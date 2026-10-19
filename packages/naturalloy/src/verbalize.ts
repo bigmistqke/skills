@@ -21,6 +21,13 @@ export interface Definition {
   body: Node;
 }
 
+/** A function of the vocabulary: its parameters, the type of its value, and the expression that is its value. */
+export interface Function {
+  params: string[];
+  result: Node;
+  body: Node;
+}
+
 export interface Readings {
   /** The noun for a signature: `Owner` is "owner". */
   nouns: Map<string, string>;
@@ -41,6 +48,10 @@ export interface Readings {
   variables: Set<string>;
   /** The signature that holds each signature of the vocabulary: the one it is declared `in` or `extends`, or itself when it stands on its own. One declared in several has none. */
   holders: Map<string, string>;
+  /** The functions of the vocabulary. A call of one that has no reading of its own is said by its body. */
+  functions: Map<string, Function>;
+  /** The macros of the vocabulary, `let m[x] = …`, whose calls are said by their bodies. */
+  macros: Map<string, Definition>;
 }
 
 /** A field of a signature, from the signature to the type it points at. Its owner is unknown when one declaration declares it for several signatures. */
@@ -57,16 +68,36 @@ interface Field {
 export function parseDefinitions(vocabulary: string): Map<string, Definition> {
   const definitions = new Map<string, Definition>();
   for (const p of parseModule(vocabulary).paragraphs) {
-    if (p.t !== 'pred' || p.receiver !== undefined) continue;
-    definitions.set(p.name, { params: (p.params ?? []).flatMap(d => d.names), body: withDifferences(p.params ?? [], p.body) });
+    if (p.t !== 'pred') continue;
+    const params = paramsOf(p);
+    definitions.set(p.name, { params: params.flatMap(d => d.names), body: withDifferences(params, p.body) });
   }
   return definitions;
+}
+
+/** The parameters of a predicate or a function: a predicate of a signature, `pred T.p[…]`, takes `this` of that signature first. */
+function paramsOf(p: { receiver?: string; params?: Decl[] }): Decl[] {
+  return [...(p.receiver === undefined ? [] : [{ names: ['this'], type: { t: 'name', name: p.receiver } } as Decl]), ...(p.params ?? [])];
+}
+
+/** The functions of a module: `fun name[a: T]: U { e }`, with `this` first for a function of a signature. */
+export function parseFunctions(vocabulary: string): Map<string, Function> {
+  const functions = new Map<string, Function>();
+  for (const p of parseModule(vocabulary).paragraphs) if (p.t === 'fun') functions.set(p.name, { params: paramsOf(p).flatMap(d => d.names), result: p.result, body: p.body });
+  return functions;
+}
+
+/** The macros of a module: `let name[a, b] = …` and `let name[a, b] { … }`. */
+export function parseMacros(vocabulary: string): Map<string, Definition> {
+  const macros = new Map<string, Definition>();
+  for (const p of parseModule(vocabulary).paragraphs) if (p.t === 'macro') macros.set(p.name, { params: p.params ?? [], body: p.body });
+  return macros;
 }
 
 /** A body with the condition that the parameters of each declaration marked `disj` are different. */
 function withDifferences(params: Decl[], body: Node): Node {
   const different: Node[] = params
-    .filter(d => d.disj)
+    .filter(d => d.disj || d.disjType)
     .flatMap(d => d.names.flatMap((a, i) => d.names.slice(i + 1).map((b): Node => ({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } }))));
   return different.length === 0 ? body : { t: 'and', items: [...different, ...(body.t === 'and' ? body.items : [body])] };
 }
@@ -120,7 +151,9 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
   definitions: parseDefinitions(vocabulary),
   fields: parseFields(vocabulary),
   variables: parseVariables(vocabulary),
-  holders: parseHolders(vocabulary)
+  holders: parseHolders(vocabulary),
+  functions: parseFunctions(vocabulary),
+  macros: parseMacros(vocabulary)
 });
 
 /**
@@ -135,7 +168,7 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
  * link in it to an anchor of its own document, `(#term-checker)`, goes through the path.
  */
 export function parseReadings(text: string, target?: string, base?: string): Readings {
-  const readings: Readings = { nouns: new Map(), nounTargets: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set(), holders: new Map() };
+  const readings: Readings = { nouns: new Map(), nounTargets: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set(), holders: new Map(), functions: new Map(), macros: new Map() };
   for (const raw of text.split('\n')) {
     const line = (base === undefined ? raw : raw.replace(/\]\(#([^)\s]+)\)/g, `](${base}#$1)`)).trim();
     if (line === '' || line.startsWith('#')) continue;
@@ -228,6 +261,7 @@ const ANY = 'at least one of these holds:';
 const BOTH = 'both or neither of these hold:';
 const ONE = 'exactly one of these holds:';
 const UNTRUE = 'it is not the case that:';
+const ALWAYS = 'this formula says nothing: it always holds, so it claims nothing';
 
 /** What a formula becomes before it is laid out: a clause, a list that ends in a colon, or a rule. */
 type Doc =
@@ -305,6 +339,17 @@ function balancedParens(text: string): boolean {
   let depth = 0;
   for (const c of text) if ((depth += c === '(' ? 1 : c === ')' ? -1 : 0) < 0) return false;
   return depth === 0;
+}
+
+/** The names of the predicates and functions a formula calls. */
+function callsIn(node: unknown, found = new Set<string>()): Set<string> {
+  if (Array.isArray(node)) for (const n of node) callsIn(n, found);
+  else if (node !== null && typeof node === 'object') {
+    const o = node as Record<string, unknown>;
+    if (o.t === 'call') found.add(o.name as string);
+    for (const [key, value] of Object.entries(o)) if (key !== 'span') callsIn(value, found);
+  }
+  return found;
 }
 
 /** The names an expression uses. */
@@ -489,7 +534,7 @@ class Verbalizer {
       const through = this.throughMember(node, negative);
       return through === undefined ? this.say(node.name, given.map(a => this.variable(a, 'an argument')), negative) : this.doc(through);
     }
-    const definition = this.readings.definitions.get(node.name);
+    const definition = this.readings.definitions.get(node.name) ?? this.readings.macros.get(node.name);
     if (definition === undefined) throw new Error(`no reading for "${node.name}"`);
     if (this.chain.includes(node.name)) throw new Error(`"${node.name}" is defined in terms of itself; give it a reading`);
     if (definition.params.length !== given.length) throw new Error(`"${node.name}" takes ${definition.params.length} arguments, not ${given.length}`);
@@ -582,18 +627,36 @@ class Verbalizer {
     return walk(e) as Node;
   }
 
-  /** An expression as Alloy reads it: a box join of a field, `on[c]`, is the join `c.on`. */
+  /**
+   * An expression as Alloy reads it: a box join of a field, `on[c]`, is the join
+   * `c.on`; a call of a function, `f[c]` or `c.f`, keeps its name where it has
+   * a reading and every argument is a variable, and is its body otherwise.
+   */
   private shape(e: Node): Node {
     const field = (n: Node): boolean => n.t === 'name' && this.readings.fields.has(n.name) && !this.readings.definitions.has(n.name);
+    const valued = (name: string): boolean => this.readings.functions.has(name) || this.readings.macros.has(name);
     if (e.t === 'call' && e.args.length === 1 && field({ t: 'name', name: e.name })) return { t: 'join', l: e.args[0] as Node, r: { t: 'name', name: e.name } };
     if (e.t === 'box' && e.args.length === 1 && field(e.e)) return { t: 'join', l: e.args[0] as Node, r: e.e };
+    if (e.t === 'join' && e.r.t === 'name' && valued(e.r.name)) return this.shape({ t: 'call', name: e.r.name, args: [e.l] });
+    if (e.t === 'box' && e.e.t === 'join' && e.e.r.t === 'name' && valued(e.e.r.name)) return this.shape({ t: 'call', name: e.e.r.name, args: [e.e.l, ...e.args] });
+    if (e.t === 'call' && valued(e.name) && !this.readFunction(e)) {
+      const fn = (this.readings.functions.get(e.name) ?? this.readings.macros.get(e.name)) as Definition;
+      if (fn.params.length !== e.args.length) throw new Error(`"${e.name}" takes ${fn.params.length} arguments, not ${e.args.length}`);
+      if (callsIn(fn.body).has(e.name)) throw new Error(`"${e.name}" is defined in terms of itself; give it a reading`);
+      return this.shape(fn.params.reduce((body, param, i) => substitute(body, param, this.resolved(e.args[i] as Node), `"${e.name}", for its parameter "${param}",`), fn.body));
+    }
     return e;
+  }
+
+  /** A call of a function that its reading says: it has one, and every argument is a variable. */
+  private readFunction(e: Node): boolean {
+    return e.t === 'call' && this.readings.functions.has(e.name) && this.readings.atoms.has(e.name) && e.args.every(a => a.t === 'name' && this.isVariable(a.name));
   }
 
   /** A join with a predicate, `x.p` or `x.p[y]`, as the call it is: `p[x]`, `p[x, y]`. */
   private asCall(node: Node): Extract<Node, { t: 'call' }> | undefined {
     const predicate = (n: Node): n is Extract<Node, { t: 'name' }> =>
-      n.t === 'name' && (this.readings.definitions.has(n.name) || (this.readings.atoms.has(n.name) && !this.readings.fields.has(n.name) && !this.readings.holders.has(n.name)));
+      n.t === 'name' && (this.readings.definitions.has(n.name) || this.readings.macros.has(n.name) || (this.readings.atoms.has(n.name) && !this.readings.fields.has(n.name) && !this.readings.holders.has(n.name)));
     if (node.t === 'join' && predicate(node.r)) return { t: 'call', name: node.r.name, args: [node.l] };
     if (node.t === 'box' && node.e.t === 'join' && predicate(node.e.r)) return { t: 'call', name: node.e.r.name, args: [node.e.l, ...node.args] };
     return undefined;
@@ -645,6 +708,11 @@ class Verbalizer {
         const [a, b] = [this.columns(e.l), this.columns(e.r)];
         return a === undefined || b === undefined ? undefined : [...a, ...b];
       }
+      case 'call': {
+        const result = this.readings.functions.get(e.name)?.result;
+        const type = result?.t === 'mult' ? result.e : result;
+        return type?.t === 'name' ? [this.kind(type.name)] : undefined;
+      }
       default:
         return undefined;
     }
@@ -668,7 +736,7 @@ class Verbalizer {
 
   /** Whether `x in e` is said by a reading as it stands: `e` is a set, a primed name, a navigation of a variable or a relation of its own. */
   private direct(e: Node): boolean {
-    if (e.t === 'name') return true;
+    if (e.t === 'name' || this.readFunction(e)) return true;
     if (e.t === 'prime') return this.direct(e.e);
     if (e.t !== 'join') return false;
     const { e: bare } = this.unprimed(e);
@@ -820,6 +888,8 @@ class Verbalizer {
         if (nav !== undefined && l.t !== 'arrow') return this.member(l, nav, flip);
       }
       if (this.signature(r) && l.t === 'name') return this.isA(l, r as Extract<Node, { t: 'name' }>, flip);
+      // y in f[x]: the reading of the function, with its arguments and then the member.
+      if (r.t === 'call' && this.readFunction(r)) return this.say(r.name, [...r.args.map(a => this.variable(a, 'an argument')), this.variable(l, 'the left of "in"')], flip);
       const slots = l.t === 'arrow' ? [this.variable(l.l, 'a side of "->"'), this.variable(l.r, 'a side of "->"')] : [this.variable(l, 'the left of "in"')];
       const key = r.t === 'join' ? `${nameOf(r.l, 'a relation')}.${nameOf(r.r, 'a relation')}` : r.t === 'prime' ? `${nameOf(r.e, 'a primed set')}'` : nameOf(r, 'the right of "in"');
       return this.say(key, slots, flip);
@@ -999,8 +1069,11 @@ class Verbalizer {
    */
   private plain(node: Extract<Node, { t: 'quant' }>): Extract<Node, { t: 'quant' }> {
     const conditions: Node[] = [];
-    const decls = node.decls.map(({ names, type, disj }): Decl => {
-      let base = type;
+    const decls = node.decls.map(({ names, type, disj, disjType, private: hidden }): Decl => {
+      if (hidden) throw new Error(`Alloy does not read "private" before the variable "${names[0]}"`);
+      // `one T` is what `T` means; any other multiplicity, or an arrow, makes the variable a set of things.
+      let base = type.t === 'mult' && type.q === 'one' ? type.e : type;
+      if (base.t === 'mult' || base.t === 'arrow') throw new Error(`"${names[0]}" can hold none or several things, and a reading says something of one thing`);
       while (base.t === 'diff') {
         const out = base.r;
         for (const name of names) {
@@ -1010,16 +1083,22 @@ class Verbalizer {
         base = base.l;
       }
       // A set with no noun: the signature that holds it, and the condition that the variable is in the set.
+      // An expression: the type of its members, and the condition that the variable is in it.
+      if (base.t !== 'name') {
+        const type = this.typeOf(base);
+        for (const name of names) conditions.push({ t: 'cmp', op: 'in', l: { t: 'name', name }, r: base });
+        base = { t: 'name', name: type };
+      }
       while (base.t === 'name' && !this.readings.nouns.has(base.name)) {
         const holder = this.readings.holders.get(base.name);
         if (holder === undefined || holder === base.name) break;
         for (const name of names) conditions.push({ t: 'cmp', op: 'in', l: { t: 'name', name }, r: base });
         base = { t: 'name', name: holder };
       }
-      if (disj) names.forEach((a, i) => names.slice(i + 1).forEach(b => conditions.push({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } })));
+      if (disj || disjType) names.forEach((a, i) => names.slice(i + 1).forEach(b => conditions.push({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } })));
       return { names, type: base };
     });
-    if (conditions.length === 0) return node;
+    if (conditions.length === 0) return { ...node, decls };
     const and = (items: Node[]): Node => (items.length === 1 ? (items[0] as Node) : { t: 'and', items: items.flatMap(i => (i.t === 'and' ? i.items : [i])) });
     const { body } = node;
     if (node.q !== 'all') return { ...node, decls, body: and([...conditions, body]) };
@@ -1343,15 +1422,50 @@ class Verbalizer {
       return variable;
     });
     const head = this.say(name, vars.map(v => v.name), false);
+    return this.defined(head, vars, body);
+  }
+
+  /** What a definition names, "exactly when" its body holds, for every value of its parameters: said by cases where it fits, and set apart where the body is a rule. */
+  private defined(head: string, vars: { name: string; shown: string }[], body: Node): Doc {
     const byCases = vars.length === 1 ? this.cases(head, vars[0]!.name, body) : undefined;
-    const said = byCases ?? this.side(body);
     let sentence: Doc;
     if (byCases !== undefined) sentence = byCases;
-    else if (typeof said === 'string') sentence = `${head} exactly when ${said}`;
-    else if (isList(said)) sentence = { ...said, intro: `${head} exactly when ${said.intro}` };
-    else throw new Error(`the definition of "${name}" is a rule or has a "for every", which has no words after "exactly when"`);
-    if (params.length === 0) return sentence;
+    else if (this.holdsAlways(body)) sentence = head;
+    else {
+      const said = this.side(body);
+      if (typeof said === 'string') sentence = `${head} exactly when ${said}`;
+      else if (isList(said)) sentence = { ...said, intro: `${head} exactly when ${said.intro}` };
+      else sentence = { kind: 'block', intro: `${head} exactly when the following holds:`, body: said };
+    }
+    if (vars.length === 0) return sentence;
     return { kind: 'block', intro: `for ${vars.map(v => `every ${v.shown}`).join(' and ')}:`, body: sentence };
+  }
+
+  /**
+   * A function, said as its value holding a member "exactly when" its body
+   * does, for every value of its parameters and every member of the type of its value.
+   */
+  fn(name: string, params: { name: string; type: string }[], result: string, body: Node): Doc {
+    const vars = params.map(param => {
+      const variable = this.fresh({ t: 'name', name: param.type });
+      this.bound.set(param.name, variable.name);
+      return variable;
+    });
+    const value = this.fresh({ t: 'name', name: result });
+    const m: Node = { t: 'name', name: '\u0000value' };
+    this.bound.set('\u0000value', value.name);
+    const head = this.say(name, [...vars.map(v => v.name), value.name], false);
+    return this.defined(head, [...vars, value], this.inside([m], body));
+  }
+
+  /** Whether a formula always holds: an empty block, a call of a predicate with an empty body, or an `and` of such. */
+  private holdsAlways(node: Node, seen: Set<string> = new Set()): boolean {
+    if (node.t === 'true') return true;
+    if (node.t === 'and') return node.items.every(item => this.holdsAlways(item, seen));
+    const call = node.t === 'call' ? node : node.t === 'name' ? { name: node.name } : this.asCall(node);
+    if (call === undefined || this.readings.atoms.has(call.name) || seen.has(call.name)) return false;
+    const definition = this.readings.definitions.get(call.name) ?? this.readings.macros.get(call.name);
+    return definition !== undefined && this.holdsAlways(definition.body, new Set([...seen, call.name]));
   }
 
   doc(node: Node): Doc {
@@ -1367,7 +1481,13 @@ class Verbalizer {
         return this.mult(node, false);
       case 'not':
         return this.negation(node.f);
+      case 'true':
+        throw new Error(ALWAYS);
       case 'and': {
+        const items = node.items.filter(item => !this.holdsAlways(item));
+        if (items.length === 0) throw new Error(ALWAYS);
+        if (items.length === 1) return this.doc(items[0] as Node);
+        node = { ...node, items };
         const inline = this.inline(node.items, 'and');
         if (inline !== undefined) return inline;
         return { kind: 'list', intro: ALL, items: this.items(node.items, item => item.t === 'quant' && item.q === 'all').flatMap(item => this.spliced(item, ALL)) };
@@ -1533,22 +1653,36 @@ export function verbalize(source: string, readings: Readings, layout: 'text' | '
 }
 
 /** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
-export const isDefinition = (source: string): boolean => /^\s*pred\b/.test(source);
+export const isDefinition = (source: string): boolean => /^\s*(?:private\s+)?(?:pred|fun)\b/.test(source) || /^\s*let\s+[\w']+\s*\[/.test(source);
 
 /**
  * The words for a definition, `pred name[params] { body }`: what the predicate
  * names, exactly when its body holds. Throws an Error that names what cannot be said.
  */
 export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
-  if (!isDefinition(source)) throw new Error('a definition is written `pred name[parameters] { formula }`');
+  const written = 'a definition is written `pred name[parameters] { formula }` or `fun name[parameters]: type { expression }`';
+  if (!isDefinition(source)) throw new Error(written);
   const paragraphs = parseModule(source).paragraphs;
-  const pred = paragraphs[0];
-  if (paragraphs.length !== 1 || pred?.t !== 'pred' || pred.receiver !== undefined) throw new Error('a definition is written `pred name[parameters] { formula }`');
-  const params = (pred.params ?? []).flatMap(d => d.names.map(name => ({ name, type: d.type.t === 'name' ? d.type.name : '' })));
-  const untyped = params.find(p => p.type === '');
+  const p = paragraphs[0];
+  if (paragraphs.length !== 1 || p === undefined) throw new Error(written);
+  if (p.t === 'macro') throw new Error('a parameter of a macro has no type, so a macro has no words "for every" value of it');
+  if (p.t !== 'pred' && p.t !== 'fun') throw new Error(written);
+  const decls = paramsOf(p);
+  const params = decls.flatMap(d => d.names.map(name => ({ name, type: typeName(d.type, `the parameter "${name}"`) })));
+  const untyped = params.find(param => param.type === '');
   if (untyped !== undefined) throw new Error(`the parameter "${untyped.name}" has no type that is a name`);
-  const doc = new Verbalizer(readings).definition(pred.name, params, withDifferences(pred.params ?? [], pred.body));
-  return finish(doc, layout, self);
+  const verbalizer = new Verbalizer(readings);
+  if (p.t === 'pred') return finish(verbalizer.definition(p.name, params, withDifferences(decls, p.body)), layout, self);
+  const result = p.result.t === 'mult' ? p.result.e : p.result;
+  if (result.t !== 'name') throw new Error(`the value of "${p.name}" has no type that is a name`);
+  return finish(verbalizer.fn(p.name, params, result.name, p.body), layout, self);
+}
+
+/** The name of the type of a parameter, or '' when it is not a name: `one T` is `T`, and a parameter of several things is refused. */
+function typeName(type: Node, what: string): string {
+  const base = type.t === 'mult' && type.q === 'one' ? type.e : type;
+  if (base.t === 'mult' || base.t === 'arrow') throw new Error(`${what} can hold none or several things, and a definition is said for every one thing`);
+  return base.t === 'name' ? base.name : '';
 }
 
 /** A doc as text: laid out, with a capital where the sentence starts with its own words and a period where it ends. */
