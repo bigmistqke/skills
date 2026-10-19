@@ -1,0 +1,50 @@
+# Build, type-check and test every package, with the Alloy analyzer, so that
+# the tests that ask it run instead of being skipped; then check the canons.
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CANON_ALLOY_JAR: ${{ github.workspace }}/../alloy.jar
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # The analyzer the tests are written against: Alloy 6.2.0, commit 794226d.
+      - name: Download the Alloy analyzer
+        run: |
+          curl -fsSL -o "$CANON_ALLOY_JAR" https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar
+          echo "6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d  $CANON_ALLOY_JAR" | sha256sum -c -
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      - name: Check the canons
+        run: |
+          for p in canon naturalloy parse-alloy canon-plugin-alloy; do
+            (cd "packages/$p" && node ../canon/src/cli.ts check --offline)
+          done
+          for p in naturalloy parse-alloy canon-plugin-alloy; do
+            (cd "packages/$p" && node ../canon/src/cli.ts lint CANON.md)
+          done
