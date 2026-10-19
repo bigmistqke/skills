@@ -94,16 +94,36 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — The checker says the negation of a comparison or a call with the negative reading of what it negates.
   - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — The checker says a comparison with a union on its left as one statement for each member of the union.
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — The checker says a comparison with a difference on its right as: the left side is in the first part and not in the second.
+  - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The checker says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
+  - [`@spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition) — The checker says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
+  - [`@spec membership-in-a-navigation-is-said-with-the-reading-of-its-field`](#spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field) — The checker says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
+  - [`@spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field`](#spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field) — The checker says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
+  - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The checker says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
+  - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The checker refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+  - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The checker says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
+  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the checker says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
+  - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The checker says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [checker](../canon/CANON.md#term-checker) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The checker says a comparison of two variables as "different" or "the same".
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The checker says `eventually` as "now or at a later moment".
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The checker says `after` as "at the next moment".
   - [`@spec until-is-said-as-at-every-moment-before-the-first-moment-where`](#spec-until-is-said-as-at-every-moment-before-the-first-moment-where) — The checker says `until` as "at every moment before the first moment where" the second side holds, which comes now or later.
+  - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The checker says `always` as "now and at every later moment".
+  - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The checker says `before` as `there is a moment before, and at it`.
+  - [`@spec once-is-said-as-now-or-at-an-earlier-moment`](#spec-once-is-said-as-now-or-at-an-earlier-moment) — The checker says `once` as "now or at an earlier moment".
+  - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The checker says `historically` as "now and at every earlier moment".
+  - [`@spec since-is-said-as-at-every-moment-after-the-last-moment-where`](#spec-since-is-said-as-at-every-moment-after-the-last-moment-where) — The checker says `since` as "at every moment after the last moment where" the second side holds, which came now or earlier.
+  - [`@spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes`](#spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes) — The checker says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
+  - [`@spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one`](#spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one) — The checker says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
+  - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The checker says `a ; b` as "a, and at the next moment, b".
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The checker refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The checker refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The checker refuses a formula that quantifies a type with no noun, and names the type.
   - [`@spec a-reading-that-uses-a-slot-the-formula-does-not-give-is-refused`](#spec-a-reading-that-uses-a-slot-the-formula-does-not-give-is-refused) — The checker refuses a formula whose reading of a word uses a place that the formula does not fill, and names the place.
+  - [`@spec a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused`](#spec-a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused) — The checker refuses a formula whose reading of a word leaves out a place that the formula fills, and names the place.
+  - [`@spec a-binary-temporal-operator-inside-a-side-of-another-is-refused`](#spec-a-binary-temporal-operator-inside-a-side-of-another-is-refused) — The checker refuses `until`, `since`, `releases`, `triggered` or `;` with a side that holds one of them, except a `;` after a `;`.
+  - [`@spec a-primed-relation-of-a-variable-signature-is-refused`](#spec-a-primed-relation-of-a-variable-signature-is-refused) — The checker refuses a prime on a relation `Sig.rel` that has a reading of its own when `Sig` is a `var sig`.
   - [`@spec a-construct-the-words-do-not-cover-is-refused`](#spec-a-construct-the-words-do-not-cover-is-refused) — The checker refuses a formula with a construct that the words do not cover, and names the construct.
   - [`@spec a-line-of-readings-that-cannot-be-read-is-refused`](#spec-a-line-of-readings-that-cannot-be-read-is-refused) — The checker refuses a [line](#term-line) of readings that has neither a noun nor a key, and says that it cannot read the line.
   - [`@spec a-bracket-with-no-partner-is-refused`](#spec-a-bracket-with-no-partner-is-refused) — The checker refuses a line of readings with a bracket that has no partner, and says so.
@@ -115,8 +135,10 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-definition-whose-body-is-a-rule-is-refused`](#spec-a-definition-whose-body-is-a-rule-is-refused) — The checker refuses a definition whose body is a rule, and says that no words follow "exactly when".
   - [`@spec a-definition-of-a-word-with-no-reading-is-refused`](#spec-a-definition-of-a-word-with-no-reading-is-refused) — The checker refuses a definition of a word that has no reading, and names the word.
   - [`@spec a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read`](#spec-a-formula-the-parser-cannot-read-is-refused-and-the-refusal-names-what-it-cannot-read) — The checker refuses a [formula](#term-parsed-formula) with a construct, a stray character or an unclosed bracket that it cannot read, and names it.
-  - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The checker reads everything after the bar of a quantifier as its body.
+  - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The checker reads everything after the bar of a quantifier as its body, up to a `;`.
   - [`@spec a-temporal-operator-takes-the-formula-next-to-it`](#spec-a-temporal-operator-takes-the-formula-next-to-it) — The checker reads the formula next to a temporal operator as its operand.
+  - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
+  - [`@spec disj-before-the-variables-of-a-quantifier-is-read`](#spec-disj-before-the-variables-of-a-quantifier-is-read) — The checker reads `disj` before the variables of a declaration as a mark on that declaration.
   - [`@spec and-binds-tighter-than-implies`](#spec-and-binds-tighter-than-implies) — The checker reads an `and` beside an `implies` before the `implies`.
   - [`@spec a-chain-of-and-is-one-list`](#spec-a-chain-of-and-is-one-list) — The checker reads a chain of `and` as one list.
   - [`@spec not-in-a-join-a-prime-and-a-call-are-read`](#spec-not-in-a-join-a-prime-and-a-call-are-read) — The checker reads `not in`, a join, a prime and a call.
@@ -124,6 +146,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec some-with-a-declaration-is-a-quantifier`](#spec-some-with-a-declaration-is-a-quantifier) — The checker reads `some` before variables and a bar as a quantifier over those variables.
   - [`@spec a-passage-that-starts-with-pred-is-a-definition`](#spec-a-passage-that-starts-with-pred-is-a-definition) — The checker reads text that starts with the keyword `pred` as a definition.
   - [`@spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter`](#spec-a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter) — The checker says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
+  - [`@spec a-definition-that-marks-its-variables-disj-is-said-with-them-different`](#spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different) — The checker says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
   - [`@spec a-definition-with-a-body-of-one-clause-is-said-on-one-line`](#spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line) — The checker says a definition whose body is one clause on one line after the "for every".
   - [`@spec a-definition-says-each-parameter-with-the-noun-of-its-type`](#spec-a-definition-says-each-parameter-with-the-noun-of-its-type) — The checker says each parameter of a definition with the noun of its type.
   - [`@spec a-definition-is-said-in-markdown-the-way-a-formula-is`](#spec-a-definition-is-said-in-markdown-the-way-a-formula-is) — In the Markdown layout, the checker says a definition with a blank line between its paragraphs.
@@ -166,6 +189,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [checker](../canon/CANON.md#term-checker) says list_1 with "then" at the start of the second side, on a line of its own.
   - [`@spec a-scenario-gets-a-statement-that-says-it-must-be-possible`](#spec-a-scenario-gets-a-statement-that-says-it-must-be-possible) — When the checker can say the formula of a [scenario](#term-scenario), its statement opens with "It must be possible that:".
   - [`@spec the-statement-of-a-scenario-sits-just-above-its-block`](#spec-the-statement-of-a-scenario-sits-just-above-its-block) — The checker writes the statement of a scenario just above its block.
+  - [`@spec the-statement-of-a-scenario-is-not-the-statement-of-its-unit`](#spec-the-statement-of-a-scenario-is-not-the-statement-of-its-unit) — The checker does not take the generated statement of a scenario for the statement of the unit that holds the scenario.
   - [`@spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale`](#spec-generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale) — Generate writes the statement of a scenario that is not what its formula says, when the checker can say the formula.
   - [`@spec generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is`](#spec-generate-leaves-the-statement-of-a-scenario-that-is-current-as-it-is) — Generate leaves the statement of a scenario that is current as it is.
   - [`@spec check-reports-a-statement-of-a-scenario-that-is-not-current`](#spec-check-reports-a-statement-of-a-scenario-that-is-not-current) — Check reports the statement of a scenario that is not what its formula says.
@@ -1464,6 +1488,60 @@ This follows because a comparison with a union says it of each member, and the r
 
 This follows because a difference says the right side holds and the removed part does not, which is two statements.
 
+#### @spec a-disj-quantifier-is-said-with-its-variables-different
+
+> The checker says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
+
+This follows because `disj` says that the variables of one declaration stand for different things, and nothing more.
+
+#### @spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition
+
+> The checker says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
+
+This follows because the variable ranges over the members of `A` that are not in `B`, which is the type and the condition together.
+
+#### @spec membership-in-a-navigation-is-said-with-the-reading-of-its-field
+
+> The checker says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
+
+This follows because `x in y.f` holds exactly when `y->x` is in `f`, which is what the reading of the field says.
+
+#### @spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field
+
+> The checker says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
+
+This follows because `no y.f` holds exactly when nothing is in `y.f`, and the field declares what can be.
+
+#### @spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment
+
+> The checker says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
+
+This follows because a variable is the same thing at every moment. The primed name is then the only part of the clause that the next moment changes.
+
+#### @spec a-set-where-a-variable-belongs-is-refused
+
+> The checker refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+
+This follows because a reading says something of one thing in each slot. A set in a slot would read as if it were one thing.
+
+#### @spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading
+
+> The checker says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
+
+This follows because a field of at most one value equals `y` exactly when `y` is in it.
+
+#### @spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
+
+> For a field `f` that can hold more than one value, the checker says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
+
+This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half.
+
+#### @spec two-values-that-are-equal-are-said-member-by-member
+
+> The checker says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
+
+This follows because two sets are equal exactly when they have the same members. The type of the field holds every member that either side can have.
+
 #### @spec a-rule-of-two-clauses-is-said-on-one-line
 
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:begin — generated by `canon generate`; edits are overwritten -->
@@ -1508,6 +1586,54 @@ This follows because after looks one step ahead and no further.
 
 This follows because until holds the first side up to the moment the second side holds, and requires that moment to come.
 
+#### @spec always-is-said-as-now-and-at-every-later-moment
+
+> The checker says `always` as "now and at every later moment".
+
+This follows because always holds from the present on. "At every moment" would also reach back to the moments before it, which historically covers.
+
+#### @spec before-is-said-as-there-is-a-moment-before-and-at-it
+
+> The checker says `before` as `there is a moment before, and at it`.
+
+This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out.
+
+#### @spec once-is-said-as-now-or-at-an-earlier-moment
+
+> The checker says `once` as "now or at an earlier moment".
+
+This follows because once is eventually turned to the past, and includes the present moment as eventually does.
+
+#### @spec historically-is-said-as-now-and-at-every-earlier-moment
+
+> The checker says `historically` as "now and at every earlier moment".
+
+This follows because historically is always turned to the past, and includes the present moment as always does.
+
+#### @spec since-is-said-as-at-every-moment-after-the-last-moment-where
+
+> The checker says `since` as "at every moment after the last moment where" the second side holds, which came now or earlier.
+
+This follows because since is until turned to the past. It holds the first side from the moment the second side last held up to now, and requires that moment to have come.
+
+#### @spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes
+
+> The checker says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
+
+This follows because releases holds the second side up to the moment the first side holds, that moment included. When that moment never comes, it holds the second side for ever.
+
+#### @spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one
+
+> The checker says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
+
+This follows because triggered is releases turned to the past. It holds the second side back to the moment the first side last held, that moment included. When the first side never held, it holds the second side at every earlier moment.
+
+#### @spec a-sequence-is-said-as-and-at-the-next-moment
+
+> The checker says `a ; b` as "a, and at the next moment, b".
+
+This follows because the semicolon says that the first side holds now and the second side holds at the next moment.
+
 #### @spec a-name-with-no-reading-is-refused-and-named
 
 > The checker refuses a formula with a name that has no reading, and names the word.
@@ -1531,6 +1657,24 @@ This follows because a quantifier without a noun for its type cannot say what it
 > The checker refuses a formula whose reading of a word uses a place that the formula does not fill, and names the place.
 
 This follows because the reading talks about something the formula does not mention, and any word put there would be invented.
+
+#### @spec a-reading-that-leaves-out-a-slot-the-formula-gives-is-refused
+
+> The checker refuses a formula whose reading of a word leaves out a place that the formula fills, and names the place.
+
+This follows because the variable in that place would drop out of the statement, which would then say less than the formula.
+
+#### @spec a-binary-temporal-operator-inside-a-side-of-another-is-refused
+
+> The checker refuses `until`, `since`, `releases`, `triggered` or `;` with a side that holds one of them, except a `;` after a `;`.
+
+This follows because the words of each one are a clause with commas, and two of them nested read in more than one way. A chain of `;` reads in order.
+
+#### @spec a-primed-relation-of-a-variable-signature-is-refused
+
+> The checker refuses a prime on a relation `Sig.rel` that has a reading of its own when `Sig` is a `var sig`.
+
+This follows because the prime then moves the signature to the next moment too. "At the next moment" in front would say that, but the reading of the relation names the signature as it is now.
 
 #### @spec a-construct-the-words-do-not-cover-is-refused
 
@@ -1600,7 +1744,7 @@ This follows because a formula that the parser reads in part would get words for
 
 #### @spec a-quantifier-takes-everything-after-its-bar
 
-> The checker reads everything after the bar of a quantifier as its body.
+> The checker reads everything after the bar of a quantifier as its body, up to a `;`.
 
 This follows because the bar ends the declaration, and what follows is the claim about the variables.
 
@@ -1609,6 +1753,18 @@ This follows because the bar ends the declaration, and what follows is the claim
 > The checker reads the formula next to a temporal operator as its operand.
 
 This follows because always, eventually and after apply to one formula, so that what follows them is plain.
+
+#### @spec a-semicolon-takes-everything-after-it
+
+> The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included. After the bar of a quantifier, the formula before it is the quantifier.
+
+This follows because the Alloy analyzer binds the semicolon looser than every connective and groups it to the right. A statement of any other reading would say what the logic does not.
+
+#### @spec disj-before-the-variables-of-a-quantifier-is-read
+
+> The checker reads `disj` before the variables of a declaration as a mark on that declaration.
+
+This follows because `disj` belongs to the declaration it stands before, and a formula the parser refuses gets no words.
 
 #### @spec and-binds-tighter-than-implies
 
@@ -1651,6 +1807,12 @@ This follows because the keyword is how the author says that the text defines a 
 > The checker says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
 
 This follows because a definition fixes the meaning of a word for every value, and "exactly when" says that it holds in both directions.
+
+#### @spec a-definition-that-marks-its-variables-disj-is-said-with-them-different
+
+> The checker says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
+
+This follows because `disj` before the variables of a predicate adds that condition to its body.
 
 #### @spec a-definition-with-a-body-of-one-clause-is-said-on-one-line
 
@@ -2103,6 +2265,12 @@ This follows because a scenario is a claim that something can happen. A reader w
 > The checker writes the statement of a scenario just above its block.
 
 This follows because a reader looks for the words of a formula where the formula is.
+
+#### @spec the-statement-of-a-scenario-is-not-the-statement-of-its-unit
+
+> The checker does not take the generated statement of a scenario for the statement of the unit that holds the scenario.
+
+This follows because the statement of a scenario says what must be possible, and the statement of a unit says what its formula claims. A unit whose only quote is the statement of its scenario has no statement yet.
 
 #### @spec generate-writes-the-statement-of-a-scenario-that-is-missing-or-stale
 

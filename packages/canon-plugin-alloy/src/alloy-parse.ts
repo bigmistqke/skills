@@ -9,7 +9,7 @@
 
 export type Quantifier = 'all' | 'some' | 'no' | 'one' | 'lone';
 export type UnaryTemporal = 'always' | 'eventually' | 'after' | 'before' | 'once' | 'historically';
-export type BinaryTemporal = 'until' | 'releases' | 'since' | 'triggered';
+export type BinaryTemporal = 'until' | 'releases' | 'since' | 'triggered' | ';';
 
 export type Node =
   | { t: 'name'; name: string }
@@ -29,13 +29,20 @@ export type Node =
   | { t: 'iff'; l: Node; r: Node }
   | { t: 'unary'; op: UnaryTemporal; f: Node }
   | { t: 'binary'; op: BinaryTemporal; l: Node; r: Node }
-  | { t: 'quant'; q: Quantifier; decls: { names: string[]; type: Node }[]; body: Node };
+  | { t: 'quant'; q: Quantifier; decls: Decl[]; body: Node };
+
+/** The variables of one declaration and their type; `disj` says that they stand for different things. */
+export interface Decl {
+  names: string[];
+  type: Node;
+  disj?: boolean;
+}
 
 const WORDS = new Set([
   'all', 'some', 'no', 'one', 'lone', 'always', 'eventually', 'after', 'before', 'once', 'historically',
   'until', 'releases', 'since', 'triggered', 'and', 'or', 'not', 'implies', 'iff', 'in', 'disj', 'let', 'else'
 ]);
-const SYMBOLS = ['<=>', '=>', '&&', '||', '!=', '->', '(', ')', '[', ']', '{', '}', ',', ':', '|', '.', '+', '-', '&', "'", '=', '!'];
+const SYMBOLS = ['<=>', '=>', '&&', '||', '!=', '->', '(', ')', '[', ']', '{', '}', ',', ':', ';', '|', '.', '+', '-', '&', "'", '=', '!'];
 const UNARY: readonly string[] = ['always', 'eventually', 'after', 'before', 'once', 'historically'];
 const BINARY: readonly string[] = ['until', 'releases', 'since', 'triggered'];
 const QUANTIFIERS: readonly string[] = ['all', 'some', 'no', 'one', 'lone'];
@@ -110,7 +117,15 @@ class Parser {
   // Formulas, from the loosest operator to the tightest.
 
   formula(): Node {
-    return this.or();
+    return this.sequence();
+  }
+
+  /** `a ; b`, which the analyzer binds looser than every connective and groups to the right. */
+  private sequence(): Node {
+    const l = this.or();
+    if (!this.is(';')) return l;
+    this.take();
+    return { t: 'binary', op: ';', l, r: this.sequence() };
   }
 
   private or(): Node {
@@ -176,28 +191,37 @@ class Parser {
     return this.comparison();
   }
 
-  /** `all x: T, y, z: U | body`, or `some E` when no declaration follows. */
+  /** `all x: T, disj y, z: U | body`, or `some E` when no declaration follows. */
   private quantified(): Node {
     const q = this.take().text as Quantifier;
-    if (!this.declaration()) return { t: 'mult', q, e: this.expression() };
-    const decls: { names: string[]; type: Node }[] = [];
+    if (!this.declaration(this.is('disj') ? 1 : 0)) {
+      if (this.is('disj')) throw new Error('"disj" is supported only before the variables of a declaration');
+      return { t: 'mult', q, e: this.expression() };
+    }
+    const decls: Decl[] = [];
     do {
+      const disj = this.is('disj');
+      if (disj) this.take();
       const names = [this.take().text];
       while (this.is(',')) {
         this.take();
         names.push(this.take().text);
       }
       this.take(':');
-      decls.push({ names, type: this.expression() });
+      decls.push(disj ? { names, type: this.expression(), disj } : { names, type: this.expression() });
     } while (this.is(',') && this.take());
     if (this.is('{')) throw new Error('a block after a quantifier is not supported; write "| formula"');
     this.take('|');
-    return { t: 'quant', q, decls, body: this.formula() };
+    // The body ends at a `;`, and the `;` then takes the whole quantifier as its first side, as the analyzer reads it.
+    const quant: Node = { t: 'quant', q, decls, body: this.or() };
+    if (!this.is(';')) return quant;
+    this.take();
+    return { t: 'binary', op: ';', l: quant, r: this.formula() };
   }
 
   /** Whether the tokens ahead are names separated by commas and then a colon. */
-  private declaration(): boolean {
-    let ahead = 0;
+  private declaration(from = 0): boolean {
+    let ahead = from;
     while (this.peek(ahead)?.kind === 'name') {
       ahead++;
       if (this.is(':', ahead)) return true;

@@ -5,7 +5,7 @@
  * a construct or a name with no reading is an error, so a rendering never says
  * more or less than the formula does.
  */
-import { type Node, parseFormula } from './alloy-parse.ts';
+import { type Decl, type Node, parseFormula } from './alloy-parse.ts';
 
 /** How one thing is said, with `{1}`, `{2}` for the variables it is about. */
 interface Reading {
@@ -35,6 +35,18 @@ export interface Readings {
    * own is said by its body, with the arguments in place of the parameters.
    */
   definitions: Map<string, Definition>;
+  /** The fields the vocabulary declares, each with the signature that declares it and the type it points at: `on` is from `Cleanup` to `Owner`. */
+  fields: Map<string, Field>;
+  /** The signatures the vocabulary declares `var`, whose members change from one moment to the next. */
+  variables: Set<string>;
+}
+
+/** A field of a signature, from the signature to the type it points at. Its owner is unknown when one declaration declares it for several signatures. */
+interface Field {
+  owner?: string;
+  type: string;
+  /** Whether it can hold more than one value: declared `set` or `some`, and not `one` or `lone`. */
+  many: boolean;
 }
 
 /**
@@ -51,16 +63,59 @@ export function parseDefinitions(vocabulary: string): Map<string, Definition> {
       end++;
     }
     if (depth !== 0) throw new Error(`the predicate "${m[1]}" has no closing brace`);
-    const params = (m[2] ?? '').split(',').map(part => part.split(':')[0]!.trim()).filter(name => name !== '');
-    definitions.set(m[1] as string, { params, body: vocabulary.slice((m.index ?? 0) + m[0].length, end - 1) });
+    const groups = parameterGroups(m[2] ?? '');
+    const body = vocabulary.slice((m.index ?? 0) + m[0].length, end - 1);
+    const different = differences(groups).map(([a, b]) => `${a} != ${b}`);
+    definitions.set(m[1] as string, { params: groups.flatMap(g => g.names), body: different.length === 0 ? body : `${different.join(' and ')} and (${body})` });
   }
   return definitions;
 }
 
-/** The readings with the definitions of a vocabulary, so that a predicate with no reading of its own can be said by its body. */
+/**
+ * The fields that the signatures of a vocabulary declare, with the type each
+ * points at. A field of more than one column, or one that two declarations
+ * declare, is left out: it has no one type.
+ */
+export function parseFields(vocabulary: string): Map<string, Field> {
+  const fields = new Map<string, Field>();
+  const untyped = new Set<string>();
+  for (const m of vocabulary.matchAll(/\bsig\s+([\w\s,]+?)\s*(?:(?:extends|in)\s+[\w\s+]+?)?\s*\{/g)) {
+    const sigs = (m[1] as string).split(',').map(name => name.trim());
+    let depth = 1;
+    let end = (m.index ?? 0) + m[0].length;
+    while (end < vocabulary.length && depth > 0) {
+      depth += vocabulary[end] === '{' ? 1 : vocabulary[end] === '}' ? -1 : 0;
+      end++;
+    }
+    const body = vocabulary.slice((m.index ?? 0) + m[0].length, end - 1);
+    // `a, b: T` declares both: a name with no colon waits for the type of the next part.
+    let waiting: string[] = [];
+    for (const part of body.split(',')) {
+      const bare = /^\s*(?:var\s+)?(\w+)\s*$/.exec(part);
+      if (bare) {
+        waiting.push(bare[1] as string);
+        continue;
+      }
+      const named = /^\s*(?:var\s+)?(\w+)\s*:/.exec(part);
+      if (named === null) continue;
+      const typed = /:\s*(?:disj\s+)?(?:(one|lone|some|set)\s+)?(\w+)\s*$/.exec(part);
+      for (const name of [...waiting, named[1] as string]) {
+        if (fields.has(name) || typed === null) untyped.add(name);
+        fields.set(name, { owner: sigs.length === 1 ? sigs[0] : undefined, type: typed?.[2] ?? '', many: typed?.[1] === 'set' || typed?.[1] === 'some' });
+      }
+      waiting = [];
+    }
+  }
+  for (const name of untyped) fields.delete(name);
+  return fields;
+}
+
+/** The readings with the definitions and the fields of a vocabulary, so that a predicate with no reading of its own can be said by its body. */
 export const withDefinitions = (readings: Readings, vocabulary: string): Readings => ({
   ...readings,
-  definitions: parseDefinitions(vocabulary)
+  definitions: parseDefinitions(vocabulary),
+  fields: parseFields(vocabulary),
+  variables: new Set([...vocabulary.matchAll(/\bvar\s+(?:(?:abstract|one|lone|some)\s+)*sig\s+([\w\s,]+?)\s*(?:extends\b|in\b|\{|=)/g)].flatMap(m => (m[1] as string).split(',').map(name => name.trim())))
 });
 
 /**
@@ -75,7 +130,7 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
  * link in it to a unit of its own document, `(#term-checker)`, goes through the path.
  */
 export function parseReadings(text: string, unit?: string, base?: string): Readings {
-  const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map() };
+  const readings: Readings = { nouns: new Map(), nounUnits: new Map(), articles: new Map(), atoms: new Map(), definitions: new Map(), fields: new Map(), variables: new Set() };
   for (const raw of text.split('\n')) {
     const line = (base === undefined ? raw : raw.replace(/\]\(#([^)\s]+)\)/g, `](${base}#$1)`)).trim();
     if (line === '' || line.startsWith('#')) continue;
@@ -152,11 +207,14 @@ const holeOf = (level: number): string => String.fromCharCode(3 + level);
 const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
 
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
-const TIME_PHRASE = /^(?:now or at|at every|at the next|right after)\b/;
+const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including)\b/;
 
 /** The most that is said in a sentence, and not in a list, and how long it may be. */
 const INLINE_ITEMS = 3;
 const INLINE_LENGTH = 110;
+
+/** What a clause with a primed name is said with, the words of `after`: "at the next moment, c has run". */
+const NEXT = 'at the next moment, ';
 
 const ALL = 'all of these hold:';
 const ANY = 'at least one of these holds:';
@@ -169,6 +227,27 @@ type Doc =
   | { kind: 'rule'; when: Doc; then: Doc };
 
 const isList = (doc: Doc): doc is Extract<Doc, { kind: 'list' }> => typeof doc !== 'string' && doc.kind === 'list';
+
+/** Whether a formula holds `until`, `since`, `releases`, `triggered` or `;` anywhere in it. */
+function holdsBinary(node: Node): boolean {
+  switch (node.t) {
+    case 'binary':
+      return true;
+    case 'not':
+    case 'unary':
+      return holdsBinary(node.f);
+    case 'and':
+    case 'or':
+      return node.items.some(holdsBinary);
+    case 'implies':
+    case 'iff':
+      return holdsBinary(node.l) || holdsBinary(node.r);
+    case 'quant':
+      return holdsBinary(node.body);
+    default:
+      return false;
+  }
+}
 
 /** Put words in front of a doc, on its first line. */
 function prefix(words: string, doc: Doc): Doc {
@@ -216,7 +295,58 @@ class Verbalizer {
   /** A variable of the formula: inside the body of a predicate, its parameter stands for the argument. */
   private variable(node: Node, what: string): string {
     const name = nameOf(node, what);
+    if (!this.isVariable(name)) throw new Error(`"${name}" is a set or a field, where a variable must be`);
     return this.bound.get(name) ?? name;
+  }
+
+  /** Whether a name stands for one thing: a variable, and not a set, a signature or a field of the vocabulary. */
+  private isVariable(name: string): boolean {
+    return this.bound.has(name) || !(this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name));
+  }
+
+  /** The expression without its prime, and whether it had one: `Ran'`, `c.on'` and `(c.on)'` are each one name primed. */
+  private unprimed(node: Node): { e: Node; primed: boolean } {
+    const found =
+      node.t === 'prime'
+        ? { e: node.e, primed: true }
+        : node.t === 'join' && node.r.t === 'prime'
+          ? { e: { ...node, r: node.r.e }, primed: true }
+          : node.t === 'join' && node.l.t === 'prime'
+            ? { e: { ...node, l: node.l.e }, primed: true }
+            : { e: node, primed: false };
+    // `Sig.rel` read as a relation of its own: the prime moves `Sig` as well, and its reading names `Sig` as it is now.
+    const { e } = found;
+    if (found.primed && e.t === 'join' && e.l.t === 'name' && e.r.t === 'name' && this.readings.atoms.has(`${e.l.name}.${e.r.name}`) && this.readings.variables.has(e.l.name)) {
+      throw new Error(`"${e.l.name}" is a var sig, so a prime on "${e.l.name}.${e.r.name}" moves it too`);
+    }
+    return found;
+  }
+
+  /** A primed name that the readings give a line of its own, as `Throwing'`. */
+  private readPrimed(node: Node): boolean {
+    return node.t === 'prime' && node.e.t === 'name' && this.readings.atoms.has(`${node.e.name}'`);
+  }
+
+  /**
+   * A navigation `y.f` or `f.y` of a variable `y` and a field `f`: the field,
+   * the variable, and the type of what the navigation reaches. Undefined for a
+   * join that the readings say as a relation of its own, as `Clock.older`.
+   */
+  private navigation(node: Node): { field: string; from: Node; forward: boolean; type: string } | undefined {
+    if (node.t !== 'join' || node.l.t !== 'name' || node.r.t !== 'name') return undefined;
+    if (this.readings.atoms.has(`${node.l.name}.${node.r.name}`)) return undefined;
+    const { l, r } = node;
+    const forward = this.readings.fields.get(r.name);
+    if (this.isVariable(l.name) && forward !== undefined) return { field: r.name, from: l, forward: true, type: forward.type };
+    const backward = this.readings.fields.get(l.name);
+    if (this.isVariable(r.name) && backward?.owner !== undefined) return { field: l.name, from: r, forward: false, type: backward.owner };
+    return undefined;
+  }
+
+  /** `x in y.f` and `x in f.y`, with the reading of the field: `y` in its first slot and `x` in its second, or `x` and `y`. */
+  private member(x: Node, nav: { field: string; from: Node; forward: boolean }, negative: boolean): string {
+    const [one, other] = [this.variable(x, 'the left of "in"'), this.variable(nav.from, 'the variable of a navigation')];
+    return this.say(nav.field, nav.forward ? [other, one] : [one, other], negative);
   }
 
   /** A call, said by the reading the table gives it, or else by the body of the predicate. */
@@ -243,11 +373,14 @@ class Verbalizer {
     if (!reading) throw new Error(`no reading for "${key}"`);
     const words = negative ? reading.negative : reading.positive;
     if (words === undefined) throw new Error(`no negative reading for "${key}"`);
-    return mark(words, reading.unit).replace(/\{(\d+)\}/g, (_, n: string) => {
+    const said = mark(words, reading.unit).replace(/\{(\d+)\}/g, (_, n: string) => {
       const slot = slots[Number(n) - 1];
       if (slot === undefined) throw new Error(`the reading of "${key}" uses {${n}}, which the formula does not give`);
       return `${VARIABLE}${slot}${VARIABLE}`;
     });
+    const missing = slots.findIndex((_, i) => !words.includes(`{${i + 1}}`));
+    if (missing !== -1) throw new Error(`the reading of "${key}" leaves out {${missing + 1}}, which the formula gives`);
+    return said;
   }
 
   /** The article a noun was written with, with the space that follows it. */
@@ -293,18 +426,67 @@ class Verbalizer {
         ];
         return { kind: 'list', intro: negative ? ANY : ALL, items: parts.flatMap(p => this.spliced(p, negative ? ANY : ALL)) };
       }
+      if (!this.readPrimed(r)) {
+        const { e, primed } = this.unprimed(r);
+        if (primed) return prefix(NEXT, this.comparison({ ...node, r: e }, negative));
+        const nav = this.navigation(r);
+        if (nav !== undefined && l.t !== 'arrow') return this.member(l, nav, flip);
+      }
       const slots = l.t === 'arrow' ? [this.variable(l.l, 'a side of "->"'), this.variable(l.r, 'a side of "->"')] : [this.variable(l, 'the left of "in"')];
-      const key = r.t === 'join' ? `${nameOf(r.l, 'a relation')}.${nameOf(r.r, 'a relation')}` : nameOf(r, 'the right of "in"');
+      const key = r.t === 'join' ? `${nameOf(r.l, 'a relation')}.${nameOf(r.r, 'a relation')}` : r.t === 'prime' ? `${nameOf(r.e, 'a primed set')}'` : nameOf(r, 'the right of "in"');
       return this.say(key, slots, flip);
     }
     // a = b, and a != b, between two variables
     if (l.t === 'name' && r.t === 'name') {
       return `${VARIABLE}${this.variable(l, 'the left of "="')}${VARIABLE} and ${VARIABLE}${this.variable(r, 'the right of "="')}${VARIABLE} are ${flip ? 'different' : 'the same'}`;
     }
-    // x.f = y, in either order
-    const [field, value] = l.t === 'join' ? [l, r] : r.t === 'join' ? [r, l] : [undefined, undefined];
-    if (field === undefined || field.t !== 'join') throw new Error('"=" is supported only as "x.field = y"');
-    return this.say(nameOf(field.r, 'a field'), [this.variable(field.l, 'the owner of a field'), this.variable(value as Node, 'the value of a field')], flip);
+    const [left, right] = [this.unprimed(l), this.unprimed(r)];
+    if (left.e.t === 'join' && right.e.t === 'join') return this.sameMembers(left, right, flip);
+    // x.f = y, in either order, and x.f' = y at the next moment
+    const [side, value] = left.e.t === 'join' ? [left, r] : right.e.t === 'join' ? [right, l] : [undefined, undefined];
+    if (side === undefined || side.e.t !== 'join') throw new Error('"=" is supported only as "x.field = y"');
+    const field = this.readings.fields.get(nameOf(side.e.r, 'a field'));
+    if (field === undefined) throw new Error(`the vocabulary does not declare the field "${nameOf(side.e.r, 'a field')}", so "=" cannot tell whether it holds one value`);
+    if (field.many) return this.equalsOne(side, value as Node, flip);
+    const said = this.say(nameOf(side.e.r, 'a field'), [this.variable(side.e.l, 'the owner of a field'), this.variable(value as Node, 'the value of a field')], flip);
+    return side.primed ? NEXT + said : said;
+  }
+
+  /**
+   * `y.f = x` for a field of many values, said member by member: "for every
+   * owner_1: c is on owner_1 exactly when owner_1 and o are the same".
+   */
+  private equalsOne(side: { e: Node; primed: boolean }, value: Node, different: boolean): Doc {
+    if (different) throw new Error('"!=" between a field of many values and a variable is not supported');
+    const nav = this.navigation(side.e);
+    if (nav === undefined) throw new Error('the side of "=" must be a variable and a field');
+    const member = this.fresh({ t: 'name', name: nav.type });
+    const inside = new Verbalizer(this.readings, new Map([...this.bound, ['\u0000', member.name]]), this.chain, this.used);
+    const x: Node = { t: 'name', name: '\u0000' };
+    const time = side.primed ? ' at the next moment' : '';
+    return { kind: 'block', intro: `for every ${member.shown}:`, body: `${inside.member(x, nav, false)}${time} exactly when ${inside.comparison({ t: 'cmp', op: '=', l: x, r: value }, false)}` };
+  }
+
+  /**
+   * `y.f = z.g`, said member by member over the type of the field: "for every
+   * owner_1: c is on owner_1 exactly when d is on owner_1". A side that is
+   * primed is said at the next moment, and the other now.
+   */
+  private sameMembers(left: { e: Node; primed: boolean }, right: { e: Node; primed: boolean }, different: boolean): Doc {
+    if (different) throw new Error('two values are compared only with "=", which the checker says member by member');
+    const [l, r] = [this.navigation(left.e), this.navigation(right.e)];
+    if (l === undefined || r === undefined) throw new Error('the sides of "=" must each be a variable and a field');
+    if (l.type !== r.type) throw new Error(`the sides of "=" reach different types, "${l.type}" and "${r.type}"`);
+    const member = this.fresh({ t: 'name', name: l.type });
+    const scope = new Map([...this.bound, ['\u0000', member.name]]);
+    const inside = new Verbalizer(this.readings, scope, this.chain, this.used);
+    const x: Node = { t: 'name', name: '\u0000' };
+    const time = (primed: boolean): string => (left.primed || right.primed ? (primed ? ' at the next moment' : ' now') : '');
+    return {
+      kind: 'block',
+      intro: `for every ${member.shown}:`,
+      body: `${inside.member(x, l, false)}${time(left.primed)} exactly when ${inside.member(x, r, false)}${time(right.primed)}`
+    };
   }
 
   /** A formula said as a negation: only what has a reading of its own can be negated. */
@@ -327,11 +509,47 @@ class Verbalizer {
 
   private mult(node: Extract<Node, { t: 'mult' }>, negative: boolean): Doc {
     if (node.q !== 'some' && node.q !== 'no') throw new Error(`"${node.q}" before a set is not supported`);
-    const key = node.e.t === 'prime' ? `${nameOf(node.e.e, 'a primed set')}'` : nameOf(node.e, 'a set');
-    return this.say(key, [], (node.q === 'no') !== negative);
+    const none = (node.q === 'no') !== negative;
+    if (this.readPrimed(node.e)) return this.say(`${nameOf((node.e as Extract<Node, { t: 'prime' }>).e, 'a primed set')}'`, [], none);
+    const { e, primed } = this.unprimed(node.e);
+    if (primed) return prefix(NEXT, this.mult({ ...node, e }, negative));
+    const nav = this.navigation(e);
+    if (nav === undefined) return this.say(nameOf(e, 'a set'), [], none);
+    // no y.f: no member of the type of the field is in y.f
+    const x: Node = { t: 'name', name: '\u0000' };
+    return this.quantified({ t: 'quant', q: none ? 'no' : 'some', decls: [{ names: ['\u0000'], type: { t: 'name', name: nav.type } }], body: { t: 'cmp', op: 'in', l: x, r: e } });
   }
 
-  private quantified(node: Extract<Node, { t: 'quant' }>): Doc {
+  /**
+   * A quantifier with plain declarations: `disj` becomes the condition that
+   * the variables are different, and a difference as a type the condition that
+   * the variable is not in what is taken away. A "for every" puts the
+   * conditions in front of its rule, a "there is" beside its body.
+   */
+  private plain(node: Extract<Node, { t: 'quant' }>): Extract<Node, { t: 'quant' }> {
+    const conditions: Node[] = [];
+    const decls = node.decls.map(({ names, type, disj }): Decl => {
+      let base = type;
+      while (base.t === 'diff') {
+        const out = base.r;
+        for (const name of names) {
+          const x: Node = { t: 'name', name };
+          conditions.push(out.t === 'name' && this.isVariable(out.name) ? { t: 'cmp', op: '!=', l: x, r: out } : { t: 'cmp', op: 'not in', l: x, r: out });
+        }
+        base = base.l;
+      }
+      if (disj) names.forEach((a, i) => names.slice(i + 1).forEach(b => conditions.push({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } })));
+      return { names, type: base };
+    });
+    if (conditions.length === 0) return node;
+    const and = (items: Node[]): Node => (items.length === 1 ? (items[0] as Node) : { t: 'and', items: items.flatMap(i => (i.t === 'and' ? i.items : [i])) });
+    const { body } = node;
+    if (node.q !== 'all') return { ...node, decls, body: and([...conditions, body]) };
+    return { ...node, decls, body: body.t === 'implies' ? { t: 'implies', l: and([...conditions, body.l]), r: body.r } : { t: 'implies', l: and(conditions), r: body } };
+  }
+
+  private quantified(quant: Extract<Node, { t: 'quant' }>): Doc {
+    const node = this.plain(quant);
     const absorbed = this.absorbed(node);
     if (absorbed !== undefined) return absorbed;
     const scope = new Map(this.bound);
@@ -393,7 +611,14 @@ class Verbalizer {
   /** A node that says one fact in one clause, so that it can stand beside others in a sentence. */
   private clause(node: Node): string | undefined {
     const text = (doc: Doc): string | undefined => (typeof doc === 'string' ? doc : undefined);
-    const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff';
+    // Two values compared, or a field of many values compared with a variable, are said member by member, which is never one clause; trying would take the name of the member.
+    const values = (n: Extract<Node, { t: 'cmp' }>): boolean => {
+      if (n.op !== '=' && n.op !== '!=') return false;
+      const [l, r] = [this.unprimed(n.l).e, this.unprimed(n.r).e];
+      const many = (side: Node): boolean => side.t === 'join' && side.r.t === 'name' && this.readings.fields.get(side.r.name)?.many === true;
+      return (l.t === 'join' && r.t === 'join') || many(l) || many(r);
+    };
+    const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff' && !values(n);
     switch (node.t) {
       case 'cmp':
         return plainCmp(node) ? text(this.comparison(node, false)) : undefined;
@@ -435,7 +660,8 @@ class Verbalizer {
    * and a comparison with another variable becomes "another unit". Undefined
    * when it does not fit, and the quantifier is said in full.
    */
-  private absorbed(node: Extract<Node, { t: 'quant' }>): string | undefined {
+  private absorbed(quant: Extract<Node, { t: 'quant' }>): string | undefined {
+    const node = this.plain(quant);
     if (node.q !== 'some' && node.q !== 'no') return undefined;
     if (node.decls.length > 1) {
       // Variables of different kinds are said one inside the other: "a test checks a bug that sits in unit_1".
@@ -626,16 +852,34 @@ class Verbalizer {
       case 'quant':
         return this.quantified(node);
       case 'unary': {
-        const words: Record<string, string> = { always: 'at every moment, ', eventually: 'now or at a later moment, ', after: 'at the next moment, ' };
-        const lead = words[node.op];
-        if (lead === undefined) throw new Error(`"${node.op}" is not supported`);
-        return prefix(lead, this.doc(node.f));
+        const words: Record<string, string> = {
+          always: 'now and at every later moment, ',
+          eventually: 'now or at a later moment, ',
+          after: 'at the next moment, ',
+          before: 'there is a moment before, and at it, ',
+          once: 'now or at an earlier moment, ',
+          historically: 'now and at every earlier moment, '
+        };
+        return prefix(words[node.op], this.doc(node.f));
       }
       case 'binary': {
-        if (node.op !== 'until') throw new Error(`"${node.op}" is not supported`);
-        const [before, until] = [this.doc(node.l), this.doc(node.r)];
-        if (typeof before !== 'string' || typeof until !== 'string') throw new Error('"until" is supported only between two clauses');
-        return `at every moment before the first moment where ${until}, ${before}, and ${until} now or at a later moment`;
+        // A chain of `;` reads in order; any other nesting of these clauses with commas reads in more than one way.
+        const sides = node.op === ';' && node.r.t === 'binary' && node.r.op === ';' ? [node.l] : [node.l, node.r];
+        if (sides.some(holdsBinary)) throw new Error(`"${node.op}" with a side that holds "until", "since", "releases", "triggered" or ";" reads in more than one way`);
+        const [l, r] = [this.doc(node.l), this.doc(node.r)];
+        if (typeof l !== 'string' || typeof r !== 'string') throw new Error(`"${node.op}" is supported only between two clauses`);
+        switch (node.op) {
+          case 'until':
+            return `at every moment before the first moment where ${r}, ${l}, and ${r} now or at a later moment`;
+          case 'since':
+            return `at every moment after the last moment where ${r}, ${l}, and ${r} now or at an earlier moment`;
+          case 'releases':
+            return `up to and including the first moment where ${l}, if one comes, ${r}`;
+          case 'triggered':
+            return `back to and including the last moment where ${l}, if there was one, ${r}`;
+          case ';':
+            return `${l}, and at the next moment, ${r}`;
+        }
       }
       default:
         throw new Error(`a ${node.t} cannot stand as a statement`);
@@ -726,20 +970,33 @@ const DEFINITION = /^\s*pred\s+(\w+)\s*(?:\[([^\]]*)\])?\s*\{([\s\S]*)\}\s*$/;
 /** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
 export const isDefinition = (source: string): boolean => /^\s*pred\b/.test(source);
 
-/** The parameters of a definition, `a, b: T, c: U`, each with its type. */
-function parameters(text: string): { name: string; type: string }[] {
-  const found: { name: string; type: string }[] = [];
-  let pending: string[] = [];
+/** The parameters of a definition, `disj a, b: T, c: U`, in groups that share a type; a group marked `disj` stands for different things. */
+function parameterGroups(text: string): { names: string[]; type?: string; disj: boolean }[] {
+  const groups: { names: string[]; type?: string; disj: boolean }[] = [];
+  let pending: { names: string[]; disj: boolean } = { names: [], disj: false };
   for (const part of text.split(',').map(p => p.trim()).filter(p => p !== '')) {
-    const [names, type] = part.includes(':') ? part.split(':').map(p => p.trim()) : [part, undefined];
-    pending.push(names as string);
+    const [rawNames, type] = part.includes(':') ? part.split(':').map(p => p.trim()) : [part, undefined];
+    const disj = /^disj\s+/.test(rawNames as string);
+    pending = { names: [...pending.names, (rawNames as string).replace(/^disj\s+/, '')], disj: pending.disj || disj };
     if (type !== undefined) {
-      found.push(...pending.map(name => ({ name, type })));
-      pending = [];
+      groups.push({ ...pending, type });
+      pending = { names: [], disj: false };
     }
   }
-  if (pending.length > 0) throw new Error(`the parameter "${pending[0]}" has no type`);
-  return found;
+  if (pending.names.length > 0) groups.push(pending);
+  return groups;
+}
+
+/** The pairs of parameters that `disj` says are different. */
+const differences = (groups: { names: string[]; disj: boolean }[]): [string, string][] =>
+  groups.filter(g => g.disj).flatMap(g => g.names.flatMap((a, i) => g.names.slice(i + 1).map((b): [string, string] => [a, b])));
+
+/** The parameters of a definition, `a, b: T, c: U`, each with its type. */
+function parameters(text: string): { name: string; type: string }[] {
+  const groups = parameterGroups(text);
+  const untyped = groups.find(g => g.type === undefined);
+  if (untyped !== undefined) throw new Error(`the parameter "${untyped.names[0]}" has no type`);
+  return groups.flatMap(g => g.names.map(name => ({ name, type: g.type as string })));
 }
 
 /**
@@ -749,7 +1006,10 @@ function parameters(text: string): { name: string; type: string }[] {
 export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
   const m = DEFINITION.exec(source);
   if (!m) throw new Error('a definition is written `pred name[parameters] { formula }`');
-  const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), parseFormula(m[3] as string));
+  const body = parseFormula(m[3] as string);
+  const different: Node[] = differences(parameterGroups(m[2] ?? '')).map(([a, b]) => ({ t: 'cmp', op: '!=', l: { t: 'name', name: a }, r: { t: 'name', name: b } }));
+  const all: Node = different.length === 0 ? body : { t: 'and', items: [...different, ...(body.t === 'and' ? body.items : [body])] };
+  const doc = new Verbalizer(readings).definition(m[1] as string, parameters(m[2] ?? ''), all);
   return finish(doc, layout, self);
 }
 

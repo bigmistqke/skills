@@ -96,7 +96,7 @@ describe('the states of the statements', () => {
    */
   it('overwrites an edit made inside the markers', () => {
     const { src } = write(doc());
-    const edited = src.replace('> At every moment', '> Sometimes');
+    const edited = src.replace('> Now and at every later moment', '> Sometimes');
     expect(states(edited)).toMatchObject([{ kind: 'stale' }]);
   });
 
@@ -175,6 +175,18 @@ describe('the statements of scenarios', () => {
     expect(src).toContain('> It must be possible that:');
     expect(src).toContain('> There is a node_1 such that node_1 has started.');
     expect(stateOf(src)).toMatchObject({ kind: 'current' });
+  });
+
+  /**
+   * @canon spec-the-statement-of-a-scenario-is-not-the-statement-of-its-unit
+   */
+  it('finds a unit whose only quote is the statement of its scenario missing, and writes its statement below the heading', () => {
+    const scenarioOnly = write(scened()).src.replace(/<!-- statement-spec-a-leaf:begin[^]*?:end -->\n\n/, '');
+    expect(scenarioOnly).toContain('> It must be possible that:');
+    expect(states(scenarioOnly).find(s => s.unit === 'spec-a-leaf')).toMatchObject({ kind: 'missing' });
+    const { src, written } = write(scenarioOnly);
+    expect(written).toEqual(['spec-a-leaf']);
+    expect(src).toContain(`### @spec a-leaf\n\n<!-- ${REGION}:begin`);
   });
 
   /**
