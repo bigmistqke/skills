@@ -20,7 +20,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term by-kind`](#term-by-kind) — For every [definition_1](#term-definition-passage): definition_1 can be said kind by kind exactly when all of these hold: - definition_1 is not a definition with an alternative that does not begin with its kind - definition_1 is not a definition with a run of and beside another alternative of its kind - definition_1 is not a definition with an alternative that says something about another unit
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
-- [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or has two clauses or fewer - list_1 fits a line when it is put in a sentence
+- [`@term sentenceable`](#term-sentenceable) — For every [list_1](#term-series): list_1 can be put in a sentence exactly when all of these hold: - list_1 has three clauses or fewer - list_1 has only items that are one clause - list_1 has no item that holds a comma or has two clauses or fewer - list_1 fits a line when it is put in a sentence - list_1 has no clause before its last that begins with a time phrase
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
 - [`@fact every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment) — In Alloy 6, a trace is infinite: every moment has exactly one next moment.
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
@@ -81,6 +81,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
   - [`@spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither`](#spec-an-equivalence-of-more-than-clauses-is-said-as-both-or-neither) — The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
   - [`@spec an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither`](#spec-an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither) — As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
+  - [`@spec an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither`](#spec-an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither) — The verbalizer says `a iff b` as both or neither of its sides when `a` begins with a time phrase.
   - [`@spec an-else-is-said-as-otherwise`](#spec-an-else-is-said-as-otherwise) — The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
@@ -151,6 +152,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has more than three clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets`](#spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has an item that holds a comma and has more than two clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — For every [list_1](#term-series): when list_1 is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says list_1 as bullets.
+    - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — For every [list_1](#term-series): when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list_1](#term-series): when list_1 has an item that is more than one clause, [verbalizer](#term-verbalizer) says list_1 as bullets.
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
@@ -396,21 +398,22 @@ byKind: {1} can be said [kind by kind] | {1} cannot be said [kind by kind]
 
 > A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 
-A list becomes a sentence only if four things hold:
+A list becomes a sentence only if five things hold:
 
 - It has three clauses or fewer.
 - Every item is one clause.
 - No item holds a comma, unless the list has two clauses.
 - The sentence fits a line.
+- No clause before the last begins with a time phrase.
 
 Any other list becomes bullets.
 
 ```alloy vocabulary
 sig Series {}
-sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr in Series {}
+sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr, TimeBeforeLast in Series {}
 sig AsSentence, AsBullets, KeepsAndApart, SharedSubject, PairInList in Series {}
 sig OneLineRule, TimeSecond, OneLine, KeepsThen, DropsThen, ThenOwnLine in Series {}
-fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + SharedSubject + PairInList) in Items and (OneLineRule + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule }
+fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + TimeBeforeLast + SharedSubject + PairInList) in Items and (OneLineRule + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule }
 ```
 
 ```readings
@@ -423,6 +426,7 @@ MoreThanTwo: {1} has more than two clauses | {1} has two clauses or fewer
 NotClause: {1} has an item that is more than one clause | {1} has only items that are one clause
 CommaItem: {1} has an item that holds a comma | {1} has no item that holds a comma
 TooLong: {1} is longer than a line when it is put in a sentence | {1} fits a line when it is put in a sentence
+TimeBeforeLast: {1} has a clause before its last that begins with a time phrase | {1} has no clause before its last that begins with a time phrase
 AndInOr: {1} is a list of alternatives where one alternative holds an and | {1} is not a list of alternatives where one alternative holds an and
 AsSentence: [verbalizer](#term-verbalizer) says {1} in a sentence | [verbalizer](#term-verbalizer) does not say {1} in a sentence
 AsBullets: [verbalizer](#term-verbalizer) says {1} as bullets | [verbalizer](#term-verbalizer) does not say {1} as bullets
@@ -499,10 +503,11 @@ some f: Series | f in TimeSecond and f not in OneLineRule
 > - list_1 has only items that are one clause
 > - list_1 has no item that holds a comma or has two clauses or fewer
 > - list_1 fits a line when it is put in a sentence
+> - list_1 has no clause before its last that begins with a time phrase
 <!-- statement-term-sentenceable:end -->
 
 ```alloy
-pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong }
+pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast }
 ```
 
 ```readings
@@ -888,6 +893,12 @@ This follows because "exactly when" between two lists or rules would not show wh
 > As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
 
 This follows because "exactly when" inside "when …, …", or after the "exactly when" of a definition, could take the whole sentence as its side.
+
+#### @spec an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither
+
+> The verbalizer says `a iff b` as both or neither of its sides when `a` begins with a time phrase.
+
+This follows because the time phrase at the start would read as covering both sides, where the formula has it cover `a`.
 
 #### @spec an-else-is-said-as-otherwise
 
@@ -1463,6 +1474,20 @@ This follows because a sentence that runs past a line is hard to take in at once
 
 ```alloy
 all f: Series | f in TooLong implies f in AsBullets
+```
+
+##### @spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets
+
+<!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> For every [list_1](#term-series):
+>
+> when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
+<!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:end -->
+
+This follows because a time phrase at the start of a sentence reads as covering each clause after it. The formula has it cover one.
+
+```alloy
+all f: Series | f in TimeBeforeLast implies f in AsBullets
 ```
 
 ##### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets

@@ -817,6 +817,15 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
+   * @canon spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets
+   */
+  it('are a list when a clause before the last begins with a time phrase', () => {
+    expect(say("c in Ran' and d in Ran", READINGS)).toBe('All of these hold:\n  - at the next moment, c has run\n  - d has run');
+    expect(say("c in Ran' or d in Ran", READINGS)).toBe('At least one of these holds:\n  - at the next moment, c has run\n  - d has run');
+    expect(say("d in Ran and c in Ran'", READINGS)).toBe('d has run and at the next moment, c has run.');
+  });
+
+  /**
    * @canon spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets
    */
   it('are a list when an item is more than one clause', () => {
@@ -894,6 +903,14 @@ describe('connectives, quantifiers and let', () => {
     expect(verbalizeDefinition('pred same[c, d: Cleanup] { c in Ran iff d in Ran }', readings)).toBe(
       'For every cleanup_1 and every cleanup_2:\n  cleanup_1 goes with cleanup_2 exactly when both or neither of these hold:\n    - cleanup_1 has run\n    - cleanup_2 has run'
     );
+  });
+
+  /**
+   * @canon spec-an-equivalence-whose-first-side-begins-with-a-time-phrase-is-said-as-both-or-neither
+   */
+  it('says an equivalence whose first side begins with a time phrase as both or neither', () => {
+    expect(say("c in Ran' iff d in Ran")).toBe('Both or neither of these hold:\n  - at the next moment, c has run\n  - d has run');
+    expect(say("d in Ran iff c in Ran'")).toBe('d has run exactly when at the next moment, c has run.');
   });
 
   /**

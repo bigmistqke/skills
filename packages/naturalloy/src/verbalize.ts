@@ -211,6 +211,9 @@ const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
 const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including)\b/;
 
+/** Whether a clause begins with a time phrase, which covers what follows it in the sentence. */
+const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_MARK, (_, __, word: string) => word).replaceAll(VARIABLE, ''));
+
 /** The most that is said in a sentence, and not in a list, and how long it may be. */
 const INLINE_ITEMS = 3;
 const INLINE_LENGTH = 110;
@@ -804,6 +807,8 @@ class Verbalizer {
       if (clause === undefined || (clause.includes(',') && items.length > 2)) return undefined;
       said.push(clause);
     }
+    // A time phrase at the start of a clause would read as covering the clauses after it.
+    if (said.slice(0, -1).some(timed)) return undefined;
     const clauses = shareSubject(said);
     const text = clauses.length === 2 ? `${clauses[0]} ${word} ${clauses[1]}` : `${clauses.slice(0, -1).join(', ')} ${word} ${clauses[clauses.length - 1]}`;
     return plain(text).replaceAll(VARIABLE, '').length <= INLINE_LENGTH ? text : undefined;
@@ -1010,7 +1015,7 @@ class Verbalizer {
         return { kind: 'rule', when: this.side(node.c), then: this.side(node.a), otherwise: this.side(node.b) };
       case 'iff': {
         const [l, r] = [this.clause(node.l), this.clause(node.r)];
-        if (l !== undefined && r !== undefined) return `${l} exactly when ${r}`;
+        if (l !== undefined && r !== undefined && !timed(l)) return `${l} exactly when ${r}`;
         return { kind: 'list', intro: BOTH, items: [this.doc(node.l), this.doc(node.r)] };
       }
       case 'let':
