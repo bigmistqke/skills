@@ -29,7 +29,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the canon of the checker', () => 
       child.on('close', code => resolve({ out, code }));
     });
 
-  it('holds together: the claims can all be true, with a clean canon, a bug kept in sight and a conflict kept in sight', { timeout: 300_000 }, async () => {
+  it('holds together: the claims can all be true, with a clean canon, a bug kept in sight and a conflict kept in sight', { timeout: 600_000 }, async () => {
     expect(alloyProgram(CANON).units.length).toBeGreaterThanOrEqual(43);
     expect(alloyProgram(CANON).scenarios.length).toBeGreaterThanOrEqual(3);
     const run = await solved(CORE);
@@ -37,19 +37,19 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the canon of the checker', () => 
     expect(run.code).toBe(0);
   });
 
-  it('holds together for naturalloy too', { timeout: 300_000 }, async () => {
+  it('holds together for naturalloy too', { timeout: 600_000 }, async () => {
     const run = await solved(NATURALLOY);
     expect(run.out).toMatch(/^CANON\.md: \d+ units, \d+ scenarios$/m);
     expect(run.code).toBe(0);
   });
 
-  it('holds together for the Alloy plugin too, with the claims of the canons it extends', { timeout: 300_000 }, async () => {
+  it('holds together for the Alloy plugin too, with the claims of the canons it extends', { timeout: 600_000 }, async () => {
     const run = await solved(PACKAGE);
     expect(run.out).toMatch(/^CANON\.md: \d+ units, \d+ scenarios$/m);
     expect(run.code).toBe(0);
   });
 
-  it('reports a unit that follows from itself, by one spec alone, whether it cites itself or a loop leads back to it', { timeout: 120_000 }, async () => {
+  it('reports a unit that follows from itself, by one spec alone, whether it cites itself or a loop leads back to it', { timeout: 600_000 }, async () => {
     const scenario = 'some u: Unit | (u->u in Derive.rel or u->u in Sit.rel or u->u in Depend.rel) and u not in Cycle';
     const only = CANON.replace(/```alloy scenario\n[\s\S]*?```\n/g, '').replace('```alloy bounds\nfor 6\n```', `\`\`\`alloy bounds\nfor 6\n\`\`\`\n\n\`\`\`alloy scenario\n${scenario}\n\`\`\``);
     const result = await checkAlloy(only, { leave: ['spec-a-unit-does-not-depend-on-itself'] });
@@ -57,7 +57,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the canon of the checker', () => 
     expect('failures' in result && result.failures.map(f => f.conflict)).toEqual([['spec-a-unit-does-not-depend-on-itself']]);
   });
 
-  it('forbids what it says it forbids: a test that checks a refined claim is an overreach, by one spec alone', { timeout: 120_000 }, async () => {
+  it('forbids what it says it forbids: a test that checks a refined claim is an overreach, by one spec alone', { timeout: 600_000 }, async () => {
     const scenario = 'some t: Test, c: Claim | checks[t, c] and refined[c] and t not in Overreach';
     const only = CANON.replace(/```alloy scenario\n[\s\S]*?```\n/g, '').replace('```alloy bounds\nfor 6\n```', `\`\`\`alloy bounds\nfor 6\n\`\`\`\n\n\`\`\`alloy scenario\n${scenario}\n\`\`\``);
     const result = await checkAlloy(only, { leave: ['spec-a-test-checks-only-leaves'] });

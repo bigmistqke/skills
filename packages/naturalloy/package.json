@@ -25,6 +25,9 @@
     "test": "vitest run",
     "prepublishOnly": "pnpm test && pnpm build"
   },
+  "dependencies": {
+    "@bigmistqke/parse-alloy": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.8.3",
