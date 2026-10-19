@@ -72,6 +72,16 @@ describe('the parser', () => {
   });
 
   /**
+   * @canon spec-disj-before-the-variables-of-a-quantifier-is-read
+   */
+  it('reads "disj" as a mark on the declaration it stands before', () => {
+    expect(parseFormula('all disj c, d: Cleanup, o: Owner | c in Ran')).toMatchObject({
+      t: 'quant',
+      decls: [{ names: ['c', 'd'], disj: true }, { names: ['o'] }]
+    });
+  });
+
+  /**
    * @canon spec-and-binds-tighter-than-implies
    * @canon spec-a-chain-of-and-is-one-list
    */
@@ -171,6 +181,75 @@ describe('the words', () => {
       'All of these hold:\n  - code has registered c\n  - c has not run\n  - code has registered d\n  - d has not run'
     );
     expect(say('not (c + d in Ran)')).toBe('At least one of these holds:\n  - c has not run\n  - d has not run');
+  });
+
+  /**
+   * @canon spec-a-disj-quantifier-is-said-with-its-variables-different
+   */
+  it('says a "disj" quantifier with the condition that its variables are different', () => {
+    expect(say('all disj c, d: Cleanup | c in Ran implies d in Ran')).toBe(
+      'For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different and cleanup_1 has run, cleanup_2 has run.'
+    );
+    expect(say('all disj c, d: Cleanup | d in Ran')).toBe('For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different, cleanup_2 has run.');
+    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('There are cleanup_1 and cleanup_2 such that cleanup_1 and cleanup_2 are different, cleanup_1 has run and cleanup_2 has run.');
+  });
+
+  /**
+   * @canon spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition
+   */
+  it('says a difference as the type of a quantifier as a condition on the variable', () => {
+    expect(say('all c: Cleanup - d | c in Ran')).toBe('For every cleanup_1:\n  when cleanup_1 and d are different, cleanup_1 has run.');
+    expect(say('all c: Cleanup - Ran | c in Registered')).toBe('For every cleanup_1:\n  when cleanup_1 has not run, code has registered cleanup_1.');
+  });
+
+  /**
+   * @canon spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field
+   */
+  it('says membership in a navigation with the reading of its field', () => {
+    expect(say('o in c.on')).toBe('c is on o.');
+    expect(say('c in on.o')).toBe('c is on o.');
+    expect(say('o not in c.on')).toBe('c is not on o.');
+  });
+
+  /**
+   * @canon spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field
+   */
+  it('says no or some of a navigation as a noun phrase of the type of the field', () => {
+    expect(say('no c.on')).toBe('c is on no owner.');
+    expect(say('some c.on')).toBe('c is on an owner.');
+    expect(say('some on.o')).toBe('A cleanup is on o.');
+    expect(say('not no c.on')).toBe('c is on an owner.');
+  });
+
+  /**
+   * @canon spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment
+   */
+  it('says a clause with one primed name as the clause at the next moment', () => {
+    expect(say("c in Ran'")).toBe('At the next moment, c has run.');
+    expect(say("c not in Ran'")).toBe('At the next moment, c has not run.');
+    expect(say("o in c.on'")).toBe('At the next moment, c is on o.');
+    expect(say("no c.on'")).toBe('At the next moment, c is on no owner.');
+    expect(say("no Throwing'")).toBe('Right after, no call is throwing.');
+  });
+
+  /**
+   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   */
+  it('refuses a set or a field where a reading takes a variable', () => {
+    expect(() => say("Ran in Ran'")).toThrow('"Ran" is a set or a field, where a variable must be');
+    expect(() => say('on in Registered')).toThrow('"on" is a set or a field, where a variable must be');
+  });
+
+  /**
+   * @canon spec-two-values-that-are-equal-are-said-member-by-member
+   */
+  it('says two values that are equal member by member, over the type of the field', () => {
+    expect(say('c.on = d.on')).toBe('For every owner_1:\n  c is on owner_1 exactly when d is on owner_1.');
+    expect(say("c.on' = c.on")).toBe('For every owner_1:\n  c is on owner_1 at the next moment exactly when c is on owner_1 now.');
+    const beside = say('(c.on = d.on and c in Ran) implies c in Registered');
+    expect(beside).toContain('for every owner_1:');
+    expect(beside).not.toContain('owner_2');
+    expect(() => say('c.on != d.on')).toThrow('two values are compared only with "="');
   });
 
   /**

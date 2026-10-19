@@ -94,6 +94,13 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — The checker says the negation of a comparison or a call with the negative reading of what it negates.
   - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — The checker says a comparison with a union on its left as one statement for each member of the union.
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — The checker says a comparison with a difference on its right as: the left side is in the first part and not in the second.
+  - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The checker says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
+  - [`@spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition) — The checker says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
+  - [`@spec membership-in-a-navigation-is-said-with-the-reading-of-its-field`](#spec-membership-in-a-navigation-is-said-with-the-reading-of-its-field) — The checker says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
+  - [`@spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field`](#spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field) — The checker says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
+  - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The checker says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
+  - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The checker refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+  - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The checker says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [checker](../canon/CANON.md#term-checker) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The checker says a comparison of two variables as "different" or "the same".
@@ -126,6 +133,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec a-quantifier-takes-everything-after-its-bar`](#spec-a-quantifier-takes-everything-after-its-bar) — The checker reads everything after the bar of a quantifier as its body.
   - [`@spec a-temporal-operator-takes-the-formula-next-to-it`](#spec-a-temporal-operator-takes-the-formula-next-to-it) — The checker reads the formula next to a temporal operator as its operand.
   - [`@spec a-semicolon-takes-everything-after-it`](#spec-a-semicolon-takes-everything-after-it) — The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included.
+  - [`@spec disj-before-the-variables-of-a-quantifier-is-read`](#spec-disj-before-the-variables-of-a-quantifier-is-read) — The checker reads `disj` before the variables of a declaration as a mark on that declaration.
   - [`@spec and-binds-tighter-than-implies`](#spec-and-binds-tighter-than-implies) — The checker reads an `and` beside an `implies` before the `implies`.
   - [`@spec a-chain-of-and-is-one-list`](#spec-a-chain-of-and-is-one-list) — The checker reads a chain of `and` as one list.
   - [`@spec not-in-a-join-a-prime-and-a-call-are-read`](#spec-not-in-a-join-a-prime-and-a-call-are-read) — The checker reads `not in`, a join, a prime and a call.
@@ -1474,6 +1482,48 @@ This follows because a comparison with a union says it of each member, and the r
 
 This follows because a difference says the right side holds and the removed part does not, which is two statements.
 
+#### @spec a-disj-quantifier-is-said-with-its-variables-different
+
+> The checker says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
+
+This follows because `disj` says that the variables of one declaration stand for different things, and nothing more.
+
+#### @spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition
+
+> The checker says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
+
+This follows because the variable ranges over the members of `A` that are not in `B`, which is the type and the condition together.
+
+#### @spec membership-in-a-navigation-is-said-with-the-reading-of-its-field
+
+> The checker says `x in y.f` and `y in f.x` with the reading of the field `f`, with `y` in its first slot and `x` in its second.
+
+This follows because `x in y.f` holds exactly when `y->x` is in `f`, which is what the reading of the field says.
+
+#### @spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field
+
+> The checker says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
+
+This follows because `no y.f` holds exactly when nothing is in `y.f`, and the field declares what can be.
+
+#### @spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment
+
+> The checker says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
+
+This follows because a variable is the same thing at every moment. The primed name is then the only part of the clause that the next moment changes.
+
+#### @spec a-set-where-a-variable-belongs-is-refused
+
+> The checker refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+
+This follows because a reading says something of one thing in each slot. A set in a slot would read as if it were one thing.
+
+#### @spec two-values-that-are-equal-are-said-member-by-member
+
+> The checker says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
+
+This follows because two sets are equal exactly when they have the same members. The type of the field holds every member that either side can have.
+
 #### @spec a-rule-of-two-clauses-is-said-on-one-line
 
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:begin — generated by `canon generate`; edits are overwritten -->
@@ -1673,6 +1723,12 @@ This follows because always, eventually and after apply to one formula, so that 
 > The checker reads the formula after a `;` as everything that follows it, and the formula before it as everything back to the start, `implies` and `or` included.
 
 This follows because the Alloy analyzer binds the semicolon looser than every connective and groups it to the right. A statement of any other reading would say what the logic does not.
+
+#### @spec disj-before-the-variables-of-a-quantifier-is-read
+
+> The checker reads `disj` before the variables of a declaration as a mark on that declaration.
+
+This follows because `disj` belongs to the declaration it stands before, and a formula the parser refuses gets no words.
 
 #### @spec and-binds-tighter-than-implies
 
