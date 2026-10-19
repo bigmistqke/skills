@@ -222,10 +222,11 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec show-of-a-scenario-that-cannot-happen-prints-no-world`](#spec-show-of-a-scenario-that-cannot-happen-prints-no-world) — `canon logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
   - [`@spec show-of-a-name-that-is-no-scenario-stops-logic`](#spec-show-of-a-name-that-is-no-scenario-stops-logic) — A run of `logic` exits with code 2 and prints no report when `--show` names no scenario of the documents.
   - [`@spec a-world-is-said-step-by-step`](#spec-a-world-is-said-step-by-step) — The checker says a world as its steps in order, each under `step <n>:`, counted from 0.
-    - [`@spec the-first-step-says-everything-that-is-true`](#spec-the-first-step-says-everything-that-is-true) — The first step says every tuple of every word that is true at it.
+    - [`@spec the-first-step-says-everything-that-is-true`](#spec-the-first-step-says-everything-that-is-true) — The first step says every tuple of every word that is true at it. A first step where no tuple is true says `nothing is true`.
     - [`@spec a-later-step-says-only-what-changed`](#spec-a-later-step-says-only-what-changed) — A later step says each tuple that became true, after `+`, and each tuple that became false, after `-`. A step where nothing changed says `nothing changes`.
     - [`@spec a-world-says-the-step-its-trace-loops-back-to`](#spec-a-world-says-the-step-its-trace-loops-back-to) — A world ends with `then back to step <n>`, the step that its trace loops back to.
   - [`@spec a-thing-is-named-after-its-noun-and-its-number`](#spec-a-thing-is-named-after-its-noun-and-its-number) — The checker names a thing after the noun of its signature and its number counted from 1, such as `claim_1` for `Claim$0`.
+    - [`@spec a-thing-of-a-signature-with-a-noun-is-named-after-the-noun-without-its-brackets`](#spec-a-thing-of-a-signature-with-a-noun-is-named-after-the-noun-without-its-brackets) — The checker names a thing whose signature has a noun after the words of the noun, without the brackets of a term. The noun `a [lane]` names `Lane$0` `lane_1`.
     - [`@spec a-thing-of-a-signature-with-no-noun-keeps-the-name-the-analyzer-gives-it`](#spec-a-thing-of-a-signature-with-no-noun-keeps-the-name-the-analyzer-gives-it) — A thing whose signature has no noun keeps the name the analyzer gives it, such as `Claim$0`.
   - [`@spec a-tuple-is-said-with-the-positive-reading-of-its-word`](#spec-a-tuple-is-said-with-the-positive-reading-of-its-word) — The checker says a tuple of a set or of a field with the positive reading of its word. The names of its things take the places of the variables.
     - [`@spec a-thing-of-a-set-is-said-with-the-reading-of-the-set`](#spec-a-thing-of-a-set-is-said-with-the-reading-of-the-set) — The checker says a thing of a set with the reading of the set: `claim_1 has ended`.
@@ -233,7 +234,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     - [`@spec a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature`](#spec-a-tuple-of-a-field-of-a-one-signature-is-said-without-the-thing-of-that-signature) — When the reading of a field has a place fewer than its tuples have things, the checker leaves out the first thing of each tuple. That thing is of the signature that declares the field.
     - [`@spec a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing`](#spec-a-set-whose-reading-has-no-variable-is-said-once-when-it-has-a-thing) — The checker says a set whose reading has no variable, such as a `var lone sig Teardown`, once when it has a thing. It says nothing of the set when it is empty.
     - [`@spec a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun`](#spec-a-thing-of-a-set-with-a-noun-and-no-reading-is-said-as-that-noun) — The checker says a thing of a set that has a noun and no reading as one of that noun: `claim_1 is an app motion`.
-    - [`@spec a-signature-that-names-its-own-things-is-not-said`](#spec-a-signature-that-names-its-own-things-is-not-said) — The checker says nothing of a signature with no reading whose things all carry its name.
+    - [`@spec a-signature-that-names-its-own-things-is-not-said`](#spec-a-signature-that-names-its-own-things-is-not-said) — The checker says nothing of a signature with no reading whose things each carry its name, or the name of a signature that extends it.
     - [`@spec a-word-with-no-reading-is-said-with-its-alloy-name`](#spec-a-word-with-no-reading-is-said-with-its-alloy-name) — The checker says a tuple of a word with no reading and no noun in Alloy. It gives the name of the word, then its things: `Ended: claim_1`, `Lane.claim: lane_1 -> claim_1`.
   - [`@spec a-world-says-which-thing-each-variable-of-the-scenario-is`](#spec-a-world-says-which-thing-each-variable-of-the-scenario-is) — A world opens with the thing that each variable of its scenario stands for, as `c is claim_1`.
 - [`@fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature`](#fact-only-solving-a-model-decides-whether-a-formula-constrains-a-signature) — Whether the other formulas of a model constrain a signature, or can contradict a formula, depends on what the formulas mean. Only solving the model decides it. The names that a block writes do not.
@@ -2833,7 +2834,7 @@ This follows because a scenario is about how things change, and the author follo
 
 ##### @spec the-first-step-says-everything-that-is-true
 
-> The first step says every tuple of every word that is true at it.
+> The first step says every tuple of every word that is true at it. A first step where no tuple is true says `nothing is true`.
 
 This follows because the first step has no step before it to differ from.
 
@@ -2854,6 +2855,12 @@ This follows because what happens after the last step is part of the world. A cl
 > The checker names a thing after the noun of its signature and its number counted from 1, such as `claim_1` for `Claim$0`.
 
 This follows because the statements name their variables the same way, so a world reads as the canon does.
+
+##### @spec a-thing-of-a-signature-with-a-noun-is-named-after-the-noun-without-its-brackets
+
+> The checker names a thing whose signature has a noun after the words of the noun, without the brackets of a term. The noun `a [lane]` names `Lane$0` `lane_1`.
+
+This follows because the brackets of a noun make a link in a statement, and a world is plain text.
 
 ##### @spec a-thing-of-a-signature-with-no-noun-keeps-the-name-the-analyzer-gives-it
 
@@ -2899,9 +2906,9 @@ This follows because the noun says what a thing of the set is.
 
 ##### @spec a-signature-that-names-its-own-things-is-not-said
 
-> The checker says nothing of a signature with no reading whose things all carry its name.
+> The checker says nothing of a signature with no reading whose things each carry its name, or the name of a signature that extends it.
 
-This follows because the name of each thing already says the signature it is of.
+This follows because the name of each thing already says that the thing is of the signature. A signature declared with `in`, such as `Ended in Claim`, has things named after another signature, so the checker says it.
 
 ##### @spec a-word-with-no-reading-is-said-with-its-alloy-name
 

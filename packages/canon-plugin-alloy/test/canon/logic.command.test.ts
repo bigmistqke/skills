@@ -61,7 +61,7 @@ all p: Pear | p in Sweet
 ${extra}`;
 
 /** A project of the document, whose statements `generate` writes; what `logic` printed and its code, with the analyzer where the environment has it, or without. */
-function logic(document: string, withAnalyzer = true) {
+function logic(document: string, withAnalyzer = true, args: string[] = []) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-logic-'));
   DIRS.push(dir);
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
@@ -69,7 +69,7 @@ function logic(document: string, withAnalyzer = true) {
   writeFileSync(join(dir, 'CANON.md'), named(document));
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
   const env = withAnalyzer ? process.env : { ...process.env, CANON_ALLOY_JAR: '' };
-  const run = spawnSync(process.execPath, [CLI, 'logic'], { cwd: dir, encoding: 'utf8', env });
+  const run = spawnSync(process.execPath, [CLI, 'logic', ...args], { cwd: dir, encoding: 'utf8', env });
   return { out: run.stdout, err: run.stderr, code: run.status };
 }
 
@@ -106,6 +106,54 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command', () => {
     expect(out).toContain('axiom-an-apple-is-unripe');
     expect(out).not.toContain('axiom-a-pear-is-sweet');
     expect(code).toBe(1);
+  });
+});
+
+describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command with --show', () => {
+  afterEach(() => new Promise(resolve => setTimeout(resolve, 0)));
+
+  /** The document with a scenario of a ripe apple on the axiom about pears, which can happen. */
+  const RIPE = doc('\n```alloy scenario\nsome a: Apple | a in Ripe\n```\n');
+
+  /**
+   * @canon spec-show-prints-the-world-of-each-scenario-it-names
+   */
+  it('prints the world of the named scenario after the report, in its readings', { timeout: 120_000 }, () => {
+    const { out, code } = logic(RIPE, true, ['--show', 'scenario-1-axiom-a-pear-is-sweet']);
+    expect(out).toContain('CANON.md: 2 units, 1 scenario');
+    const world = out.slice(out.indexOf('the world of scenario-1-axiom-a-pear-is-sweet:'));
+    expect(world).toMatch(/a is apple_\d/);
+    expect(world).toMatch(/step 0:\n\s+apple_\d is ripe/);
+    expect(world).toContain('then back to step 0');
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-show-prints-the-world-of-each-scenario-it-names
+   */
+  it('prints nothing of a world when --show is not given', { timeout: 120_000 }, () => {
+    const { out } = logic(RIPE);
+    expect(out).not.toContain('the world of');
+  });
+
+  /**
+   * @canon spec-show-of-a-scenario-that-cannot-happen-prints-no-world
+   */
+  it('prints no world for a scenario that cannot happen, and reports it', { timeout: 120_000 }, () => {
+    const { out, code } = logic(doc('\n```alloy scenario\nsome a: Apple | a not in Ripe\n```\n'), true, ['--show', 'scenario-1-axiom-a-pear-is-sweet']);
+    expect(out).toContain('the scenario of axiom-a-pear-is-sweet cannot happen while every unit holds');
+    expect(out).not.toContain('the world of');
+    expect(code).toBe(1);
+  });
+
+  /**
+   * @canon spec-show-of-a-name-that-is-no-scenario-stops-logic
+   */
+  it('stops with code 2 and no report when --show names no scenario', { timeout: 120_000 }, () => {
+    const { out, err, code } = logic(RIPE, true, ['--show', 'scenario-2-axiom-a-pear-is-sweet']);
+    expect(err).toContain('scenario-2-axiom-a-pear-is-sweet');
+    expect(out).not.toContain('CANON.md:');
+    expect(code).toBe(2);
   });
 });
 

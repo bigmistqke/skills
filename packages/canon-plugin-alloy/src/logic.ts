@@ -5,21 +5,44 @@
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
-import { alloyProgram, checkAlloy, type AlloyOptions } from './alloy.ts';
+import { alloyProgram, checkAlloy, predicateName, type AlloyOptions } from './alloy.ts';
 import { contextOf } from '@bigmistqke/canon/extends';
 import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from '@bigmistqke/canon/plugin';
 import * as statements from './statements.ts';
 import type { Context } from './statements.ts';
+import type { Readings } from './verbalize.ts';
 import { checkLoneFormulas, checkWords } from './words.ts';
+import { sayWorld } from './world.ts';
 
 /** The documents a document extends, nearest first, each with its path from the folder of the document. */
 function contextFor(file: string, root: string): Context[] {
   return contextOf(file, root).map(other => ({ path: relative(dirname(file), other).split('\\').join('/'), src: readFileSync(other, 'utf8') }));
 }
 
-/** Check each document's maps and alloy blocks; the exit code: 0 when the maps are current and every scenario can happen, 1 when not, 2 when a check could not run. */
-export async function logic(documents: string[], root: string, options: AlloyOptions): Promise<number> {
+/** The readings of a document, or none when it keeps none or they cannot be read: a world is then said in Alloy. */
+function readingsFor(src: string, context: Context[]): Readings | undefined {
+  try {
+    return statements.readingsOf(src, context);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Check each document's maps and alloy blocks, and print the world of each
+ * scenario that `show` names by the id of its statement; the exit code: 0 when
+ * the maps are current and every scenario can happen, 1 when not, 2 when a
+ * check could not run or `show` names no scenario.
+ */
+export async function logic(documents: string[], root: string, options: AlloyOptions, show: string[] = []): Promise<number> {
+  const scenarios = new Set(documents.flatMap(doc => (existsSync(resolve(root, doc)) ? alloyProgram(readFileSync(resolve(root, doc), 'utf8')).scenarios.map(s => s.name) : [])));
+  const unknown = show.filter(id => !scenarios.has(predicateName(id)));
+  if (unknown.length > 0) {
+    for (const id of unknown) console.error(`canon: --show names no scenario of the documents: ${id}`);
+    return 2;
+  }
+  const ids = new Map(show.map(id => [predicateName(id), id]));
   let code = 0;
   let checked = 0;
   for (const doc of documents) {
@@ -36,7 +59,7 @@ export async function logic(documents: string[], root: string, options: AlloyOpt
     const maps = checkMaps(src);
     if (maps.length > 0) code = 1;
     for (const finding of maps) console.log(`${doc}: ${finding.unit}: ${finding.kind}: ${finding.message}`);
-    const result = await checkAlloy(src, { ...options, context: context.map(c => c.src) });
+    const result = await checkAlloy(src, { ...options, context: context.map(c => c.src), show: [...ids.keys()] });
     if ('error' in result) {
       console.error(`canon: ${doc}: the Alloy analyzer did not run\n${result.error}`);
       return 2;
@@ -55,6 +78,11 @@ export async function logic(documents: string[], root: string, options: AlloyOpt
       } else {
         console.log(`    these units cannot all hold: ${failure.conflict.join(', ')}`);
       }
+    }
+    const readings = 'worlds' in result && result.worlds.length > 0 ? readingsFor(src, context) : undefined;
+    for (const world of 'worlds' in result ? result.worlds : []) {
+      console.log(`  the world of ${ids.get(world.scenario) ?? world.scenario}:`);
+      for (const line of sayWorld(world.trace, world.model, readings, world.scenario)) console.log(`    ${line}`);
     }
   }
   if (checked === 0) console.log('no alloy blocks in the documents');
@@ -152,10 +180,15 @@ export const plugin: Plugin = {
       const documentsToRead = args.length > 0 ? args : documents;
       if (options.review !== undefined) return review(documentsToRead, root, options.review as string[]);
       const alloy = (config as LogicConfig | undefined)?.alloy;
-      return logic(documentsToRead, root, {
-        jar: alloy?.jar === undefined ? undefined : resolve(root, alloy.jar),
-        java: alloy?.java === undefined ? undefined : resolve(root, alloy.java)
-      });
+      return logic(
+        documentsToRead,
+        root,
+        {
+          jar: alloy?.jar === undefined ? undefined : resolve(root, alloy.jar),
+          java: alloy?.java === undefined ? undefined : resolve(root, alloy.java)
+        },
+        (options.show as string[] | undefined) ?? []
+      );
     }
   }
 };

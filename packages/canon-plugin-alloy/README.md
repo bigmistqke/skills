@@ -76,4 +76,20 @@ logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/jav
 ---
 ```
 
+A scenario that cannot happen is a strong result: no world within the bounds has it. A scenario that can happen is a weak one. The model may reach it through a way out that the system does not have. So `canon logic --show <scenario>` prints, after the report, the world the analyzer found, and you can see which way it took. Name the scenario by the id of its statement, and repeat `--show` for more:
+
+```
+  the world of scenario-1-spec-a-claim-ends:
+    c is claim_1
+    step 0:
+      lane_1 holds claim_1
+    step 1:
+      + claim_1 has ended
+      + lane_1 holds claim_2
+      - lane_1 holds claim_1
+    then back to step 1
+```
+
+A thing is named after its noun and its number, as a variable of a statement is. The first step says every tuple that is true, and each later step says what became true (`+`) and false (`-`). The positive reading of a word says each of its tuples. A word with no reading appears in Alloy, `Ended: claim_1`, so that the world keeps every tuple. A scenario that cannot happen has no world, and its report names the units to change.
+
 `CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths. The result holds only within the bounds. See [`fixtures/lifetimes/CANON.md`](fixtures/lifetimes/CANON.md).

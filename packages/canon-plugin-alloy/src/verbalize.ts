@@ -108,6 +108,9 @@ const LINK_MARK = /\u0002([^\u0002]*)\u0002([^\u0002]*)\u0002/g;
 const BRACKETED = /\[([^\]]+)\](?:\(([^)\s]*#[^)\s]+)\))?/g;
 
 /** The unit a link in a reading points at: the id of a unit of this document, or the whole target of a unit in another, `../canon/CANON.md#term-unit`. */
+/** Words of a reading or a noun without the brackets and the links of their terms: `[checker](#term-checker)` is "checker". */
+export const unbracketed = (words: string): string => words.replace(BRACKETED, (_, word: string) => word);
+
 const targetOf = (href: string): string => (href.startsWith('#') ? href.slice(1) : href);
 
 function balanced(line: string): void {
@@ -668,7 +671,7 @@ function coordinate(words: string[], word: 'and' | 'or'): string {
 }
 
 /** "a failing cleanup c": the article before the first word of the noun, by the sound of the word: "a unit", "an owner". */
-function articleFor(phrase: string): string {
+export function articleFor(phrase: string): string {
   if (/^(?:uni|use|usu|uti|eu|one|once)/i.test(phrase)) return 'a ';
   return /^[aeiou]/i.test(phrase) ? 'an ' : 'a ';
 }

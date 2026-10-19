@@ -27,6 +27,8 @@ export interface AlloyOptions {
   leave?: string[] | Record<string, string[]>;
   /** The text of the documents the document extends: their claims join the model, and what only they hold is left to them. */
   context?: string[];
+  /** The names of the scenario predicates whose world to keep, for the scenarios that can happen. */
+  show?: string[];
 }
 
 /** Which runs a program holds: the units together and each scenario with them, the units left out one by one, or both. */
@@ -41,9 +43,17 @@ export interface ScenarioFailure {
   conflict: string[];
 }
 
+/** A world in which a scenario happens while every held unit holds: the analyzer's text of its trace, and the model it is a world of. */
+export interface World {
+  scenario: string;
+  unit: string;
+  trace: string;
+  model: string;
+}
+
 export type AlloyResult =
-  | { ok: true; units: string[]; scenarios: number }
-  | { ok: false; units: string[]; scenarios: number; failures: ScenarioFailure[] }
+  | { ok: true; units: string[]; scenarios: number; worlds: World[] }
+  | { ok: false; units: string[]; scenarios: number; failures: ScenarioFailure[]; worlds: World[] }
   | { ok: false; error: string };
 
 /** The default scope, when no `alloy bounds` block gives one. */
@@ -68,7 +78,7 @@ const alloyBlocks = (src: string): Block[] => readBlocks(src, readUnits(src)).fi
 const boundsOf = (blocks: Block[]): string => blocks.find(b => b.role === 'bounds')?.body.trim() ?? DEFAULT_BOUNDS;
 
 type Only = { scenarios?: string[]; leave?: string[] | Record<string, string[]> };
-type Program = { program: string; model: string; commands: string[]; units: string[]; scenarios: { name: string; unit: string }[] };
+export type Program = { program: string; model: string; commands: string[]; units: string[]; scenarios: { name: string; unit: string }[] };
 
 /**
  * The Alloy file of some blocks: their vocabulary, each unit's predicate, and
@@ -161,11 +171,19 @@ const solved = (receipt: string): Map<string, boolean> =>
     ]),
   );
 
-/** Run the analyzer over a model and one of its runs, and say whether the run found an instance. */
-function solveOne(model: string, command: string, java: string, jar: string): Promise<{ found: Map<string, boolean> } | { error: string }> {
+type Solved = { found: Map<string, boolean>; traces: Map<string, string> };
+
+/** The name of a run: `run <name> { … }`. */
+const runName = (command: string): string => /^run\s+(\w+)/.exec(command)?.[1] ?? '';
+
+/**
+ * Run the analyzer over a model and one of its runs, and say whether the run
+ * found an instance; with `keep`, the analyzer's text of the instance it found.
+ */
+function solveOne(model: string, command: string, java: string, jar: string, keep = false): Promise<Solved | { error: string }> {
   return new Promise(resolve => {
     const dir = mkdtempSync(join(tmpdir(), 'canon-alloy-'));
-    const done = (result: { found: Map<string, boolean> } | { error: string }): void => {
+    const done = (result: Solved | { error: string }): void => {
       rmSync(dir, { recursive: true, force: true });
       resolve(result);
     };
@@ -179,7 +197,12 @@ function solveOne(model: string, command: string, java: string, jar: string): Pr
     child.on('error', error => done({ error: error.message }));
     child.on('close', () => {
       try {
-        done({ found: solved(readFileSync(join(dir, 'out', 'receipt.json'), 'utf8')) });
+        const found = solved(readFileSync(join(dir, 'out', 'receipt.json'), 'utf8'));
+        const traces = new Map<string, string>();
+        const name = runName(command);
+        // The text of an instance holds what the receipt leaves out: the signatures declared with `in`, and the step the trace loops back to.
+        if (keep && found.get(name)) traces.set(name, readFileSync(join(dir, 'out', `${name}-solution-0.txt`), 'utf8'));
+        done({ found, traces });
       } catch {
         done({ error: log.trim() || 'the Alloy analyzer wrote no receipt' });
       }
@@ -201,17 +224,23 @@ async function pool<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]>
   return results;
 }
 
-/** Ask the analyzer about the runs of several programs at once, each run in a process of its own; whether each run of each program found an instance, or the first error. */
-async function solveAll(programs: Program[], java: string, jar: string): Promise<Map<string, boolean>[] | { error: string }> {
-  const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, java, jar).then(result => ({ i, result }))));
+/**
+ * Ask the analyzer about the runs of several programs at once, each run in a
+ * process of its own; whether each run of each program found an instance, or
+ * the first error. The runs named in `keep` keep the text of their instance.
+ */
+async function solveAll(programs: Program[], java: string, jar: string, keep: Set<string> = new Set()): Promise<{ found: Map<string, boolean>[]; traces: Map<string, string>[] } | { error: string }> {
+  const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, java, jar, keep.has(runName(command))).then(result => ({ i, result }))));
   // As many processes as there are processors, unless `CANON_ALLOY_JOBS` says fewer: a test runner that asks about several documents at once should not start them all.
   const answers = await pool(tasks, Number(process.env.CANON_ALLOY_JOBS) || availableParallelism());
   const found: Map<string, boolean>[] = programs.map(() => new Map());
+  const traces: Map<string, string>[] = programs.map(() => new Map());
   for (const { i, result } of answers) {
     if ('error' in result) return { error: result.error };
     for (const [name, yes] of result.found) (found[i] as Map<string, boolean>).set(name, yes);
+    for (const [name, text] of result.traces) (traces[i] as Map<string, string>).set(name, text);
   }
-  return found;
+  return { found, traces };
 }
 
 /**
@@ -230,14 +259,20 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   const bounds = boundsOf([...alloyBlocks(src), ...context.flatMap(alloyBlocks)]);
   const parts = groups(src, context).map(group => ({ group, scope: boundsFor(bounds, group) }));
   const asked = parts.map(({ group, scope }) => build(group, scope, 'check'));
-  const first = await solveAll(asked, java, jar);
+  const first = await solveAll(asked, java, jar, new Set((options.show ?? []).map(name => `${name}_with_all`)));
   if ('error' in first) return { ok: false, error: first.error };
+  const worlds: World[] = asked.flatMap((a, index) =>
+    a.scenarios.flatMap(({ name, unit }) => {
+      const trace = first.traces[index]?.get(`${name}_with_all`);
+      return trace === undefined ? [] : [{ scenario: name, unit, trace, model: a.model }];
+    })
+  );
   const units = asked.flatMap(a => a.units);
   const scenarios = asked.reduce((sum, a) => sum + a.scenarios.length, 0);
   const failures: ScenarioFailure[] = [];
   const blamed: { index: number; cannot: { name: string; unit: string }[] }[] = [];
   asked.forEach((a, index) => {
-    const found = first[index] as Map<string, boolean>;
+    const found = first.found[index] as Map<string, boolean>;
     if (!found.get('consistent')) {
       failures.push({ scenario: 'consistent', conflict: a.units });
       return;
@@ -252,11 +287,11 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   );
   if ('error' in second) return { ok: false, error: second.error };
   blamed.forEach(({ index, cannot }, k) => {
-    const found = second[k] as Map<string, boolean>;
+    const found = second.found[k] as Map<string, boolean>;
     // A unit whose removal lets the scenario happen is in every conflict: the repair has to touch one of them.
     for (const { name, unit } of cannot) {
       failures.push({ scenario: name, unit, conflict: (asked[index] as Program).units.filter(other => found.get(`${name}_without_${predicateName(other)}`)) });
     }
   });
-  return failures.length === 0 ? { ok: true, units, scenarios } : { ok: false, units, scenarios, failures };
+  return failures.length === 0 ? { ok: true, units, scenarios, worlds } : { ok: false, units, scenarios, failures, worlds };
 }
