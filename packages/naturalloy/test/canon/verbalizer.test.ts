@@ -581,6 +581,7 @@ describe('a definition', () => {
    */
   it('says a body of several formulas as them holding together', () => {
     expect(verbalizeDefinition('pred orphan[u: Unit] {\n  u in Spec\n  no v: Unit | u->v in Sits.rel\n}', readings)).toBe('For every unit_1:\n  unit_1 is an orphan exactly when unit_1 is a spec that sits in no unit.');
+    expect(say('{\n  c in Ran\n  d in Ran\n}')).toBe('c has run and d has run.');
   });
 
   /**

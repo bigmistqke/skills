@@ -192,7 +192,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec parameters-in-round-brackets-are-read-as-in-square-ones`](#spec-parameters-in-round-brackets-are-read-as-in-square-ones) — The verbalizer reads `pred p(x: T)` as `pred p[x: T]`.
   - [`@spec a-comma-before-or-after-the-parameters-is-read-as-none`](#spec-a-comma-before-or-after-the-parameters-is-read-as-none) — The verbalizer reads `pred p[, x: T]` and `pred p[x: T,]` as `pred p[x: T]`.
   - [`@spec a-predicate-of-a-signature-takes-this-as-its-first-parameter`](#spec-a-predicate-of-a-signature-takes-this-as-its-first-parameter) — The verbalizer reads `pred T.p[x: U] { … }` as `pred p[this: T, x: U] { … }`, for its definition and for a call of it.
-  - [`@spec a-body-of-several-formulas-is-said-as-them-holding-together`](#spec-a-body-of-several-formulas-is-said-as-them-holding-together) — The verbalizer says a body of several formulas, each on a line of its own, as the formulas holding together.
+  - [`@spec a-body-of-several-formulas-is-said-as-them-holding-together`](#spec-a-body-of-several-formulas-is-said-as-them-holding-together) — The verbalizer says a block of formulas on lines of their own, as a body or as a formula, as the formulas holding together.
   - [`@spec an-empty-body-is-said-as-what-the-definition-names`](#spec-an-empty-body-is-said-as-what-the-definition-names) — The verbalizer says a definition with an empty body as what it names, for every parameter.
   - [`@spec a-formula-that-always-holds-is-left-out-of-an-and`](#spec-a-formula-that-always-holds-is-left-out-of-an-and) — The verbalizer leaves a formula that always holds out of an `and`. An empty block is one, and so is a call of a predicate with an empty body.
   - [`@spec a-formula-that-only-always-holds-is-refused`](#spec-a-formula-that-only-always-holds-is-refused) — The verbalizer refuses a formula that always holds and is not part of an `and`, and says that it claims nothing.
@@ -1700,7 +1700,7 @@ This follows because Alloy reads a predicate of a signature as one whose first p
 
 #### @spec a-body-of-several-formulas-is-said-as-them-holding-together
 
-> The verbalizer says a body of several formulas, each on a line of its own, as the formulas holding together.
+> The verbalizer says a block of formulas on lines of their own, as a body or as a formula, as the formulas holding together.
 
 This follows because Alloy reads the formulas of a block as joined by `and`.
 
