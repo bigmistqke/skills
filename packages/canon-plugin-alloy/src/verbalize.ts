@@ -43,6 +43,8 @@ export interface Readings {
 interface Field {
   owner?: string;
   type: string;
+  /** Whether it can hold more than one value: declared `set` or `some`, and not `one` or `lone`. */
+  many: boolean;
 }
 
 /**
@@ -92,10 +94,10 @@ export function parseFields(vocabulary: string): Map<string, Field> {
       }
       const named = /^\s*(?:var\s+)?(\w+)\s*:/.exec(part);
       if (named === null) continue;
-      const type = /:\s*(?:disj\s+)?(?:one\s+|lone\s+|some\s+|set\s+)?(\w+)\s*$/.exec(part)?.[1];
+      const typed = /:\s*(?:disj\s+)?(?:(one|lone|some|set)\s+)?(\w+)\s*$/.exec(part);
       for (const name of [...waiting, named[1] as string]) {
-        if (fields.has(name) || type === undefined) untyped.add(name);
-        fields.set(name, { owner: sigs.length === 1 ? sigs[0] : undefined, type: type ?? '' });
+        if (fields.has(name) || typed === null) untyped.add(name);
+        fields.set(name, { owner: sigs.length === 1 ? sigs[0] : undefined, type: typed?.[2] ?? '', many: typed?.[1] === 'set' || typed?.[1] === 'some' });
       }
       waiting = [];
     }
@@ -404,8 +406,26 @@ class Verbalizer {
     // x.f = y, in either order, and x.f' = y at the next moment
     const [side, value] = left.e.t === 'join' ? [left, r] : right.e.t === 'join' ? [right, l] : [undefined, undefined];
     if (side === undefined || side.e.t !== 'join') throw new Error('"=" is supported only as "x.field = y"');
+    const field = this.readings.fields.get(nameOf(side.e.r, 'a field'));
+    if (field === undefined) throw new Error(`the vocabulary does not declare the field "${nameOf(side.e.r, 'a field')}", so "=" cannot tell whether it holds one value`);
+    if (field.many) return this.equalsOne(side, value as Node, flip);
     const said = this.say(nameOf(side.e.r, 'a field'), [this.variable(side.e.l, 'the owner of a field'), this.variable(value as Node, 'the value of a field')], flip);
     return side.primed ? NEXT + said : said;
+  }
+
+  /**
+   * `y.f = x` for a field of many values, said member by member: "for every
+   * owner_1: c is on owner_1 exactly when owner_1 and o are the same".
+   */
+  private equalsOne(side: { e: Node; primed: boolean }, value: Node, different: boolean): Doc {
+    if (different) throw new Error('"!=" between a field of many values and a variable is not supported');
+    const nav = this.navigation(side.e);
+    if (nav === undefined) throw new Error('the side of "=" must be a variable and a field');
+    const member = this.fresh({ t: 'name', name: nav.type });
+    const inside = new Verbalizer(this.readings, new Map([...this.bound, ['\u0000', member.name]]), this.chain, this.used);
+    const x: Node = { t: 'name', name: '\u0000' };
+    const time = side.primed ? ' at the next moment' : '';
+    return { kind: 'block', intro: `for every ${member.shown}:`, body: `${inside.member(x, nav, false)}${time} exactly when ${inside.comparison({ t: 'cmp', op: '=', l: x, r: value }, false)}` };
   }
 
   /**
@@ -552,8 +572,13 @@ class Verbalizer {
   /** A node that says one fact in one clause, so that it can stand beside others in a sentence. */
   private clause(node: Node): string | undefined {
     const text = (doc: Doc): string | undefined => (typeof doc === 'string' ? doc : undefined);
-    // Two values compared are said member by member, which is never one clause; trying would take the name of the member.
-    const values = (n: Extract<Node, { t: 'cmp' }>): boolean => (n.op === '=' || n.op === '!=') && this.unprimed(n.l).e.t === 'join' && this.unprimed(n.r).e.t === 'join';
+    // Two values compared, or a field of many values compared with a variable, are said member by member, which is never one clause; trying would take the name of the member.
+    const values = (n: Extract<Node, { t: 'cmp' }>): boolean => {
+      if (n.op !== '=' && n.op !== '!=') return false;
+      const [l, r] = [this.unprimed(n.l).e, this.unprimed(n.r).e];
+      const many = (side: Node): boolean => side.t === 'join' && side.r.t === 'name' && this.readings.fields.get(side.r.name)?.many === true;
+      return (l.t === 'join' && r.t === 'join') || many(l) || many(r);
+    };
     const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff' && !values(n);
     switch (node.t) {
       case 'cmp':

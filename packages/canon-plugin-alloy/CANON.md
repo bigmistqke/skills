@@ -100,6 +100,8 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field`](#spec-no-or-some-of-a-navigation-is-said-as-a-noun-phrase-of-the-type-of-the-field) — The checker says `no y.f` and `some y.f` as `no` or `some` of the type that the field `f` points at. The reading of the field puts that noun beside `y`.
   - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The checker says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
   - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The checker refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+  - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The checker says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
+  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the checker says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
   - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The checker says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now".
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when list_1 is a rule whose two sides are each one clause, [checker](../canon/CANON.md#term-checker) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
@@ -1517,6 +1519,18 @@ This follows because a variable is the same thing at every moment. The primed na
 > The checker refuses a formula that puts a set or a field where a reading takes a variable, and names it.
 
 This follows because a reading says something of one thing in each slot. A set in a slot would read as if it were one thing.
+
+#### @spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading
+
+> The checker says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
+
+This follows because a field of at most one value equals `y` exactly when `y` is in it.
+
+#### @spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
+
+> For a field `f` that can hold more than one value, the checker says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It refuses `x.f != y`.
+
+This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half.
 
 #### @spec two-values-that-are-equal-are-said-member-by-member
 

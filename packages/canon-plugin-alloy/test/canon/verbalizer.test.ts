@@ -241,6 +241,29 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading
+   */
+  it('says a field of at most one value that equals a variable with the reading of the field', () => {
+    expect(say('c.on = o')).toBe('c is on o.');
+    expect(say('o = c.on')).toBe('c is on o.');
+    expect(say('c.on != o')).toBe('c is not on o.');
+  });
+
+  /**
+   * @canon spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
+   */
+  it('says a field of many values that equals a variable member by member', () => {
+    const many = withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { var on: set Owner }');
+    expect(say('c.on = o', many)).toBe('For every owner_1:\n  c is on owner_1 exactly when owner_1 and o are the same.');
+    expect(say('o = c.on', many)).toBe('For every owner_1:\n  c is on owner_1 exactly when owner_1 and o are the same.');
+    expect(say("c.on' = o", many)).toBe('For every owner_1:\n  c is on owner_1 at the next moment exactly when owner_1 and o are the same.');
+    const beside = say('(c.on = o and c in Ran) implies c in Registered', withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}\nRan: {1} has run | {1} has not run\nRegistered: code has registered {1} | code has not registered {1}'), 'sig Owner {} sig Cleanup { var on: set Owner }'));
+    expect(beside).toContain('for every owner_1:');
+    expect(beside).not.toContain('owner_2');
+    expect(() => say('c.on != o', many)).toThrow('"!=" between a field of many values and a variable is not supported');
+  });
+
+  /**
    * @canon spec-two-values-that-are-equal-are-said-member-by-member
    */
   it('says two values that are equal member by member, over the type of the field', () => {
@@ -867,7 +890,7 @@ describe('what it refuses', () => {
    */
   it('says when a reading uses a variable the formula does not give', () => {
     const readings = parseReadings('on: {1} is on {3}');
-    expect(() => say('c.on = o', readings)).toThrow('uses {3}');
+    expect(() => say('c->o in on', readings)).toThrow('uses {3}');
   });
 
   /**
