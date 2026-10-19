@@ -70,7 +70,7 @@ export function parseDefinitions(vocabulary: string): Map<string, Definition> {
   for (const p of parseModule(vocabulary).paragraphs) {
     if (p.t !== 'pred') continue;
     const params = paramsOf(p);
-    definitions.set(p.name, { params: params.flatMap(d => d.names), body: withDifferences(params, p.body) });
+    definitions.set(p.name, { params: params.flatMap(d => d.names), body: unqualified(withDifferences(params, p.body)) });
   }
   return definitions;
 }
@@ -83,14 +83,14 @@ function paramsOf(p: { receiver?: string; params?: Decl[] }): Decl[] {
 /** The functions of a module: `fun name[a: T]: U { e }`, with `this` first for a function of a signature. */
 export function parseFunctions(vocabulary: string): Map<string, Function> {
   const functions = new Map<string, Function>();
-  for (const p of parseModule(vocabulary).paragraphs) if (p.t === 'fun') functions.set(p.name, { params: paramsOf(p).flatMap(d => d.names), result: p.result, body: p.body });
+  for (const p of parseModule(vocabulary).paragraphs) if (p.t === 'fun') functions.set(p.name, { params: paramsOf(p).flatMap(d => d.names), result: unqualified(p.result), body: unqualified(p.body) });
   return functions;
 }
 
 /** The macros of a module: `let name[a, b] = …` and `let name[a, b] { … }`. */
 export function parseMacros(vocabulary: string): Map<string, Definition> {
   const macros = new Map<string, Definition>();
-  for (const p of parseModule(vocabulary).paragraphs) if (p.t === 'macro') macros.set(p.name, { params: p.params ?? [], body: p.body });
+  for (const p of parseModule(vocabulary).paragraphs) if (p.t === 'macro') macros.set(p.name, { params: p.params ?? [], body: unqualified(p.body) });
   return macros;
 }
 
@@ -184,7 +184,7 @@ export function parseReadings(text: string, target?: string, base?: string): Rea
       balanced(line);
       continue;
     }
-    const atom = /^([\w.']+)\s*:\s*(.+)$/.exec(line);
+    const atom = /^([\w.'/]+)\s*:\s*(.+)$/.exec(line);
     if (!atom) throw new Error(`cannot read the line of readings: ${line}`);
     const [positive, negative] = (atom[2] as string).split('|').map(part => part.trim());
     readings.atoms.set(atom[1] as string, { positive: positive as string, negative, target });
@@ -262,6 +262,12 @@ const BOTH = 'both or neither of these hold:';
 const ONE = 'exactly one of these holds:';
 const UNTRUE = 'it is not the case that:';
 const ALWAYS = 'this formula says nothing: it always holds, so it claims nothing';
+const NEVER = 'this formula says nothing: it never holds, so it claims what cannot be';
+/** A formula that never holds, as `x in none` is: the negation of the empty block. */
+const FALSE: Node = { t: 'not', f: { t: 'true' } };
+/** The names Alloy gives its own sets, which are never variables. */
+const BUILTIN = new Set(['none', 'univ', 'iden', 'Int', 'String', 'steps', 'seq/Int']);
+const MULTIPLIED = 'says how many each side relates, and no reading says that';
 
 /** What a formula becomes before it is laid out: a clause, a list that ends in a colon, or a rule. */
 type Doc =
@@ -340,6 +346,22 @@ function balancedParens(text: string): boolean {
   for (const c of text) if ((depth += c === '(' ? 1 : c === ')' ? -1 : 0) < 0) return false;
   return depth === 0;
 }
+
+/** A formula with the names of this module as plain names: `this/Ran` and `@Ran` are `Ran`. */
+function unqualified(node: Node): Node {
+  const walk = (n: unknown): unknown => {
+    if (Array.isArray(n)) return n.map(walk);
+    if (n === null || typeof n !== 'object') return n;
+    const o = { ...(n as Record<string, unknown>) };
+    if ((o.t === 'name' || o.t === 'call') && typeof o.name === 'string') o.name = o.name.replace(/^@/, '').replace(/^this\//, '');
+    for (const [key, value] of Object.entries(o)) if (key !== 'span' && key !== 'name') o[key] = walk(value);
+    return o;
+  };
+  return walk(node) as Node;
+}
+
+/** A formula as the verbalizer reads it: parsed, with the names of this module plain. */
+const read = (source: string): Node => unqualified(parseFormula(source));
 
 /** The names of the predicates and functions a formula calls. */
 function callsIn(node: unknown, found = new Set<string>()): Set<string> {
@@ -458,14 +480,21 @@ class Verbalizer {
 
   /** A variable of the formula: inside the body of a predicate, its parameter stands for the argument. */
   private variable(node: Node, what: string): string {
+    if (node.t === 'string') return JSON.stringify(node.value);
     const name = nameOf(node, what);
+    if (name === 'this' && !this.bound.has(name)) throw new Error('Alloy does not read "this" outside a predicate or a function of a signature');
     if (!this.isVariable(name)) throw new Error(`"${name}" is a set or a field, where a variable must be`);
     return this.bound.get(name) ?? name;
   }
 
   /** Whether a name stands for one thing: a variable, and not a set, a signature or a field of the vocabulary. */
   private isVariable(name: string): boolean {
-    return this.bound.has(name) || !(this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name) || this.readings.holders.has(name));
+    return this.bound.has(name) || !(BUILTIN.has(name) || this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name) || this.readings.holders.has(name));
+  }
+
+  /** Whether a node is one thing a reading can take in a slot: a variable or a string. */
+  private isValue(node: Node): boolean {
+    return (node.t === 'name' && this.isVariable(node.name)) || node.t === 'string';
   }
 
   /** The expression without its prime, and whether it had one: `Ran'`, `c.on'` and `(c.on)'` are each one name primed. */
@@ -528,8 +557,10 @@ class Verbalizer {
    * a reading takes it only when it holds one value, through the member in it.
    */
   private call(node: Extract<Node, { t: 'call' }>, negative: boolean): Doc {
+    const apart = this.disjoint(node);
+    if (apart !== undefined) return negative ? this.negation(apart) : this.doc(apart);
     const given = node.args.map(a => this.shape(a));
-    const isVariable = (a: Node): boolean => a.t === 'name' && this.isVariable(a.name);
+    const isVariable = (a: Node): boolean => this.isValue(a);
     if (this.readings.atoms.has(node.name)) {
       const through = this.throughMember(node, negative);
       return through === undefined ? this.say(node.name, given.map(a => this.variable(a, 'an argument')), negative) : this.doc(through);
@@ -598,6 +629,15 @@ class Verbalizer {
     return { name, shown: target === undefined ? name : `${LINK}${target}${LINK}${name}${LINK}`, article: this.written(type) ?? articleFor(noun) };
   }
 
+  /** `disj[a, b, …]`, the predicate Alloy gives, as the formula it means: no two arguments share a member. Undefined for any other call. */
+  private disjoint(node: Extract<Node, { t: 'call' }>): Node | undefined {
+    if (node.name !== 'disj' || this.readings.atoms.has('disj') || this.readings.definitions.has('disj')) return undefined;
+    const pairs = node.args.flatMap((a, i) =>
+      node.args.slice(i + 1).map((b): Node => (this.isValue(this.shape(a)) && this.isValue(this.shape(b)) ? { t: 'cmp', op: '!=', l: a, r: b } : { t: 'mult', q: 'no', e: { t: 'inter', l: a, r: b } }))
+    );
+    return pairs.length === 1 ? (pairs[0] as Node) : { t: 'and', items: pairs };
+  }
+
   /**
    * A call with a reading and an argument that is an expression, as the formula
    * it is said through: the one member of the argument, in its place, "c belongs
@@ -605,7 +645,7 @@ class Verbalizer {
    */
   private throughMember(node: Extract<Node, { t: 'call' }>, negative: boolean): Node | undefined {
     const given = node.args.map(a => this.shape(a));
-    const at = given.findIndex(a => !(a.t === 'name' && this.isVariable(a.name)));
+    const at = given.findIndex(a => !this.isValue(a));
     if (at === -1) return undefined;
     const arg = given[at] as Node;
     const type = this.columns(arg);
@@ -632,7 +672,9 @@ class Verbalizer {
    * `c.on`; a call of a function, `f[c]` or `c.f`, keeps its name where it has
    * a reading and every argument is a variable, and is its body otherwise.
    */
-  private shape(e: Node): Node {
+  private shape(given: Node): Node {
+    const e = this.withoutNone(given);
+    if (e.t === 'name' && e.name === 'steps') throw new Error('Alloy reads "steps" only in a scope, and not in a formula');
     const field = (n: Node): boolean => n.t === 'name' && this.readings.fields.has(n.name) && !this.readings.definitions.has(n.name);
     const valued = (name: string): boolean => this.readings.functions.has(name) || this.readings.macros.has(name);
     if (e.t === 'call' && e.args.length === 1 && field({ t: 'name', name: e.name })) return { t: 'join', l: e.args[0] as Node, r: { t: 'name', name: e.name } };
@@ -646,6 +688,26 @@ class Verbalizer {
       return this.shape(fn.params.reduce((body, param, i) => substitute(body, param, this.resolved(e.args[i] as Node), `"${e.name}", for its parameter "${param}",`), fn.body));
     }
     return e;
+  }
+
+  /** An expression without the `none` that changes nothing: `a + none` is `a`, `a - none` is `a`, and `a & none`, `none - a` and `none.f` are `none`. */
+  private withoutNone(e: Node): Node {
+    const none = (n: Node): boolean => n.t === 'name' && n.name === 'none';
+    switch (e.t) {
+      case 'union':
+        return none(e.l) ? this.withoutNone(e.r) : none(e.r) ? this.withoutNone(e.l) : e;
+      case 'diff':
+        return none(e.r) ? this.withoutNone(e.l) : none(e.l) ? e.l : e;
+      case 'inter':
+      case 'join':
+      case 'arrow':
+        return none(e.l) ? e.l : none(e.r) ? e.r : e;
+      case 'prime':
+      case 'transpose':
+        return none(e.e) ? e.e : e;
+      default:
+        return e;
+    }
   }
 
   /** A call of a function that its reading says: it has one, and every argument is a variable. */
@@ -679,6 +741,8 @@ class Verbalizer {
     const e = this.shape(node);
     switch (e.t) {
       case 'name': {
+        if (e.name === 'iden') return ['univ', 'univ'];
+        if (e.name === 'univ') return ['univ'];
         if (this.isVariable(e.name)) return [''];
         const field = this.readings.fields.get(e.name);
         if (field !== undefined) return field.owner === undefined ? undefined : [field.owner, field.type];
@@ -705,8 +769,22 @@ class Verbalizer {
         return c.length > 0 ? c : undefined;
       }
       case 'arrow': {
+        if (e.lm !== undefined || e.rm !== undefined) throw new Error(`"${shown(e)}" ${MULTIPLIED}`);
         const [a, b] = [this.columns(e.l), this.columns(e.r)];
         return a === undefined || b === undefined ? undefined : [...a, ...b];
+      }
+      case 'override': {
+        const [a, b] = [this.columns(e.l), this.columns(e.r)];
+        return a !== undefined && b !== undefined && a.join() === b.join() ? a : undefined;
+      }
+      case 'domain':
+        return this.columns(e.r);
+      case 'range':
+      case 'closure':
+        return this.columns(e.t === 'range' ? e.l : e.e);
+      case 'comprehension': {
+        const types = e.decls.flatMap(d => d.names.map(() => this.columns(d.type)));
+        return types.every(t => t?.length === 1 && t[0] !== '') ? types.map(t => (t as string[])[0] as string) : undefined;
       }
       case 'call': {
         const result = this.readings.functions.get(e.name)?.result;
@@ -720,7 +798,7 @@ class Verbalizer {
 
   /** Whether the declarations make an expression one value: a variable, or a navigation of `one` fields from one. */
   private exact(e: Node): boolean {
-    if (e.t === 'name') return this.isVariable(e.name);
+    if (e.t === 'name' || e.t === 'string') return this.isValue(e);
     return e.t === 'join' && e.r.t === 'name' && this.readings.fields.get(e.r.name)?.exact === true && this.exact(e.l);
   }
 
@@ -736,7 +814,8 @@ class Verbalizer {
 
   /** Whether `x in e` is said by a reading as it stands: `e` is a set, a primed name, a navigation of a variable or a relation of its own. */
   private direct(e: Node): boolean {
-    if (e.t === 'name' || this.readFunction(e)) return true;
+    if (e.t === 'name') return e.name !== 'iden';
+    if (this.readFunction(e) || e.t === 'closure' || e.t === 'rclosure') return true;
     if (e.t === 'prime') return this.direct(e.e);
     if (e.t !== 'join') return false;
     const { e: bare } = this.unprimed(e);
@@ -764,7 +843,27 @@ class Verbalizer {
         return e.e.t === 'name' ? base : { t: 'unary', op: 'after', f: this.inside(xs, e.e) };
       case 'transpose':
         return xs.length === 2 ? this.inside([xs[1] as Node, xs[0] as Node], e.e) : base;
+      case 'override':
+        // r ++ s: the pairs of s, and those of r whose first member s relates to nothing; a set's override is its union.
+        return xs.length === 1
+          ? { t: 'or', items: [this.inside(xs, e.l), this.inside(xs, e.r)] }
+          : { t: 'or', items: [this.inside(xs, e.r), { t: 'and', items: [this.inside(xs, e.l), { t: 'mult', q: 'no', e: { t: 'join', l: xs[0] as Node, r: e.r } }] }] };
+      case 'domain':
+        return { t: 'and', items: [this.inside(xs.slice(0, 1), e.l), this.inside(xs, e.r)] };
+      case 'range':
+        return { t: 'and', items: [this.inside(xs, e.l), this.inside(xs.slice(-1), e.r)] };
+      case 'comprehension': {
+        const names = e.decls.flatMap(d => d.names.map(name => ({ name, type: d.type })));
+        if (names.length !== xs.length) return base;
+        const body = names.reduce((f, { name }, i) => substitute(f, name, xs[i] as Node, 'the set comprehension'), e.body);
+        return { t: 'and', items: [...names.map(({ type }, i) => this.inside([xs[i] as Node], type)), body] };
+      }
+      case 'name':
+        if (e.name === 'none') return FALSE;
+        if (e.name === 'iden' && xs.length === 2) return { t: 'cmp', op: '=', l: xs[0] as Node, r: xs[1] as Node };
+        return base;
       case 'arrow': {
+        if (e.lm !== undefined || e.rm !== undefined) throw new Error(`"${shown(e)}" ${MULTIPLIED}`);
         const k = this.columns(e.l)?.length;
         return k === undefined || k >= xs.length ? base : { t: 'and', items: [this.inside(xs.slice(0, k), e.l), this.inside(xs.slice(k), e.r)] };
       }
@@ -815,8 +914,27 @@ class Verbalizer {
   /** `e in s` for an expression `e` of a variable, member by member: for every member of `e`, it is in `s`. */
   private subset(l: Node, r: Node): Node {
     if (!this.ofVariable(l)) throw new Error(`"${shown(l)}" is a set or a field, where a variable must be`);
-    const m = member();
-    return { t: 'quant', q: 'all', decls: [{ names: [nameOf(m, '')], type: { t: 'name', name: this.typeOf(l) } }], body: { t: 'implies', l: this.inside([m], l), r: this.inside([m], r) } };
+    const types = this.columns(l);
+    if (types === undefined || types.includes('')) throw this.untyped(l);
+    const ms = types.map(() => member());
+    return { t: 'quant', q: 'all', decls: ms.map((m, i) => ({ names: [nameOf(m, '')], type: { t: 'name', name: types[i] as string } })), body: { t: 'implies', l: this.inside(ms, l), r: this.inside(ms, r) } };
+  }
+
+  /**
+   * `x->y in ^r` and `x->y in *r`: "x reaches y in one or more steps", or zero or
+   * more, where a step is said with the reading of `r`, over its own two members.
+   */
+  private reach(pair: Extract<Node, { t: 'arrow' }>, closure: Extract<Node, { t: 'closure' | 'rclosure' }>, negative: boolean): string {
+    const [from, to] = [this.variable(pair.l, 'a side of "->"'), this.variable(pair.r, 'a side of "->"')];
+    const types = this.columns(closure.e);
+    if (types?.length !== 2 || types.includes('')) throw this.untyped(closure.e);
+    const [p, q] = [this.fresh({ t: 'name', name: types[0] as string }), this.fresh({ t: 'name', name: types[1] as string })];
+    const step = new Verbalizer(this.readings, new Map([...this.bound, ['\u0000from', p.name], ['\u0000to', q.name]]), this.chain, this.used, this.level).doc(
+      this.inside([{ t: 'name', name: '\u0000from' }, { t: 'name', name: '\u0000to' }], closure.e)
+    );
+    if (typeof step !== 'string') throw new Error(`a step of "${shown(closure)}" is more than one clause`);
+    const steps = closure.t === 'closure' ? 'one or more' : 'zero or more';
+    return `${VARIABLE}${from}${VARIABLE} ${negative ? 'does not reach' : 'reaches'} ${VARIABLE}${to}${VARIABLE} in ${steps} steps, where a step from ${p.shown} to ${q.shown} is that ${step}`;
   }
 
   /** `a = b` member by member: for every member of their type, it is in `a` exactly when it is in `b`. */
@@ -835,19 +953,25 @@ class Verbalizer {
    */
   private lowered(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Node | undefined {
     const { op } = node;
+    if (op !== 'in' && op !== 'not in' && op !== '=' && op !== '!=') throw new Error(`"${op}" compares integers, which the words do not cover`);
     const [l, r] = [this.shape(node.l), this.shape(node.r)];
     const flip = negative !== (op === 'not in' || op === '!=');
     const not = (f: Node): Node => (flip ? { t: 'not', f } : f);
+    const none = (n: Node): boolean => n.t === 'name' && n.name === 'none';
+    // e = none and e in none: no e.
+    if (op !== 'in' && op !== 'not in' && (none(l) || none(r))) return { t: 'mult', q: flip ? 'some' : 'no', e: none(l) ? r : l };
+    if ((op === 'in' || op === 'not in') && none(r) && !(l.t === 'name' && this.isVariable(l.name)) && l.t !== 'arrow') return { t: 'mult', q: flip ? 'some' : 'no', e: l };
+    if ((op === 'in' || op === 'not in') && none(r)) return not(FALSE);
     if (op === 'in' || op === 'not in') {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.lowered({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union' || r.t === 'diff') return undefined;
-      if (l.t !== 'name' && l.t !== 'arrow') return not(this.subset(l, r));
+      if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
       if (!this.direct(r) && !this.signature(r)) return not(this.inside(l.t === 'arrow' ? [l.l, l.r] : [l], r));
       return undefined;
     }
-    if (l.t === 'name' && r.t === 'name') return undefined;
+    if ((l.t === 'name' || l.t === 'string') && (r.t === 'name' || r.t === 'string')) return undefined;
     const [left, right] = [this.unprimed(l), this.unprimed(r)];
-    const isVariable = (n: Node): boolean => n.t === 'name' && this.isVariable(n.name);
+    const isVariable = (n: Node): boolean => this.isValue(n);
     if (this.forward(left) && this.forward(right)) return flip ? not(this.equalMembers(l, r)) : undefined;
     const side = this.forward(left) && isVariable(r) ? left : this.forward(right) && isVariable(l) ? right : undefined;
     if (side === undefined || side.e.t !== 'join') return not(this.equalMembers(l, r));
@@ -888,6 +1012,7 @@ class Verbalizer {
         if (nav !== undefined && l.t !== 'arrow') return this.member(l, nav, flip);
       }
       if (this.signature(r) && l.t === 'name') return this.isA(l, r as Extract<Node, { t: 'name' }>, flip);
+      if ((r.t === 'closure' || r.t === 'rclosure') && l.t === 'arrow') return this.reach(l, r, flip);
       // y in f[x]: the reading of the function, with its arguments and then the member.
       if (r.t === 'call' && this.readFunction(r)) return this.say(r.name, [...r.args.map(a => this.variable(a, 'an argument')), this.variable(l, 'the left of "in"')], flip);
       const slots = l.t === 'arrow' ? [this.variable(l.l, 'a side of "->"'), this.variable(l.r, 'a side of "->"')] : [this.variable(l, 'the left of "in"')];
@@ -895,7 +1020,7 @@ class Verbalizer {
       return this.say(key, slots, flip);
     }
     // a = b, and a != b, between two variables
-    if (l.t === 'name' && r.t === 'name') {
+    if ((l.t === 'name' || l.t === 'string') && (r.t === 'name' || r.t === 'string')) {
       return `${VARIABLE}${this.variable(l, 'the left of "="')}${VARIABLE} and ${VARIABLE}${this.variable(r, 'the right of "="')}${VARIABLE} are ${flip ? 'different' : 'the same'}`;
     }
     const [left, right] = [this.unprimed(l), this.unprimed(r)];
@@ -995,6 +1120,8 @@ class Verbalizer {
     switch (node.t) {
       case 'not':
         return this.doc(node.f);
+      case 'true':
+        throw new Error(NEVER);
       case 'cmp':
         return this.comparison(node, true);
       case 'call':
@@ -1023,6 +1150,7 @@ class Verbalizer {
   private mult(node: Extract<Node, { t: 'mult' }>, negative: boolean): Doc {
     if (node.q === 'set' || node.q === 'seq') throw new Error(`"${node.q}" before an expression is not a formula; Alloy reads it only in a declaration`);
     const given = this.shape(node.e);
+    if ((given.t === 'name' && given.name === 'none') || given.t === 'rclosure') return this.doc(this.counted(node, negative) as Node);
     if (node.q === 'some' || node.q === 'no') {
       const none = (node.q === 'no') !== negative;
       if (this.readPrimed(given)) return this.say(`${nameOf((given as Extract<Node, { t: 'prime' }>).e, 'a primed set')}'`, [], none);
@@ -1047,6 +1175,11 @@ class Verbalizer {
    */
   private counted(node: Extract<Node, { t: 'mult' }>, negative: boolean): Node | undefined {
     const given = this.shape(node.e);
+    if (given.t === 'name' && given.name === 'none') {
+      const holds = (node.q === 'no' || node.q === 'lone') !== negative;
+      return holds ? { t: 'true' } : FALSE;
+    }
+    if (given.t === 'rclosure') throw new Error(`"${shown(given)}" holds every member of every type, Int included, which no noun names`);
     if (node.q === 'some' || node.q === 'no') {
       if (this.readPrimed(given)) return undefined;
       const { e, primed } = this.unprimed(given);
@@ -1216,7 +1349,9 @@ class Verbalizer {
       const many = (side: Node): boolean => side.t === 'join' && side.r.t === 'name' && this.readings.fields.get(side.r.name)?.many === true;
       return (l.t === 'join' && r.t === 'join') || many(l) || many(r);
     };
-    const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff' && !values(n);
+    // A closure is said with a comma and its own "where", which a sentence of several clauses would read two ways.
+    const reaches = (n: Extract<Node, { t: 'cmp' }>): boolean => n.r.t === 'closure' || n.r.t === 'rclosure' || (n.r.t === 'join' && [n.r.l.t, n.r.r.t].some(t => t === 'closure' || t === 'rclosure'));
+    const plainCmp = (n: Extract<Node, { t: 'cmp' }>): boolean => n.l.t !== 'union' && n.r.t !== 'diff' && !values(n) && !reaches(n);
     // A comparison said through members is a clause only where its formula is one: a noun phrase, and never a list.
     const lowered = (n: Extract<Node, { t: 'cmp' }>, negative: boolean): string | undefined => {
       const f = this.lowered(n, negative);
@@ -1224,6 +1359,8 @@ class Verbalizer {
     };
     // A call with a reading is a clause; one said through the member of an argument is one where its formula is.
     const said = (n: Extract<Node, { t: 'call' }>, negative: boolean): string | undefined => {
+      const apart = this.disjoint(n);
+      if (apart !== undefined) return this.clause(negative ? { t: 'not', f: apart } : apart);
       if (!this.readings.atoms.has(n.name)) return undefined;
       const f = this.throughMember(n, negative);
       return f === undefined ? text(this.call(n, negative)) : this.clause(f);
@@ -1481,10 +1618,33 @@ class Verbalizer {
     return this.defined(head, [...vars, value], this.inside([m], body));
   }
 
+  /** Whether a formula never holds: the negation of one that always does, an `and` with one, an `or` of them, or a comparison or multiplicity that `none` makes so. */
+  private holdsNever(node: Node): boolean {
+    if (node.t === 'not') return this.holdsAlways(node.f);
+    if (node.t === 'and') return node.items.some(item => this.holdsNever(item));
+    if (node.t === 'or') return node.items.every(item => this.holdsNever(item));
+    const f = this.constant(node);
+    return f !== undefined && f !== node && this.holdsNever(f);
+  }
+
+  /** The formula a comparison or a multiplicity with `none` comes to, when it is one that always or never holds; undefined otherwise. */
+  private constant(node: Node): Node | undefined {
+    try {
+      const f = node.t === 'cmp' ? this.lowered(node, false) : node.t === 'mult' && node.q !== 'set' && node.q !== 'seq' ? this.counted(node, false) : undefined;
+      return f !== undefined && (f.t === 'true' || (f.t === 'not' && f.f.t === 'true') || (f.t === 'not' && f.f.t === 'not' && f.f.f.t === 'true')) ? f : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
   /** Whether a formula always holds: an empty block, a call of a predicate with an empty body, or an `and` of such. */
   private holdsAlways(node: Node, seen: Set<string> = new Set()): boolean {
     if (node.t === 'true') return true;
+    if (node.t === 'not') return this.holdsNever(node.f);
+    const f = this.constant(node);
+    if (f !== undefined) return this.holdsAlways(f, seen);
     if (node.t === 'and') return node.items.every(item => this.holdsAlways(item, seen));
+    if (node.t === 'or') return node.items.some(item => this.holdsAlways(item, seen));
     const call = node.t === 'call' ? node : node.t === 'name' ? { name: node.name } : this.asCall(node);
     if (call === undefined || this.readings.atoms.has(call.name) || seen.has(call.name)) return false;
     const definition = this.readings.definitions.get(call.name) ?? this.readings.macros.get(call.name);
@@ -1507,6 +1667,7 @@ class Verbalizer {
       case 'true':
         throw new Error(ALWAYS);
       case 'and': {
+        if (node.items.some(item => this.holdsNever(item))) throw new Error(NEVER);
         const items = node.items.filter(item => !this.holdsAlways(item));
         if (items.length === 0) throw new Error(ALWAYS);
         if (items.length === 1) return this.doc(items[0] as Node);
@@ -1516,6 +1677,11 @@ class Verbalizer {
         return { kind: 'list', intro: ALL, items: this.items(node.items, item => item.t === 'quant' && item.q === 'all').flatMap(item => this.spliced(item, ALL)) };
       }
       case 'or': {
+        if (node.items.some(item => this.holdsAlways(item))) throw new Error(ALWAYS);
+        const items = node.items.filter(item => !this.holdsNever(item));
+        if (items.length === 0) throw new Error(NEVER);
+        if (items.length === 1) return this.doc(items[0] as Node);
+        node = { ...node, items };
         const inline = this.inline(node.items, 'or');
         if (inline !== undefined) return inline;
         return { kind: 'list', intro: ANY, items: this.items(node.items, () => true).flatMap(item => this.spliced(item, ANY)) };
@@ -1672,7 +1838,7 @@ function markdownLines(doc: Doc): string[] {
  * place the words are for, which they never link to. Throws an Error that names what cannot be said.
  */
 export function verbalize(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
-  return finish(new Verbalizer(readings).doc(parseFormula(source)), layout, self);
+  return finish(new Verbalizer(readings).doc(read(source)), layout, self);
 }
 
 /** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
@@ -1695,10 +1861,10 @@ export function verbalizeDefinition(source: string, readings: Readings, layout: 
   const untyped = params.find(param => param.type === '');
   if (untyped !== undefined) throw new Error(`the parameter "${untyped.name}" has no type that is a name`);
   const verbalizer = new Verbalizer(readings);
-  if (p.t === 'pred') return finish(verbalizer.definition(p.name, params, withDifferences(decls, p.body)), layout, self);
+  if (p.t === 'pred') return finish(verbalizer.definition(p.name, params, unqualified(withDifferences(decls, p.body))), layout, self);
   const result = p.result.t === 'mult' ? p.result.e : p.result;
   if (result.t !== 'name') throw new Error(`the value of "${p.name}" has no type that is a name`);
-  return finish(verbalizer.fn(p.name, params, result.name, p.body), layout, self);
+  return finish(verbalizer.fn(p.name, params, result.name, unqualified(p.body)), layout, self);
 }
 
 /** The name of the type of a parameter, or '' when it is not a name: `one T` is `T`, and a parameter of several things is refused. */

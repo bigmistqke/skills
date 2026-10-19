@@ -102,6 +102,21 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec some-or-no-of-an-expression-is-said-over-the-types-of-its-columns`](#spec-some-or-no-of-an-expression-is-said-over-the-types-of-its-columns) — The verbalizer says `some e` and `no e`, for an expression the specs above do not say, as `some` or `no` over its column types, with the members in `e`.
     - [`@spec one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one`](#spec-one-or-lone-of-an-expression-is-said-as-exactly-or-at-most-one) — The verbalizer says `one e` and `lone e` as exactly one or at most one member of the types of the columns of `e` in `e`.
     - [`@spec an-expression-whose-types-the-vocabulary-does-not-tell-is-refused`](#spec-an-expression-whose-types-the-vocabulary-does-not-tell-is-refused) — The verbalizer refuses a formula about an expression whose column types the vocabulary does not tell, and names the expression.
+  - [`@spec an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left`](#spec-an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left) — The verbalizer says `x->y in r ++ s` as `x->y in s`, or `x->y in r` and `no x.s`. For sets, `x in a ++ b` is `x in a + b`.
+  - [`@spec a-domain-restriction-is-said-as-the-first-member-in-the-set`](#spec-a-domain-restriction-is-said-as-the-first-member-in-the-set) — The verbalizer says `x->y in a <: r` as `x in a` and `x->y in r`.
+  - [`@spec a-range-restriction-is-said-as-the-last-member-in-the-set`](#spec-a-range-restriction-is-said-as-the-last-member-in-the-set) — The verbalizer says `x->y in r :> b` as `x->y in r` and `y in b`.
+  - [`@spec an-arrow-with-a-multiplicity-is-refused`](#spec-an-arrow-with-a-multiplicity-is-refused) — The verbalizer refuses an arrow with a multiplicity, such as `a one -> lone b`, and says that it says how many each side relates.
+  - [`@spec a-closure-is-said-as-reaching-in-one-or-more-steps`](#spec-a-closure-is-said-as-reaching-in-one-or-more-steps) — The verbalizer says `x->y in ^r` as `x` "reaches" `y` "in one or more steps", and says what a step is with the reading of `r`.
+  - [`@spec a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps`](#spec-a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps) — The verbalizer says `x->y in *r` as `x` "reaches" `y` "in zero or more steps", and says what a step is with the reading of `r`.
+  - [`@spec some-or-no-of-a-reflexive-closure-is-refused`](#spec-some-or-no-of-a-reflexive-closure-is-refused) — The verbalizer refuses `some`, `no`, `one` or `lone` of a reflexive closure, and says that it holds every member of every type.
+  - [`@spec none-is-said-as-nothing`](#spec-none-is-said-as-nothing) — The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding.
+  - [`@spec a-formula-that-never-holds-is-refused`](#spec-a-formula-that-never-holds-is-refused) — The verbalizer refuses a formula that never holds, such as `some none`, and says that it claims what cannot be.
+  - [`@spec a-formula-that-never-holds-is-left-out-of-an-or`](#spec-a-formula-that-never-holds-is-left-out-of-an-or) — The verbalizer leaves a formula that never holds, such as `x in none`, out of an `or`.
+  - [`@spec a-pair-in-iden-is-said-as-the-same`](#spec-a-pair-in-iden-is-said-as-the-same) — The verbalizer says `x->y in iden` as `x` and `y` being the same.
+  - [`@spec univ-is-said-as-a-signature-of-its-own`](#spec-univ-is-said-as-a-signature-of-its-own) — The verbalizer says `univ` as a signature that holds every atom, with the noun the readings give it.
+  - [`@spec a-set-comprehension-is-said-through-its-variables`](#spec-a-set-comprehension-is-said-through-its-variables) — The verbalizer says `x in { y: T | f }` as `x in T` and `f` with `x` in the place of `y`, and `{ y: T }` as `T`.
+  - [`@spec disj-of-expressions-is-said-as-no-two-sharing-a-member`](#spec-disj-of-expressions-is-said-as-no-two-sharing-a-member) — The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
+  - [`@spec a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes) — The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
   - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
@@ -130,6 +145,12 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until`](#spec-releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until) — The verbalizer says `a releases b`, with a side of more than one clause, as `always b or (b until (a and b))`.
     - [`@spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since`](#spec-triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since) — The verbalizer says `a triggered b`, with a side of more than one clause, as `historically b or (b since (a and b))`.
     - [`@spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment`](#spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b`, with a side of more than one clause, as `a and after b`.
+  - [`@spec this-outside-a-definition-of-a-signature-is-refused`](#spec-this-outside-a-definition-of-a-signature-is-refused) — The verbalizer refuses `this` outside a predicate or a function of a signature, which Alloy does not read.
+  - [`@spec steps-in-a-formula-is-refused`](#spec-steps-in-a-formula-is-refused) — The verbalizer refuses `steps` in a formula, and says that Alloy reads it only in a scope.
+  - [`@spec a-name-of-this-module-is-said-as-the-name`](#spec-a-name-of-this-module-is-said-as-the-name) — The verbalizer says `this/Ran` and `@Ran` as it says `Ran`.
+  - [`@spec a-name-of-another-module-is-said-by-its-own-reading`](#spec-a-name-of-another-module-is-said-by-its-own-reading) — The verbalizer says a name of another module, such as `m/Ran`, by the reading of that whole name.
+  - [`@spec a-comment-in-a-formula-is-left-out`](#spec-a-comment-in-a-formula-is-left-out) — The verbalizer leaves out a comment in a formula: `--`, `//`, `/* … */` and `/** … */`.
+  - [`@spec a-typographic-prime-is-said-as-a-prime`](#spec-a-typographic-prime-is-said-as-a-prime) — The verbalizer says `‘` and `’` as it says `'`.
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The verbalizer refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The verbalizer refuses a formula that negates a word whose reading has no negative form, and names the word.
   - [`@spec a-type-with-no-noun-is-refused-and-named`](#spec-a-type-with-no-noun-is-refused-and-named) — The verbalizer refuses a formula that quantifies a type with no noun, and names the type.
@@ -1081,6 +1102,108 @@ This follows because `one e` holds when `e` holds one member, and `lone e` when 
 
 This follows because a member of a type the verbalizer guessed could leave out what the expression holds.
 
+#### @spec an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left
+
+> The verbalizer says `x->y in r ++ s` as `x->y in s`, or `x->y in r` and `no x.s`. For sets, `x in a ++ b` is `x in a + b`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because an override keeps the pairs of `s` and the pairs of `r` whose first member `s` relates to nothing. A set relates nothing, so its override is its union.
+
+#### @spec a-domain-restriction-is-said-as-the-first-member-in-the-set
+
+> The verbalizer says `x->y in a <: r` as `x in a` and `x->y in r`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because `a <: r` keeps the pairs of `r` whose first member is in `a`.
+
+#### @spec a-range-restriction-is-said-as-the-last-member-in-the-set
+
+> The verbalizer says `x->y in r :> b` as `x->y in r` and `y in b`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because `r :> b` keeps the pairs of `r` whose last member is in `b`.
+
+#### @spec an-arrow-with-a-multiplicity-is-refused
+
+> The verbalizer refuses an arrow with a multiplicity, such as `a one -> lone b`, and says that it says how many each side relates.
+
+This follows because a multiplicity on an arrow says how many things a relation pairs with each member, and no reading says that.
+
+#### @spec a-closure-is-said-as-reaching-in-one-or-more-steps
+
+> The verbalizer says `x->y in ^r` as `x` "reaches" `y` "in one or more steps", and says what a step is with the reading of `r`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because `^r` holds `x->y` exactly when a chain of pairs of `r` leads from `x` to `y`.
+
+#### @spec a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps
+
+> The verbalizer says `x->y in *r` as `x` "reaches" `y` "in zero or more steps", and says what a step is with the reading of `r`.
+
+Derives from: [`spec-a-closure-is-said-as-reaching-in-one-or-more-steps`](#spec-a-closure-is-said-as-reaching-in-one-or-more-steps)
+
+This follows because `*r` is `^r` with every member paired with itself, which a chain of no steps reaches.
+
+#### @spec some-or-no-of-a-reflexive-closure-is-refused
+
+> The verbalizer refuses `some`, `no`, `one` or `lone` of a reflexive closure, and says that it holds every member of every type.
+
+This follows because `*r` pairs every atom with itself, Int atoms included, and no type the vocabulary declares holds them all.
+
+#### @spec none-is-said-as-nothing
+
+> The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding.
+
+This follows because `none` holds nothing.
+
+#### @spec a-formula-that-never-holds-is-refused
+
+> The verbalizer refuses a formula that never holds, such as `some none`, and says that it claims what cannot be.
+
+This follows because no words of the readings say a formula that is always false, and words that seemed to would hide it.
+
+#### @spec a-formula-that-never-holds-is-left-out-of-an-or
+
+> The verbalizer leaves a formula that never holds, such as `x in none`, out of an `or`.
+
+This follows because `a or false` claims what `a` claims.
+
+#### @spec a-pair-in-iden-is-said-as-the-same
+
+> The verbalizer says `x->y in iden` as `x` and `y` being the same.
+
+This follows because `iden` pairs each atom with itself, and nothing else.
+
+#### @spec univ-is-said-as-a-signature-of-its-own
+
+> The verbalizer says `univ` as a signature that holds every atom, with the noun the readings give it.
+
+This follows because `univ` is the set of every atom, a signature that no declaration names. Without a noun of its own, a quantifier over it is refused as any type with no noun is.
+
+#### @spec a-set-comprehension-is-said-through-its-variables
+
+> The verbalizer says `x in { y: T | f }` as `x in T` and `f` with `x` in the place of `y`, and `{ y: T }` as `T`.
+
+Derives from: [`spec-an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns)
+
+This follows because the comprehension holds the members of `T` for which `f` holds.
+
+#### @spec disj-of-expressions-is-said-as-no-two-sharing-a-member
+
+> The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
+
+This follows because `disj` holds when no two of its arguments share a member.
+
+#### @spec a-string-is-said-as-itself-in-quotes
+
+> The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
+
+This follows because a string is one thing, and its quotes show the reader where it starts and ends.
+
 #### @spec set-or-seq-before-an-expression-is-refused
 
 > The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
@@ -1260,6 +1383,42 @@ This follows because triggered is releases turned to the past.
 > The verbalizer says `a ; b`, with a side of more than one clause, as `a and after b`.
 
 This follows because `a ; b` claims `a` now and `b` at the next moment, which `a and after b` claims too.
+
+#### @spec this-outside-a-definition-of-a-signature-is-refused
+
+> The verbalizer refuses `this` outside a predicate or a function of a signature, which Alloy does not read.
+
+This follows because the analyzer finds no name `this` there, so the formula claims nothing.
+
+#### @spec steps-in-a-formula-is-refused
+
+> The verbalizer refuses `steps` in a formula, and says that Alloy reads it only in a scope.
+
+This follows because the analyzer finds no name `steps` in a formula.
+
+#### @spec a-name-of-this-module-is-said-as-the-name
+
+> The verbalizer says `this/Ran` and `@Ran` as it says `Ran`.
+
+This follows because `this/` names the module the formula is in, and outside the fact of a signature, `@` changes nothing.
+
+#### @spec a-name-of-another-module-is-said-by-its-own-reading
+
+> The verbalizer says a name of another module, such as `m/Ran`, by the reading of that whole name.
+
+This follows because two modules may each have a `Ran`, and the reading of one would not say the other.
+
+#### @spec a-comment-in-a-formula-is-left-out
+
+> The verbalizer leaves out a comment in a formula: `--`, `//`, `/* … */` and `/** … */`.
+
+This follows because Alloy reads a comment as nothing, so it claims nothing.
+
+#### @spec a-typographic-prime-is-said-as-a-prime
+
+> The verbalizer says `‘` and `’` as it says `'`.
+
+This follows because Alloy reads all three as the prime.
 
 #### @spec a-name-with-no-reading-is-refused-and-named
 

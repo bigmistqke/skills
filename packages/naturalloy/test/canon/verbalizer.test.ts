@@ -1223,6 +1223,7 @@ describe('declarations, and calls of functions and macros', () => {
     const readings = withDefinitions(parseReadings(read('readings.txt')), `${read('vocabulary.als')}\npred whatever[x: Cleanup] {}`);
     expect(say('whatever[c] and c in Ran', readings)).toBe('c has run.');
     expect(say('c in Ran and {}')).toBe('c has run.');
+    expect(say('c in Ran and c not in none')).toBe('c has run.');
   });
 
   /**
@@ -1263,6 +1264,177 @@ describe('declarations, and calls of functions and macros', () => {
     expect(say('settled[c]', FUNCTIONS)).toBe('c has run.');
     expect(say('not settled[c]', FUNCTIONS)).toBe('It is not the case that c has run.');
     expect(say('o in held[c]', FUNCTIONS)).toBe('c is on o.');
+  });
+});
+
+describe('relations and atoms', () => {
+  /**
+   * @canon spec-an-override-is-said-as-the-pairs-of-its-right-and-the-rest-of-its-left
+   */
+  it('says an override as the pairs of its right and the rest of its left', () => {
+    expect(say('c->o in on ++ reached')).toBe('At least one of these holds:\n  - the error of c has reached o\n  - c is on o and the error of c has reached no owner');
+    expect(say('c in Ran ++ Registered')).toBe('c has run or code has registered c.');
+  });
+
+  /**
+   * @canon spec-a-domain-restriction-is-said-as-the-first-member-in-the-set
+   */
+  it('says a domain restriction as the first member in the set', () => {
+    expect(say('c->o in Failing <: on')).toBe('c is a failing cleanup and is on o.');
+  });
+
+  /**
+   * @canon spec-a-range-restriction-is-said-as-the-last-member-in-the-set
+   */
+  it('says a range restriction as the last member in the set', () => {
+    expect(say('c->o in on :> Disposed')).toBe('c is on o and pulse has disposed o.');
+  });
+
+  /**
+   * @canon spec-an-arrow-with-a-multiplicity-is-refused
+   */
+  it('refuses an arrow with a multiplicity', () => {
+    expect(() => say('c->o in Cleanup one -> lone Owner')).toThrow('says how many each side relates');
+    expect(() => say('some Cleanup some -> Owner')).toThrow('says how many each side relates');
+  });
+
+  /**
+   * @canon spec-a-closure-is-said-as-reaching-in-one-or-more-steps
+   */
+  it('says a closure as reaching in one or more steps', () => {
+    expect(say('o->p in ^parent')).toBe('o reaches p in one or more steps, where a step from owner_1 to owner_2 is that owner_2 is the parent of owner_1.');
+    expect(say('p not in o.^parent')).toBe('o does not reach p in one or more steps, where a step from owner_1 to owner_2 is that owner_2 is the parent of owner_1.');
+  });
+
+  /**
+   * @canon spec-a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps
+   */
+  it('says a reflexive closure as reaching in zero or more steps', () => {
+    expect(say('p in o.*parent')).toBe('o reaches p in zero or more steps, where a step from owner_1 to owner_2 is that owner_2 is the parent of owner_1.');
+  });
+
+  /**
+   * @canon spec-some-or-no-of-a-reflexive-closure-is-refused
+   */
+  it('refuses some or no of a reflexive closure', () => {
+    expect(() => say('no *parent')).toThrow('holds every member of every type');
+  });
+
+  /**
+   * @canon spec-none-is-said-as-nothing
+   */
+  it('says none as nothing', () => {
+    for (const formula of ['c.on = none', 'none = c.on', 'c.on in none']) expect(say(formula)).toBe('c is on no owner.');
+    expect(say('c.on != none')).toBe('c is on an owner.');
+    expect(say('c in Ran + none')).toBe('c has run.');
+    expect(say('c in Ran - none')).toBe('c has run.');
+  });
+
+  /**
+   * @canon spec-a-formula-that-never-holds-is-refused
+   */
+  it('refuses a formula that never holds', () => {
+    expect(() => say('c in none')).toThrow('it never holds, so it claims what cannot be');
+    expect(() => say('some none')).toThrow('it never holds, so it claims what cannot be');
+    expect(() => say('c in none and d in Ran')).toThrow('it never holds, so it claims what cannot be');
+    expect(() => say('no none')).toThrow('it always holds, so it claims nothing');
+  });
+
+  /**
+   * @canon spec-a-formula-that-never-holds-is-left-out-of-an-or
+   */
+  it('leaves a formula that never holds out of an or', () => {
+    expect(say('c in Ran or c in none')).toBe('c has run.');
+    expect(say('c in Ran or some none')).toBe('c has run.');
+  });
+
+  /**
+   * @canon spec-a-pair-in-iden-is-said-as-the-same
+   */
+  it('says a pair in iden as the same', () => {
+    expect(say('c->d in iden')).toBe('c and d are the same.');
+    expect(say('c in iden.d')).toBe('c and d are the same.');
+  });
+
+  /**
+   * @canon spec-univ-is-said-as-a-signature-of-its-own
+   */
+  it('says univ as a signature of its own, with the noun the readings give it', () => {
+    const things = withDefinitions(parseReadings(`${read('readings.txt')}\nnoun univ: thing`), read('vocabulary.als'));
+    expect(say('some x: univ | x in Ran', things)).toBe('There is a thing_1 such that thing_1 has run.');
+    expect(say('c in univ', things)).toBe('c is a thing.');
+    expect(() => say('some x: univ | x in Ran')).toThrow('no noun for "univ"');
+  });
+
+  /**
+   * @canon spec-a-set-comprehension-is-said-through-its-variables
+   */
+  it('says a set comprehension through its variables', () => {
+    expect(say('c in { x: Cleanup | x in Ran }')).toBe('c is a cleanup and has run.');
+    expect(say('o in { x: Owner }')).toBe('o is an owner.');
+  });
+
+  /**
+   * @canon spec-disj-of-expressions-is-said-as-no-two-sharing-a-member
+   */
+  it('says disj as no two sharing a member', () => {
+    expect(say('disj[c, d]')).toBe('c and d are different.');
+    expect(say('disj[c.on, d.on]')).toBe('c is on no owner that d is on.');
+    expect(say('disj[c, d, e]')).toBe('c and d are different, c and e are different and d and e are different.');
+  });
+
+  /**
+   * @canon spec-a-string-is-said-as-itself-in-quotes
+   */
+  it('says a string as itself in quotes', () => {
+    const named = withDefinitions(parseReadings('noun Cleanup: cleanup\nname: {1} is named {2} | {1} is not named {2}'), 'sig Cleanup { name: one String }');
+    expect(say('c.name = "abc"', named)).toBe('c is named "abc".');
+  });
+
+  /**
+   * @canon spec-this-outside-a-definition-of-a-signature-is-refused
+   */
+  it('refuses this outside a definition of a signature', () => {
+    expect(() => say('c = this')).toThrow('Alloy does not read "this" outside a predicate or a function of a signature');
+  });
+
+  /**
+   * @canon spec-steps-in-a-formula-is-refused
+   */
+  it('refuses steps in a formula', () => {
+    expect(() => say('some steps')).toThrow('Alloy reads "steps" only in a scope');
+  });
+
+  /**
+   * @canon spec-a-name-of-this-module-is-said-as-the-name
+   */
+  it('says a name of this module as the name', () => {
+    expect(say('c in this/Ran')).toBe('c has run.');
+    expect(say('o in c.@on')).toBe('c is on o.');
+  });
+
+  /**
+   * @canon spec-a-name-of-another-module-is-said-by-its-own-reading
+   */
+  it('says a name of another module by its own reading', () => {
+    const other = withDefinitions(parseReadings(`${read('readings.txt')}\nm/Ran: {1} has run in m | {1} has not run in m`), read('vocabulary.als'));
+    expect(say('c in m/Ran', other)).toBe('c has run in m.');
+    expect(() => say('c in m/Ran')).toThrow('no reading for "m/Ran"');
+  });
+
+  /**
+   * @canon spec-a-comment-in-a-formula-is-left-out
+   */
+  it('leaves a comment out', () => {
+    expect(say('c in Ran /* note */ and d in Ran // more')).toBe('c has run and d has run.');
+    expect(say('/** about */ c in Ran -- more')).toBe('c has run.');
+  });
+
+  /**
+   * @canon spec-a-typographic-prime-is-said-as-a-prime
+   */
+  it('says a typographic prime as a prime', () => {
+    for (const prime of ['\u2018', '\u2019']) expect(say(`c in Ran${prime}`)).toBe('At the next moment, c has run.');
   });
 });
 
@@ -1586,7 +1758,7 @@ describe('what it refuses', () => {
    * @canon spec-a-construct-the-words-do-not-cover-is-refused
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
-    expect(() => say('some ^on')).toThrow('"^on" holds a closure, which has no words');
+    for (const op of ['<', '>', '=<', '>=', '!<', 'not >']) expect(() => say(`c ${op} d`)).toThrow('compares integers, which the words do not cover');
   });
 
   /**
