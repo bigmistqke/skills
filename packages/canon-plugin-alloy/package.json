@@ -1,6 +1,6 @@
 {
   "name": "@bigmistqke/canon-plugin-alloy",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "The Alloy plugin for @bigmistqke/canon: the logic of a canon said in words, and checked by the Alloy analyzer.",
   "license": "MIT",
   "repository": {
