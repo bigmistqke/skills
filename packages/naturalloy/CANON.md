@@ -120,6 +120,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-set-comprehension-is-said-through-its-variables`](#spec-a-set-comprehension-is-said-through-its-variables) — The verbalizer says `x in { y: T | f }` as `x in T` and `f` with `x` in the place of `y`, and `{ y: T }` as `T`.
   - [`@spec disj-of-expressions-is-said-as-no-two-sharing-a-member`](#spec-disj-of-expressions-is-said-as-no-two-sharing-a-member) — The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
   - [`@spec a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes) — The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
+  - [`@spec a-value-in-a-string-is-said-as-equal-to-it`](#spec-a-value-in-a-string-is-said-as-equal-to-it) — The verbalizer says `x in "a"`, for a variable or a string `x`, as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
   - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
@@ -1245,6 +1246,14 @@ This follows because `disj` holds when no two of its arguments share a member.
 > The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
 
 This follows because a string is one thing, and its quotes show the reader where it starts and ends.
+
+#### @spec a-value-in-a-string-is-said-as-equal-to-it
+
+> The verbalizer says `x in "a"`, for a variable or a string `x`, as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
+
+Derives from: [`spec-a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes)
+
+This follows because a string is one atom, so the one thing `x` is in it exactly when it is that atom.
 
 #### @spec set-or-seq-before-an-expression-is-refused
 

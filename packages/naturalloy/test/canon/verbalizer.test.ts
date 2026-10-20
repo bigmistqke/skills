@@ -1393,6 +1393,18 @@ describe('relations and atoms', () => {
   });
 
   /**
+   * @canon spec-a-value-in-a-string-is-said-as-equal-to-it
+   */
+  it('says a variable in a string as the variable equal to it', () => {
+    const named = withDefinitions(parseReadings('noun Cleanup: cleanup\nname: {1} is named {2} | {1} is not named {2}\nRan: {1} has run | {1} has not run'), 'sig Cleanup { name: one String } var sig Ran in Cleanup {}');
+    expect(say('c in "a"', named)).toBe('c and "a" are the same.');
+    expect(say('c not in "a"', named)).toBe('c and "a" are different.');
+    expect(say('not c in "a"', named)).toBe('c and "a" are different.');
+    expect(say('"a" in "b"', named)).toBe('"a" and "b" are the same.');
+    expect(() => say('Ran in "a"', named)).toThrow('"Ran" is a set or a field, where a variable must be');
+  });
+
+  /**
    * @canon spec-this-outside-a-definition-of-a-signature-is-refused
    */
   it('refuses this outside a definition of a signature', () => {
@@ -1897,6 +1909,16 @@ describe('what it refuses', () => {
    */
   it('refuses a construct it has no words for, rather than leaving it out', () => {
     expect(() => say('some ^(on + ~on)')).toThrow('the vocabulary does not tell what kind of thing');
+  });
+
+  /**
+   * @canon spec-a-construct-the-words-do-not-cover-is-refused
+   */
+  it('refuses a membership it has nothing to spell out in, rather than spelling it out without end', () => {
+    expect(() => say('c in iden')).toThrow('no reading for "iden"');
+    expect(() => say('c in 1')).toThrow('the right of "in" must be a name, not a');
+    expect(() => say('c in #Ran')).toThrow('the right of "in" must be a name, not a');
+    expect(() => say('c in { x: Cleanup, y: Owner | x in Ran }')).toThrow('the right of "in" must be a name, not a');
   });
 
   /**

@@ -1133,8 +1133,12 @@ class Verbalizer {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.lowered({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union' || r.t === 'diff') return undefined;
       if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
-      if (!this.direct(r) && !this.signature(r)) return not(this.inside(l.t === 'arrow' ? [l.l, l.r] : [l], r));
-      return undefined;
+      // x in "a": a string is one atom, so to be in it is to be it.
+      if (r.t === 'string' && this.isValue(l)) return not({ t: 'cmp', op: '=', l, r });
+      if (this.direct(r) || this.signature(r)) return undefined;
+      // With nothing to spell out, `inside` gives back `l in r`, which would lower to itself again: it is said as it stands, or refused.
+      const spelled = this.inside(l.t === 'arrow' ? [l.l, l.r] : [l], r);
+      return spelled.t === 'cmp' && spelled.op === 'in' && JSON.stringify(spelled.r) === JSON.stringify(r) ? undefined : not(spelled);
     }
     if ((l.t === 'name' || l.t === 'string') && (r.t === 'name' || r.t === 'string')) return undefined;
     const [left, right] = [this.unprimed(l), this.unprimed(r)];
