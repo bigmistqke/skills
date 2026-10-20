@@ -50,7 +50,7 @@ This follows because …
 2. Nesting is a citation: a unit inside another unit derives from it. Do not link to the unit that holds your unit.
 3. List further parents on one `Derives from:` line, right after the statement. Only links on that line are derivation edges. Every other link is a reference.
 4. The primary parent of a unit is the unit it sits in. Choose it so that the chain of primary parents leads up to the axiom that does most of the forcing. A fact is never a primary parent: a fact holds no units ([section 5](#5-facts-and-exceptions)).
-5. Open a spec's body with its `Derives from:` line, if it has one, then one sentence: "This follows because …".
+5. Open a spec's body with its `Derives from:` line, if it has one, then one sentence: "This follows because …". A unit with a formula gives its reason in its intent instead ([section 12](#12-units-with-logic)).
 6. If you cannot write that sentence, an axiom is missing. Ask the owner of the design.
 7. Place a spec under the axiom that forces it, not under an axiom on the same topic.
 8. Never move a spec because an axiom grew large, or to fit the sections of a document.
@@ -193,11 +193,13 @@ A document that lists the Alloy plugin, `@bigmistqke/canon-plugin-alloy`, can st
 2. Write a situation that the units must allow in an `alloy scenario` block. A scenario is a claim that something is possible, and `canon logic` reports one that cannot happen.
 3. Give the words of the vocabulary in a `readings` block, in the term that declares them. A line gives the positive and the negative reading, with `{1}` and `{2}` for the variables: `Ran: {1} has run | {1} has not run`. A `noun` line gives the noun of a signature: `noun Owner: owner`. A word in brackets links to a term: `noun Unit: [unit]`.
 4. Do not write the statement of a unit with a formula. Run `pnpm canon generate`, and it writes the statement between two markers under the heading. `canon check` reports a statement that a person wrote, or one that is stale.
-5. When a statement reads badly, change the formula or the readings, not the statement. The statement says only what the formula says.
-6. To give a formula to a unit whose statement a person wrote, move the statement into the body as an explanation, and run `generate`. A sentence written before its formula can mean more than one thing, and the formula keeps one of them. So read each clause of the sentence against the generated statement. A clause that the statement does not say is a claim the formula lost. Strengthen the formula, give the clause a unit of its own, or drop the formula and keep the sentence as the statement.
-7. Write a formula only where the model can hold it against the others. A formula that uses a signature no other unit and no scenario names is lone, and `canon check` reports it (`lone`). No other formula can contradict it, so it looks checked and is not. Tie the signature to the model with a definition, a fact or a scenario that is true of it. Otherwise drop the formula and write the statement by hand, and let the test guard the unit.
-8. Keep `pnpm canon logic` clean. A finding names the units that cannot all hold. Treat it as a contradiction in the canon: [section 11](#11-conflicts) says what to do while the owner has not ruled.
-9. `canon logic` needs Java 17 or later and the jar of the Alloy analyzer. Give their paths as `logic: {alloy: {jar: …, java: …}}` in the frontmatter of the entry document, or as `CANON_ALLOY_JAR` and `CANON_JAVA`.
+5. Under the generated statement, write the unit's intent: one paragraph in your own words. It says what the unit is for and why it follows from its parent. Explain the idea as you would to a colleague, so that the conditions of the formula follow from it. Do not restate the formula clause by clause. It replaces the "This follows because" sentence ([section 3](#3-derivation)).
+6. Write the intent as a paragraph, not a quote: a quote is a statement that a person wrote. The intent is the measure of the formula. When the generated statement says something the intent does not mean, the formula slipped, or the intent did. Fix the one that is wrong.
+7. When a statement reads badly, change the formula or the readings, not the statement. The statement says only what the formula says.
+8. To give a formula to a unit whose statement a person wrote, move the statement into its intent, and run `generate`. A sentence written before its formula can mean more than one thing, and the formula keeps one of them. So read each clause of the sentence against the generated statement. A clause that the statement does not say is a claim the formula lost. Strengthen the formula, give the clause a unit of its own, or drop the formula and keep the sentence as the statement.
+9. Write a formula only where the model can hold it against the others. A formula that uses a signature no other unit and no scenario names is lone, and `canon check` reports it (`lone`). No other formula can contradict it, so it looks checked and is not. Tie the signature to the model with a definition, a fact or a scenario that is true of it. Otherwise drop the formula and write the statement by hand, and let the test guard the unit.
+10. Keep `pnpm canon logic` clean. A finding names the units that cannot all hold. Treat it as a contradiction in the canon: [section 11](#11-conflicts) says what to do while the owner has not ruled.
+11. `canon logic` needs Java 17 or later and the jar of the Alloy analyzer. Give their paths as `logic: {alloy: {jar: …, java: …}}` in the frontmatter of the entry document, or as `CANON_ALLOY_JAR` and `CANON_JAVA`.
 
 ````md
 ### @spec a-started-node-is-done-eventually
@@ -205,7 +207,7 @@ A document that lists the Alloy plugin, `@bigmistqke/canon-plugin-alloy`, can st
 <!-- statement-spec-a-started-node-is-done-eventually:begin — generated by `canon generate`; edits are overwritten -->
 <!-- statement-spec-a-started-node-is-done-eventually:end -->
 
-This follows because …
+Starting a node is a promise to finish it. The work may take any number of moments, but a node never stays started forever.
 
 ```alloy
 always all n: Node | n in Started implies eventually n in Done
