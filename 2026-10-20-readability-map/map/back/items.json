@@ -1,0 +1,4734 @@
+[
+ {
+  "key": "s017-cur",
+  "id": "s017",
+  "src": "cur",
+  "doc": "canon",
+  "text": "All of these hold:\n- for every unit:\n\n  when the unit is unfounded, checker reports a finding for the unit\n- for every unit:\n\n  when the unit is miscited, checker reports a finding for the unit\n- for every unit:\n\n  when the unit is circular, checker reports a finding for the unit."
+ },
+ {
+  "key": "s017-o",
+  "id": "s017",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports a finding for every unit that is unfounded, miscited or circular."
+ },
+ {
+  "key": "s017-s",
+  "id": "s017",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every unit: when it is unfounded, miscited, or circular, checker reports a finding for it."
+ },
+ {
+  "key": "s018-cur",
+  "id": "s018",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen the unit is unfounded, checker reports a freelancing for the unit."
+ },
+ {
+  "key": "s018-o",
+  "id": "s018",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a freelancing for every unfounded unit."
+ },
+ {
+  "key": "s018-s",
+  "id": "s018",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every unit: if it is unfounded, checker reports a freelancing for it."
+ },
+ {
+  "key": "s019-cur",
+  "id": "s019",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every spec_1:\n\nwhen spec_1 cites no axiom and cites no spec, checker reports a freelancing for spec_1."
+ },
+ {
+  "key": "s019-o",
+  "id": "s019",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a freelancing for every spec that cites neither an axiom nor a spec."
+ },
+ {
+  "key": "s019-s",
+  "id": "s019",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a spec cites no axiom and no spec, checker reports a freelancing for it."
+ },
+ {
+  "key": "s020-cur",
+  "id": "s020",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every exception:\n\nwhen the exception cites no spec, checker reports a freelancing for the exception."
+ },
+ {
+  "key": "s020-o",
+  "id": "s020",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports a freelancing for every exception that cites no spec."
+ },
+ {
+  "key": "s020-s",
+  "id": "s020",
+  "src": "s",
+  "doc": "canon",
+  "text": "When an exception cites no spec, checker reports a freelancing for it."
+ },
+ {
+  "key": "s021-cur",
+  "id": "s021",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every exception:\n\nwhen the exception cites no fact, checker reports a freelancing for the exception."
+ },
+ {
+  "key": "s021-o",
+  "id": "s021",
+  "src": "o",
+  "doc": "canon",
+  "text": "When an exception cites no fact, checker reports a freelancing for it."
+ },
+ {
+  "key": "s021-s",
+  "id": "s021",
+  "src": "s",
+  "doc": "canon",
+  "text": "When an exception cites no fact, checker reports a freelancing for it."
+ },
+ {
+  "key": "s022-cur",
+  "id": "s022",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen the bug cites no spec, checker reports a freelancing for the bug."
+ },
+ {
+  "key": "s022-o",
+  "id": "s022",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a freelancing for every bug that cites no spec."
+ },
+ {
+  "key": "s022-s",
+  "id": "s022",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every bug: if it cites no spec, checker reports a freelancing for it."
+ },
+ {
+  "key": "s023-cur",
+  "id": "s023",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen the unit is miscited, checker reports a misnesting for the unit."
+ },
+ {
+  "key": "s023-o",
+  "id": "s023",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misnesting for every miscited unit."
+ },
+ {
+  "key": "s023-s",
+  "id": "s023",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a unit is miscited, checker reports a misnesting for it."
+ },
+ {
+  "key": "s023-h",
+  "id": "s023",
+  "src": "h",
+  "doc": "canon",
+  "text": "A miscited unit is reported as misnesting."
+ },
+ {
+  "key": "s024-cur",
+  "id": "s024",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every axiom_1:\n\nwhen axiom_1 cites a unit that is not an axiom, checker reports a misnesting for axiom_1."
+ },
+ {
+  "key": "s024-o",
+  "id": "s024",
+  "src": "o",
+  "doc": "canon",
+  "text": "When an axiom cites a unit that is not an axiom, checker reports a misnesting for the citing axiom."
+ },
+ {
+  "key": "s024-s",
+  "id": "s024",
+  "src": "s",
+  "doc": "canon",
+  "text": "When an axiom cites a unit that is not an axiom, checker reports a misnesting for the axiom."
+ },
+ {
+  "key": "s024-h",
+  "id": "s024",
+  "src": "h",
+  "doc": "canon",
+  "text": "An axiom that cites a non-axiom is reported as misnesting."
+ },
+ {
+  "key": "s025-cur",
+  "id": "s025",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fact:\n\nwhen the fact cites a unit, checker reports a misnesting for the fact."
+ },
+ {
+  "key": "s025-o",
+  "id": "s025",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misnesting for every fact that cites a unit."
+ },
+ {
+  "key": "s025-s",
+  "id": "s025",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every fact: if it cites a unit, checker reports a misnesting for it."
+ },
+ {
+  "key": "s026-cur",
+  "id": "s026",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every spec_1:\n\nwhen the following holds:\n\nspec_1 cites a unit that is not an axiom, a spec or a fact\n\nthen checker reports a misnesting for spec_1."
+ },
+ {
+  "key": "s026-o",
+  "id": "s026",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a spec cites a unit that is neither an axiom, a spec nor a fact, checker reports a misnesting for the citing spec."
+ },
+ {
+  "key": "s026-s",
+  "id": "s026",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a spec cites a unit that is not an axiom, a spec, or a fact, checker reports a misnesting for the spec."
+ },
+ {
+  "key": "s027-cur",
+  "id": "s027",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every exception:\n\nwhen the exception cites a unit that is not a spec or a fact, checker reports a misnesting for the exception."
+ },
+ {
+  "key": "s027-o",
+  "id": "s027",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misnesting for every exception that cites a unit that is neither a spec nor a fact."
+ },
+ {
+  "key": "s027-s",
+  "id": "s027",
+  "src": "s",
+  "doc": "canon",
+  "text": "When an exception cites a unit that is not a spec or a fact, checker reports a misnesting for it."
+ },
+ {
+  "key": "s028-cur",
+  "id": "s028",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen the bug cites a unit that is not a spec, checker reports a misnesting for the bug."
+ },
+ {
+  "key": "s028-o",
+  "id": "s028",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports a misnesting for every bug that cites a unit that is not a spec."
+ },
+ {
+  "key": "s028-s",
+  "id": "s028",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a bug cites a unit that is not a spec, checker reports a misnesting for the bug."
+ },
+ {
+  "key": "s028-h",
+  "id": "s028",
+  "src": "h",
+  "doc": "canon",
+  "text": "A bug that cites a non-spec is reported as misnesting."
+ },
+ {
+  "key": "s029-cur",
+  "id": "s029",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every conflict:\n\nwhen the conflict cites a unit, checker reports a misnesting for the conflict."
+ },
+ {
+  "key": "s029-o",
+  "id": "s029",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a conflict cites a unit, checker reports a misnesting for the conflict."
+ },
+ {
+  "key": "s029-s",
+  "id": "s029",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a conflict cites a unit, checker reports a misnesting for the conflict."
+ },
+ {
+  "key": "s030-cur",
+  "id": "s030",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every term:\n\nwhen the term cites a unit, checker reports a misnesting for the term."
+ },
+ {
+  "key": "s030-o",
+  "id": "s030",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misnesting for every term that cites a unit."
+ },
+ {
+  "key": "s030-s",
+  "id": "s030",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a term cites a unit, checker reports a misnesting for it."
+ },
+ {
+  "key": "s030-h",
+  "id": "s030",
+  "src": "h",
+  "doc": "canon",
+  "text": "A term that cites a unit is reported as misnesting."
+ },
+ {
+  "key": "s031-cur",
+  "id": "s031",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen the unit is circular, checker reports a cycle for the unit."
+ },
+ {
+  "key": "s031-o",
+  "id": "s031",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports a cycle for every circular unit."
+ },
+ {
+  "key": "s031-s",
+  "id": "s031",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a unit is circular, checker reports a cycle for it."
+ },
+ {
+  "key": "s032-cur",
+  "id": "s032",
+  "src": "cur",
+  "doc": "canon",
+  "text": "All of these hold:\n- for every bug:\n\n  when the bug is hidden, checker reports a finding for the bug\n- for every conflict:\n\n  when the conflict is hidden, checker reports a finding for the conflict\n- for every test:\n\n  when the test is misleading, checker reports a finding for the test."
+ },
+ {
+  "key": "s032-o",
+  "id": "s032",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a finding for every hidden bug, every hidden conflict and every misleading test."
+ },
+ {
+  "key": "s032-s",
+  "id": "s032",
+  "src": "s",
+  "doc": "canon",
+  "text": "All of these hold:\n- checker reports a finding for every hidden bug\n- checker reports a finding for every hidden conflict\n- checker reports a finding for every misleading test"
+ },
+ {
+  "key": "s033-cur",
+  "id": "s033",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen the bug is hidden, checker reports a finding for the bug."
+ },
+ {
+  "key": "s033-o",
+  "id": "s033",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a finding for every hidden bug."
+ },
+ {
+  "key": "s033-s",
+  "id": "s033",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every bug: when the bug is hidden, checker reports a finding for the bug."
+ },
+ {
+  "key": "s034-cur",
+  "id": "s034",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen project has a tracker and the bug names no issue, checker reports an untracking for the bug."
+ },
+ {
+  "key": "s034-o",
+  "id": "s034",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project has a tracker, checker reports an untracking for every bug that names no issue."
+ },
+ {
+  "key": "s034-s",
+  "id": "s034",
+  "src": "s",
+  "doc": "canon",
+  "text": "When project has a tracker and a bug names no issue, checker reports an untracking for it."
+ },
+ {
+  "key": "s035-cur",
+  "id": "s035",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen the bug names an issue that tracker does not know, checker reports a mistracking for the bug."
+ },
+ {
+  "key": "s035-o",
+  "id": "s035",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a bug names an issue that tracker does not know, checker reports a mistracking for the bug."
+ },
+ {
+  "key": "s035-s",
+  "id": "s035",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a bug names an issue the tracker does not know, checker reports a mistracking for the bug."
+ },
+ {
+  "key": "s036-cur",
+  "id": "s036",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen the bug names an issue that tracker has closed, checker reports an outdated tracking for the bug."
+ },
+ {
+  "key": "s036-o",
+  "id": "s036",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a bug names an issue that tracker has closed, checker reports an outdated tracking for the bug."
+ },
+ {
+  "key": "s036-s",
+  "id": "s036",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a bug names an issue that tracker has closed, checker reports an outdated tracking for it."
+ },
+ {
+  "key": "s037-cur",
+  "id": "s037",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every bug:\n\nwhen project has a runner and the bug is not tested, checker reports an untesting for the bug."
+ },
+ {
+  "key": "s037-o",
+  "id": "s037",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project has a runner, checker reports an untesting for every bug that is not tested."
+ },
+ {
+  "key": "s037-s",
+  "id": "s037",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every bug: if the project has a runner and it is not tested, checker reports an untesting for it."
+ },
+ {
+  "key": "s038-cur",
+  "id": "s038",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every conflict:\n\nwhen the conflict is hidden, checker reports a finding for the conflict."
+ },
+ {
+  "key": "s038-o",
+  "id": "s038",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports a finding for every hidden conflict."
+ },
+ {
+  "key": "s038-s",
+  "id": "s038",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a conflict is hidden, checker reports a finding for it."
+ },
+ {
+  "key": "s039-cur",
+  "id": "s039",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every conflict:\n\nwhen project has a tracker and the conflict names no issue, checker reports an untracking for the conflict."
+ },
+ {
+  "key": "s039-o",
+  "id": "s039",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project has a tracker, checker reports an untracking for every conflict that names no issue."
+ },
+ {
+  "key": "s039-s",
+  "id": "s039",
+  "src": "s",
+  "doc": "canon",
+  "text": "When project has a tracker and a conflict names no issue, checker reports an untracking for it."
+ },
+ {
+  "key": "s040-cur",
+  "id": "s040",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every conflict:\n\nwhen the conflict names an issue that tracker does not know, checker reports a mistracking for the conflict."
+ },
+ {
+  "key": "s040-o",
+  "id": "s040",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a mistracking for every conflict that names an issue the tracker does not know."
+ },
+ {
+  "key": "s040-s",
+  "id": "s040",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a conflict names an issue that tracker does not know, checker reports a mistracking for it."
+ },
+ {
+  "key": "s040-h",
+  "id": "s040",
+  "src": "h",
+  "doc": "canon",
+  "text": "A conflict that names an issue the tracker does not know is reported as mistracking."
+ },
+ {
+  "key": "s041-cur",
+  "id": "s041",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every conflict:\n\nwhen the conflict names an issue that tracker has closed, checker reports an outdated tracking for the conflict."
+ },
+ {
+  "key": "s041-o",
+  "id": "s041",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports an outdated tracking for every conflict that names an issue the tracker has closed."
+ },
+ {
+  "key": "s041-s",
+  "id": "s041",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a conflict names an issue that tracker has closed, checker reports an outdated tracking for it."
+ },
+ {
+  "key": "s042-cur",
+  "id": "s042",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every conflict:\n\nwhen the conflict is not paired, checker reports an unpairing for the conflict."
+ },
+ {
+  "key": "s042-o",
+  "id": "s042",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports an unpairing for every conflict that is not paired."
+ },
+ {
+  "key": "s042-s",
+  "id": "s042",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every conflict: if it is not paired, checker reports an unpairing for it."
+ },
+ {
+  "key": "s043-cur",
+  "id": "s043",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every test:\n\nwhen the test is misleading, checker reports a finding for the test."
+ },
+ {
+  "key": "s043-o",
+  "id": "s043",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a finding for every misleading test."
+ },
+ {
+  "key": "s043-s",
+  "id": "s043",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a test is misleading, checker reports a finding for it."
+ },
+ {
+  "key": "s044-cur",
+  "id": "s044",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every expected failure:\n\nwhen the expected failure checks no bug and checks no exception, checker reports an unexplained failure for the expected failure."
+ },
+ {
+  "key": "s044-o",
+  "id": "s044",
+  "src": "o",
+  "doc": "canon",
+  "text": "When an expected failure checks neither a bug nor an exception, checker reports an unexplained failure for it."
+ },
+ {
+  "key": "s044-s",
+  "id": "s044",
+  "src": "s",
+  "doc": "canon",
+  "text": "When an expected failure checks no bug and no exception, checker reports an unexplained failure for the expected failure."
+ },
+ {
+  "key": "s044-h",
+  "id": "s044",
+  "src": "h",
+  "doc": "canon",
+  "text": "An expected failure that checks neither a bug nor an exception is reported as unexplained."
+ },
+ {
+  "key": "s045-cur",
+  "id": "s045",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every plain test:\n\nwhen the plain test checks a bug, checker reports an unpinning for the plain test."
+ },
+ {
+  "key": "s045-o",
+  "id": "s045",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports an unpinning for every plain test that checks a bug."
+ },
+ {
+  "key": "s045-s",
+  "id": "s045",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every plain test: if it checks a bug, checker reports an unpinning for it."
+ },
+ {
+  "key": "s046-cur",
+  "id": "s046",
+  "src": "cur",
+  "doc": "canon",
+  "text": "All of these hold:\n- for every claim:\n\n  when project has a runner and the claim is unguarded, checker reports a finding for the claim\n- for every tag:\n\n  when the tag names no unit, checker reports a finding for the tag\n- for every test:\n\n  when the test is adrift, checker reports a finding for the test\n- for every pointer:\n\n  when the pointer names no target, checker reports a finding for the pointer\n- for every unit_1:\n\n  when unit_1 is not used and is not a conflict, checker reports a finding for unit_1\n- for every unit_1:\n\n  when a trailer follows unit_1, checker reports a finding for unit_1\n- for every document:\n\n  when the document holds a unit and holds no index, checker reports a finding for the document\n- for every document:\n\n  when the document holds an index that does not match the document, checker reports a finding for the document\n- for every claim:\n\n  when the claim names a site that no source holds, checker reports a finding for the claim\n- for every unit_1:\n\n  when unit_1 repeats a unit, checker reports a finding for unit_1."
+ },
+ {
+  "key": "s046-o",
+  "id": "s046",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a finding for:\n- every unguarded claim, when the project has a runner\n- every tag that names no unit\n- every adrift test\n- every pointer that names no target\n- every unit that is neither used nor a conflict\n- every unit that a trailer follows\n- every document that holds a unit but no index\n- every document that holds an index that does not match the document\n- every claim that names a site no source holds\n- every unit that repeats a unit"
+ },
+ {
+  "key": "s046-s",
+  "id": "s046",
+  "src": "s",
+  "doc": "canon",
+  "text": "All of these hold:\n- when the project has a runner and a claim is unguarded, checker reports a finding for the claim\n- when a tag names no unit, checker reports a finding for the tag\n- when a test is adrift, checker reports a finding for the test\n- when a pointer names no target, checker reports a finding for the pointer\n- when a unit is not used and is not a conflict, checker reports a finding for the unit\n- when a trailer follows a unit, checker reports a finding for the unit\n- when a document holds a unit but holds no index, checker reports a finding for the document\n- when a document holds an index that does not match it, checker reports a finding for the document\n- when a claim names a site that no source holds, checker reports a finding for the claim\n- when a unit repeats another, checker reports a finding for the repeating unit"
+ },
+ {
+  "key": "s047-cur",
+  "id": "s047",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every claim:\n\nwhen project has a runner and the claim is unguarded, checker reports an untesting for the claim."
+ },
+ {
+  "key": "s047-o",
+  "id": "s047",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project has a runner, the checker reports an untesting for every unguarded claim."
+ },
+ {
+  "key": "s047-s",
+  "id": "s047",
+  "src": "s",
+  "doc": "canon",
+  "text": "When the project has a runner, checker reports an untesting for every unguarded claim."
+ },
+ {
+  "key": "s048-cur",
+  "id": "s048",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every tag:\n\nwhen the tag names no unit, checker reports a rotting for the tag."
+ },
+ {
+  "key": "s048-o",
+  "id": "s048",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a rotting for every tag that names no unit."
+ },
+ {
+  "key": "s048-s",
+  "id": "s048",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a tag names no unit, checker reports a rotting for it."
+ },
+ {
+  "key": "s049-cur",
+  "id": "s049",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every test:\n\nwhen the test is adrift, checker reports a finding for the test."
+ },
+ {
+  "key": "s049-o",
+  "id": "s049",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a finding for every adrift test."
+ },
+ {
+  "key": "s049-s",
+  "id": "s049",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a test is adrift, checker reports a finding for it."
+ },
+ {
+  "key": "s050-cur",
+  "id": "s050",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every test:\n\nwhen project declares the test and the test carries no tag, checker reports an uncitation for the test."
+ },
+ {
+  "key": "s050-o",
+  "id": "s050",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project declares a test that carries no tag, checker reports an uncitation for the test."
+ },
+ {
+  "key": "s050-s",
+  "id": "s050",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a declared test carries no tag, checker reports an uncitation for the test."
+ },
+ {
+  "key": "s051-cur",
+  "id": "s051",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every test:\n\nwhen project declares the test and the test checks a unit that is not a claim, checker reports a misaiming for the test."
+ },
+ {
+  "key": "s051-o",
+  "id": "s051",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misaiming for every test the project declares that checks a unit that is not a claim."
+ },
+ {
+  "key": "s051-s",
+  "id": "s051",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a declared test checks a unit that is not a claim, checker reports a misaiming for it."
+ },
+ {
+  "key": "s052-cur",
+  "id": "s052",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every test:\n\nwhen the test checks a claim that is refined, checker reports an overreach for the test."
+ },
+ {
+  "key": "s052-o",
+  "id": "s052",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports an overreach for every test that checks a refined claim."
+ },
+ {
+  "key": "s052-s",
+  "id": "s052",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a test checks a claim that is refined, checker reports an overreach for the test."
+ },
+ {
+  "key": "s053-cur",
+  "id": "s053",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every pointer:\n\nwhen the pointer names no target, checker reports a rotting for the pointer."
+ },
+ {
+  "key": "s053-o",
+  "id": "s053",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a pointer names no target, checker reports a rotting for the pointer."
+ },
+ {
+  "key": "s053-s",
+  "id": "s053",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a pointer names no target, checker reports a rotting for the pointer."
+ },
+ {
+  "key": "s054-cur",
+  "id": "s054",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit_1:\n\nwhen unit_1 repeats a unit, checker reports a rotting for unit_1."
+ },
+ {
+  "key": "s054-o",
+  "id": "s054",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a unit repeats a unit, checker reports a rotting for the repeating unit."
+ },
+ {
+  "key": "s054-s",
+  "id": "s054",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a unit repeats another, checker reports a rotting for the repeating unit."
+ },
+ {
+  "key": "s055-cur",
+  "id": "s055",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen the unit is not used and is not a conflict, checker reports an orphaning for the unit."
+ },
+ {
+  "key": "s055-o",
+  "id": "s055",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports an orphaning for every unit that is not used and is not a conflict."
+ },
+ {
+  "key": "s055-s",
+  "id": "s055",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every unit: if it is not used and not a conflict, checker reports an orphaning for it."
+ },
+ {
+  "key": "s056-cur",
+  "id": "s056",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen a trailer follows the unit, checker reports a misanchoring for the unit."
+ },
+ {
+  "key": "s056-o",
+  "id": "s056",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misanchoring for every unit that a trailer follows."
+ },
+ {
+  "key": "s056-s",
+  "id": "s056",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every unit: if a trailer follows it, checker reports a misanchoring for it."
+ },
+ {
+  "key": "s057-cur",
+  "id": "s057",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document:\n\nwhen the document holds a unit and holds no index, checker reports a misindexing for the document."
+ },
+ {
+  "key": "s057-o",
+  "id": "s057",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misindexing for every document that holds a unit but no index."
+ },
+ {
+  "key": "s057-s",
+  "id": "s057",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every document: if it holds a unit but holds no index, checker reports a misindexing for it."
+ },
+ {
+  "key": "s057-h",
+  "id": "s057",
+  "src": "h",
+  "doc": "canon",
+  "text": "A document that holds units but no index is reported as misindexed."
+ },
+ {
+  "key": "s058-cur",
+  "id": "s058",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document:\n\nwhen the document holds an index that does not match the document, checker reports a misindexing for the document."
+ },
+ {
+  "key": "s058-o",
+  "id": "s058",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports a misindexing for every document that holds an index that does not match it."
+ },
+ {
+  "key": "s058-s",
+  "id": "s058",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every document: if it holds an index that does not match it, checker reports a misindexing for it."
+ },
+ {
+  "key": "s059-cur",
+  "id": "s059",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every claim:\n\nwhen the claim names a site that no source holds, checker reports a mislocation for the claim."
+ },
+ {
+  "key": "s059-o",
+  "id": "s059",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports a mislocation for every claim that names a site no source holds."
+ },
+ {
+  "key": "s059-s",
+  "id": "s059",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a claim names a site that no source holds, checker reports a mislocation for the claim."
+ },
+ {
+  "key": "s060-cur",
+  "id": "s060",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document_1 and every document_2 and every document_3:\n\nall of these hold:\n- when document_1 extends document_2, document_2 is context for document_1\n- when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1"
+ },
+ {
+  "key": "s060-o",
+  "id": "s060",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document extends another, the other is context for it, and so is every document that is context for the other."
+ },
+ {
+  "key": "s060-s",
+  "id": "s060",
+  "src": "s",
+  "doc": "canon",
+  "text": "When document_1 extends document_2, document_2 is context for document_1, and so is anything that is context for document_2."
+ },
+ {
+  "key": "s060-h",
+  "id": "s060",
+  "src": "h",
+  "doc": "canon",
+  "text": "A document that extends another is context for it. Context is transitive through extension."
+ },
+ {
+  "key": "s061-cur",
+  "id": "s061",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence_1 and every unit:\n\nwhen all of these hold:\n- fence_1 is a fence that names a language\n- fence_1 lies in the own text of the unit\n\nthen checker reads fence_1 as a block of the unit."
+ },
+ {
+  "key": "s061-o",
+  "id": "s061",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reads a fence that names a language as a block of the unit in whose own text it lies."
+ },
+ {
+  "key": "s061-s",
+  "id": "s061",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a fence names a language and lies in the own text of a unit, checker reads it as a block of that unit."
+ },
+ {
+  "key": "s062-cur",
+  "id": "s062",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence_1:\n\nwhen fence_1 is a fence that names no language, checker reads fence_1 as a block of no unit."
+ },
+ {
+  "key": "s062-o",
+  "id": "s062",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reads a fence that names no language as a block of no unit."
+ },
+ {
+  "key": "s062-s",
+  "id": "s062",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a fence names no language, checker reads it as a block of no unit."
+ },
+ {
+  "key": "s063-cur",
+  "id": "s063",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence:\n\nwhen the second word of the fence is vocabulary, the fence has the role of vocabulary."
+ },
+ {
+  "key": "s063-o",
+  "id": "s063",
+  "src": "o",
+  "doc": "canon",
+  "text": "A fence whose second word is vocabulary has the role of vocabulary."
+ },
+ {
+  "key": "s063-s",
+  "id": "s063",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a fence's second word is vocabulary, it has the role of vocabulary."
+ },
+ {
+  "key": "s064-cur",
+  "id": "s064",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence:\n\nwhen the second word of the fence is bounds, the fence has the role of bounds."
+ },
+ {
+  "key": "s064-o",
+  "id": "s064",
+  "src": "o",
+  "doc": "canon",
+  "text": "A fence whose second word is bounds has the role of bounds."
+ },
+ {
+  "key": "s064-s",
+  "id": "s064",
+  "src": "s",
+  "doc": "canon",
+  "text": "A fence whose second word is bounds has the role of bounds."
+ },
+ {
+  "key": "s065-cur",
+  "id": "s065",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence:\n\nwhen the second word of the fence is scenario, the fence has the role of scenario."
+ },
+ {
+  "key": "s065-o",
+  "id": "s065",
+  "src": "o",
+  "doc": "canon",
+  "text": "A fence whose second word is scenario has the role of scenario."
+ },
+ {
+  "key": "s065-s",
+  "id": "s065",
+  "src": "s",
+  "doc": "canon",
+  "text": "A fence whose second word is scenario has the role of scenario."
+ },
+ {
+  "key": "s066-cur",
+  "id": "s066",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence:\n\nwhen the fence has no second word that names a role, the fence has the role of the formula of its unit."
+ },
+ {
+  "key": "s066-o",
+  "id": "s066",
+  "src": "o",
+  "doc": "canon",
+  "text": "A fence with no second word that names a role has the role of the formula of its unit."
+ },
+ {
+  "key": "s066-s",
+  "id": "s066",
+  "src": "s",
+  "doc": "canon",
+  "text": "A fence with no second word naming a role has the role of the formula of its unit."
+ },
+ {
+  "key": "s067-cur",
+  "id": "s067",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every fence and every unit_1:\n\nwhen the fence lies in the own text of unit_1, checker reads the fence as a block of no unit that sits in unit_1."
+ },
+ {
+  "key": "s067-o",
+  "id": "s067",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker never reads a fence that lies in a unit's own text as a block of a unit that sits in that unit."
+ },
+ {
+  "key": "s067-s",
+  "id": "s067",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a fence lies in the own text of a unit, checker reads it as a block of no unit that sits in that unit."
+ },
+ {
+  "key": "s068-cur",
+  "id": "s068",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every claim:\n\nwhen the claim is tested, checker reports no untesting for the claim."
+ },
+ {
+  "key": "s068-o",
+  "id": "s068",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker reports no untesting for a tested claim."
+ },
+ {
+  "key": "s068-s",
+  "id": "s068",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a claim is tested, checker reports no untesting for it."
+ },
+ {
+  "key": "s069-cur",
+  "id": "s069",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every claim:\n\nwhen a test that project declares checks the claim, checker reports no untesting for the claim."
+ },
+ {
+  "key": "s069-o",
+  "id": "s069",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker reports no untesting for a claim that some test the project declares checks."
+ },
+ {
+  "key": "s069-s",
+  "id": "s069",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a test that project declares checks a claim, checker reports no untesting for it."
+ },
+ {
+  "key": "s070-cur",
+  "id": "s070",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every claim:\n\nwhen a test that project does not declare checks the claim, checker reports no untesting for the claim."
+ },
+ {
+  "key": "s070-o",
+  "id": "s070",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a test the project does not declare checks a claim, checker reports no untesting for that claim."
+ },
+ {
+  "key": "s070-s",
+  "id": "s070",
+  "src": "s",
+  "doc": "canon",
+  "text": "When an undeclared test checks a claim, checker reports no untesting for that claim."
+ },
+ {
+  "key": "s071-cur",
+  "id": "s071",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every spec:\n\nwhen a test checks a bug that sits in the spec, checker reports no untesting for the spec."
+ },
+ {
+  "key": "s071-o",
+  "id": "s071",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a test checks a bug that sits in a spec, checker reports no untesting for the spec."
+ },
+ {
+  "key": "s071-s",
+  "id": "s071",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a test checks a bug that sits in a spec, checker reports no untesting for that spec."
+ },
+ {
+  "key": "s072-cur",
+  "id": "s072",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen project has no runner, checker reports no untesting for the unit."
+ },
+ {
+  "key": "s072-o",
+  "id": "s072",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project has no runner, the checker reports no untesting for any unit."
+ },
+ {
+  "key": "s072-s",
+  "id": "s072",
+  "src": "s",
+  "doc": "canon",
+  "text": "When the project has no runner, checker reports no untesting for any unit."
+ },
+ {
+  "key": "s073-cur",
+  "id": "s073",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unit:\n\nwhen project has no tracker, checker reports no untracking for the unit."
+ },
+ {
+  "key": "s073-o",
+  "id": "s073",
+  "src": "o",
+  "doc": "canon",
+  "text": "When the project has no tracker, the checker reports no untracking for any unit."
+ },
+ {
+  "key": "s073-s",
+  "id": "s073",
+  "src": "s",
+  "doc": "canon",
+  "text": "When the project has no tracker, checker reports no untracking for any unit."
+ },
+ {
+  "key": "s074-cur",
+  "id": "s074",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run:\n\nwhen at least one of these holds:\n- there are frontmatter_1 and missing_plugin_1 such that frontmatter_1 lists missing_plugin_1\n- there is a document such that checker reports that the document has a frontmatter it cannot read\n- the run asks for a command that is not available\n- the run gets code 2 from a plugin\n\nthen the run exits with code 2."
+ },
+ {
+  "key": "s074-o",
+  "id": "s074",
+  "src": "o",
+  "doc": "canon",
+  "text": "A run exits with code 2 when any of these holds:\n- some frontmatter lists a missing plugin\n- checker reports that some document has a frontmatter it cannot read\n- the run asks for a command that is not available\n- the run gets code 2 from a plugin"
+ },
+ {
+  "key": "s074-s",
+  "id": "s074",
+  "src": "s",
+  "doc": "canon",
+  "text": "A run exits with code 2 when any of these hold: a frontmatter lists a missing plugin, checker reports that a document has a frontmatter it cannot read, the run asks for a command that is not available, or the run gets code 2 from a plugin."
+ },
+ {
+  "key": "s075-cur",
+  "id": "s075",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every plugin and every document:\n\nall of these hold:\n- when the plugin applies to the document, checker runs the plugin over the document\n- when the command line of a run does not name the document and checker runs the plugin over the document, the plugin applies to the document"
+ },
+ {
+  "key": "s075-o",
+  "id": "s075",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker runs every plugin over every document it applies to, and runs a plugin over a document it does not apply to only when the command line of a run names that document."
+ },
+ {
+  "key": "s075-s",
+  "id": "s075",
+  "src": "s",
+  "doc": "canon",
+  "text": "Both of these hold:\n- When a plugin applies to a document, checker runs the plugin over the document.\n- When the command line of a run does not name the document and checker runs the plugin over it, the plugin applies to the document."
+ },
+ {
+  "key": "s076-cur",
+  "id": "s076",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every plugin and every document:\n\nwhen the document starts with no listing frontmatter and the command line of a run does not name the document, checker does not run the plugin over the document."
+ },
+ {
+  "key": "s076-o",
+  "id": "s076",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document starts with no listing frontmatter and the command line of a run does not name it, the checker runs no plugin over it."
+ },
+ {
+  "key": "s076-s",
+  "id": "s076",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every document: when it starts with no listing frontmatter and the command line of a run does not name it, checker runs no plugin over it."
+ },
+ {
+  "key": "s077-cur",
+  "id": "s077",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every plugin and every document and every listing frontmatter:\n\nwhen the document starts with the listing frontmatter and the listing frontmatter lists the plugin, checker runs the plugin over the document."
+ },
+ {
+  "key": "s077-o",
+  "id": "s077",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document starts with a listing frontmatter that lists a plugin, checker runs the plugin over the document."
+ },
+ {
+  "key": "s077-s",
+  "id": "s077",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a document starts with a listing frontmatter that lists a plugin, checker runs the plugin over the document."
+ },
+ {
+  "key": "s078-cur",
+  "id": "s078",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every plugin and every document and every listing frontmatter:\n\nwhen all of these hold:\n- the document starts with the listing frontmatter\n- the listing frontmatter does not list the plugin\n- the command line of a run does not name the document\n\nthen checker does not run the plugin over the document."
+ },
+ {
+  "key": "s078-o",
+  "id": "s078",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker does not run a plugin over a document that starts with a listing frontmatter that does not list the plugin, unless the command line of a run names the document."
+ },
+ {
+  "key": "s078-s",
+  "id": "s078",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a document starts with a listing frontmatter that does not list a plugin, and the command line of a run does not name the document, checker does not run the plugin over it."
+ },
+ {
+  "key": "s079-cur",
+  "id": "s079",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every plugin and every document and every listing frontmatter:\n\nwhen all of these hold:\n- the document starts with the listing frontmatter\n- the listing frontmatter holds no entry\n- the command line of a run does not name the document\n\nthen checker does not run the plugin over the document."
+ },
+ {
+  "key": "s079-o",
+  "id": "s079",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document starts with a listing frontmatter that holds no entry, and the command line of a run does not name the document, checker runs no plugin over the document."
+ },
+ {
+  "key": "s079-s",
+  "id": "s079",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a document starts with a listing frontmatter that holds no entry, and no run names the document on its command line, checker does not run any plugin over the document."
+ },
+ {
+  "key": "s080-cur",
+  "id": "s080",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run_1 and every plugin and every given document:\n\nwhen run_1 calls the plugin, checker runs the plugin over the given document."
+ },
+ {
+  "key": "s080-o",
+  "id": "s080",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a run calls a plugin, checker runs the plugin over every given document."
+ },
+ {
+  "key": "s080-s",
+  "id": "s080",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a run calls a plugin, checker runs that plugin over every given document."
+ },
+ {
+  "key": "s081-cur",
+  "id": "s081",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every frontmatter_1:\n\nwhen frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no entry."
+ },
+ {
+  "key": "s081-o",
+  "id": "s081",
+  "src": "o",
+  "doc": "canon",
+  "text": "A frontmatter without a plugins key holds no entry."
+ },
+ {
+  "key": "s081-s",
+  "id": "s081",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a frontmatter is not one with a plugins key, it holds no entry."
+ },
+ {
+  "key": "s082-cur",
+  "id": "s082",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every frontmatter_1:\n\nwhen at least one of these holds:\n- frontmatter_1 has the flaw of an entry that starts with an at sign outside quotes\n- frontmatter_1 has the flaw of a key that neither the checker nor a plugin that frontmatter_1 lists defines\n- frontmatter_1 has the flaw of a list that is not closed\n- frontmatter_1 has the flaw of a string that is not closed\n- frontmatter_1 has the flaw of a key that appears twice\n- frontmatter_1 has the flaw of a path that names no document\n- frontmatter_1 has the flaw of an extension that leads back to its own document\n- frontmatter_1 has the flaw of a setting in a document that is not the entry document\n\nthen frontmatter_1 is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s082-o",
+  "id": "s082",
+  "src": "o",
+  "doc": "canon",
+  "text": "A frontmatter with any of these flaws is a frontmatter that the checker cannot read:\n- an entry that starts with an at sign outside quotes\n- a key that neither the checker nor a plugin the frontmatter lists defines\n- a list that is not closed\n- a string that is not closed\n- a key that appears twice\n- a path that names no document\n- an extension that leads back to its own document\n- a setting in a document that is not the entry document"
+ },
+ {
+  "key": "s082-s",
+  "id": "s082",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a frontmatter has any of these flaws, checker refuses it:\n- an entry that starts with an at sign outside quotes\n- a key that neither the checker nor a plugin it lists defines\n- a list that is not closed\n- a string that is not closed\n- a key that appears twice\n- a path that names no document\n- an extension that leads back to its own document\n- a setting in a document that is not the entry document"
+ },
+ {
+  "key": "s082-h",
+  "id": "s082",
+  "src": "h",
+  "doc": "canon",
+  "text": "A frontmatter with any of these flaws is refused: an entry starting with @ outside quotes, an undefined key, an unclosed list, an unclosed string, a duplicated key, a dangling path, a looping extension, or a misplaced setting."
+ },
+ {
+  "key": "s083-cur",
+  "id": "s083",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every misquoted frontmatter:\n\nthe misquoted frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s083-o",
+  "id": "s083",
+  "src": "o",
+  "doc": "canon",
+  "text": "Every misquoted frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s083-s",
+  "id": "s083",
+  "src": "s",
+  "doc": "canon",
+  "text": "Every misquoted frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s084-cur",
+  "id": "s084",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every foreign frontmatter:\n\nthe foreign frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s084-o",
+  "id": "s084",
+  "src": "o",
+  "doc": "canon",
+  "text": "Every foreign frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s084-s",
+  "id": "s084",
+  "src": "s",
+  "doc": "canon",
+  "text": "Every foreign frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s085-cur",
+  "id": "s085",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unclosed frontmatter:\n\nthe unclosed frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s085-o",
+  "id": "s085",
+  "src": "o",
+  "doc": "canon",
+  "text": "Every unclosed frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s085-s",
+  "id": "s085",
+  "src": "s",
+  "doc": "canon",
+  "text": "Every unclosed frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s086-cur",
+  "id": "s086",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every unterminated frontmatter:\n\nthe unterminated frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s086-o",
+  "id": "s086",
+  "src": "o",
+  "doc": "canon",
+  "text": "Every unterminated frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s086-s",
+  "id": "s086",
+  "src": "s",
+  "doc": "canon",
+  "text": "Every unterminated frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s087-cur",
+  "id": "s087",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every doubled frontmatter:\n\nthe doubled frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s087-o",
+  "id": "s087",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker cannot read a doubled frontmatter."
+ },
+ {
+  "key": "s087-s",
+  "id": "s087",
+  "src": "s",
+  "doc": "canon",
+  "text": "A doubled frontmatter is a frontmatter checker cannot read."
+ },
+ {
+  "key": "s088-cur",
+  "id": "s088",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every dangling frontmatter:\n\nthe dangling frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s088-o",
+  "id": "s088",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker cannot read a dangling frontmatter."
+ },
+ {
+  "key": "s088-s",
+  "id": "s088",
+  "src": "s",
+  "doc": "canon",
+  "text": "Checker cannot read a dangling frontmatter."
+ },
+ {
+  "key": "s089-cur",
+  "id": "s089",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every circular frontmatter:\n\nthe circular frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s089-o",
+  "id": "s089",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker cannot read a circular frontmatter."
+ },
+ {
+  "key": "s089-s",
+  "id": "s089",
+  "src": "s",
+  "doc": "canon",
+  "text": "A circular frontmatter is a frontmatter checker cannot read."
+ },
+ {
+  "key": "s090-cur",
+  "id": "s090",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every stray frontmatter:\n\nthe stray frontmatter is a frontmatter that the checker cannot read."
+ },
+ {
+  "key": "s090-o",
+  "id": "s090",
+  "src": "o",
+  "doc": "canon",
+  "text": "The checker cannot read a stray frontmatter."
+ },
+ {
+  "key": "s090-s",
+  "id": "s090",
+  "src": "s",
+  "doc": "canon",
+  "text": "Checker cannot read a stray frontmatter."
+ },
+ {
+  "key": "s091-cur",
+  "id": "s091",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every document and every refused frontmatter:\n\nwhen the document starts with the refused frontmatter,\n\nthen all of these hold:\n- checker reports that the document has a frontmatter it cannot read\n- the run exits with code 2"
+ },
+ {
+  "key": "s091-o",
+  "id": "s091",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document starts with a refused frontmatter, checker reports that the document has a frontmatter it cannot read, and every run exits with code 2."
+ },
+ {
+  "key": "s091-s",
+  "id": "s091",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a document starts with a refused frontmatter, checker reports that the document has a frontmatter it cannot read, and every run exits with code 2."
+ },
+ {
+  "key": "s092-cur",
+  "id": "s092",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document and every refused frontmatter:\n\nwhen the document starts with the refused frontmatter, checker reports that the document has a frontmatter it cannot read."
+ },
+ {
+  "key": "s092-o",
+  "id": "s092",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document starts with a refused frontmatter, the checker reports that the document has a frontmatter it cannot read."
+ },
+ {
+  "key": "s092-s",
+  "id": "s092",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a document starts with a refused frontmatter, checker reports that the document has a frontmatter it cannot read."
+ },
+ {
+  "key": "s093-cur",
+  "id": "s093",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run:\n\nwhen there is a document such that checker reports that the document has a frontmatter it cannot read, the run exits with code 2."
+ },
+ {
+  "key": "s093-o",
+  "id": "s093",
+  "src": "o",
+  "doc": "canon",
+  "text": "When checker reports that some document has a frontmatter it cannot read, every run exits with code 2."
+ },
+ {
+  "key": "s093-s",
+  "id": "s093",
+  "src": "s",
+  "doc": "canon",
+  "text": "When checker reports that some document has a frontmatter it cannot read, every run exits with code 2."
+ },
+ {
+  "key": "s094-cur",
+  "id": "s094",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every frontmatter and every missing plugin:\n\nwhen the frontmatter lists the missing plugin,\n\nthen all of these hold:\n- checker reports that the project lacks the missing plugin\n- the run exits with code 2"
+ },
+ {
+  "key": "s094-o",
+  "id": "s094",
+  "src": "o",
+  "doc": "canon",
+  "text": "When any frontmatter lists a missing plugin, checker reports that the project lacks that plugin, and every run exits with code 2."
+ },
+ {
+  "key": "s094-s",
+  "id": "s094",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a frontmatter lists a missing plugin, checker reports that the project lacks it, and every run exits with code 2."
+ },
+ {
+  "key": "s095-cur",
+  "id": "s095",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every frontmatter and every missing plugin:\n\nwhen the frontmatter lists the missing plugin, checker reports that the project lacks the missing plugin."
+ },
+ {
+  "key": "s095-o",
+  "id": "s095",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a frontmatter lists a missing plugin, the checker reports that the project lacks that plugin."
+ },
+ {
+  "key": "s095-s",
+  "id": "s095",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a frontmatter lists a missing plugin, checker reports that the project lacks it."
+ },
+ {
+  "key": "s096-cur",
+  "id": "s096",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every frontmatter and every missing plugin:\n\nwhen the frontmatter lists the missing plugin, the run exits with code 2."
+ },
+ {
+  "key": "s096-o",
+  "id": "s096",
+  "src": "o",
+  "doc": "canon",
+  "text": "When any frontmatter lists a missing plugin, every run exits with code 2."
+ },
+ {
+  "key": "s096-s",
+  "id": "s096",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a frontmatter lists a missing plugin, every run exits with code 2."
+ },
+ {
+  "key": "s097-cur",
+  "id": "s097",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every command_1:\n\nwhen the run asks for command_1 and command_1 is not available, checker reports command_1 as an unknown command and the run exits with code 2."
+ },
+ {
+  "key": "s097-o",
+  "id": "s097",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a run asks for a command that is not available, the checker reports it as an unknown command and the run exits with code 2."
+ },
+ {
+  "key": "s097-s",
+  "id": "s097",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every run and command: when the run asks for the command and the command is not available, checker reports it as an unknown command and the run exits with code 2."
+ },
+ {
+  "key": "s097-h",
+  "id": "s097",
+  "src": "h",
+  "doc": "canon",
+  "text": "When a run asks for an unavailable command, that command is reported as unknown and the run exits with code 2."
+ },
+ {
+  "key": "s098-cur",
+  "id": "s098",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every command_1:\n\nwhen the run asks for command_1 and command_1 is not available, checker reports command_1 as an unknown command."
+ },
+ {
+  "key": "s098-o",
+  "id": "s098",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a run asks for a command that is not available, checker reports the command as an unknown command."
+ },
+ {
+  "key": "s098-s",
+  "id": "s098",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a run asks for a command that is not available, checker reports it as an unknown command."
+ },
+ {
+  "key": "s099-cur",
+  "id": "s099",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every command:\n\nwhen the run asks for the command and the command is not available, the run exits with code 2."
+ },
+ {
+  "key": "s099-o",
+  "id": "s099",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a run asks for a command that is not available, the run exits with code 2."
+ },
+ {
+  "key": "s099-s",
+  "id": "s099",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a run asks for a command that is not available, that run exits with code 2."
+ },
+ {
+  "key": "s099-h",
+  "id": "s099",
+  "src": "h",
+  "doc": "canon",
+  "text": "When a run asks for a command that is not available, the run exits with code 2."
+ },
+ {
+  "key": "s100-cur",
+  "id": "s100",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every command_1:\n\nwhen command_1 is available, checker does not report command_1 as an unknown command."
+ },
+ {
+  "key": "s100-o",
+  "id": "s100",
+  "src": "o",
+  "doc": "canon",
+  "text": "Checker does not report an available command as an unknown command."
+ },
+ {
+  "key": "s100-s",
+  "id": "s100",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a command is available, checker does not report it as unknown."
+ },
+ {
+  "key": "s101-cur",
+  "id": "s101",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run and every plugin:\n\nwhen the run calls the plugin,\n\nthen the following holds:\n\nthe run gets code 0 from the plugin, gets code 1 from the plugin or gets code 2 from the plugin."
+ },
+ {
+  "key": "s101-o",
+  "id": "s101",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a run calls a plugin, the run gets code 0, 1 or 2 from the plugin."
+ },
+ {
+  "key": "s101-s",
+  "id": "s101",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a run calls a plugin, the run gets code 0, code 1 or code 2 from the plugin."
+ },
+ {
+  "key": "s102-cur",
+  "id": "s102",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run:\n\nall of these hold:\n- when the run gets code 2 from a plugin, the run exits with code 2\n- when the run gets code 1 from a plugin and gets code 2 from no plugin, the run exits with code 1"
+ },
+ {
+  "key": "s102-o",
+  "id": "s102",
+  "src": "o",
+  "doc": "canon",
+  "text": "A run that gets code 2 from any plugin exits with code 2, and a run that gets code 1 from some plugin and code 2 from none exits with code 1."
+ },
+ {
+  "key": "s102-s",
+  "id": "s102",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every run: when some plugin returns code 2, the run exits with code 2; when some plugin returns code 1 and no plugin returns code 2, the run exits with code 1."
+ },
+ {
+  "key": "s103-cur",
+  "id": "s103",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run:\n\nwhen the run gets code 2 from a plugin, the run exits with code 2."
+ },
+ {
+  "key": "s103-o",
+  "id": "s103",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a run gets code 2 from any plugin, the run exits with code 2."
+ },
+ {
+  "key": "s103-s",
+  "id": "s103",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a run gets code 2 from a plugin, the run exits with code 2."
+ },
+ {
+  "key": "s103-h",
+  "id": "s103",
+  "src": "h",
+  "doc": "canon",
+  "text": "When a run gets code 2 from a plugin, the run exits with code 2."
+ },
+ {
+  "key": "s104-cur",
+  "id": "s104",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run:\n\nwhen the run gets code 1 from a plugin and gets code 2 from no plugin, the run exits with code 1."
+ },
+ {
+  "key": "s104-o",
+  "id": "s104",
+  "src": "o",
+  "doc": "canon",
+  "text": "A run exits with code 1 when it gets code 1 from some plugin and code 2 from none."
+ },
+ {
+  "key": "s104-s",
+  "id": "s104",
+  "src": "s",
+  "doc": "canon",
+  "text": "When a run gets code 1 from some plugin but code 2 from none, it exits with code 1."
+ },
+ {
+  "key": "s104-h",
+  "id": "s104",
+  "src": "h",
+  "doc": "canon",
+  "text": "A run that gets code 1 from a plugin but not code 2 from any plugin exits with code 1."
+ },
+ {
+  "key": "s105-cur",
+  "id": "s105",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every run:\n\nwhen there is no plugin such that the run gets code 1 from the plugin or gets code 2 from the plugin, the run exits with code 0."
+ },
+ {
+  "key": "s105-o",
+  "id": "s105",
+  "src": "o",
+  "doc": "canon",
+  "text": "A run exits with code 0 when it gets neither code 1 nor code 2 from any plugin."
+ },
+ {
+  "key": "s105-s",
+  "id": "s105",
+  "src": "s",
+  "doc": "canon",
+  "text": "When no plugin gives a run code 1 or code 2, the run exits with code 0."
+ },
+ {
+  "key": "s106-cur",
+  "id": "s106",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document_1 and every document_2:\n\nwhen document_1 is document_2 without its frontmatter,\n\nthen all of these hold:\n- for every unit:\n\n  all of these hold:\n  - when document_2 holds the unit, document_1 holds the unit\n  - when document_1 holds the unit, document_2 holds the unit\n- when checker reports a finding for document_2, checker reports a finding for document_1\n- when checker reports a finding for document_1, checker reports a finding for document_2"
+ },
+ {
+  "key": "s106-o",
+  "id": "s106",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document is another document without its frontmatter, the two hold exactly the same units, and the checker reports a finding for one exactly when it reports a finding for the other."
+ },
+ {
+  "key": "s106-s",
+  "id": "s106",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every document_1 and document_2: when document_1 is document_2 without its frontmatter, the two hold exactly the same units, and checker reports a finding for one exactly when it reports one for the other."
+ },
+ {
+  "key": "s106-h",
+  "id": "s106",
+  "src": "h",
+  "doc": "canon",
+  "text": "When two documents differ only in frontmatter, they hold the same units and their finding status matches."
+ },
+ {
+  "key": "s107-cur",
+  "id": "s107",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document_1 and every document_2:\n\nwhen document_1 is document_2 without its frontmatter,\n\nthen for every unit:\n\nall of these hold:\n- when document_2 holds the unit, document_1 holds the unit\n- when document_1 holds the unit, document_2 holds the unit"
+ },
+ {
+  "key": "s107-o",
+  "id": "s107",
+  "src": "o",
+  "doc": "canon",
+  "text": "When document_1 is document_2 without its frontmatter, the two documents hold exactly the same units."
+ },
+ {
+  "key": "s107-s",
+  "id": "s107",
+  "src": "s",
+  "doc": "canon",
+  "text": "When one document is another without its frontmatter, the two hold exactly the same units."
+ },
+ {
+  "key": "s108-cur",
+  "id": "s108",
+  "src": "cur",
+  "doc": "canon",
+  "text": "For every document_1 and every document_2:\n\nwhen document_1 is document_2 without its frontmatter,\n\nthen all of these hold:\n- when checker reports a finding for document_2, checker reports a finding for document_1\n- when checker reports a finding for document_1, checker reports a finding for document_2"
+ },
+ {
+  "key": "s108-o",
+  "id": "s108",
+  "src": "o",
+  "doc": "canon",
+  "text": "When a document is another document without its frontmatter, the checker reports a finding for one exactly when it reports a finding for the other."
+ },
+ {
+  "key": "s108-s",
+  "id": "s108",
+  "src": "s",
+  "doc": "canon",
+  "text": "For every document_1 and document_2: when document_1 is document_2 without its frontmatter, checker reports a finding for one exactly when it reports one for the other."
+ },
+ {
+  "key": "s108-h",
+  "id": "s108",
+  "src": "h",
+  "doc": "canon",
+  "text": "When two documents differ only in frontmatter, they either both have findings or neither does."
+ },
+ {
+  "key": "s109-cur",
+  "id": "s109",
+  "src": "cur",
+  "doc": "canon",
+  "text": "It must be possible that:\n\nThere are axiom_1 and spec_1 and test_1 and tag_1 and document_1 and index_1 such that all of these hold:\n- spec_1 sits in axiom_1\n- project declares test_1\n- test_1 carries tag_1\n- tag_1 names spec_1\n- document_1 holds axiom_1\n- document_1 holds spec_1\n- document_1 holds index_1\n- index_1 matches document_1\n- for every thing:\n\n  checker reports no finding for the thing."
+ },
+ {
+  "key": "s109-o",
+  "id": "s109",
+  "src": "o",
+  "doc": "canon",
+  "text": "It must be possible that checker reports no finding for anything while a document holds an axiom, a spec that sits in that axiom, and an index that matches the document, and the project declares a test that carries a tag naming that spec."
+ },
+ {
+  "key": "s109-s",
+  "id": "s109",
+  "src": "s",
+  "doc": "canon",
+  "text": "It must be possible to have an axiom, a spec that sits in it, a declared test that carries a tag naming the spec, and a document holding the axiom, the spec and an index, with the index matching the document, while checker reports no finding for anything."
+ },
+ {
+  "key": "s110-cur",
+  "id": "s110",
+  "src": "cur",
+  "doc": "canon",
+  "text": "It must be possible that:\n\nThere are bug_1 and expected_failure_1 and issue_1 such that all of these hold:\n- bug_1 names issue_1\n- tracker knows issue_1\n- tracker has not closed issue_1\n- expected_failure_1 checks bug_1\n- checker reports no finding for bug_1\n- checker reports no finding for expected_failure_1"
+ },
+ {
+  "key": "s110-o",
+  "id": "s110",
+  "src": "o",
+  "doc": "canon",
+  "text": "It must be possible that a bug names an issue the tracker knows and has not closed, an expected failure checks that bug, and the checker reports no finding for the bug or for the expected failure."
+ },
+ {
+  "key": "s110-s",
+  "id": "s110",
+  "src": "s",
+  "doc": "canon",
+  "text": "It must be possible for a bug that names an issue the tracker knows but has not closed, and that an expected failure checks, for the checker to report no finding for either the bug or the expected failure."
+ },
+ {
+  "key": "s111-cur",
+  "id": "s111",
+  "src": "cur",
+  "doc": "canon",
+  "text": "It must be possible that:\n\nThere are conflict_1 and issue_1 and unit_1 and unit_2 such that all of these hold:\n- unit_1 and unit_2 are different\n- conflict_1 names issue_1\n- tracker knows issue_1\n- tracker has not closed issue_1\n- conflict_1 names unit_1\n- conflict_1 names unit_2\n- checker reports no finding for conflict_1"
+ },
+ {
+  "key": "s111-o",
+  "id": "s111",
+  "src": "o",
+  "doc": "canon",
+  "text": "It must be possible that a conflict names two different units and an issue that tracker knows and has not closed, and checker reports no finding for the conflict."
+ },
+ {
+  "key": "s111-s",
+  "id": "s111",
+  "src": "s",
+  "doc": "canon",
+  "text": "It must be possible for a conflict to name two different units and an issue that the tracker knows but has not closed, with checker reporting no finding for that conflict."
+ },
+ {
+  "key": "s112-cur",
+  "id": "s112",
+  "src": "cur",
+  "doc": "canon",
+  "text": "It must be possible that:\n\nThere are document_1 and document_2 and document_3 such that all of these hold:\n- document_1 and document_3 are different\n- document_1 extends document_2\n- document_2 extends document_3\n- document_3 is context for document_1"
+ },
+ {
+  "key": "s112-o",
+  "id": "s112",
+  "src": "o",
+  "doc": "canon",
+  "text": "There can be three documents A, B and C, with C different from A, where A extends B, B extends C, and C is context for A."
+ },
+ {
+  "key": "s112-s",
+  "id": "s112",
+  "src": "s",
+  "doc": "canon",
+  "text": "It must be possible for a document to extend a second document that extends a third, different from the first, with the third being context for the first."
+ },
+ {
+  "key": "s113-cur",
+  "id": "s113",
+  "src": "cur",
+  "doc": "canon",
+  "text": "It must be possible that:\n\nThere are run_1 and installed_plugin_1 and document_1 and listing_frontmatter_1 such that all of these hold:\n- document_1 starts with listing_frontmatter_1\n- listing_frontmatter_1 lists installed_plugin_1\n- checker runs installed_plugin_1 over document_1\n- run_1 calls installed_plugin_1\n- run_1 gets code 1 from installed_plugin_1\n- run_1 exits with code 1"
+ },
+ {
+  "key": "s113-o",
+  "id": "s113",
+  "src": "o",
+  "doc": "canon",
+  "text": "It must be possible that a document starts with a listing frontmatter that lists an installed plugin, checker runs the plugin over the document, and a run calls the plugin, gets code 1 from it, and exits with code 1."
+ },
+ {
+  "key": "s113-s",
+  "id": "s113",
+  "src": "s",
+  "doc": "canon",
+  "text": "It must be possible for a run to call an installed plugin that checker runs over a document whose frontmatter lists that plugin, get code 1 back from it, and itself exit with code 1."
+ },
+ {
+  "key": "s114-cur",
+  "id": "s114",
+  "src": "cur",
+  "doc": "canon",
+  "text": "It must be possible that:\n\nThere are run_1 and document_1 and refused_frontmatter_1 such that all of these hold:\n- document_1 starts with refused_frontmatter_1\n- checker reports that document_1 has a frontmatter it cannot read\n- run_1 exits with code 2"
+ },
+ {
+  "key": "s114-o",
+  "id": "s114",
+  "src": "o",
+  "doc": "canon",
+  "text": "It must be possible that a document starts with a refused frontmatter, the checker reports that the document has a frontmatter it cannot read, and some run exits with code 2."
+ },
+ {
+  "key": "s114-s",
+  "id": "s114",
+  "src": "s",
+  "doc": "canon",
+  "text": "It must be possible for a document to start with a refused frontmatter, for the checker to report that the document has a frontmatter it cannot read, and for some run to exit with code 2."
+ },
+ {
+  "key": "s115-cur",
+  "id": "s115",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document and every unit:\n\nwhen all of these hold:\n- the document keeps readings\n- the document holds the unit\n- the unit holds a formula\n- the statement of the unit is not current\n\nthen checker reports the statement of the unit."
+ },
+ {
+  "key": "s115-o",
+  "id": "s115",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document keeps readings and holds a unit that holds a formula and whose statement is not current, checker reports the statement of the unit."
+ },
+ {
+  "key": "s115-s",
+  "id": "s115",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document that keeps readings holds a unit that holds a formula whose statement is not current, checker reports that statement."
+ },
+ {
+  "key": "s116-cur",
+  "id": "s116",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document and every unit:\n\nwhen the document holds the unit and keeps no readings,\n\nthen all of these hold:\n- checker does not write the statement of the unit when it generates\n- checker does not report the statement of the unit"
+ },
+ {
+  "key": "s116-o",
+  "id": "s116",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit that a document keeping no readings holds, checker does not write the statement of the unit when it generates, and does not report that statement."
+ },
+ {
+  "key": "s116-s",
+  "id": "s116",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document holds a unit but keeps no readings, checker neither writes the unit's statement when it generates nor reports it."
+ },
+ {
+  "key": "s117-cur",
+  "id": "s117",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit has no statement\n- the formula of the unit can be said in words\n\nthen the statement of the unit is unwritten."
+ },
+ {
+  "key": "s117-o",
+  "id": "s117",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula that can be said in words but has no statement, the statement of the unit is unwritten."
+ },
+ {
+  "key": "s117-s",
+  "id": "s117",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit: when it holds a formula, has no statement, and its formula can be said in words, the statement is unwritten."
+ },
+ {
+  "key": "s118-cur",
+  "id": "s118",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the statement of the unit sits between the markers of a generated region\n- the statement of the unit differs from what its formula says\n- the formula of the unit can be said in words\n\nthen the statement of the unit is stale."
+ },
+ {
+  "key": "s118-o",
+  "id": "s118",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The statement of a unit is stale when the unit holds a formula that can be said in words, the statement sits between the markers of a generated region, and it differs from what its formula says."
+ },
+ {
+  "key": "s118-s",
+  "id": "s118",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula that can be said in words, its statement sits between the markers of a generated region, and that statement differs from what the formula says, then the statement is stale."
+ },
+ {
+  "key": "s119-cur",
+  "id": "s119",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen all of these hold:\n- the statement of the unit sits between the markers of a generated region\n- the statement of the unit does not differ from what its formula says\n- the formula of the unit can be said in words\n\nthen the statement of the unit is current."
+ },
+ {
+  "key": "s119-o",
+  "id": "s119",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A statement that sits between the markers of a generated region is current when its unit's formula can be said in words and the statement does not differ from what that formula says."
+ },
+ {
+  "key": "s119-s",
+  "id": "s119",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit's statement sits between the markers of a generated region, does not differ from what its formula says, and its formula can be said in words, the statement is current."
+ },
+ {
+  "key": "s119-h",
+  "id": "s119",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A generated statement whose formula would say exactly the same and whose formula can be said in words is current."
+ },
+ {
+  "key": "s120-cur",
+  "id": "s120",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit has a statement\n- the statement of the unit does not sit between the markers of a generated region\n- the formula of the unit can be said in words\n\nthen the statement of the unit is handwritten."
+ },
+ {
+  "key": "s120-o",
+  "id": "s120",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A unit's statement is handwritten when the unit holds a formula that can be said in words and its statement does not sit between the markers of a generated region."
+ },
+ {
+  "key": "s120-s",
+  "id": "s120",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula, has a statement, that statement does not sit between the markers of a generated region, and the formula can be said in words, the statement is handwritten."
+ },
+ {
+  "key": "s121-cur",
+  "id": "s121",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen at least one of these holds:\n- the formula of the unit names a word that has no reading\n- the unit holds more than one formula\n\nthen the formula of the unit cannot be said in words."
+ },
+ {
+  "key": "s121-o",
+  "id": "s121",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The formula of a unit cannot be said in words when it names a word that has no reading, or when the unit holds more than one formula."
+ },
+ {
+  "key": "s121-s",
+  "id": "s121",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit's formula names a word with no reading, or the unit holds more than one formula, its formula cannot be said in words."
+ },
+ {
+  "key": "s122-cur",
+  "id": "s122",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the formula of the unit names a word that has no reading, the formula of the unit cannot be said in words."
+ },
+ {
+  "key": "s122-o",
+  "id": "s122",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the formula of a unit names a word that has no reading, that formula cannot be said in words."
+ },
+ {
+  "key": "s122-s",
+  "id": "s122",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit: when its formula names a word that has no reading, that formula cannot be said in words."
+ },
+ {
+  "key": "s123-cur",
+  "id": "s123",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the unit holds more than one formula, the formula of the unit cannot be said in words."
+ },
+ {
+  "key": "s123-o",
+  "id": "s123",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds more than one formula, its formula cannot be said in words."
+ },
+ {
+  "key": "s123-s",
+  "id": "s123",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds more than one formula, the formula of the unit cannot be said in words."
+ },
+ {
+  "key": "s124-cur",
+  "id": "s124",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the formula of the unit cannot be said in words, checker says why the formula of the unit cannot be said."
+ },
+ {
+  "key": "s124-o",
+  "id": "s124",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the formula of a unit cannot be said in words, checker says why."
+ },
+ {
+  "key": "s124-s",
+  "id": "s124",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When the formula of a unit cannot be said in words, checker says why."
+ },
+ {
+  "key": "s125-cur",
+  "id": "s125",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every command_1 and every unit:\n\nwhen all of these hold:\n- the run asks for command_1\n- command_1 is the command `generate` or is the command `check`\n- the verbalizer fails on the formula of the unit with a fault of its own\n\nthen checker does not say why the formula of the unit cannot be said and the run does not exit with code 0."
+ },
+ {
+  "key": "s125-o",
+  "id": "s125",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for `generate` or `check` and the verbalizer fails on the formula of any unit with a fault of its own, the run does not exit with code 0, and checker does not say why that formula cannot be said."
+ },
+ {
+  "key": "s125-s",
+  "id": "s125",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run, command, and unit: when the run asks for the `generate` or `check` command and the verbalizer fails on the formula of the unit with a fault of its own, then checker does not say why the formula of the unit cannot be said, and the run does not exit with code 0."
+ },
+ {
+  "key": "s126-cur",
+  "id": "s126",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nall of these hold:\n- when checker writes the statement of the unit when it generates, the statement of the unit is unwritten or the statement of the unit is stale\n- when the statement of the unit is unwritten or the statement of the unit is stale, checker writes the statement of the unit when it generates"
+ },
+ {
+  "key": "s126-o",
+  "id": "s126",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When it generates, checker writes the statement of a unit exactly when that statement is unwritten or stale."
+ },
+ {
+  "key": "s126-s",
+  "id": "s126",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit, checker writes the unit's statement when it generates exactly when the statement is unwritten or stale."
+ },
+ {
+  "key": "s127-cur",
+  "id": "s127",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the statement of the unit is stale, checker writes the statement of the unit when it generates."
+ },
+ {
+  "key": "s127-o",
+  "id": "s127",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the statement of a unit is stale, checker writes that statement when it generates."
+ },
+ {
+  "key": "s127-s",
+  "id": "s127",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit: when its statement is stale, checker writes it when it generates."
+ },
+ {
+  "key": "s128-cur",
+  "id": "s128",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the statement of the unit is current, checker does not write the statement of the unit when it generates."
+ },
+ {
+  "key": "s128-o",
+  "id": "s128",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the statement of a unit is current, checker does not write it when it generates."
+ },
+ {
+  "key": "s128-s",
+  "id": "s128",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit's statement is current, checker does not write it when it generates."
+ },
+ {
+  "key": "s129-cur",
+  "id": "s129",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the statement of the unit is handwritten, checker does not write the statement of the unit when it generates."
+ },
+ {
+  "key": "s129-o",
+  "id": "s129",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When it generates, checker never writes a handwritten statement of a unit."
+ },
+ {
+  "key": "s129-s",
+  "id": "s129",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit's statement is handwritten, checker does not write that statement when it generates."
+ },
+ {
+  "key": "s130-cur",
+  "id": "s130",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the formula of the unit cannot be said in words, checker does not write the statement of the unit when it generates."
+ },
+ {
+  "key": "s130-o",
+  "id": "s130",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the formula of a unit cannot be said in words, checker does not write the unit's statement when it generates."
+ },
+ {
+  "key": "s130-s",
+  "id": "s130",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When the formula of a unit cannot be said in words, checker does not write its statement when it generates."
+ },
+ {
+  "key": "s131-cur",
+  "id": "s131",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document and every unit:\n\nwhen all of these hold:\n- the document keeps readings\n- the document holds the unit\n- the unit holds a formula\n- the statement of the unit is not current\n\nthen checker reports the statement of the unit."
+ },
+ {
+  "key": "s131-o",
+  "id": "s131",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document keeps readings, the checker reports the statement of every unit it holds that holds a formula and whose statement is not current."
+ },
+ {
+  "key": "s131-s",
+  "id": "s131",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document and unit: when the document keeps readings, holds the unit, the unit holds a formula, and its statement is not current, checker reports the unit's statement."
+ },
+ {
+  "key": "s132-cur",
+  "id": "s132",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the statement of the unit is current, checker does not report the statement of the unit."
+ },
+ {
+  "key": "s132-o",
+  "id": "s132",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the statement of a unit is current, checker does not report it."
+ },
+ {
+  "key": "s132-s",
+  "id": "s132",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit's statement is current, checker does not report it."
+ },
+ {
+  "key": "s133-cur",
+  "id": "s133",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every check command and every unit:\n\nwhen the run asks for the check command and checker reports the statement of the unit, the run does not exit with code 0."
+ },
+ {
+  "key": "s133-o",
+  "id": "s133",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for a check command and checker reports the statement of some unit, the run does not exit with code 0."
+ },
+ {
+  "key": "s133-s",
+  "id": "s133",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for the check command and checker reports a unit's statement, the run does not exit with code 0."
+ },
+ {
+  "key": "s134-cur",
+  "id": "s134",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every generate command and every unit:\n\nwhen the run asks for the generate command and the statement of the unit is handwritten, checker reports the statement of the unit and the run does not exit with code 0."
+ },
+ {
+  "key": "s134-o",
+  "id": "s134",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for a generate command, checker reports every handwritten statement of a unit, and if there is one, the run does not exit with code 0."
+ },
+ {
+  "key": "s134-s",
+  "id": "s134",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for the generate command while a unit's statement is handwritten, checker reports that statement, and the run does not exit with code 0."
+ },
+ {
+  "key": "s135-cur",
+  "id": "s135",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every generate command and every unit:\n\nwhen the run asks for the generate command and the formula of the unit cannot be said in words, checker says why the formula of the unit cannot be said and the run does not exit with code 0."
+ },
+ {
+  "key": "s135-o",
+  "id": "s135",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for a generate command, the checker says why the formula of each unit that cannot be said in words cannot be said, and if there is such a unit, the run does not exit with code 0."
+ },
+ {
+  "key": "s135-s",
+  "id": "s135",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run that asks for the generate command and every unit whose formula cannot be said in words: checker says why it cannot be said, and the run does not exit with code 0."
+ },
+ {
+  "key": "s136-cur",
+  "id": "s136",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word_1:\n\nwhen all of these hold:\n- there is a unit_1 such that a reading in unit_1 says word_1\n- no unit declares word_1\n\nthen word_1 is a word that a reading says and nothing declares."
+ },
+ {
+  "key": "s136-o",
+  "id": "s136",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a reading in some unit says a word and no unit declares it, the word is a word that a reading says and nothing declares."
+ },
+ {
+  "key": "s136-s",
+  "id": "s136",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When some unit's reading says a word, and no unit declares it, then it is a word that a reading says and nothing declares."
+ },
+ {
+  "key": "s137-cur",
+  "id": "s137",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every word_1:\n\nwhen unit_1 declares word_1 and is not a term, word_1 is a word declared in a unit that is not a term."
+ },
+ {
+  "key": "s137-o",
+  "id": "s137",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit that is not a term declares a word, that word counts as a word declared in a unit that is not a term."
+ },
+ {
+  "key": "s137-s",
+  "id": "s137",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit that is not a term declares a word, that word is indeed one declared by a unit that is not a term."
+ },
+ {
+  "key": "s138-cur",
+  "id": "s138",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every word_1:\n\nwhen all of these hold:\n- a reading in unit_1 says word_1\n- a unit declares word_1\n- unit_1 does not declare word_1\n\nthen word_1 is a word whose reading is in another unit than its declaration."
+ },
+ {
+  "key": "s138-o",
+  "id": "s138",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "If a reading in a unit says a word that is declared, but not by that unit, then the word is a word whose reading is in another unit than its declaration."
+ },
+ {
+  "key": "s138-s",
+  "id": "s138",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and word_1: if a reading in unit_1 says word_1, some unit declares word_1, and unit_1 does not declare word_1, then word_1 is a word whose reading is in another unit than its declaration."
+ },
+ {
+  "key": "s138-h",
+  "id": "s138",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A word used in one unit but declared in another is apart."
+ },
+ {
+  "key": "s139-cur",
+  "id": "s139",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word_1:\n\nwhen all of these hold:\n- a unit declares word_1\n- there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1\n\nthen word_1 is a word that no claim, definition or fact uses."
+ },
+ {
+  "key": "s139-o",
+  "id": "s139",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A word that some unit declares but that no claim, definition or fact of any unit uses is a word that no claim, definition or fact uses."
+ },
+ {
+  "key": "s139-s",
+  "id": "s139",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word: when a unit declares it and no unit's claim, definition, or fact uses it, then it is a word that no claim, definition or fact uses."
+ },
+ {
+  "key": "s139-h",
+  "id": "s139",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A declared word that no claim, definition, or fact uses is unused."
+ },
+ {
+  "key": "s140-cur",
+  "id": "s140",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every term_1 and every word_1:\n\nwhen all of these hold:\n- term_1 declares word_1\n- a reading in term_1 says word_1\n- there is a unit_1 such that a claim, a definition or a fact of unit_1 uses word_1\n\nthen all of these hold:\n- word_1 is not a word that a reading says and nothing declares\n- word_1 is not a word declared in a unit that is not a term\n- word_1 is not a word whose reading is in another unit than its declaration\n- word_1 is not a word that no claim, definition or fact uses\n- checker does not report the word word_1"
+ },
+ {
+  "key": "s140-o",
+  "id": "s140",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "Suppose a term declares a word, a reading in that term says the word, and a claim, a definition or a fact of some unit uses it. Then the checker does not report the word, and the word is none of these:\n- a word that a reading says and nothing declares\n- a word declared in a unit that is not a term\n- a word whose reading is in another unit than its declaration\n- a word that no claim, definition or fact uses"
+ },
+ {
+  "key": "s140-s",
+  "id": "s140",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every term and every word: when the term declares the word, a reading in the term says the word, and some unit's claim, definition or fact uses it, then all of these hold:\n- it is not a word that a reading says and nothing declares\n- it is not a word declared in a unit that is not a term\n- it is not a word whose reading is in another unit than its declaration\n- it is not a word that no claim, definition or fact uses\n- checker does not report it"
+ },
+ {
+  "key": "s141-cur",
+  "id": "s141",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document and every unit_1 and every word_1:\n\nwhen the document keeps no readings, holds unit_1 and unit_1 declares word_1,\n\nthen all of these hold:\n- word_1 is not a word that a reading says and nothing declares\n- word_1 is not a word declared in a unit that is not a term\n- word_1 is not a word whose reading is in another unit than its declaration\n- word_1 is not a word that no claim, definition or fact uses\n- checker does not report the word word_1"
+ },
+ {
+  "key": "s141-o",
+  "id": "s141",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document keeps no readings, no word declared by a unit it holds is reported by the checker, and none is:\n- a word that a reading says and nothing declares\n- a word declared in a unit that is not a term\n- a word whose reading is in another unit than its declaration\n- a word that no claim, definition or fact uses"
+ },
+ {
+  "key": "s141-s",
+  "id": "s141",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document, unit, and word: when the document keeps no readings, holds the unit, and the unit declares the word, then none of these hold:\n- a reading says the word and nothing declares it\n- the word is declared in a unit that is not a term\n- the word's reading is in another unit than its declaration\n- no claim, definition or fact uses the word\n- checker reports the word"
+ },
+ {
+  "key": "s142-cur",
+  "id": "s142",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every check command and every word_1:\n\nwhen the run asks for the check command and checker reports the word word_1, the run does not exit with code 0."
+ },
+ {
+  "key": "s142-o",
+  "id": "s142",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for a check command while checker reports any word at all, the run does not exit with code 0."
+ },
+ {
+  "key": "s142-s",
+  "id": "s142",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for the check command and checker reports a word, that run does not exit with code 0."
+ },
+ {
+  "key": "s143-cur",
+  "id": "s143",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word_1:\n\nwhen all of these hold:\n- word_1 is not a word that a reading says and nothing declares\n- word_1 is not a word declared in a unit that is not a term\n- word_1 is not a word whose reading is in another unit than its declaration\n- word_1 is not a word that no claim, definition or fact uses\n\nthen checker does not report the word word_1."
+ },
+ {
+  "key": "s143-o",
+  "id": "s143",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "Checker does not report a word when none of these holds:\n- a reading says it and nothing declares it\n- it is declared in a unit that is not a term\n- its reading is in another unit than its declaration\n- no claim, definition or fact uses it"
+ },
+ {
+  "key": "s143-s",
+  "id": "s143",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word: checker does not report it when it is none of these:\n- a word that a reading says and nothing declares\n- a word declared in a unit that is not a term\n- a word whose reading is in another unit than its declaration\n- a word that no claim, definition or fact uses"
+ },
+ {
+  "key": "s144-cur",
+  "id": "s144",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word_1:\n\nwhen at least one of these holds:\n- word_1 is a word that a reading says and nothing declares\n- word_1 is a word declared in a unit that is not a term\n- word_1 is a word whose reading is in another unit than its declaration\n- word_1 is a word that no claim, definition or fact uses\n\nthen checker reports the word word_1."
+ },
+ {
+  "key": "s144-o",
+  "id": "s144",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "Checker reports a word when any of these holds:\n- a reading says it and nothing declares it\n- it is declared in a unit that is not a term\n- its reading is in another unit than its declaration\n- no claim, definition or fact uses it"
+ },
+ {
+  "key": "s144-s",
+  "id": "s144",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every word: checker reports it when it is one of these:\n- a word that a reading says and nothing declares\n- a word declared in a unit that is not a term\n- a word whose reading is in another unit than its declaration\n- a word that no claim, definition or fact uses"
+ },
+ {
+  "key": "s144-h",
+  "id": "s144",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A word that is undeclared, misplaced, apart, or unused is flagged."
+ },
+ {
+  "key": "s145-cur",
+  "id": "s145",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document_1 and every document_2 and every unit:\n\nwhen all of these hold:\n- the project lists document_1 among the documents it checks\n- the project does not list document_2 among the documents it checks\n- document_2 is context for document_1\n- document_2 holds the unit\n\nthen checker does not write the statement of the unit when it generates."
+ },
+ {
+  "key": "s145-o",
+  "id": "s145",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When it generates, checker does not write the statement of a unit held by a document that the project does not list among the documents it checks, if that document is context for one the project does list."
+ },
+ {
+  "key": "s145-s",
+  "id": "s145",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every two documents and every unit: when the project checks the first document but not the second, the second is context for the first, and the second holds the unit, then checker does not write the statement of the unit when it generates."
+ },
+ {
+  "key": "s146-cur",
+  "id": "s146",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document_1 and every document_2 and every unit_1 and every unit_2 and every word_1:\n\nwhen all of these hold:\n- document_2 is context for document_1\n- document_1 holds unit_1\n- a reading in unit_1 says word_1\n- document_2 holds unit_2\n- unit_2 declares word_1\n\nthen word_1 is not a word that a reading says and nothing declares."
+ },
+ {
+  "key": "s146-o",
+  "id": "s146",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "If a reading in a unit of a document says a word, and a document that is context for that document holds a unit that declares the word, then the word is not a word that a reading says and nothing declares."
+ },
+ {
+  "key": "s146-s",
+  "id": "s146",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document_1, document_2, unit_1, unit_2 and word_1: if document_2 is context for document_1, document_1 holds unit_1, a reading in unit_1 says word_1, document_2 holds unit_2, and unit_2 declares word_1, then word_1 is not a word that a reading says and nothing declares."
+ },
+ {
+  "key": "s147-cur",
+  "id": "s147",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "All of these hold:\n- for every unit_1:\n\n  when unit_1 is held with units that cannot all hold, checker names unit_1 in its report of a contradiction\n- for every scenario_1:\n\n  when scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen."
+ },
+ {
+  "key": "s147-o",
+  "id": "s147",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker names every unit that is held with units that cannot all hold in its report of a contradiction, and for every scenario that cannot happen while every held unit holds, it reports that the scenario cannot happen."
+ },
+ {
+  "key": "s147-s",
+  "id": "s147",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "All of these hold:\n- when a unit is held with units that cannot all hold, checker names it in its report of a contradiction\n- when a scenario cannot happen while every held unit holds, checker reports that it cannot happen."
+ },
+ {
+  "key": "s148-cur",
+  "id": "s148",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen the unit holds a formula with no keyword, the analyzer is asked to hold the formula of the unit."
+ },
+ {
+  "key": "s148-o",
+  "id": "s148",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula with no keyword, the analyzer is asked to hold that formula."
+ },
+ {
+  "key": "s148-s",
+  "id": "s148",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula with no keyword, the analyzer is asked to hold that formula."
+ },
+ {
+  "key": "s148-h",
+  "id": "s148",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A unit holding a formula with no keyword asks the analyzer to hold the formula."
+ },
+ {
+  "key": "s149-cur",
+  "id": "s149",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every search:\n\nwhen the search is asked before any scenario is known to be impossible, the search leaves no unit out."
+ },
+ {
+  "key": "s149-o",
+  "id": "s149",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "Every search asked before any scenario is known to be impossible leaves no unit out."
+ },
+ {
+  "key": "s149-s",
+  "id": "s149",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "Every search that is asked before any scenario is known to be impossible leaves no unit out."
+ },
+ {
+  "key": "s149-h",
+  "id": "s149",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A search asked before any scenario is known impossible leaves no unit out."
+ },
+ {
+  "key": "s150-cur",
+  "id": "s150",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every search_1 and every scenario_1:\n\nwhen search_1 leaves one unit out and requires scenario_1 to happen,\n\nthen all of these hold:\n- scenario_1 is a scenario that cannot happen while every held unit holds\n- search_1 is asked after the first search is answered"
+ },
+ {
+  "key": "s150-o",
+  "id": "s150",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A search that leaves one unit out and requires a scenario to happen is asked after the first search is answered, and that scenario cannot happen while every held unit holds."
+ },
+ {
+  "key": "s150-s",
+  "id": "s150",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a search that leaves one unit out requires a scenario to happen, that scenario cannot happen while every held unit holds, and the search is asked after the first search is answered."
+ },
+ {
+  "key": "s151-cur",
+  "id": "s151",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every search and every scenario and every unit_1:\n\nwhen the search leaves one unit out, requires the scenario to happen and leaves out unit_1,\n\nthen all of these hold:\n- the analyzer is asked to hold the formula of unit_1\n- the search does not require unit_1 to hold\n- for every unit_2:\n\n  when all of these hold:\n  - the analyzer is asked to hold the formula of unit_2\n  - unit_2 and unit_1 are different\n\n  then the search requires unit_2 to hold."
+ },
+ {
+  "key": "s151-o",
+  "id": "s151",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a search leaves one unit out and requires some scenario to happen, then for each unit it leaves out:\n- the analyzer is asked to hold that unit's formula\n- the search does not require that unit to hold\n- the search requires every other unit whose formula the analyzer is asked to hold to hold"
+ },
+ {
+  "key": "s151-s",
+  "id": "s151",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a search that leaves one unit out requires a scenario to happen and leaves out a unit, then: the analyzer is asked to hold that unit's formula, the search does not require the unit itself to hold, and the search requires every other unit the analyzer is asked to hold to hold too."
+ },
+ {
+  "key": "s152-cur",
+  "id": "s152",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario_1 and every unit_1:\n\nwhen all of these hold:\n- scenario_1 is a scenario that cannot happen while every held unit holds\n- the analyzer is asked to hold the formula of unit_1\n- there is no unit_2 such that the author asks about leaving out unit_2 for scenario_1\n\nthen a search that leaves one unit out and leaves out unit_1 requires scenario_1 to happen."
+ },
+ {
+  "key": "s152-o",
+  "id": "s152",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "Take a scenario that cannot happen while every held unit holds, and for which the author asks about leaving out no unit. For each unit whose formula the analyzer is asked to hold, some search that leaves one unit out leaves out that unit and requires the scenario to happen."
+ },
+ {
+  "key": "s152-s",
+  "id": "s152",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario and every unit: when the scenario cannot happen while every held unit holds, the analyzer is asked to hold the formula of the unit, and the author has not asked about leaving out any unit for the scenario, then some search that leaves out only this unit requires the scenario to happen."
+ },
+ {
+  "key": "s152-h",
+  "id": "s152",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "For an impossible scenario with held units and no author probes, each held unit requires a trial search that makes the scenario possible."
+ },
+ {
+  "key": "s153-cur",
+  "id": "s153",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every search and every scenario and every unit_1:\n\nwhen all of these hold:\n- the search leaves one unit out\n- the search requires the scenario to happen\n- the search leaves out unit_1\n- there is a unit_2 such that the author asks about leaving out unit_2 for the scenario\n\nthen the author asks about leaving out unit_1 for the scenario."
+ },
+ {
+  "key": "s153-o",
+  "id": "s153",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "If the author asks about leaving out any unit for a scenario that a search leaving one unit out requires to happen, the author also asks about leaving out, for that scenario, every unit the search leaves out."
+ },
+ {
+  "key": "s153-s",
+  "id": "s153",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a search that leaves one unit out requires a scenario to happen and leaves out a unit, and the author already asks about leaving some unit out for that scenario, the author also asks about leaving this unit out for it."
+ },
+ {
+  "key": "s154-cur",
+  "id": "s154",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario_1:\n\nwhen scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen."
+ },
+ {
+  "key": "s154-o",
+  "id": "s154",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a scenario cannot happen while every held unit holds, checker reports that it cannot happen."
+ },
+ {
+  "key": "s154-s",
+  "id": "s154",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a scenario cannot happen while every held unit holds, checker reports that it cannot happen."
+ },
+ {
+  "key": "s155-cur",
+  "id": "s155",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario_1:\n\nwhen scenario_1 is a scenario that can happen while every held unit holds, checker does not report that scenario_1 cannot happen."
+ },
+ {
+  "key": "s155-o",
+  "id": "s155",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker does not report that a scenario cannot happen when it can happen while every held unit holds."
+ },
+ {
+  "key": "s155-s",
+  "id": "s155",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a scenario can happen while every held unit holds, checker does not report that it cannot happen."
+ },
+ {
+  "key": "s155-h",
+  "id": "s155",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A scenario that can happen is not reported as impossible."
+ },
+ {
+  "key": "s156-cur",
+  "id": "s156",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario and every unit:\n\nwhen all of these hold:\n- checker reports that the scenario cannot happen\n- leaving out the unit lets the scenario happen\n\nthen checker names the unit in its report of the scenario."
+ },
+ {
+  "key": "s156-o",
+  "id": "s156",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When checker reports that a scenario cannot happen, its report names each unit whose leaving out lets the scenario happen."
+ },
+ {
+  "key": "s156-s",
+  "id": "s156",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When checker reports that a scenario cannot happen, and leaving out a unit would let it happen, checker names that unit in its report of the scenario."
+ },
+ {
+  "key": "s156-h",
+  "id": "s156",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "For each impossible scenario, each unit whose removal frees it is named in the scenario's report."
+ },
+ {
+  "key": "s157-cur",
+  "id": "s157",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario and every unit:\n\nwhen checker names the unit in its report of the scenario, leaving out the unit lets the scenario happen."
+ },
+ {
+  "key": "s157-o",
+  "id": "s157",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When checker names a unit in its report of a scenario, leaving out that unit lets the scenario happen."
+ },
+ {
+  "key": "s157-s",
+  "id": "s157",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every scenario and unit: if checker names the unit in its report of the scenario, leaving the unit out lets the scenario happen."
+ },
+ {
+  "key": "s158-cur",
+  "id": "s158",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1:\n\nwhen unit_1 is held with units that cannot all hold, checker names unit_1 in its report of a contradiction."
+ },
+ {
+  "key": "s158-o",
+  "id": "s158",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker names every unit that is held with units that cannot all hold in its report of a contradiction."
+ },
+ {
+  "key": "s158-s",
+  "id": "s158",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit is held with units that cannot all hold, checker names it in its report of a contradiction."
+ },
+ {
+  "key": "s159-cur",
+  "id": "s159",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every unit_2:\n\nwhen all of these hold:\n- unit_1 is held with units that cannot all hold\n- the analyzer is asked about unit_1 together with unit_2\n\nthen checker names unit_2 in its report of a contradiction."
+ },
+ {
+  "key": "s159-o",
+  "id": "s159",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit is held with units that cannot all hold, checker names in its report of a contradiction every unit that the analyzer is asked about together with it."
+ },
+ {
+  "key": "s159-s",
+  "id": "s159",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and unit_2: if unit_1 is held with units that cannot all hold, and the analyzer is asked about unit_1 together with unit_2, then checker names unit_2 in its report of a contradiction."
+ },
+ {
+  "key": "s160-cur",
+  "id": "s160",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every unit_2:\n\nwhen unit_1 shares a word with unit_2, the analyzer is asked about unit_1 together with unit_2."
+ },
+ {
+  "key": "s160-o",
+  "id": "s160",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When one unit shares a word with another, the analyzer is asked about the first together with the second."
+ },
+ {
+  "key": "s160-s",
+  "id": "s160",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When one unit shares a word with another, the analyzer is asked about them together."
+ },
+ {
+  "key": "s160-h",
+  "id": "s160",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "When units share a word, the analyzer is asked about them together."
+ },
+ {
+  "key": "s161-cur",
+  "id": "s161",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every unit_2:\n\nwhen the analyzer is asked about unit_1 together with unit_2, unit_1 is linked to unit_2 through shared words."
+ },
+ {
+  "key": "s161-o",
+  "id": "s161",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When the analyzer is asked about one unit together with another, the first is linked to the second through shared words."
+ },
+ {
+  "key": "s161-s",
+  "id": "s161",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When the analyzer is asked about one unit together with another, the first is linked to the second through shared words."
+ },
+ {
+  "key": "s162-cur",
+  "id": "s162",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every logic command:\n\nwhen all of these hold:\n- the run asks for the logic command\n- there is no scenario such that checker reports that the scenario cannot happen\n- there is no unit_1 such that unit_1 is held with units that cannot all hold\n\nthen the run exits with code 0."
+ },
+ {
+  "key": "s162-o",
+  "id": "s162",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A run that asks for a logic command exits with code 0 when the checker reports no scenario as one that cannot happen and no unit is held with units that cannot all hold."
+ },
+ {
+  "key": "s162-s",
+  "id": "s162",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run that asks for a logic command: when checker reports no scenario as unable to happen and no unit as held with units that cannot all hold, the run exits with code 0."
+ },
+ {
+  "key": "s163-cur",
+  "id": "s163",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every logic command:\n\nwhen all of these hold:\n- the run asks for the logic command\n- at least one of these holds:\n  - there is a scenario such that checker reports that the scenario cannot happen\n  - there is a unit_1 such that unit_1 is held with units that cannot all hold\n\nthen the run does not exit with code 0."
+ },
+ {
+  "key": "s163-o",
+  "id": "s163",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A run that asks for a logic command does not exit with code 0 if the checker reports that some scenario cannot happen, or if some unit is held with units that cannot all hold."
+ },
+ {
+  "key": "s163-s",
+  "id": "s163",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a run asks for a logic command, and either checker reports that some scenario cannot happen or some unit is held with units that cannot all hold, the run does not exit with code 0."
+ },
+ {
+  "key": "s163-h",
+  "id": "s163",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "When a logic command is asked and either a scenario is reported impossible or a unit is held with others that cannot all hold, the run does not exit with code 0."
+ },
+ {
+  "key": "s164-cur",
+  "id": "s164",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document_1 and every document_2 and every unit:\n\nwhen all of these hold:\n- the project lists document_1 among the documents it checks\n- document_2 is context for document_1\n- document_2 holds the unit\n- the unit holds a formula with no keyword\n\nthen the analyzer is asked to hold the formula of the unit."
+ },
+ {
+  "key": "s164-o",
+  "id": "s164",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document the project lists among the documents it checks, the analyzer is asked to hold the formula of each unit that a document of its context holds, when that unit holds a formula with no keyword."
+ },
+ {
+  "key": "s164-s",
+  "id": "s164",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When project lists a document among those it checks, and another document that is context for it holds a unit whose formula has no keyword, the analyzer is asked to hold that unit's formula."
+ },
+ {
+  "key": "s165-cur",
+  "id": "s165",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "All of these hold:\n- for every unit:\n\n  when all of these hold:\n  - the unit holds a formula\n  - the unit is not a term\n  - no other formula can contradict the formula of the unit\n\n  then checker reports the formula of the unit as lone on a signature\n- for every unit and every word:\n\n  when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit."
+ },
+ {
+  "key": "s165-o",
+  "id": "s165",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker reports a unit's formula as lone on a word only if no other formula can contradict that formula. Conversely, when a unit that is not a term holds a formula that no other formula can contradict, the checker reports that formula as lone on some signature."
+ },
+ {
+  "key": "s165-s",
+  "id": "s165",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "Both of these hold:\n- When a unit holds a formula, is not a term, and no other formula can contradict its formula, checker reports its formula as lone on some signature.\n- When checker reports a unit's formula as lone on a word, no other formula can contradict the formula of the unit."
+ },
+ {
+  "key": "s166-cur",
+  "id": "s166",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit is not a term\n- no other formula can contradict the formula of the unit\n\nthen checker reports the formula of the unit as lone on a signature."
+ },
+ {
+  "key": "s166-o",
+  "id": "s166",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit that is not a term holds a formula that no other formula can contradict, checker reports that formula as lone on some signature."
+ },
+ {
+  "key": "s166-s",
+  "id": "s166",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula, is not a term, and no other formula can contradict its formula, then checker reports its formula as lone on some signature."
+ },
+ {
+  "key": "s167-cur",
+  "id": "s167",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit and every signature:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit is not a term\n- the formula of the unit is lone on the signature\n\nthen checker reports the formula of the unit as lone on the signature."
+ },
+ {
+  "key": "s167-o",
+  "id": "s167",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit that is not a term holds a formula that is lone on a signature, the checker reports that formula as lone on that signature."
+ },
+ {
+  "key": "s167-s",
+  "id": "s167",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a unit holds a formula, is not a term, and its formula is lone on a signature, checker reports the formula as lone on that signature."
+ },
+ {
+  "key": "s167-h",
+  "id": "s167",
+  "src": "h",
+  "doc": "canon-plugin-alloy",
+  "text": "A formula that is lone on a signature and is held by a non-term unit is reported as lone on the signature."
+ },
+ {
+  "key": "s168-cur",
+  "id": "s168",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit and every word:\n\nwhen checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit."
+ },
+ {
+  "key": "s168-o",
+  "id": "s168",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When checker reports the formula of a unit as lone on some word, no other formula can contradict that formula."
+ },
+ {
+  "key": "s168-s",
+  "id": "s168",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit and word: if checker reports the formula of the unit as lone on the word, no other formula can contradict it."
+ },
+ {
+  "key": "s169-cur",
+  "id": "s169",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit and every word:\n\nwhen checker reports the formula of the unit as lone on the word,\n\nthen all of these hold:\n- the unit holds a formula\n- the unit is not a term\n- the word is a signature\n- the formula of the unit is lone on the word"
+ },
+ {
+  "key": "s169-o",
+  "id": "s169",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker reports a unit's formula as lone on a word only when the unit holds a formula and is not a term, the word is a signature, and the formula is lone on it."
+ },
+ {
+  "key": "s169-s",
+  "id": "s169",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When checker reports a unit's formula as lone on a word, the unit holds a formula and is not a term, the word is a signature, and the formula is lone on it."
+ },
+ {
+  "key": "s170-cur",
+  "id": "s170",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every unit_2 and every word:\n\nwhen all of these hold:\n- unit_2 and unit_1 are different\n- a block of unit_2 names the word outside its declaration\n\nthen checker does not report the formula of unit_1 as lone on the word."
+ },
+ {
+  "key": "s170-o",
+  "id": "s170",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "Checker does not report the formula of a unit as lone on a word that a block of some other unit names outside its declaration."
+ },
+ {
+  "key": "s170-s",
+  "id": "s170",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every two different units and every word: when a block of the second unit names the word outside its declaration, checker does not report the formula of the first unit as lone on that word."
+ },
+ {
+  "key": "s171-cur",
+  "id": "s171",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit_1 and every unit_2 and every word:\n\nwhen a scenario of unit_2 names the word, checker does not report the formula of unit_1 as lone on the word."
+ },
+ {
+  "key": "s171-o",
+  "id": "s171",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a scenario of any unit names a word, the checker reports no unit's formula as lone on that word."
+ },
+ {
+  "key": "s171-s",
+  "id": "s171",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a scenario of a unit names a word, checker does not report the formula of any unit as lone on that word."
+ },
+ {
+  "key": "s172-cur",
+  "id": "s172",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document_1 and every document_2 and every unit_1 and every unit_2 and every word:\n\nwhen all of these hold:\n- document_2 is context for document_1\n- document_1 holds unit_1\n- document_2 holds unit_2\n- a block of unit_2 names the word outside its declaration\n\nthen checker does not report the formula of unit_1 as lone on the word."
+ },
+ {
+  "key": "s172-o",
+  "id": "s172",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "If a document that is context for another document holds a unit with a block that names a word outside its declaration, checker does not report the formula of any unit of the other document as lone on that word."
+ },
+ {
+  "key": "s172-s",
+  "id": "s172",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document_1, document_2, unit_1, unit_2 and word: if document_2 is context for document_1, document_1 holds unit_1, document_2 holds unit_2, and a block of unit_2 names the word outside its declaration, then checker does not report the formula of unit_1 as lone on the word."
+ },
+ {
+  "key": "s173-cur",
+  "id": "s173",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit and every word:\n\nwhen the word is not a signature, checker does not report the formula of the unit as lone on the word."
+ },
+ {
+  "key": "s173-o",
+  "id": "s173",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker never reports the formula of a unit as lone on a word that is not a signature."
+ },
+ {
+  "key": "s173-s",
+  "id": "s173",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every unit and every word that is not a signature, checker does not report the unit's formula as lone on the word."
+ },
+ {
+  "key": "s174-cur",
+  "id": "s174",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every term and every word:\n\nchecker does not report the formula of the term as lone on the word."
+ },
+ {
+  "key": "s174-o",
+  "id": "s174",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "The checker never reports the formula of a term as lone on any word."
+ },
+ {
+  "key": "s174-s",
+  "id": "s174",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every term and word, checker does not report the term's formula as lone on the word."
+ },
+ {
+  "key": "s175-cur",
+  "id": "s175",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every document and every unit and every word:\n\nwhen the document keeps no readings and holds the unit, checker does not report the formula of the unit as lone on the word."
+ },
+ {
+  "key": "s175-o",
+  "id": "s175",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document keeps no readings, the checker reports no formula of a unit it holds as lone on any word."
+ },
+ {
+  "key": "s175-s",
+  "id": "s175",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "When a document keeps no readings and holds a unit, checker does not report that unit's formula as lone on any word."
+ },
+ {
+  "key": "s176-cur",
+  "id": "s176",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run and every check command and every unit and every word:\n\nwhen the run asks for the check command and checker reports the formula of the unit as lone on the word, the run does not exit with code 0."
+ },
+ {
+  "key": "s176-o",
+  "id": "s176",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "A run that asks for a check command does not exit with code 0 if checker reports the formula of any unit as lone on any word."
+ },
+ {
+  "key": "s176-s",
+  "id": "s176",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "For every run, check command, unit, and word: when the run asks for the check command and checker reports the formula of the unit as lone on the word, the run does not exit with code 0."
+ },
+ {
+  "key": "s177-cur",
+  "id": "s177",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that:\n\nThere are unit_1 and document_1 such that all of these hold:\n- document_1 keeps readings\n- document_1 holds unit_1\n- unit_1 holds a formula\n- the statement of unit_1 is current\n- checker does not report the statement of unit_1"
+ },
+ {
+  "key": "s177-o",
+  "id": "s177",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible for a document that keeps readings to hold a unit that holds a formula, whose statement is current, and whose statement checker does not report."
+ },
+ {
+  "key": "s177-s",
+  "id": "s177",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that: there is a unit and a document such that the document keeps readings and holds the unit, the unit holds a formula, its statement is current, and checker does not report it."
+ },
+ {
+  "key": "s178-cur",
+  "id": "s178",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that:\n\nThere is a unit such that the verbalizer fails on the formula of the unit with a fault of its own."
+ },
+ {
+  "key": "s178-o",
+  "id": "s178",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that the verbalizer fails on the formula of some unit with a fault of its own."
+ },
+ {
+  "key": "s178-s",
+  "id": "s178",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible for the verbalizer to fail on the formula of some unit with a fault of its own."
+ },
+ {
+  "key": "s179-cur",
+  "id": "s179",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that:\n\nThere are scenario_1 and unit_1 such that all of these hold:\n- scenario_1 is a scenario that cannot happen while every held unit holds\n- checker reports that scenario_1 cannot happen\n- leaving out unit_1 lets scenario_1 happen\n- checker names unit_1 in its report of scenario_1"
+ },
+ {
+  "key": "s179-o",
+  "id": "s179",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "There can be a scenario that cannot happen while every held unit holds, that checker reports cannot happen, and whose report names a unit whose leaving out lets the scenario happen."
+ },
+ {
+  "key": "s179-s",
+  "id": "s179",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible for a scenario that cannot happen while every held unit holds to be reported by checker as impossible, with a unit named in that report whose removal lets the scenario happen."
+ },
+ {
+  "key": "s180-cur",
+  "id": "s180",
+  "src": "cur",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that:\n\nThere are unit_1 and signature_1 such that all of these hold:\n- unit_1 holds a formula\n- a claim, a definition or a fact of unit_1 uses signature_1\n- checker does not report the formula of unit_1 as lone on signature_1"
+ },
+ {
+  "key": "s180-o",
+  "id": "s180",
+  "src": "o",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible that a unit holds a formula, a claim, a definition or a fact of the unit uses a signature, and the checker does not report the formula of the unit as lone on that signature."
+ },
+ {
+  "key": "s180-s",
+  "id": "s180",
+  "src": "s",
+  "doc": "canon-plugin-alloy",
+  "text": "It must be possible for a unit that holds a formula and whose claim, definition, or fact uses a signature, for the checker not to report that formula as lone on the signature."
+ },
+ {
+  "key": "s184-cur",
+  "id": "s184",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen all of these hold:\n- the list is a rule whose two sides are each one clause\n- the list is not a rule whose first side begins with a time phrase\n\nthen verbalizer says the list on one line, as \"when\" the first side, the second side."
+ },
+ {
+  "key": "s184-o",
+  "id": "s184",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose two sides are each one clause and whose first side does not begin with a time phrase, verbalizer says it on one line, as \"when <first side>, <second side>\"."
+ },
+ {
+  "key": "s184-s",
+  "id": "s184",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose two sides are each one clause, and its first side does not begin with a time phrase, verbalizer says it on one line, as \"when\" the first side, the second side."
+ },
+ {
+  "key": "s185-cur",
+  "id": "s185",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen all of these hold:\n- definition_1 is a definition whose alternatives each begin with the kind of the subject\n- definition_1 can be said kind by kind\n\nthen verbalizer says definition_1 as a list with a noun phrase for each kind, such as \"a spec that cites no axiom\"."
+ },
+ {
+  "key": "s185-o",
+  "id": "s185",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When the alternatives of a definition each begin with the kind of the subject and the definition can be said kind by kind, verbalizer says it as a list with a noun phrase for each kind, such as \"a spec that cites no axiom\"."
+ },
+ {
+  "key": "s185-s",
+  "id": "s185",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a definition's alternatives each begin with the kind of the subject, and it can be said kind by kind, verbalizer says it as a list with a noun phrase for each kind, such as \"a spec that cites no axiom\"."
+ },
+ {
+  "key": "s186-cur",
+  "id": "s186",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen definition_1 is a definition with two alternatives for one kind and can be said kind by kind, verbalizer says definition_1 as one noun phrase for that kind, with the alternatives joined by or."
+ },
+ {
+  "key": "s186-o",
+  "id": "s186",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a definition has two alternatives for one kind and can be said kind by kind, verbalizer says it as one noun phrase for that kind, with the alternatives joined by or."
+ },
+ {
+  "key": "s186-s",
+  "id": "s186",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a definition has two alternatives for one kind and can be said kind by kind, verbalizer says it as one noun phrase for that kind, with the alternatives joined by or."
+ },
+ {
+  "key": "s187-cur",
+  "id": "s187",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen definition_1 is a definition with an or inside one kind and can be said kind by kind, verbalizer says definition_1 as one run of clauses joined by commas and or."
+ },
+ {
+  "key": "s187-o",
+  "id": "s187",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a definition with an or inside one kind can be said kind by kind, the verbalizer says it as one run of clauses joined by commas and \"or\"."
+ },
+ {
+  "key": "s187-s",
+  "id": "s187",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a definition has an or inside one kind and can be said kind by kind, the verbalizer says it as one run of clauses joined by commas and or."
+ },
+ {
+  "key": "s188-cur",
+  "id": "s188",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen definition_1 is a definition whose alternatives are of one kind and can be said kind by kind, verbalizer says definition_1 as one sentence."
+ },
+ {
+  "key": "s188-o",
+  "id": "s188",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "Verbalizer says a definition as one sentence when its alternatives are of one kind and it can be said kind by kind."
+ },
+ {
+  "key": "s188-s",
+  "id": "s188",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every definition: if its alternatives are of one kind and it can be said kind by kind, verbalizer says it as one sentence."
+ },
+ {
+  "key": "s188-h",
+  "id": "s188",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A definition whose alternatives are all of one kind and can be said kind by kind is said as one sentence."
+ },
+ {
+  "key": "s189-cur",
+  "id": "s189",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen definition_1 is a definition with an alternative that does not begin with its kind, verbalizer says definition_1 as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s189-o",
+  "id": "s189",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a definition has an alternative that does not begin with its kind, the verbalizer says the definition as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s189-s",
+  "id": "s189",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a definition has an alternative that does not begin with its kind, verbalizer says it as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s190-cur",
+  "id": "s190",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen definition_1 is a definition with a run of and beside another alternative of its kind, verbalizer says definition_1 as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s190-o",
+  "id": "s190",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a definition has a run of and beside another alternative of its kind, verbalizer says it as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s190-s",
+  "id": "s190",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a definition has a run of and beside another alternative of its kind, verbalizer says it as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s190-h",
+  "id": "s190",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A definition with \"and\" beside another alternative is said as its alternatives stand."
+ },
+ {
+  "key": "s191-cur",
+  "id": "s191",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every definition_1:\n\nwhen definition_1 is a definition with an alternative that says something about another unit, verbalizer says definition_1 as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s191-o",
+  "id": "s191",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a definition has an alternative that says something about another unit, verbalizer says it as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s191-s",
+  "id": "s191",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a definition has an alternative that says something about another unit, verbalizer says it as a list of the alternatives as they stand."
+ },
+ {
+  "key": "s192-cur",
+  "id": "s192",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose variable the sentence says once and fits a noun phrase, verbalizer says quantifier_1 as a noun phrase in the place of the variable, such as \"sits in no unit\"."
+ },
+ {
+  "key": "s192-o",
+  "id": "s192",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When the sentence says a quantifier's variable once and the quantifier fits a noun phrase, the verbalizer says the quantifier as a noun phrase in the place of the variable, such as \"sits in no unit\"."
+ },
+ {
+  "key": "s192-s",
+  "id": "s192",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier's variable the sentence says once and the quantifier fits a noun phrase, verbalizer says it as a noun phrase in place of the variable, such as \"sits in no unit\"."
+ },
+ {
+  "key": "s193-cur",
+  "id": "s193",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose variable is the subject of the sentence and fits a noun phrase, verbalizer says quantifier_1 with the noun phrase as the subject, such as \"a tag names unit_1\"."
+ },
+ {
+  "key": "s193-o",
+  "id": "s193",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a quantifier fits a noun phrase and its variable is the subject of the sentence, the verbalizer says it with the noun phrase as the subject, such as \"a tag names unit_1\"."
+ },
+ {
+  "key": "s193-s",
+  "id": "s193",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every quantifier: when its variable is the subject of the sentence and fits a noun phrase, the verbalizer says it with the noun phrase as the subject, such as \"a tag names unit_1\"."
+ },
+ {
+  "key": "s194-cur",
+  "id": "s194",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose variable has a further condition and fits a noun phrase, verbalizer says quantifier_1 with a relative clause, such as \"a unit that is a spec\"."
+ },
+ {
+  "key": "s194-o",
+  "id": "s194",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a quantifier's variable has a further condition and the quantifier fits a noun phrase, the verbalizer says it with a relative clause, such as \"a unit that is a spec\"."
+ },
+ {
+  "key": "s194-s",
+  "id": "s194",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier's variable has a further condition and the quantifier fits a noun phrase, verbalizer says it with a relative clause, such as \"a unit that is a spec\"."
+ },
+ {
+  "key": "s195-cur",
+  "id": "s195",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose reading says the variable twice, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s195-o",
+  "id": "s195",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a quantifier's reading says the variable twice, the verbalizer says the quantifier in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s195-s",
+  "id": "s195",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier's reading says its variable twice, verbalizer says it in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s196-cur",
+  "id": "s196",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier with no fact for its variable beside another thing, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s196-o",
+  "id": "s196",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "Verbalizer says a quantifier with no fact for its variable beside another thing in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s196-s",
+  "id": "s196",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier has no fact for its variable beside another thing, verbalizer says it in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s197-cur",
+  "id": "s197",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier that says no variable differs from another and holds a condition, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s197-o",
+  "id": "s197",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a quantifier says no variable differs from another and holds a condition, the verbalizer says it in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s197-s",
+  "id": "s197",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier says no variable differs from another and holds a condition, verbalizer says it in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s198-cur",
+  "id": "s198",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen the following holds:\n\nquantifier_1 is a quantifier with several conditions, one of which begins with a time phrase\n\nthen verbalizer says quantifier_1 in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s198-o",
+  "id": "s198",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "The verbalizer says in full, with \"there is\" and the numbered name, every quantifier with several conditions one of which begins with a time phrase."
+ },
+ {
+  "key": "s198-s",
+  "id": "s198",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier has several conditions, one of which begins with a time phrase, the verbalizer says it in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s198-h",
+  "id": "s198",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A quantifier with multiple conditions where one begins with a time phrase is said in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s199-cur",
+  "id": "s199",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose condition is not about its variable, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s199-o",
+  "id": "s199",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "The verbalizer says in full, with \"there is\" and the numbered name, every quantifier whose condition is not about its variable."
+ },
+ {
+  "key": "s199-s",
+  "id": "s199",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a quantifier's condition is not about its variable, the verbalizer says it in full, with \"there is\" and the numbered name."
+ },
+ {
+  "key": "s200-cur",
+  "id": "s200",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list can be put in a sentence, verbalizer says the list in a sentence."
+ },
+ {
+  "key": "s200-o",
+  "id": "s200",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "The verbalizer says every list that can be put in a sentence in a sentence."
+ },
+ {
+  "key": "s200-s",
+  "id": "s200",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list can be put in a sentence, the verbalizer says it in a sentence."
+ },
+ {
+  "key": "s201-cur",
+  "id": "s201",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list is a run of clauses joined by and or by or and cannot be put in a sentence, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s201-o",
+  "id": "s201",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "Verbalizer says a list as bullets when it is a run of clauses joined by and or by or that cannot be put in a sentence."
+ },
+ {
+  "key": "s201-s",
+  "id": "s201",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every list: if it is a run of clauses joined by and or by or, and cannot be put in a sentence, verbalizer says it as bullets."
+ },
+ {
+  "key": "s202-cur",
+  "id": "s202",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list has more than three clauses, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s202-o",
+  "id": "s202",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "Verbalizer says a list of more than three clauses as bullets."
+ },
+ {
+  "key": "s202-s",
+  "id": "s202",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list has more than three clauses, verbalizer says it as bullets."
+ },
+ {
+  "key": "s203-cur",
+  "id": "s203",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen all of these hold:\n- the list has an item that holds a comma\n- the list has more than two clauses\n\nthen verbalizer says the list as bullets."
+ },
+ {
+  "key": "s203-o",
+  "id": "s203",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "Verbalizer says a list as bullets when it has more than two clauses and an item that holds a comma."
+ },
+ {
+  "key": "s203-s",
+  "id": "s203",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every list: if it has an item that holds a comma and has more than two clauses, verbalizer says it as bullets."
+ },
+ {
+  "key": "s203-h",
+  "id": "s203",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A list with an item containing a comma and more than two clauses is said as bullets."
+ },
+ {
+  "key": "s204-cur",
+  "id": "s204",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list is longer than a line when it is put in a sentence, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s204-o",
+  "id": "s204",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "Verbalizer says a list as bullets when it is longer than a line when put in a sentence."
+ },
+ {
+  "key": "s204-s",
+  "id": "s204",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list is longer than a line once put in a sentence, verbalizer says it as bullets."
+ },
+ {
+  "key": "s205-cur",
+  "id": "s205",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list has a clause before its last that begins with a time phrase, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s205-o",
+  "id": "s205",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list has a clause before its last that begins with a time phrase, verbalizer says it as bullets."
+ },
+ {
+  "key": "s205-s",
+  "id": "s205",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every list: if a clause before its last begins with a time phrase, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s206-cur",
+  "id": "s206",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list has a clause before its last with a relative clause in it, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s206-o",
+  "id": "s206",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list has a clause before its last with a relative clause in it, verbalizer says it as bullets."
+ },
+ {
+  "key": "s206-s",
+  "id": "s206",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every list: if a clause before its last has a relative clause in it, verbalizer says it as bullets."
+ },
+ {
+  "key": "s206-h",
+  "id": "s206",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A list with a relative clause before its last clause is said as bullets."
+ },
+ {
+  "key": "s207-cur",
+  "id": "s207",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list has an item that is more than one clause, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s207-o",
+  "id": "s207",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When an item of a list is more than one clause, verbalizer says the list as bullets."
+ },
+ {
+  "key": "s207-s",
+  "id": "s207",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list has an item that is more than one clause, verbalizer says it as bullets."
+ },
+ {
+  "key": "s207-h",
+  "id": "s207",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A list with an item that is more than one clause is said as bullets."
+ },
+ {
+  "key": "s208-cur",
+  "id": "s208",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list_1:\n\nwhen list_1 is a list of alternatives where one alternative holds an and, verbalizer says list_1 as bullets that cannot be read two ways."
+ },
+ {
+  "key": "s208-o",
+  "id": "s208",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list of alternatives has an alternative that holds an and, verbalizer says it as bullets that cannot be read two ways."
+ },
+ {
+  "key": "s208-s",
+  "id": "s208",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every list: when one alternative in a list of alternatives holds an and, verbalizer says the list as bullets that cannot be read two ways."
+ },
+ {
+  "key": "s209-cur",
+  "id": "s209",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen all of these hold:\n- the list is a rule whose two sides are each one clause\n- the list is not a rule whose first side begins with a time phrase\n- the list is a rule whose second side begins with a time phrase\n\nthen verbalizer says the list with \"then\" before the time phrase."
+ },
+ {
+  "key": "s209-o",
+  "id": "s209",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose two sides are each one clause, and its second side begins with a time phrase but its first side does not, the verbalizer says it with \"then\" before the time phrase."
+ },
+ {
+  "key": "s209-s",
+  "id": "s209",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "For every list: when it is a rule whose two sides are each one clause, whose first side does not begin with a time phrase, and whose second side does, the verbalizer says it with \"then\" before the time phrase."
+ },
+ {
+  "key": "s210-cur",
+  "id": "s210",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen all of these hold:\n- the list is a rule whose two sides are each one clause\n- the list is not a rule whose first side begins with a time phrase\n- the list is not a rule whose second side begins with a time phrase\n\nthen verbalizer says the list without \"then\"."
+ },
+ {
+  "key": "s210-o",
+  "id": "s210",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose two sides are each one clause and neither side begins with a time phrase, verbalizer says the list without \"then\"."
+ },
+ {
+  "key": "s210-s",
+  "id": "s210",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose two sides are each one clause, and neither side begins with a time phrase, verbalizer says the list without \"then\"."
+ },
+ {
+  "key": "s211-cur",
+  "id": "s211",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list is a rule whose first side begins with a time phrase, verbalizer says the list with \"then\" at the start of the second side, on a line of its own."
+ },
+ {
+  "key": "s211-o",
+  "id": "s211",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose first side begins with a time phrase, the verbalizer says it with \"then\" on a line of its own at the start of the second side."
+ },
+ {
+  "key": "s211-s",
+  "id": "s211",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list is a rule whose first side begins with a time phrase, the verbalizer says it with \"then\" at the start of the second side, on a line of its own."
+ },
+ {
+  "key": "s212-cur",
+  "id": "s212",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "For every list:\n\nwhen the list is a rule with a first side and a second and is not a rule whose two sides are each one clause, verbalizer says the list with \"then\" at the start of the second side, on a line of its own."
+ },
+ {
+  "key": "s212-o",
+  "id": "s212",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "When a list is a rule with a first side and a second, but not a rule whose two sides are each one clause, verbalizer says it with \"then\" at the start of the second side, on a line of its own."
+ },
+ {
+  "key": "s212-s",
+  "id": "s212",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "When a list is a rule with a first side and a second, but not one whose two sides are each one clause, verbalizer puts \"then\" at the start of the second side, on a line of its own."
+ },
+ {
+  "key": "s212-h",
+  "id": "s212",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "A rule that is not on one line has its \"then\" on a line of its own."
+ },
+ {
+  "key": "s213-cur",
+  "id": "s213",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable the sentence says once\n- quantifier_1 is a quantifier that says no variable differs from another and holds a condition"
+ },
+ {
+  "key": "s213-o",
+  "id": "s213",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier whose variable the sentence says once also to say no variable differs from another and hold a condition."
+ },
+ {
+  "key": "s213-s",
+  "id": "s213",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier whose variable the sentence says once to also say that no variable differs from another and to hold a condition."
+ },
+ {
+  "key": "s214-cur",
+  "id": "s214",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable is the subject of the sentence\n- quantifier_1 is a quantifier whose reading says the variable twice"
+ },
+ {
+  "key": "s214-o",
+  "id": "s214",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "There can be a quantifier whose variable is the subject of the sentence and whose reading says the variable twice."
+ },
+ {
+  "key": "s214-s",
+  "id": "s214",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier's variable to be the subject of the sentence while its reading says the variable twice."
+ },
+ {
+  "key": "s215-cur",
+  "id": "s215",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable the sentence says once\n- quantifier_1 is a quantifier whose condition is not about its variable"
+ },
+ {
+  "key": "s215-o",
+  "id": "s215",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier both to have its variable said once by the sentence and to have a condition that is not about its variable."
+ },
+ {
+  "key": "s215-s",
+  "id": "s215",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier's variable to be said once by the sentence while its condition is not about that variable."
+ },
+ {
+  "key": "s216-cur",
+  "id": "s216",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable has a further condition\n- quantifier_1 is a quantifier with no fact for its variable beside another thing"
+ },
+ {
+  "key": "s216-o",
+  "id": "s216",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier whose variable has a further condition to also be a quantifier with no fact for its variable beside another thing."
+ },
+ {
+  "key": "s216-s",
+  "id": "s216",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a quantifier whose variable has a further condition to also have no fact for its variable beside another thing."
+ },
+ {
+  "key": "s216-h",
+  "id": "s216",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "There exists a quantifier whose variable has a condition and has nothing else to attach."
+ },
+ {
+  "key": "s217-cur",
+  "id": "s217",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a definition_1 such that all of these hold:\n- definition_1 is a definition with two alternatives for one kind\n- definition_1 is a definition with a run of and beside another alternative of its kind"
+ },
+ {
+  "key": "s217-o",
+  "id": "s217",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for one definition both to have two alternatives for one kind and to have a run of and beside another alternative of its kind."
+ },
+ {
+  "key": "s217-s",
+  "id": "s217",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible that: some definition has two alternatives for one kind and a run of and beside another alternative of its kind."
+ },
+ {
+  "key": "s218-cur",
+  "id": "s218",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a definition_1 such that all of these hold:\n- definition_1 is a definition whose alternatives are of one kind\n- definition_1 is a definition with an alternative that says something about another unit"
+ },
+ {
+  "key": "s218-o",
+  "id": "s218",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a definition to have alternatives all of one kind and also an alternative that says something about another unit."
+ },
+ {
+  "key": "s218-s",
+  "id": "s218",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a definition to have alternatives of one kind and an alternative that says something about another unit."
+ },
+ {
+  "key": "s219-cur",
+  "id": "s219",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a definition_1 such that all of these hold:\n- definition_1 is a definition with an or inside one kind\n- definition_1 is a definition with an alternative that does not begin with its kind"
+ },
+ {
+  "key": "s219-o",
+  "id": "s219",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a definition with an or inside one kind to have an alternative that does not begin with its kind."
+ },
+ {
+  "key": "s219-s",
+  "id": "s219",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a definition to have an or inside one kind, with an alternative that does not begin with its kind."
+ },
+ {
+  "key": "s220-cur",
+  "id": "s220",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a list such that all of these hold:\n- the list has three clauses or fewer\n- the list has an item that holds a comma\n- the list has more than two clauses"
+ },
+ {
+  "key": "s220-o",
+  "id": "s220",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to have more than two clauses but three or fewer, and an item that holds a comma."
+ },
+ {
+  "key": "s220-s",
+  "id": "s220",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible that: there is a list with three clauses or fewer, more than two clauses, and an item that holds a comma."
+ },
+ {
+  "key": "s221-cur",
+  "id": "s221",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a list such that the list has three clauses or fewer and is longer than a line when it is put in a sentence."
+ },
+ {
+  "key": "s221-o",
+  "id": "s221",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "A list can have three clauses or fewer and still be longer than a line when it is put in a sentence."
+ },
+ {
+  "key": "s221-s",
+  "id": "s221",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to have three clauses or fewer and still be longer than a line when put in a sentence."
+ },
+ {
+  "key": "s222-cur",
+  "id": "s222",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a list such that all of these hold:\n- the list has clauses that begin with the same subject\n- the list has more than three clauses"
+ },
+ {
+  "key": "s222-o",
+  "id": "s222",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to have more than three clauses and to have clauses that begin with the same subject."
+ },
+ {
+  "key": "s222-s",
+  "id": "s222",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to have more than three clauses, all beginning with the same subject."
+ },
+ {
+  "key": "s223-cur",
+  "id": "s223",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a list such that the list has a clause about a pair of variables and has an item that is more than one clause."
+ },
+ {
+  "key": "s223-o",
+  "id": "s223",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to have both a clause about a pair of variables and an item that is more than one clause."
+ },
+ {
+  "key": "s223-s",
+  "id": "s223",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to have a clause about a pair of variables and an item that is more than one clause."
+ },
+ {
+  "key": "s223-h",
+  "id": "s223",
+  "src": "h",
+  "doc": "naturalloy",
+  "text": "There exists a list with a clause about a pair of variables and an item that is more than one clause."
+ },
+ {
+  "key": "s224-cur",
+  "id": "s224",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a list such that all of these hold:\n- the list is a rule whose second side begins with a time phrase\n- the list is not a rule whose two sides are each one clause"
+ },
+ {
+  "key": "s224-o",
+  "id": "s224",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "A list can be a rule whose second side begins with a time phrase without being a rule whose two sides are each one clause."
+ },
+ {
+  "key": "s224-s",
+  "id": "s224",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to be a rule whose second side begins with a time phrase, without being a rule whose two sides are each one clause."
+ },
+ {
+  "key": "s225-cur",
+  "id": "s225",
+  "src": "cur",
+  "doc": "naturalloy",
+  "text": "It must be possible that:\n\nThere is a list such that the list is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase."
+ },
+ {
+  "key": "s225-o",
+  "id": "s225",
+  "src": "o",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to be a rule whose two sides are each one clause and whose first side begins with a time phrase."
+ },
+ {
+  "key": "s225-s",
+  "id": "s225",
+  "src": "s",
+  "doc": "naturalloy",
+  "text": "It must be possible for a list to be a rule whose two sides are each one clause and whose first side begins with a time phrase."
+ },
+ {
+  "key": "s226-cur",
+  "id": "s226",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Now and at every later moment, for every owner and every cleanup:\n\nwhen all of these hold:\n- pulse disposes the owner\n- code has registered the cleanup\n- the cleanup is on the owner\n- the cleanup has not run\n\nthen now or at a later moment, the cleanup has run."
+ },
+ {
+  "key": "s226-o",
+  "id": "s226",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Whenever pulse disposes an owner, every cleanup on that owner that code has registered and that has not run has run, then or at some later moment."
+ },
+ {
+  "key": "s226-s",
+  "id": "s226",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Now and at every later moment, when pulse disposes an owner, code has registered a cleanup on it that has not run, the cleanup runs now or later."
+ },
+ {
+  "key": "s227-cur",
+  "id": "s227",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "All of these hold:\n- now and at every later moment, there is no combination of cleanup_1 and owner_1 such that code disposes owner_1 after pulse disposed it, and that call runs cleanup_1, a cleanup that code has registered on owner_1 and that has not run\n- now and at every later moment, there is no owner_2 such that code disposes owner_2 after pulse disposed it, and that call throws"
+ },
+ {
+  "key": "s227-o",
+  "id": "s227",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "At no moment does a call in which code disposes an owner after pulse disposed it either throw or run a cleanup that code has registered on the owner and that has not run."
+ },
+ {
+  "key": "s227-s",
+  "id": "s227",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Now and at every later moment: when code disposes an owner that pulse has already disposed, that call does not run any cleanup that is registered on the owner and has not run, and that call does not throw."
+ },
+ {
+  "key": "s227-h",
+  "id": "s227",
+  "src": "h",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Cleanup never runs on behalf of a call after pulse has disposed an owner, and disposal never throws."
+ },
+ {
+  "key": "s228-cur",
+  "id": "s228",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "All of these hold:\n- now and at every later moment, for every owner_1 and every cleanup_1 and every cleanup_2:\n\n  when all of these hold:\n  - pulse disposes owner_1\n  - code has registered cleanup_1\n  - cleanup_1 has not run\n  - code has registered cleanup_2\n  - cleanup_2 has not run\n  - cleanup_1 is on owner_1\n  - cleanup_2 is on owner_1\n  - code registered cleanup_1 before cleanup_2\n\n  then all of these hold:\n  - now or at a later moment, the following holds:\n\n    cleanup_2 runs\n  - at every moment from now until the first such moment, not including it, the following holds:\n\n    cleanup_1 does not run\n- now and at every later moment, for every owner_2 and every failing cleanup:\n\n  when the failing cleanup runs, is on owner_2 and pulse has disposed owner_2, then now and at every later moment, the dispose of owner_2 has not been stopped."
+ },
+ {
+  "key": "s228-o",
+  "id": "s228",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Whenever pulse disposes an owner, take any two cleanups on that owner that code has registered and that have not run: the one code registered later runs, then or later, and the earlier one does not run before that.\n\nWhenever a failing cleanup on an owner that pulse has disposed runs, the dispose of that owner is never stopped, then or afterwards."
+ },
+ {
+  "key": "s228-s",
+  "id": "s228",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Both of these hold:\n- Now and at every later moment, when pulse disposes an owner, and two cleanups are registered on it, neither having run, one registered before the other, the later-registered cleanup runs now or at a later moment, and until it does, the earlier-registered cleanup does not run.\n- Now and at every later moment, when a failing cleanup runs on an owner that pulse has disposed, the owner's dispose is not stopped, now or at any later moment."
+ },
+ {
+  "key": "s229-cur",
+  "id": "s229",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Now and at every later moment, for every owner:\n\nwhen a call enters the owner and pulse has disposed the owner, then right after, a call is throwing."
+ },
+ {
+  "key": "s229-o",
+  "id": "s229",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "From now on, whenever a call enters an owner that pulse has disposed, a call is throwing right after."
+ },
+ {
+  "key": "s229-s",
+  "id": "s229",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Now and at every later moment, when a call enters an owner that pulse has disposed, a call is throwing right after."
+ },
+ {
+  "key": "s230-cur",
+  "id": "s230",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "All of these hold:\n- now and at every later moment, for every owner_1 and every owner_2 and every cleanup:\n\n  when all of these hold:\n  - pulse disposes owner_1\n  - owner_1 is the parent of owner_2\n  - pulse has not disposed owner_2\n  - code has registered the cleanup\n  - the cleanup has not run\n  - the cleanup is on owner_1\n\n  then all of these hold:\n  - now or at a later moment, the following holds:\n\n    pulse disposes owner_2\n  - at every moment from now until the first such moment, not including it, the following holds:\n\n    the cleanup does not run\n- now and at every later moment, for every owner_3 and every owner_4 and every owner_5:\n\n  when all of these hold:\n  - pulse disposes owner_3\n  - owner_3 is the parent of owner_4\n  - owner_3 is the parent of owner_5\n  - owner_4 was created before owner_5\n  - pulse has not disposed owner_4\n  - pulse has not disposed owner_5\n\n  then all of these hold:\n  - now or at a later moment, the following holds:\n\n    pulse disposes owner_5\n  - at every moment from now until the first such moment, not including it, the following holds:\n\n    pulse does not dispose owner_4."
+ },
+ {
+  "key": "s230-o",
+  "id": "s230",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "At every moment, whenever pulse disposes an owner:\n- for each owner it is the parent of that pulse has not disposed, pulse disposes that owner now or later, and before then no cleanup that code has registered on the parent and that has not run runs;\n- for any two owners it is the parent of that pulse has not disposed, pulse disposes the one created later now or later, and does not dispose the one created earlier before then."
+ },
+ {
+  "key": "s230-s",
+  "id": "s230",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "All of these hold:\n- Now and at every later moment, for every owner_1, owner_2, and cleanup: when pulse disposes owner_1, owner_1 is the parent of owner_2, pulse has not disposed owner_2, code has registered the cleanup, the cleanup has not run, and the cleanup is on owner_1, then the cleanup does not run until pulse disposes owner_2.\n- Now and at every later moment, for every owner_3, owner_4, and owner_5: when pulse disposes owner_3, owner_3 is the parent of owner_4 and of owner_5, owner_4 was created before owner_5, and pulse has not disposed owner_4 or owner_5, then pulse does not dispose owner_4 until it disposes owner_5."
+ },
+ {
+  "key": "s231-cur",
+  "id": "s231",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "All of these hold:\n- now and at every later moment, for every owner_1 and every failing_cleanup_1:\n\n  when failing_cleanup_1 runs, is on owner_1 and pulse has disposed owner_1, then now and at every later moment, the dispose of owner_1 has not thrown\n- now and at every later moment, for every owner_2 and every owner_3 and every failing_cleanup_2:\n\n  when all of these hold:\n  - failing_cleanup_2 runs\n  - failing_cleanup_2 is on owner_2\n  - pulse has disposed owner_2\n  - owner_3 is the nearest error handler or boundary above owner_2\n\n  then now or at a later moment, the error of failing_cleanup_2 has reached owner_3."
+ },
+ {
+  "key": "s231-o",
+  "id": "s231",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "At every moment, when a failing cleanup runs on an owner that pulse has disposed:\n- from then on, the dispose of the owner never throws\n- then or later, the error of the cleanup reaches the nearest error handler or boundary above the owner, if the owner has one"
+ },
+ {
+  "key": "s231-s",
+  "id": "s231",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "Always, both of these hold:\n- for every owner and failing cleanup: when the cleanup runs on a disposed owner, the dispose of that owner has not thrown, now or at any later moment\n- for every owner, its nearest error handler or boundary, and every failing cleanup: when the cleanup runs on the disposed owner, the cleanup's error has reached that handler, now or at some later moment."
+ },
+ {
+  "key": "s232-cur",
+  "id": "s232",
+  "src": "cur",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "It must be possible that:\n\nThere are owner_1 and owner_2 and failing_cleanup_1 such that all of these hold:\n- owner_2 is the nearest error handler or boundary above owner_1\n- now or at a later moment, all of these hold:\n  - pulse disposes owner_1\n  - failing_cleanup_1 is on owner_1\n  - now or at a later moment, all of these hold:\n    - failing_cleanup_1 runs\n    - now or at a later moment, the error of failing_cleanup_1 has reached owner_2"
+ },
+ {
+  "key": "s232-o",
+  "id": "s232",
+  "src": "o",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "It must be possible that an owner has another owner H as the nearest error handler or boundary above it, and that, now or later, pulse disposes the owner while a failing cleanup is on it, then at that moment or later the cleanup runs, and at that moment or later its error has reached H."
+ },
+ {
+  "key": "s232-s",
+  "id": "s232",
+  "src": "s",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "text": "It must be possible that there are owner_1, owner_2, and failing_cleanup_1 such that owner_2 is the nearest error handler or boundary above owner_1, and pulse eventually disposes owner_1 while failing_cleanup_1 is on it; then failing_cleanup_1 eventually runs; and then its error eventually reaches owner_2."
+ }
+]

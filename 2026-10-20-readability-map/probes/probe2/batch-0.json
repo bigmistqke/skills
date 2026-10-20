@@ -1,0 +1,58 @@
+[
+ {
+  "id": "A0",
+  "variant": "before"
+ },
+ {
+  "id": "A1",
+  "variant": "after"
+ },
+ {
+  "id": "A2",
+  "variant": "before"
+ },
+ {
+  "id": "A3",
+  "variant": "after"
+ },
+ {
+  "id": "A4",
+  "variant": "before"
+ },
+ {
+  "id": "A5",
+  "variant": "after"
+ },
+ {
+  "id": "A6",
+  "variant": "before"
+ },
+ {
+  "id": "A7",
+  "variant": "after"
+ },
+ {
+  "id": "A8",
+  "variant": "before"
+ },
+ {
+  "id": "A9",
+  "variant": "after"
+ },
+ {
+  "id": "B0",
+  "variant": "before"
+ },
+ {
+  "id": "B1",
+  "variant": "after"
+ },
+ {
+  "id": "B2",
+  "variant": "before"
+ },
+ {
+  "id": "B3",
+  "variant": "after"
+ }
+]

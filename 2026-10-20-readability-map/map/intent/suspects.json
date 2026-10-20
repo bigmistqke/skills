@@ -1,0 +1,47 @@
+[
+ {
+  "id": "s007",
+  "alloy": "pred used[u: Unit] { (some v: Unit | v != u and cites[v, u]) or (some p: Pointer | p->u in Name.pointer) or (some g: Tag | g->u in Name.tag) }",
+  "t": "o"
+ },
+ {
+  "id": "s007",
+  "alloy": "pred used[u: Unit] { (some v: Unit | v != u and cites[v, u]) or (some p: Pointer | p->u in Name.pointer) or (some g: Tag | g->u in Name.tag) }",
+  "t": "s"
+ },
+ {
+  "id": "s067",
+  "alloy": "all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | u->v in Sit.rel and v->f in Blocks.rel)",
+  "t": "o"
+ },
+ {
+  "id": "s067",
+  "alloy": "all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | u->v in Sit.rel and v->f in Blocks.rel)",
+  "t": "s"
+ },
+ {
+  "id": "s102",
+  "alloy": "all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1) and ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0)",
+  "t": "o"
+ },
+ {
+  "id": "s125",
+  "alloy": "(all u: Unit | u in Faulted implies u not in Explained) and (all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies r not in Exits0)",
+  "t": "o"
+ },
+ {
+  "id": "s151",
+  "alloy": "all s: Search, u: Unit | (s in Trial and s->u in Leave.rel) implies (u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))",
+  "t": "o"
+ },
+ {
+  "id": "s119",
+  "alloy": "all u: Unit | (u in Logical and u in Generated and u not in Differs and u not in Unsayable) implies u in Current",
+  "t": "s"
+ },
+ {
+  "id": "s230",
+  "alloy": "always all o, k: Owner, c: Cleanup | (dispose[o] and k.parent = o and k not in Disposed and c in Registered - Ran and c.on = o) implies ((not runNow[c]) until dispose[k])",
+  "t": "s"
+ }
+]

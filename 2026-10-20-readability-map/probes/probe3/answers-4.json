@@ -1,0 +1,50 @@
+[
+  {"q": "U1-never", "holds": false, "why": "pulse never becomes true, so the existential condition fails"},
+  {"q": "U1-now", "holds": true, "why": "pulse is true at moment 0; range until it is empty, vacuously true"},
+  {"q": "U1-atEnd", "holds": true, "why": "pulse true at moment 2; code true at moments 0-1 before it"},
+  {"q": "U1-after", "holds": true, "why": "pulse true at moment 2; code true at moments 0-1 before it"},
+  {"q": "U1-first", "holds": true, "why": "pulse true at moment 1; code true at moment 0 before it"},
+  {"q": "U1-broken", "holds": false, "why": "pulse true at moment 2; code false at moment 1 in the range"},
+
+  {"q": "U2-never", "holds": true, "why": "code never true; cleanup not run at all moments satisfies until"},
+  {"q": "U2-now", "holds": true, "why": "code true at moment 0; range before it is empty"},
+  {"q": "U2-atEnd", "holds": true, "why": "code true at moment 2; cleanup not run at moments 0-1 before it"},
+  {"q": "U2-after", "holds": true, "why": "code true at moment 2; cleanup not run at moments 0-1 before it"},
+  {"q": "U2-first", "holds": true, "why": "code true at moment 1; cleanup not run at moment 0 before it"},
+  {"q": "U2-broken", "holds": false, "why": "code true at moment 2; cleanup did run at moment 1 in the range"},
+
+  {"q": "U3-never", "holds": false, "why": "dispose never becomes true, so the existential condition fails"},
+  {"q": "U3-now", "holds": true, "why": "dispose true at moment 0; range until it is empty"},
+  {"q": "U3-atEnd", "holds": true, "why": "dispose true at moment 2; cleanup on owner at moments 0-1 before it"},
+  {"q": "U3-after", "holds": true, "why": "dispose true at moment 2; cleanup on owner at moments 0-1 before it"},
+  {"q": "U3-first", "holds": true, "why": "dispose true at moment 1; cleanup on owner at moment 0 before it"},
+  {"q": "U3-broken", "holds": false, "why": "dispose true at moment 2; cleanup not on owner at moment 1 in the range"},
+
+  {"q": "S1-never", "holds": false, "why": "pulse never becomes true, so the existential condition fails"},
+  {"q": "S1-now", "holds": true, "why": "pulse true at moment 4; range after it is empty"},
+  {"q": "S1-atEnd", "holds": true, "why": "pulse last true at moment 2; code true at moments 3-4 after it"},
+  {"q": "S1-before", "holds": true, "why": "pulse last true at moment 2; code true at moments 3-4 after it"},
+  {"q": "S1-last", "holds": true, "why": "pulse last true at moment 3; code true at moment 4 after it"},
+  {"q": "S1-broken", "holds": false, "why": "pulse last true at moment 1; code false at moment 3 in the range"},
+
+  {"q": "S2-never", "holds": false, "why": "code never becomes true, so the existential condition fails"},
+  {"q": "S2-now", "holds": true, "why": "code true at moment 4; range after it is empty"},
+  {"q": "S2-atEnd", "holds": true, "why": "code last true at moment 2; cleanup not run at moments 3-4 after it"},
+  {"q": "S2-before", "holds": true, "why": "code last true at moment 2; cleanup not run at moments 3-4 after it"},
+  {"q": "S2-last", "holds": true, "why": "code last true at moment 3; cleanup not run at moment 4 after it"},
+  {"q": "S2-broken", "holds": false, "why": "code last true at moment 1; cleanup ran at moment 3 in the range"},
+
+  {"q": "S3-never", "holds": false, "why": "dispose never becomes true; ever since presupposes the event"},
+  {"q": "S3-now", "holds": false, "why": "dispose true at moment 4; cleanup not on owner at moment 4"},
+  {"q": "S3-atEnd", "holds": false, "why": "dispose true at moment 2; cleanup not on owner at moment 2"},
+  {"q": "S3-before", "holds": true, "why": "dispose true at moment 2; cleanup on owner at all moments 2-4 after"},
+  {"q": "S3-last", "holds": false, "why": "dispose true at moment 1; cleanup not on owner at moment 2"},
+  {"q": "S3-broken", "holds": false, "why": "dispose true at moment 1; cleanup not on owner at moment 3"},
+
+  {"q": "U1", "hard": 3},
+  {"q": "U2", "hard": 3},
+  {"q": "U3", "hard": 3},
+  {"q": "S1", "hard": 4},
+  {"q": "S2", "hard": 4},
+  {"q": "S3", "hard": 3}
+]

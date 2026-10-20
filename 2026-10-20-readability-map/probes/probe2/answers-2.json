@@ -1,0 +1,16 @@
+[
+  {"id": "A0", "alloy": "all cleanup_1: Cleanup | (cleanup_1 in next Ran) iff (cleanup_1 in Ran)", "hard": 3},
+  {"id": "A1", "alloy": "all cleanup_1, cleanup_2: Cleanup, owner_1, owner_2: Owner | (owner_2 in next cleanup_2.on) iff ((cleanup_2 = cleanup_1 and owner_2 = owner_1) or (owner_2 in cleanup_2.on and cleanup_2 != cleanup_1))", "hard": 5},
+  {"id": "A2", "alloy": "all owner_1: Owner | (no c: Cleanup | owner_1 in c.on) implies (owner_1 not in Disposed)", "hard": 2},
+  {"id": "A3", "alloy": "all cleanup: Cleanup | (cleanup in Ran) implies (some owner: Owner | owner in cleanup.on and owner in Disposed)", "hard": 2},
+  {"id": "A4", "alloy": "all owner_1: Owner | (owner_1 in Disposed) iff (all cleanup_1: Cleanup | (owner_1 in cleanup_1.on) implies (cleanup_1 in Ran))", "hard": 3},
+  {"id": "A5", "alloy": "all cleanup: Cleanup | always (cleanup in Registered implies eventually (cleanup in Ran))", "hard": 4},
+  {"id": "A6", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (owner_1 in cleanup_1.on and owner_1 in Stopped) implies (cleanup_1 not in Ran)", "hard": 2},
+  {"id": "A7", "alloy": "all cleanup: Cleanup | (#(cleanup.on) > 1) implies (cleanup in Registered)", "hard": 3},
+  {"id": "A8", "alloy": "all owner_1: Owner | (owner_1 in Disposed) implies (all owner_2: Owner | (owner_2 = owner_1.parent) implies (owner_2 in Disposed))", "hard": 2},
+  {"id": "A9", "alloy": "all cleanup: Cleanup, owner: Owner | (owner in cleanup.at) implies (owner in cleanup.on)", "hard": 1},
+  {"id": "B0", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (cleanup_1 in Registered) until (owner_1 in Disposed)", "hard": 3},
+  {"id": "B1", "alloy": "all cleanup_1: Cleanup | (cleanup_1 not in Ran) until (cleanup_1 in Registered)", "hard": 3},
+  {"id": "B2", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (once (owner_1 in Disposed)) and ((cleanup_1 in Ran) since (owner_1 in Disposed))", "hard": 4},
+  {"id": "B3", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (cleanup_1 in Registered) implies ((cleanup_1 not in Ran) until (owner_1 in Disposed))", "hard": 3}
+]

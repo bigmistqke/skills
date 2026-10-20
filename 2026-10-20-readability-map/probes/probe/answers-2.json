@@ -1,0 +1,16 @@
+[
+  {"id": "A0", "alloy": "all cleanup_1: Cleanup | cleanup_1 in Ran => cleanup_1 in Registered", "hard": 1},
+  {"id": "A1", "alloy": "all cleanup: Cleanup | (some cleanup.on) => cleanup in Ran", "hard": 1},
+  {"id": "A2", "alloy": "all owner_1: Owner | owner_1 in Disposed => owner_1 not in Stopped", "hard": 1},
+  {"id": "A3", "alloy": "all cleanup: Cleanup, owner: Owner | owner in cleanup.at => owner in Disposed", "hard": 2},
+  {"id": "A4", "alloy": "some cleanup_1: Cleanup | cleanup_1 in Ran and cleanup_1 not in Registered", "hard": 1},
+  {"id": "A5", "alloy": "all cleanup: Cleanup | always (cleanup in Ran => after cleanup in Registered)", "hard": 3},
+  {"id": "A6", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | owner_1 in cleanup_1.on => eventually owner_1 in Disposed", "hard": 3},
+  {"id": "A7", "alloy": "all owner: Owner | (some c: Cleanup | owner in c.on) => owner in Disposed", "hard": 2},
+  {"id": "A8", "alloy": "all cleanup_1: Cleanup | (cleanup_1.home in Disposed) <=> (cleanup_1 in Ran)", "hard": 3},
+  {"id": "A9", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (owner_1 in cleanup_1.on and cleanup_1 in Ran) => owner_1 not in Stopped", "hard": 2},
+  {"id": "B0", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (cleanup_1 in Registered) until (owner_1 in Disposed)", "hard": 4},
+  {"id": "B1", "alloy": "all cleanup_1: Cleanup | (cleanup_1 not in Ran) until (cleanup_1 in Registered)", "hard": 4},
+  {"id": "B2", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (cleanup_1 in Ran) since (owner_1 in Disposed)", "hard": 4},
+  {"id": "B3", "alloy": "all cleanup_1: Cleanup, owner_1: Owner | cleanup_1 in Registered => ((cleanup_1 not in Ran) until (owner_1 in Disposed))", "hard": 4}
+]

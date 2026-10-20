@@ -1,0 +1,1866 @@
+[
+ {
+  "doc": "canon",
+  "unit": "term-cite",
+  "pred": "term_cite",
+  "formula": "pred cites[u, v: Unit] { u->v in Sit.rel or u->v in Derive.rel }\n",
+  "statement": "For every unit_1 and every unit_2:\n\nunit_1 cites unit_2 exactly when unit_1 sits in unit_2 or derives from unit_2.",
+  "id": "s000"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-unfounded",
+  "pred": "term_unfounded",
+  "formula": "pred unfounded[u: Unit] {\n  (u in Spec and (no a: Axiom | cites[u, a]) and (no s: Spec | cites[u, s]))\n  or (u in Exception and (no s: Spec | cites[u, s]))\n  or (u in Exception and (no f: Fact | cites[u, f]))\n  or (u in Bug and (no s: Spec | cites[u, s]))\n}\n",
+  "statement": "For every unit:\n\nthe unit is unfounded exactly when the unit is one of these:\n- a spec that cites no axiom and cites no spec\n- an exception that cites no spec or cites no fact\n- a bug that cites no spec",
+  "id": "s001"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-miscited",
+  "pred": "term_miscited",
+  "formula": "pred miscited[u: Unit] {\n  (u in Axiom and (some v: Unit | cites[u, v] and v not in Axiom))\n  or (u in Fact and (some v: Unit | cites[u, v]))\n  or (u in Spec and (some v: Unit | cites[u, v] and v not in Axiom and v not in Spec and v not in Fact))\n  or (u in Exception and (some v: Unit | cites[u, v] and v not in Spec and v not in Fact))\n  or (u in Bug and (some v: Unit | cites[u, v] and v not in Spec))\n  or (u in Conflict and (some v: Unit | cites[u, v]))\n  or (u in Term and (some v: Unit | cites[u, v]))\n}\n",
+  "statement": "For every unit_1:\n\nunit_1 is miscited exactly when unit_1 is one of these:\n- an axiom that cites a unit that is not an axiom\n- a fact that cites a unit\n- a spec that cites a unit that is not an axiom, a spec or a fact\n- an exception that cites a unit that is not a spec or a fact\n- a bug that cites a unit that is not a spec\n- a conflict that cites a unit\n- a term that cites a unit",
+  "id": "s002"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-circular",
+  "pred": "term_circular",
+  "formula": "pred circular[u: Unit] { some v: Unit | cites[u, v] and v->u in Depend.rel }\n",
+  "statement": "For every unit_1:\n\nunit_1 is circular exactly when unit_1 cites a unit that depends on unit_1.",
+  "id": "s003"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-refined",
+  "pred": "term_refined",
+  "formula": "pred refined[c: Claim] { (some s: Spec | s->c in Sit.rel) or (some e: Exception | e->c in Sit.rel) }\n",
+  "statement": "For every claim:\n\nthe claim is refined exactly when a spec sits in the claim or an exception sits in the claim.",
+  "id": "s004"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-unguarded",
+  "pred": "term_unguarded",
+  "formula": "pred unguarded[c: Claim] { not refined[c] and not tested[c] }\n",
+  "statement": "For every claim:\n\nthe claim is unguarded exactly when the claim is not refined and is not tested.",
+  "id": "s005"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-adrift",
+  "pred": "term_adrift",
+  "formula": "pred adrift[t: Test] {\n  (t in Declared and (no g: Tag | t->g in Carry.rel))\n  or (t in Declared and (some u: Unit | checks[t, u] and u not in Claim))\n  or (some c: Claim | checks[t, c] and refined[c])\n}\n",
+  "statement": "For every test:\n\nthe test is adrift exactly when at least one of these holds:\n- project declares the test and the test carries no tag\n- project declares the test and the test checks a unit that is not a claim\n- the test checks a claim that is refined",
+  "id": "s006"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-used",
+  "pred": "term_used",
+  "formula": "pred used[u: Unit] {\n  (some v: Unit | v != u and v->u in Sit.rel)\n  or (some p: Pointer | p->u in Name.pointer)\n  or (some g: Tag | g->u in Name.tag)\n}\n",
+  "statement": "For every unit_1:\n\nunit_1 is used exactly when another unit sits in unit_1, a pointer names unit_1 or a tag names unit_1.",
+  "id": "s007"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-check",
+  "pred": "term_check",
+  "formula": "pred checks[t: Test, u: Unit] { some g: Tag | t->g in Carry.rel and g->u in Name.tag }\n",
+  "statement": "For every test and every unit:\n\nthe test checks the unit exactly when the test carries a tag that names the unit.",
+  "id": "s008"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-tested",
+  "pred": "term_tested",
+  "formula": "pred tested[u: Unit] {\n  (some t: Test | checks[t, u])\n  or (u in Spec and (some t: Test, b: Bug | checks[t, b] and b->u in Sit.rel))\n}\n",
+  "statement": "For every unit:\n\nthe unit is tested exactly when at least one of these holds:\n- a test checks the unit\n- the unit is a spec and a test checks a bug that sits in the unit",
+  "id": "s009"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-paired",
+  "pred": "term_paired",
+  "formula": "pred paired[c: Conflict] { some a, b: Unit | a != b and c->a in Name.between and c->b in Name.between }\n",
+  "statement": "For every conflict:\n\nthe conflict is paired exactly when the conflict names a unit and names another unit.",
+  "id": "s010"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-hidden",
+  "pred": "term_hidden",
+  "formula": "pred hidden[x: Unit] {\n  (x in Bug and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or (some Runner and not tested[x])))\n  or (x in Conflict and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not paired[x]))\n}\n",
+  "statement": "For every unit:\n\nthe unit is hidden exactly when at least one of these holds:\n- all of these hold:\n  - the unit is a bug\n  - at least one of these holds:\n    - project has a tracker and the unit names no issue\n    - the unit names an issue that tracker does not know\n    - the unit names an issue that tracker has closed\n    - project has a runner and the unit is not tested\n- all of these hold:\n  - the unit is a conflict\n  - at least one of these holds:\n    - project has a tracker and the unit names no issue\n    - the unit names an issue that tracker does not know\n    - the unit names an issue that tracker has closed\n    - the unit is not paired",
+  "id": "s011"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-misleading",
+  "pred": "term_misleading",
+  "formula": "pred misleading[t: Test] {\n  (t in ExpectedFailure and (no b: Bug | checks[t, b]) and (no e: Exception | checks[t, e]))\n  or (t in PlainTest and (some b: Bug | checks[t, b]))\n}\n",
+  "statement": "For every test_1:\n\ntest_1 is misleading exactly when test_1 is one of these:\n- an expected failure that checks no bug and checks no exception\n- a plain test that checks a bug",
+  "id": "s012"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-list",
+  "pred": "term_list",
+  "formula": "pred lists[f: Frontmatter, p: Plugin] { some e: Entry | f->e in Item.rel and e->p in Spell.rel }\n",
+  "statement": "For every frontmatter and every plugin:\n\nthe frontmatter lists the plugin exactly when the frontmatter holds an entry that spells the plugin.",
+  "id": "s013"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-apply",
+  "pred": "term_apply",
+  "formula": "pred applies[p: Plugin, d: Document] { some f: Listing | d->f in Head.rel and lists[f, p] }\n",
+  "statement": "For every plugin and every document:\n\nthe plugin applies to the document exactly when the document starts with a listing frontmatter that lists the plugin.",
+  "id": "s014"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-call",
+  "pred": "term_call",
+  "formula": "pred calls[r: Run, p: Plugin] {\n  (some c: Command | r->c in Ask.rel and p->c in Add.rel)\n  and (some d: Document | applies[p, d])\n}\n",
+  "statement": "For every run and every plugin:\n\nthe run calls the plugin exactly when all of these hold:\n- the run asks for a command that the plugin adds\n- the plugin applies to a document",
+  "id": "s015"
+ },
+ {
+  "doc": "canon",
+  "unit": "term-availability",
+  "pred": "term_availability",
+  "formula": "pred available[c: Command] {\n  c in Core\n  or (some p: Installed, d: Document | applies[p, d] and p->c in Add.rel)\n}\n",
+  "statement": "For every command_1:\n\ncommand_1 is available exactly when at least one of these holds:\n- command_1 is a command that the checker has of its own\n- there are installed_plugin_1 and document_1 such that installed_plugin_1 applies to document_1 and adds command_1",
+  "id": "s016"
+ },
+ {
+  "doc": "canon",
+  "unit": "axiom-every-claim-says-what-it-follows-from",
+  "pred": "axiom_every_claim_says_what_it_follows_from",
+  "formula": "(all u: Unit | unfounded[u] implies u in Finding)\nand (all u: Unit | miscited[u] implies u in Finding)\nand (all u: Unit | circular[u] implies u in Finding)\n",
+  "statement": "All of these hold:\n- for every unit:\n\n  when the unit is unfounded, checker reports a finding for the unit\n- for every unit:\n\n  when the unit is miscited, checker reports a finding for the unit\n- for every unit:\n\n  when the unit is circular, checker reports a finding for the unit.",
+  "id": "s017"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-unfounded-unit-is-freelancing",
+  "pred": "spec_an_unfounded_unit_is_freelancing",
+  "formula": "all u: Unit | unfounded[u] implies u in Freelancing\n",
+  "statement": "For every unit:\n\nwhen the unit is unfounded, checker reports a freelancing for the unit.",
+  "id": "s018"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-spec-cites-an-axiom-or-a-spec",
+  "pred": "spec_a_spec_cites_an_axiom_or_a_spec",
+  "formula": "all s: Spec | ((no a: Axiom | cites[s, a]) and (no t: Spec | cites[s, t])) implies s in Freelancing\n",
+  "statement": "For every spec_1:\n\nwhen spec_1 cites no axiom and cites no spec, checker reports a freelancing for spec_1.",
+  "id": "s019"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-exception-cites-a-spec",
+  "pred": "spec_an_exception_cites_a_spec",
+  "formula": "all e: Exception | (no s: Spec | cites[e, s]) implies e in Freelancing\n",
+  "statement": "For every exception:\n\nwhen the exception cites no spec, checker reports a freelancing for the exception.",
+  "id": "s020"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-exception-cites-a-fact",
+  "pred": "spec_an_exception_cites_a_fact",
+  "formula": "all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing\n",
+  "statement": "For every exception:\n\nwhen the exception cites no fact, checker reports a freelancing for the exception.",
+  "id": "s021"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-bug-cites-a-spec",
+  "pred": "spec_a_bug_cites_a_spec",
+  "formula": "all b: Bug | (no s: Spec | cites[b, s]) implies b in Freelancing\n",
+  "statement": "For every bug:\n\nwhen the bug cites no spec, checker reports a freelancing for the bug.",
+  "id": "s022"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-miscited-unit-is-misnested",
+  "pred": "spec_a_miscited_unit_is_misnested",
+  "formula": "all u: Unit | miscited[u] implies u in Misnesting\n",
+  "statement": "For every unit:\n\nwhen the unit is miscited, checker reports a misnesting for the unit.",
+  "id": "s023"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-axiom-cites-only-axioms",
+  "pred": "spec_an_axiom_cites_only_axioms",
+  "formula": "all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) implies a in Misnesting\n",
+  "statement": "For every axiom_1:\n\nwhen axiom_1 cites a unit that is not an axiom, checker reports a misnesting for axiom_1.",
+  "id": "s024"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-fact-cites-nothing",
+  "pred": "spec_a_fact_cites_nothing",
+  "formula": "all f: Fact | (some u: Unit | cites[f, u]) implies f in Misnesting\n",
+  "statement": "For every fact:\n\nwhen the fact cites a unit, checker reports a misnesting for the fact.",
+  "id": "s025"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-spec-cites-only-axioms-specs-and-facts",
+  "pred": "spec_a_spec_cites_only_axioms_specs_and_facts",
+  "formula": "all s: Spec | (some u: Unit | cites[s, u] and u not in Axiom and u not in Spec and u not in Fact) implies s in Misnesting\n",
+  "statement": "For every spec_1:\n\nwhen the following holds:\n\nspec_1 cites a unit that is not an axiom, a spec or a fact\n\nthen checker reports a misnesting for spec_1.",
+  "id": "s026"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-exception-cites-only-specs-and-facts",
+  "pred": "spec_an_exception_cites_only_specs_and_facts",
+  "formula": "all e: Exception | (some u: Unit | cites[e, u] and u not in Spec and u not in Fact) implies e in Misnesting\n",
+  "statement": "For every exception:\n\nwhen the exception cites a unit that is not a spec or a fact, checker reports a misnesting for the exception.",
+  "id": "s027"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-bug-cites-only-specs",
+  "pred": "spec_a_bug_cites_only_specs",
+  "formula": "all b: Bug | (some u: Unit | cites[b, u] and u not in Spec) implies b in Misnesting\n",
+  "statement": "For every bug:\n\nwhen the bug cites a unit that is not a spec, checker reports a misnesting for the bug.",
+  "id": "s028"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-conflict-cites-nothing",
+  "pred": "spec_a_conflict_cites_nothing",
+  "formula": "all c: Conflict | (some u: Unit | cites[c, u]) implies c in Misnesting\n",
+  "statement": "For every conflict:\n\nwhen the conflict cites a unit, checker reports a misnesting for the conflict.",
+  "id": "s029"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-term-cites-nothing",
+  "pred": "spec_a_term_cites_nothing",
+  "formula": "all t: Term | (some u: Unit | cites[t, u]) implies t in Misnesting\n",
+  "statement": "For every term:\n\nwhen the term cites a unit, checker reports a misnesting for the term.",
+  "id": "s030"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-unit-does-not-depend-on-itself",
+  "pred": "spec_a_unit_does_not_depend_on_itself",
+  "formula": "all u: Unit | circular[u] implies u in Cycle\n",
+  "statement": "For every unit:\n\nwhen the unit is circular, checker reports a cycle for the unit.",
+  "id": "s031"
+ },
+ {
+  "doc": "canon",
+  "unit": "axiom-a-known-defect-stays-in-sight",
+  "pred": "axiom_a_known_defect_stays_in_sight",
+  "formula": "(all b: Bug | hidden[b] implies b in Finding)\nand (all c: Conflict | hidden[c] implies c in Finding)\nand (all t: Test | misleading[t] implies t in Finding)\n",
+  "statement": "All of these hold:\n- for every bug:\n\n  when the bug is hidden, checker reports a finding for the bug\n- for every conflict:\n\n  when the conflict is hidden, checker reports a finding for the conflict\n- for every test:\n\n  when the test is misleading, checker reports a finding for the test.",
+  "id": "s032"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-hidden-bug-is-reported",
+  "pred": "spec_a_hidden_bug_is_reported",
+  "formula": "all b: Bug | hidden[b] implies b in Finding\n",
+  "statement": "For every bug:\n\nwhen the bug is hidden, checker reports a finding for the bug.",
+  "id": "s033"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-bug-names-an-issue",
+  "pred": "spec_a_bug_names_an_issue",
+  "formula": "all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in Untracking\n",
+  "statement": "For every bug:\n\nwhen project has a tracker and the bug names no issue, checker reports an untracking for the bug.",
+  "id": "s034"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-bug-names-an-issue-the-tracker-knows",
+  "pred": "spec_a_bug_names_an_issue_the_tracker_knows",
+  "formula": "all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b in Mistracking\n",
+  "statement": "For every bug:\n\nwhen the bug names an issue that tracker does not know, checker reports a mistracking for the bug.",
+  "id": "s035"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-bug-names-an-open-issue",
+  "pred": "spec_a_bug_names_an_open_issue",
+  "formula": "all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in OutdatedTracking\n",
+  "statement": "For every bug:\n\nwhen the bug names an issue that tracker has closed, checker reports an outdated tracking for the bug.",
+  "id": "s036"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-bug-is-tested",
+  "pred": "spec_a_bug_is_tested",
+  "formula": "all b: Bug | (some Runner and not tested[b]) implies b in Untesting\n",
+  "statement": "For every bug:\n\nwhen project has a runner and the bug is not tested, checker reports an untesting for the bug.",
+  "id": "s037"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-hidden-conflict-is-reported",
+  "pred": "spec_a_hidden_conflict_is_reported",
+  "formula": "all c: Conflict | hidden[c] implies c in Finding\n",
+  "statement": "For every conflict:\n\nwhen the conflict is hidden, checker reports a finding for the conflict.",
+  "id": "s038"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-an-issue",
+  "pred": "spec_a_conflict_names_an_issue",
+  "formula": "all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies c in Untracking\n",
+  "statement": "For every conflict:\n\nwhen project has a tracker and the conflict names no issue, checker reports an untracking for the conflict.",
+  "id": "s039"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-an-issue-the-tracker-knows",
+  "pred": "spec_a_conflict_names_an_issue_the_tracker_knows",
+  "formula": "all c: Conflict | (some i: Issue | c->i in Name.issue and i not in Known) implies c in Mistracking\n",
+  "statement": "For every conflict:\n\nwhen the conflict names an issue that tracker does not know, checker reports a mistracking for the conflict.",
+  "id": "s040"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-an-open-issue",
+  "pred": "spec_a_conflict_names_an_open_issue",
+  "formula": "all c: Conflict | (some i: Issue | c->i in Name.issue and i in Closed) implies c in OutdatedTracking\n",
+  "statement": "For every conflict:\n\nwhen the conflict names an issue that tracker has closed, checker reports an outdated tracking for the conflict.",
+  "id": "s041"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-two-units",
+  "pred": "spec_a_conflict_names_two_units",
+  "formula": "all c: Conflict | not paired[c] implies c in Unpairing\n",
+  "statement": "For every conflict:\n\nwhen the conflict is not paired, checker reports an unpairing for the conflict.",
+  "id": "s042"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-misleading-test-is-reported",
+  "pred": "spec_a_misleading_test_is_reported",
+  "formula": "all t: Test | misleading[t] implies t in Finding\n",
+  "statement": "For every test:\n\nwhen the test is misleading, checker reports a finding for the test.",
+  "id": "s043"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-expected-failure-checks-a-bug-or-an-exception",
+  "pred": "spec_an_expected_failure_checks_a_bug_or_an_exception",
+  "formula": "all x: ExpectedFailure | ((no b: Bug | checks[x, b]) and (no e: Exception | checks[x, e])) implies x in UnexplainedFailure\n",
+  "statement": "For every expected failure:\n\nwhen the expected failure checks no bug and checks no exception, checker reports an unexplained failure for the expected failure.",
+  "id": "s044"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-plain-test-does-not-check-a-bug",
+  "pred": "spec_a_plain_test_does_not_check_a_bug",
+  "formula": "all t: PlainTest | (some b: Bug | checks[t, b]) implies t in Unpinning\n",
+  "statement": "For every plain test:\n\nwhen the plain test checks a bug, checker reports an unpinning for the plain test.",
+  "id": "s045"
+ },
+ {
+  "doc": "canon",
+  "unit": "axiom-a-canon-cannot-go-out-of-date-unnoticed",
+  "pred": "axiom_a_canon_cannot_go_out_of_date_unnoticed",
+  "formula": "(all c: Claim | (some Runner and unguarded[c]) implies c in Finding)\nand (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding)\nand (all t: Test | adrift[t] implies t in Finding)\nand (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding)\nand (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding)\nand (all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Finding)\nand (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding)\nand (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding)\nand (all c: Claim | (some s: Site | c->s in Name.site and (no r: Source | r->s in Hold.symbols)) implies c in Finding)\nand (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)\n",
+  "statement": "All of these hold:\n- for every claim:\n\n  when project has a runner and the claim is unguarded, checker reports a finding for the claim\n- for every tag:\n\n  when the tag names no unit, checker reports a finding for the tag\n- for every test:\n\n  when the test is adrift, checker reports a finding for the test\n- for every pointer:\n\n  when the pointer names no target, checker reports a finding for the pointer\n- for every unit_1:\n\n  when unit_1 is not used and is not a conflict, checker reports a finding for unit_1\n- for every unit_1:\n\n  when a trailer follows unit_1, checker reports a finding for unit_1\n- for every document:\n\n  when the document holds a unit and holds no index, checker reports a finding for the document\n- for every document:\n\n  when the document holds an index that does not match the document, checker reports a finding for the document\n- for every claim:\n\n  when the claim names a site that no source holds, checker reports a finding for the claim\n- for every unit_1:\n\n  when unit_1 repeats a unit, checker reports a finding for unit_1.",
+  "id": "s046"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-unguarded-claim-is-untested",
+  "pred": "spec_an_unguarded_claim_is_untested",
+  "formula": "all c: Claim | (some Runner and unguarded[c]) implies c in Untesting\n",
+  "statement": "For every claim:\n\nwhen project has a runner and the claim is unguarded, checker reports an untesting for the claim.",
+  "id": "s047"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-tag-names-a-unit",
+  "pred": "spec_a_tag_names_a_unit",
+  "formula": "all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Rotting\n",
+  "statement": "For every tag:\n\nwhen the tag names no unit, checker reports a rotting for the tag.",
+  "id": "s048"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-adrift-test-is-reported",
+  "pred": "spec_an_adrift_test_is_reported",
+  "formula": "all t: Test | adrift[t] implies t in Finding\n",
+  "statement": "For every test:\n\nwhen the test is adrift, checker reports a finding for the test.",
+  "id": "s049"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-declared-test-carries-a-tag",
+  "pred": "spec_a_declared_test_carries_a_tag",
+  "formula": "all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) implies t in Uncitation\n",
+  "statement": "For every test:\n\nwhen project declares the test and the test carries no tag, checker reports an uncitation for the test.",
+  "id": "s050"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-declared-test-checks-only-claims",
+  "pred": "spec_a_declared_test_checks_only_claims",
+  "formula": "all t: Test | (t in Declared and (some u: Unit | checks[t, u] and u not in Claim)) implies t in Misaiming\n",
+  "statement": "For every test:\n\nwhen project declares the test and the test checks a unit that is not a claim, checker reports a misaiming for the test.",
+  "id": "s051"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-test-checks-only-leaves",
+  "pred": "spec_a_test_checks_only_leaves",
+  "formula": "all t: Test | (some c: Claim | checks[t, c] and refined[c]) implies t in Overreach\n",
+  "statement": "For every test:\n\nwhen the test checks a claim that is refined, checker reports an overreach for the test.",
+  "id": "s052"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-pointer-names-a-target",
+  "pred": "spec_a_pointer_names_a_target",
+  "formula": "all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Rotting\n",
+  "statement": "For every pointer:\n\nwhen the pointer names no target, checker reports a rotting for the pointer.",
+  "id": "s053"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-unit-is-declared-once",
+  "pred": "spec_a_unit_is_declared_once",
+  "formula": "all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Rotting\n",
+  "statement": "For every unit_1:\n\nwhen unit_1 repeats a unit, checker reports a rotting for unit_1.",
+  "id": "s054"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-unit-is-used",
+  "pred": "spec_a_unit_is_used",
+  "formula": "all u: Unit | (not used[u] and u not in Conflict) implies u in Orphaning\n",
+  "statement": "For every unit:\n\nwhen the unit is not used and is not a conflict, checker reports an orphaning for the unit.",
+  "id": "s055"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-heading-ends-with-its-id",
+  "pred": "spec_a_heading_ends_with_its_id",
+  "formula": "all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Misanchoring\n",
+  "statement": "For every unit:\n\nwhen a trailer follows the unit, checker reports a misanchoring for the unit.",
+  "id": "s056"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-document-holds-an-index",
+  "pred": "spec_a_document_holds_an_index",
+  "formula": "all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Misindexing\n",
+  "statement": "For every document:\n\nwhen the document holds a unit and holds no index, checker reports a misindexing for the document.",
+  "id": "s057"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-index-matches-its-document",
+  "pred": "spec_an_index_matches_its_document",
+  "formula": "all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Misindexing\n",
+  "statement": "For every document:\n\nwhen the document holds an index that does not match the document, checker reports a misindexing for the document.",
+  "id": "s058"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-site-is-held-by-a-source",
+  "pred": "spec_a_site_is_held_by_a_source",
+  "formula": "all c: Claim | (some s: Site | c->s in Name.site and (no r: Source | r->s in Hold.symbols)) implies c in Mislocation\n",
+  "statement": "For every claim:\n\nwhen the claim names a site that no source holds, checker reports a mislocation for the claim.",
+  "id": "s059"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs",
+  "pred": "spec_a_document_is_context_for_the_documents_that_extend_it_and_for_theirs",
+  "formula": "all d: Document, e: Document, g: Document | (d->e in Extend.rel implies d->e in Context.rel) and ((d->e in Extend.rel and e->g in Context.rel) implies d->g in Context.rel)\n",
+  "statement": "For every document_1 and every document_2 and every document_3:\n\nall of these hold:\n- when document_1 extends document_2, document_2 is context for document_1\n- when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1",
+  "id": "s060"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it",
+  "pred": "spec_a_fenced_block_with_a_language_belongs_to_the_unit_whose_own_text_holds_it",
+  "formula": "all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in Blocks.rel\n",
+  "statement": "For every fence_1 and every unit:\n\nwhen all of these hold:\n- fence_1 is a fence that names a language\n- fence_1 lies in the own text of the unit\n\nthen checker reads fence_1 as a block of the unit.",
+  "id": "s061"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-fence-with-no-language-is-prose",
+  "pred": "spec_a_fence_with_no_language_is_prose",
+  "formula": "all f: Fence | f not in Languaged implies (no u: Unit | u->f in Blocks.rel)\n",
+  "statement": "For every fence_1:\n\nwhen fence_1 is a fence that names no language, checker reads fence_1 as a block of no unit.",
+  "id": "s062"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary",
+  "pred": "spec_a_block_whose_second_word_is_vocabulary_has_the_role_of_vocabulary",
+  "formula": "all f: Fence | f in VocabularyWord implies f in VocabularyBlock\n",
+  "statement": "For every fence:\n\nwhen the second word of the fence is vocabulary, the fence has the role of vocabulary.",
+  "id": "s063"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds",
+  "pred": "spec_a_block_whose_second_word_is_bounds_has_the_role_of_bounds",
+  "formula": "all f: Fence | f in BoundsWord implies f in BoundsBlock\n",
+  "statement": "For every fence:\n\nwhen the second word of the fence is bounds, the fence has the role of bounds.",
+  "id": "s064"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario",
+  "pred": "spec_a_block_whose_second_word_is_scenario_has_the_role_of_scenario",
+  "formula": "all f: Fence | f in ScenarioWord implies f in ScenarioBlock\n",
+  "statement": "For every fence:\n\nwhen the second word of the fence is scenario, the fence has the role of scenario.",
+  "id": "s065"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-block-with-no-role-word-is-the-formula-of-its-unit",
+  "pred": "spec_a_block_with_no_role_word_is_the_formula_of_its_unit",
+  "formula": "all f: Fence | f in NoSecondWord implies f in UnitBlock\n",
+  "statement": "For every fence:\n\nwhen the fence has no second word that names a role, the fence has the role of the formula of its unit.",
+  "id": "s066"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-nested-units-block-is-its-own",
+  "pred": "spec_a_nested_units_block_is_its_own",
+  "formula": "all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v->u in Sit.rel and v->f in Blocks.rel)\n",
+  "statement": "For every fence and every unit_1:\n\nwhen the fence lies in the own text of unit_1, checker reads the fence as a block of no unit that sits in unit_1.",
+  "id": "s067"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-tested-claim-is-not-untested",
+  "pred": "spec_a_tested_claim_is_not_untested",
+  "formula": "all c: Claim | tested[c] implies c not in Untesting\n",
+  "statement": "For every claim:\n\nwhen the claim is tested, checker reports no untesting for the claim.",
+  "id": "s068"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-claim-a-declared-test-checks-is-not-untested",
+  "pred": "spec_a_claim_a_declared_test_checks_is_not_untested",
+  "formula": "all c: Claim | (some t: Test | t in Declared and checks[t, c]) implies c not in Untesting\n",
+  "statement": "For every claim:\n\nwhen a test that project declares checks the claim, checker reports no untesting for the claim.",
+  "id": "s069"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-claim-an-undeclared-test-checks-is-not-untested",
+  "pred": "spec_a_claim_an_undeclared_test_checks_is_not_untested",
+  "formula": "all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not in Untesting\n",
+  "statement": "For every claim:\n\nwhen a test that project does not declare checks the claim, checker reports no untesting for the claim.",
+  "id": "s070"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-spec-whose-bug-a-test-checks-is-not-untested",
+  "pred": "spec_a_spec_whose_bug_a_test_checks_is_not_untested",
+  "formula": "all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting\n",
+  "statement": "For every spec:\n\nwhen a test checks a bug that sits in the spec, checker reports no untesting for the spec.",
+  "id": "s071"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-project-with-no-runner-reports-no-untesting",
+  "pred": "spec_a_project_with_no_runner_reports_no_untesting",
+  "formula": "all u: Unit | no Runner implies u not in Untesting\n",
+  "statement": "For every unit:\n\nwhen project has no runner, checker reports no untesting for the unit.",
+  "id": "s072"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-project-with-no-tracker-reports-no-untracking",
+  "pred": "spec_a_project_with_no_tracker_reports_no_untracking",
+  "formula": "all u: Unit | no Tracker implies u not in Untracking\n",
+  "statement": "For every unit:\n\nwhen project has no tracker, checker reports no untracking for the unit.",
+  "id": "s073"
+ },
+ {
+  "doc": "canon",
+  "unit": "axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+  "pred": "axiom_a_check_the_project_asked_for_is_never_dropped_silently",
+  "formula": "all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2\n",
+  "statement": "For every run:\n\nwhen at least one of these holds:\n- there are frontmatter_1 and missing_plugin_1 such that frontmatter_1 lists missing_plugin_1\n- there is a document such that checker reports that the document has a frontmatter it cannot read\n- the run asks for a command that is not available\n- the run gets code 2 from a plugin\n\nthen the run exits with code 2.",
+  "id": "s074"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-document-gets-the-plugins-it-asks-for",
+  "pred": "spec_a_document_gets_the_plugins_it_asks_for",
+  "formula": "all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d not in Given and p->d in Over.rel) implies applies[p, d])\n",
+  "statement": "For every plugin and every document:\n\nall of these hold:\n- when the plugin applies to the document, checker runs the plugin over the document\n- when the command line of a run does not name the document and checker runs the plugin over the document, the plugin applies to the document",
+  "id": "s075"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-document-with-no-plugins-list-asks-for-no-plugin",
+  "pred": "spec_a_document_with_no_plugins_list_asks_for_no_plugin",
+  "formula": "all p: Plugin, d: Document | ((no f: Listing | d->f in Head.rel) and d not in Given) implies p->d not in Over.rel\n",
+  "statement": "For every plugin and every document:\n\nwhen the document starts with no listing frontmatter and the command line of a run does not name the document, checker does not run the plugin over the document.",
+  "id": "s076"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-plugin-a-document-lists-runs-over-it",
+  "pred": "spec_a_plugin_a_document_lists_runs_over_it",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel\n",
+  "statement": "For every plugin and every document and every listing frontmatter:\n\nwhen the document starts with the listing frontmatter and the listing frontmatter lists the plugin, checker runs the plugin over the document.",
+  "id": "s077"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-plugin-a-document-does-not-list-does-not-run-over-it",
+  "pred": "spec_a_plugin_a_document_does_not_list_does_not_run_over_it",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel\n",
+  "statement": "For every plugin and every document and every listing frontmatter:\n\nwhen all of these hold:\n- the document starts with the listing frontmatter\n- the listing frontmatter does not list the plugin\n- the command line of a run does not name the document\n\nthen checker does not run the plugin over the document.",
+  "id": "s078"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-empty-list-asks-for-no-plugin",
+  "pred": "spec_an_empty_list_asks_for_no_plugin",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel\n",
+  "statement": "For every plugin and every document and every listing frontmatter:\n\nwhen all of these hold:\n- the document starts with the listing frontmatter\n- the listing frontmatter holds no entry\n- the command line of a run does not name the document\n\nthen checker does not run the plugin over the document.",
+  "id": "s079"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says",
+  "pred": "spec_a_document_named_on_the_command_line_is_checked_whatever_its_frontmatter_says",
+  "formula": "all r: Run, p: Plugin, d: Given | calls[r, p] implies p->d in Over.rel\n",
+  "statement": "For every run_1 and every plugin and every given document:\n\nwhen run_1 calls the plugin, checker runs the plugin over the given document.",
+  "id": "s080"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-with-no-plugins-key-holds-no-entry",
+  "pred": "spec_a_frontmatter_with_no_plugins_key_holds_no_entry",
+  "formula": "all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)\n",
+  "statement": "For every frontmatter_1:\n\nwhen frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no entry.",
+  "id": "s081"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-flawed-frontmatter-is-refused",
+  "pred": "spec_a_flawed_frontmatter_is_refused",
+  "formula": "all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused\n",
+  "statement": "For every frontmatter_1:\n\nwhen at least one of these holds:\n- frontmatter_1 has the flaw of an entry that starts with an at sign outside quotes\n- frontmatter_1 has the flaw of a key that neither the checker nor a plugin that frontmatter_1 lists defines\n- frontmatter_1 has the flaw of a list that is not closed\n- frontmatter_1 has the flaw of a string that is not closed\n- frontmatter_1 has the flaw of a key that appears twice\n- frontmatter_1 has the flaw of a path that names no document\n- frontmatter_1 has the flaw of an extension that leads back to its own document\n- frontmatter_1 has the flaw of a setting in a document that is not the entry document\n\nthen frontmatter_1 is a frontmatter that the checker cannot read.",
+  "id": "s082"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-misquoted-entry-is-refused",
+  "pred": "spec_a_misquoted_entry_is_refused",
+  "formula": "all f: Misquoted | f in Refused\n",
+  "statement": "For every misquoted frontmatter:\n\nthe misquoted frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s083"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-key-the-checker-does-not-know-is-refused",
+  "pred": "spec_a_key_the_checker_does_not_know_is_refused",
+  "formula": "all f: Foreign | f in Refused\n",
+  "statement": "For every foreign frontmatter:\n\nthe foreign frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s084"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-list-that-is-not-closed-is-refused",
+  "pred": "spec_a_list_that_is_not_closed_is_refused",
+  "formula": "all f: Unclosed | f in Refused\n",
+  "statement": "For every unclosed frontmatter:\n\nthe unclosed frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s085"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-string-that-is-not-closed-is-refused",
+  "pred": "spec_a_string_that_is_not_closed_is_refused",
+  "formula": "all f: Unterminated | f in Refused\n",
+  "statement": "For every unterminated frontmatter:\n\nthe unterminated frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s086"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-key-written-twice-is-refused",
+  "pred": "spec_a_key_written_twice_is_refused",
+  "formula": "all f: Doubled | f in Refused\n",
+  "statement": "For every doubled frontmatter:\n\nthe doubled frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s087"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-path-that-names-no-document-is-refused",
+  "pred": "spec_a_path_that_names_no_document_is_refused",
+  "formula": "all f: Dangling | f in Refused\n",
+  "statement": "For every dangling frontmatter:\n\nthe dangling frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s088"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-extension-that-leads-back-is-refused",
+  "pred": "spec_an_extension_that_leads_back_is_refused",
+  "formula": "all f: Looping | f in Refused\n",
+  "statement": "For every circular frontmatter:\n\nthe circular frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s089"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-setting-outside-the-entry-document-is-refused",
+  "pred": "spec_a_setting_outside_the_entry_document_is_refused",
+  "formula": "all f: Stray | f in Refused\n",
+  "statement": "For every stray frontmatter:\n\nthe stray frontmatter is a frontmatter that the checker cannot read.",
+  "id": "s090"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-refused-frontmatter-fails-the-run",
+  "pred": "spec_a_refused_frontmatter_fails_the_run",
+  "formula": "all r: Run, d: Document, f: Refused | d->f in Head.rel implies (d in Unreadable and r in Exits2)\n",
+  "statement": "For every run and every document and every refused frontmatter:\n\nwhen the document starts with the refused frontmatter,\n\nthen all of these hold:\n- checker reports that the document has a frontmatter it cannot read\n- the run exits with code 2",
+  "id": "s091"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-document-with-a-refused-frontmatter-is-reported",
+  "pred": "spec_a_document_with_a_refused_frontmatter_is_reported",
+  "formula": "all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable\n",
+  "statement": "For every document and every refused frontmatter:\n\nwhen the document starts with the refused frontmatter, checker reports that the document has a frontmatter it cannot read.",
+  "id": "s092"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-report-of-an-unreadable-frontmatter-stops-the-run",
+  "pred": "spec_a_report_of_an_unreadable_frontmatter_stops_the_run",
+  "formula": "all r: Run | (some d: Document | d in Unreadable) implies r in Exits2\n",
+  "statement": "For every run:\n\nwhen there is a document such that checker reports that the document has a frontmatter it cannot read, the run exits with code 2.",
+  "id": "s093"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-plugin-the-project-lacks-fails-the-run",
+  "pred": "spec_a_plugin_the_project_lacks_fails_the_run",
+  "formula": "all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and r in Exits2)\n",
+  "statement": "For every run and every frontmatter and every missing plugin:\n\nwhen the frontmatter lists the missing plugin,\n\nthen all of these hold:\n- checker reports that the project lacks the missing plugin\n- the run exits with code 2",
+  "id": "s094"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-missing-plugin-is-reported",
+  "pred": "spec_a_missing_plugin_is_reported",
+  "formula": "all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound\n",
+  "statement": "For every frontmatter and every missing plugin:\n\nwhen the frontmatter lists the missing plugin, checker reports that the project lacks the missing plugin.",
+  "id": "s095"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-missing-plugin-stops-the-run",
+  "pred": "spec_a_missing_plugin_stops_the_run",
+  "formula": "all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2\n",
+  "statement": "For every run and every frontmatter and every missing plugin:\n\nwhen the frontmatter lists the missing plugin, the run exits with code 2.",
+  "id": "s096"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-unknown-command-fails-the-run",
+  "pred": "spec_an_unknown_command_fails_the_run",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies (c in Unknown and r in Exits2)\n",
+  "statement": "For every run and every command_1:\n\nwhen the run asks for command_1 and command_1 is not available, checker reports command_1 as an unknown command and the run exits with code 2.",
+  "id": "s097"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-command-that-is-not-available-is-reported-as-unknown",
+  "pred": "spec_a_command_that_is_not_available_is_reported_as_unknown",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unknown\n",
+  "statement": "For every run and every command_1:\n\nwhen the run asks for command_1 and command_1 is not available, checker reports command_1 as an unknown command.",
+  "id": "s098"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-command-that-is-not-available-stops-the-run",
+  "pred": "spec_a_command_that_is_not_available_stops_the_run",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Exits2\n",
+  "statement": "For every run and every command:\n\nwhen the run asks for the command and the command is not available, the run exits with code 2.",
+  "id": "s099"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-an-available-command-is-not-reported-as-unknown",
+  "pred": "spec_an_available_command_is_not_reported_as_unknown",
+  "formula": "all c: Command | available[c] implies c not in Unknown\n",
+  "statement": "For every command_1:\n\nwhen command_1 is available, checker does not report command_1 as an unknown command.",
+  "id": "s100"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-every-plugin-a-run-calls-runs",
+  "pred": "spec_every_plugin_a_run_calls_runs",
+  "formula": "all r: Run, p: Plugin | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)\n",
+  "statement": "For every run and every plugin:\n\nwhen the run calls the plugin,\n\nthen the following holds:\n\nthe run gets code 0 from the plugin, gets code 1 from the plugin or gets code 2 from the plugin.",
+  "id": "s101"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-run-exits-with-the-worst-code-of-its-plugins",
+  "pred": "spec_a_run_exits_with_the_worst_code_of_its_plugins",
+  "formula": "all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1)\n",
+  "statement": "For every run:\n\nall of these hold:\n- when the run gets code 2 from a plugin, the run exits with code 2\n- when the run gets code 1 from a plugin and gets code 2 from no plugin, the run exits with code 1",
+  "id": "s102"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-plugin-that-could-not-run-stops-the-run",
+  "pred": "spec_a_plugin_that_could_not_run_stops_the_run",
+  "formula": "all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2\n",
+  "statement": "For every run:\n\nwhen the run gets code 2 from a plugin, the run exits with code 2.",
+  "id": "s103"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-finding-fails-the-run",
+  "pred": "spec_a_finding_fails_the_run",
+  "formula": "all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1\n",
+  "statement": "For every run:\n\nwhen the run gets code 1 from a plugin and gets code 2 from no plugin, the run exits with code 1.",
+  "id": "s104"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-run-with-no-finding-succeeds",
+  "pred": "spec_a_run_with_no_finding_succeeds",
+  "formula": "all r: Run | (no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0\n",
+  "statement": "For every run:\n\nwhen there is no plugin such that the run gets code 1 from the plugin or gets code 2 from the plugin, the run exits with code 0.",
+  "id": "s105"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document",
+  "pred": "spec_a_frontmatter_changes_nothing_but_the_plugins_of_its_document",
+  "formula": "all d, e: Document | d->e in Bare.rel implies ((all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units)) and (e in Finding implies d in Finding) and (d in Finding implies e in Finding))\n",
+  "statement": "For every document_1 and every document_2:\n\nwhen document_1 is document_2 without its frontmatter,\n\nthen all of these hold:\n- for every unit:\n\n  all of these hold:\n  - when document_2 holds the unit, document_1 holds the unit\n  - when document_1 holds the unit, document_2 holds the unit\n- when checker reports a finding for document_2, checker reports a finding for document_1\n- when checker reports a finding for document_1, checker reports a finding for document_2",
+  "id": "s106"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were",
+  "pred": "spec_a_frontmatter_leaves_the_units_of_its_document_as_they_were",
+  "formula": "all d, e: Document | d->e in Bare.rel implies (all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units))\n",
+  "statement": "For every document_1 and every document_2:\n\nwhen document_1 is document_2 without its frontmatter,\n\nthen for every unit:\n\nall of these hold:\n- when document_2 holds the unit, document_1 holds the unit\n- when document_1 holds the unit, document_2 holds the unit",
+  "id": "s107"
+ },
+ {
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-changes-no-finding",
+  "pred": "spec_a_frontmatter_changes_no_finding",
+  "formula": "all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Finding) and (d in Finding implies e in Finding))\n",
+  "statement": "For every document_1 and every document_2:\n\nwhen document_1 is document_2 without its frontmatter,\n\nthen all of these hold:\n- when checker reports a finding for document_2, checker reports a finding for document_1\n- when checker reports a finding for document_1, checker reports a finding for document_2",
+  "id": "s108"
+ },
+ {
+  "doc": "canon",
+  "unit": "scenario-1-term-checker",
+  "pred": "scenario_1_term_checker",
+  "formula": "some a: Axiom, s: Spec, t: Test, g: Tag, d: Document, i: Index | s->a in Sit.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and (all f: Thing | f not in Finding)\n",
+  "statement": "It must be possible that:\n\nThere are axiom_1 and spec_1 and test_1 and tag_1 and document_1 and index_1 such that all of these hold:\n- spec_1 sits in axiom_1\n- project declares test_1\n- test_1 carries tag_1\n- tag_1 names spec_1\n- document_1 holds axiom_1\n- document_1 holds spec_1\n- document_1 holds index_1\n- index_1 matches document_1\n- for every thing:\n\n  checker reports no finding for the thing.",
+  "id": "s109"
+ },
+ {
+  "doc": "canon",
+  "unit": "scenario-2-term-checker",
+  "pred": "scenario_2_term_checker",
+  "formula": "some b: Bug, x: ExpectedFailure, i: Issue | b->i in Name.issue and i in Known and i not in Closed and checks[x, b] and b not in Finding and x not in Finding\n",
+  "statement": "It must be possible that:\n\nThere are bug_1 and expected_failure_1 and issue_1 such that all of these hold:\n- bug_1 names issue_1\n- tracker knows issue_1\n- tracker has not closed issue_1\n- expected_failure_1 checks bug_1\n- checker reports no finding for bug_1\n- checker reports no finding for expected_failure_1",
+  "id": "s110"
+ },
+ {
+  "doc": "canon",
+  "unit": "scenario-3-term-checker",
+  "pred": "scenario_3_term_checker",
+  "formula": "some c: Conflict, i: Issue, u, v: Unit | u != v and c->i in Name.issue and i in Known and i not in Closed and c->u in Name.between and c->v in Name.between and c not in Finding\n",
+  "statement": "It must be possible that:\n\nThere are conflict_1 and issue_1 and unit_1 and unit_2 such that all of these hold:\n- unit_1 and unit_2 are different\n- conflict_1 names issue_1\n- tracker knows issue_1\n- tracker has not closed issue_1\n- conflict_1 names unit_1\n- conflict_1 names unit_2\n- checker reports no finding for conflict_1",
+  "id": "s111"
+ },
+ {
+  "doc": "canon",
+  "unit": "scenario-1-spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs",
+  "pred": "scenario_1_spec_a_document_is_context_for_the_documents_that_extend_it_and_for_theirs",
+  "formula": "some d, e, g: Document | d != g and d->e in Extend.rel and e->g in Extend.rel and d->g in Context.rel\n",
+  "statement": "It must be possible that:\n\nThere are document_1 and document_2 and document_3 such that all of these hold:\n- document_1 and document_3 are different\n- document_1 extends document_2\n- document_2 extends document_3\n- document_3 is context for document_1",
+  "id": "s112"
+ },
+ {
+  "doc": "canon",
+  "unit": "scenario-1-axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+  "pred": "scenario_1_axiom_a_check_the_project_asked_for_is_never_dropped_silently",
+  "formula": "some r: Run, p: Installed, d: Document, f: Listing | d->f in Head.rel and lists[f, p] and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1\n",
+  "statement": "It must be possible that:\n\nThere are run_1 and installed_plugin_1 and document_1 and listing_frontmatter_1 such that all of these hold:\n- document_1 starts with listing_frontmatter_1\n- listing_frontmatter_1 lists installed_plugin_1\n- checker runs installed_plugin_1 over document_1\n- run_1 calls installed_plugin_1\n- run_1 gets code 1 from installed_plugin_1\n- run_1 exits with code 1",
+  "id": "s113"
+ },
+ {
+  "doc": "canon",
+  "unit": "scenario-2-axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+  "pred": "scenario_2_axiom_a_check_the_project_asked_for_is_never_dropped_silently",
+  "formula": "some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and r in Exits2\n",
+  "statement": "It must be possible that:\n\nThere are run_1 and document_1 and refused_frontmatter_1 such that all of these hold:\n- document_1 starts with refused_frontmatter_1\n- checker reports that document_1 has a frontmatter it cannot read\n- run_1 exits with code 2",
+  "id": "s114"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "axiom-a-statement-says-what-its-logic-says",
+  "pred": "axiom_a_statement_says_what_its_logic_says",
+  "formula": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported\n",
+  "statement": "For every document and every unit:\n\nwhen all of these hold:\n- the document keeps readings\n- the document holds the unit\n- the unit holds a formula\n- the statement of the unit is not current\n\nthen checker reports the statement of the unit.",
+  "id": "s115"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-document-that-keeps-no-readings-is-left-as-it-is",
+  "pred": "spec_a_document_that_keeps_no_readings_is_left_as_it_is",
+  "formula": "all d: Document, u: Unit | (d->u in Hold.units and d not in Worded) implies (u not in Rewritten and u not in Reported)\n",
+  "statement": "For every document and every unit:\n\nwhen the document holds the unit and keeps no readings,\n\nthen all of these hold:\n- checker does not write the statement of the unit when it generates\n- checker does not report the statement of the unit",
+  "id": "s116"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-unit-with-a-formula-and-no-statement-is-unwritten",
+  "pred": "spec_a_unit_with_a_formula_and_no_statement_is_unwritten",
+  "formula": "all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten\n",
+  "statement": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit has no statement\n- the formula of the unit can be said in words\n\nthen the statement of the unit is unwritten.",
+  "id": "s117"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-generated-statement-that-differs-from-its-formula-is-stale",
+  "pred": "spec_a_generated_statement_that_differs_from_its_formula_is_stale",
+  "formula": "all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale\n",
+  "statement": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the statement of the unit sits between the markers of a generated region\n- the statement of the unit differs from what its formula says\n- the formula of the unit can be said in words\n\nthen the statement of the unit is stale.",
+  "id": "s118"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-generated-statement-that-its-formula-would-say-again-is-current",
+  "pred": "spec_a_generated_statement_that_its_formula_would_say_again_is_current",
+  "formula": "all u: Unit | (u in Generated and u not in Differs and u not in Unsayable) implies u in Current\n",
+  "statement": "For every unit:\n\nwhen all of these hold:\n- the statement of the unit sits between the markers of a generated region\n- the statement of the unit does not differ from what its formula says\n- the formula of the unit can be said in words\n\nthen the statement of the unit is current.",
+  "id": "s119"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-statement-that-a-person-wrote-is-handwritten",
+  "pred": "spec_a_statement_that_a_person_wrote_is_handwritten",
+  "formula": "all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten\n",
+  "statement": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit has a statement\n- the statement of the unit does not sit between the markers of a generated region\n- the formula of the unit can be said in words\n\nthen the statement of the unit is handwritten.",
+  "id": "s120"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-that-the-readings-cannot-say-is-unsayable",
+  "pred": "spec_a_formula_that_the_readings_cannot_say_is_unsayable",
+  "formula": "all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable\n",
+  "statement": "For every unit:\n\nwhen at least one of these holds:\n- the formula of the unit names a word that has no reading\n- the unit holds more than one formula\n\nthen the formula of the unit cannot be said in words.",
+  "id": "s121"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-with-a-word-that-has-no-reading-is-unsayable",
+  "pred": "spec_a_formula_with_a_word_that_has_no_reading_is_unsayable",
+  "formula": "all u: Unit | u in Wordless implies u in Unsayable\n",
+  "statement": "For every unit:\n\nwhen the formula of the unit names a word that has no reading, the formula of the unit cannot be said in words.",
+  "id": "s122"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-unit-with-two-formulas-is-unsayable",
+  "pred": "spec_a_unit_with_two_formulas_is_unsayable",
+  "formula": "all u: Unit | u in Twofold implies u in Unsayable\n",
+  "statement": "For every unit:\n\nwhen the unit holds more than one formula, the formula of the unit cannot be said in words.",
+  "id": "s123"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-an-unsayable-formula-says-why",
+  "pred": "spec_the_report_of_an_unsayable_formula_says_why",
+  "formula": "all u: Unit | u in Unsayable implies u in Explained\n",
+  "statement": "For every unit:\n\nwhen the formula of the unit cannot be said in words, checker says why the formula of the unit cannot be said.",
+  "id": "s124"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable",
+  "pred": "spec_a_fault_of_the_verbalizer_fails_the_run_and_is_not_explained_as_unsayable",
+  "formula": "all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies (u not in Explained and r not in Exits0)\n",
+  "statement": "For every run and every command_1 and every unit:\n\nwhen all of these hold:\n- the run asks for command_1\n- command_1 is the command `generate` or is the command `check`\n- the verbalizer fails on the formula of the unit with a fault of its own\n\nthen checker does not say why the formula of the unit cannot be said and the run does not exit with code 0.",
+  "id": "s125"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-writes-what-is-not-current-and-nothing-else",
+  "pred": "spec_generate_writes_what_is_not_current_and_nothing_else",
+  "formula": "all u: Unit | (u in Rewritten implies (u in Unwritten or u in Stale)) and ((u in Unwritten or u in Stale) implies u in Rewritten)\n",
+  "statement": "For every unit:\n\nall of these hold:\n- when checker writes the statement of the unit when it generates, the statement of the unit is unwritten or the statement of the unit is stale\n- when the statement of the unit is unwritten or the statement of the unit is stale, checker writes the statement of the unit when it generates",
+  "id": "s126"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-writes-the-statement-of-a-stale-unit-again",
+  "pred": "spec_generate_writes_the_statement_of_a_stale_unit_again",
+  "formula": "all u: Unit | u in Stale implies u in Rewritten\n",
+  "statement": "For every unit:\n\nwhen the statement of the unit is stale, checker writes the statement of the unit when it generates.",
+  "id": "s127"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-leaves-a-current-statement-as-it-is",
+  "pred": "spec_generate_leaves_a_current_statement_as_it_is",
+  "formula": "all u: Unit | u in Current implies u not in Rewritten\n",
+  "statement": "For every unit:\n\nwhen the statement of the unit is current, checker does not write the statement of the unit when it generates.",
+  "id": "s128"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-never-overwrites-a-handwritten-statement",
+  "pred": "spec_generate_never_overwrites_a_handwritten_statement",
+  "formula": "all u: Unit | u in Handwritten implies u not in Rewritten\n",
+  "statement": "For every unit:\n\nwhen the statement of the unit is handwritten, checker does not write the statement of the unit when it generates.",
+  "id": "s129"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-leaves-an-unsayable-unit-as-it-is",
+  "pred": "spec_generate_leaves_an_unsayable_unit_as_it_is",
+  "formula": "all u: Unit | u in Unsayable implies u not in Rewritten\n",
+  "statement": "For every unit:\n\nwhen the formula of the unit cannot be said in words, checker does not write the statement of the unit when it generates.",
+  "id": "s130"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-reports-a-statement-that-is-not-current",
+  "pred": "spec_check_reports_a_statement_that_is_not_current",
+  "formula": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported\n",
+  "statement": "For every document and every unit:\n\nwhen all of these hold:\n- the document keeps readings\n- the document holds the unit\n- the unit holds a formula\n- the statement of the unit is not current\n\nthen checker reports the statement of the unit.",
+  "id": "s131"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-does-not-report-a-current-statement",
+  "pred": "spec_check_does_not_report_a_current_statement",
+  "formula": "all u: Unit | u in Current implies u not in Reported\n",
+  "statement": "For every unit:\n\nwhen the statement of the unit is current, checker does not report the statement of the unit.",
+  "id": "s132"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-report-of-a-statement-fails-check",
+  "pred": "spec_a_report_of_a_statement_fails_check",
+  "formula": "all r: Run, c: CheckCommand, u: Unit | (r->c in Ask.rel and u in Reported) implies r not in Exits0\n",
+  "statement": "For every run and every check command and every unit:\n\nwhen the run asks for the check command and checker reports the statement of the unit, the run does not exit with code 0.",
+  "id": "s133"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-fails-on-a-handwritten-statement-and-says-so",
+  "pred": "spec_generate_fails_on_a_handwritten_statement_and_says_so",
+  "formula": "all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)\n",
+  "statement": "For every run and every generate command and every unit:\n\nwhen the run asks for the generate command and the statement of the unit is handwritten, checker reports the statement of the unit and the run does not exit with code 0.",
+  "id": "s134"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-fails-on-an-unsayable-formula-and-says-why",
+  "pred": "spec_generate_fails_on_an_unsayable_formula_and_says_why",
+  "formula": "all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Unsayable) implies (u in Explained and r not in Exits0)\n",
+  "statement": "For every run and every generate command and every unit:\n\nwhen the run asks for the generate command and the formula of the unit cannot be said in words, checker says why the formula of the unit cannot be said and the run does not exit with code 0.",
+  "id": "s135"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared",
+  "pred": "spec_a_word_that_a_reading_says_and_nothing_declares_is_undeclared",
+  "formula": "all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared\n",
+  "statement": "For every word_1:\n\nwhen all of these hold:\n- there is a unit_1 such that a reading in unit_1 says word_1\n- no unit declares word_1\n\nthen word_1 is a word that a reading says and nothing declares.",
+  "id": "s136"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-declared-outside-a-term-is-misplaced",
+  "pred": "spec_a_word_declared_outside_a_term_is_misplaced",
+  "formula": "all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Misplaced\n",
+  "statement": "For every unit_1 and every word_1:\n\nwhen unit_1 declares word_1 and is not a term, word_1 is a word declared in a unit that is not a term.",
+  "id": "s137"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-reading-apart-from-the-declaration-it-says-is-apart",
+  "pred": "spec_a_reading_apart_from_the_declaration_it_says_is_apart",
+  "formula": "all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart\n",
+  "statement": "For every unit_1 and every word_1:\n\nwhen all of these hold:\n- a reading in unit_1 says word_1\n- a unit declares word_1\n- unit_1 does not declare word_1\n\nthen word_1 is a word whose reading is in another unit than its declaration.",
+  "id": "s138"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-declared-word-that-no-claim-uses-is-unused",
+  "pred": "spec_a_declared_word_that_no_claim_uses_is_unused",
+  "formula": "all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u: Unit | u->w in Rely.rel)) implies w in Unused\n",
+  "statement": "For every word_1:\n\nwhen all of these hold:\n- a unit declares word_1\n- there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1\n\nthen word_1 is a word that no claim, definition or fact uses.",
+  "id": "s139"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported",
+  "pred": "spec_a_word_declared_in_a_term_said_beside_it_and_used_is_not_reported",
+  "formula": "all u: Term, w: Word | (u->w in Introduce.rel and u->w in Voice.rel and (some v: Unit | v->w in Rely.rel)) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)\n",
+  "statement": "For every term_1 and every word_1:\n\nwhen all of these hold:\n- term_1 declares word_1\n- a reading in term_1 says word_1\n- there is a unit_1 such that a claim, a definition or a fact of unit_1 uses word_1\n\nthen all of these hold:\n- word_1 is not a word that a reading says and nothing declares\n- word_1 is not a word declared in a unit that is not a term\n- word_1 is not a word whose reading is in another unit than its declaration\n- word_1 is not a word that no claim, definition or fact uses\n- checker does not report the word word_1",
+  "id": "s140"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-document-that-keeps-no-readings-has-no-word-reported",
+  "pred": "spec_a_document_that_keeps_no_readings_has_no_word_reported",
+  "formula": "all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units and u->w in Introduce.rel) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)\n",
+  "statement": "For every document and every unit_1 and every word_1:\n\nwhen the document keeps no readings, holds unit_1 and unit_1 declares word_1,\n\nthen all of these hold:\n- word_1 is not a word that a reading says and nothing declares\n- word_1 is not a word declared in a unit that is not a term\n- word_1 is not a word whose reading is in another unit than its declaration\n- word_1 is not a word that no claim, definition or fact uses\n- checker does not report the word word_1",
+  "id": "s141"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-flagged-word-fails-check",
+  "pred": "spec_a_flagged_word_fails_check",
+  "formula": "all r: Run, c: CheckCommand, w: Word | (r->c in Ask.rel and w in Flagged) implies r not in Exits0\n",
+  "statement": "For every run and every check command and every word_1:\n\nwhen the run asks for the check command and checker reports the word word_1, the run does not exit with code 0.",
+  "id": "s142"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-reports-nothing-about-a-word-that-is-in-order",
+  "pred": "spec_check_reports_nothing_about_a_word_that_is_in_order",
+  "formula": "all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged\n",
+  "statement": "For every word_1:\n\nwhen all of these hold:\n- word_1 is not a word that a reading says and nothing declares\n- word_1 is not a word declared in a unit that is not a term\n- word_1 is not a word whose reading is in another unit than its declaration\n- word_1 is not a word that no claim, definition or fact uses\n\nthen checker does not report the word word_1.",
+  "id": "s143"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-reports-a-word-that-is-not-in-order",
+  "pred": "spec_check_reports_a_word_that_is_not_in_order",
+  "formula": "all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w in Flagged\n",
+  "statement": "For every word_1:\n\nwhen at least one of these holds:\n- word_1 is a word that a reading says and nothing declares\n- word_1 is a word declared in a unit that is not a term\n- word_1 is a word whose reading is in another unit than its declaration\n- word_1 is a word that no claim, definition or fact uses\n\nthen checker reports the word word_1.",
+  "id": "s144"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-writes-no-statement-for-a-unit-of-an-extended-document",
+  "pred": "spec_generate_writes_no_statement_for_a_unit_of_an_extended_document",
+  "formula": "all d: Document, e: Document, u: Unit | (d in Checked and e not in Checked and d->e in Context.rel and e->u in Hold.units) implies u not in Rewritten\n",
+  "statement": "For every document_1 and every document_2 and every unit:\n\nwhen all of these hold:\n- the project lists document_1 among the documents it checks\n- the project does not list document_2 among the documents it checks\n- document_2 is context for document_1\n- document_2 holds the unit\n\nthen checker does not write the statement of the unit when it generates.",
+  "id": "s145"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-declared-in-an-extended-document-is-declared",
+  "pred": "spec_a_word_declared_in_an_extended_document_is_declared",
+  "formula": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and u->w in Voice.rel and e->v in Hold.units and v->w in Introduce.rel) implies w not in Undeclared\n",
+  "statement": "For every document_1 and every document_2 and every unit_1 and every unit_2 and every word_1:\n\nwhen all of these hold:\n- document_2 is context for document_1\n- document_1 holds unit_1\n- a reading in unit_1 says word_1\n- document_2 holds unit_2\n- unit_2 declares word_1\n\nthen word_1 is not a word that a reading says and nothing declares.",
+  "id": "s146"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "axiom-the-claims-of-a-canon-never-contradict-each-other",
+  "pred": "axiom_the_claims_of_a_canon_never_contradict_each_other",
+  "formula": "(all u: Unit | u in Contradicting implies u in Named) and (all c: Scenario | c in Impossible implies c in Raised)\n",
+  "statement": "All of these hold:\n- for every unit_1:\n\n  when unit_1 is held with units that cannot all hold, checker names unit_1 in its report of a contradiction\n- for every scenario_1:\n\n  when scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen.",
+  "id": "s147"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-with-no-keyword-is-a-claim-to-hold",
+  "pred": "spec_a_formula_with_no_keyword_is_a_claim_to_hold",
+  "formula": "all u: Unit | u in BareFormula implies u in Held\n",
+  "statement": "For every unit:\n\nwhen the unit holds a formula with no keyword, the analyzer is asked to hold the formula of the unit.",
+  "id": "s148"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-first-searches-leave-no-unit-out",
+  "pred": "spec_the_first_searches_leave_no_unit_out",
+  "formula": "all s: Search | s in First implies s not in Trial\n",
+  "statement": "For every search:\n\nwhen the search is asked before any scenario is known to be impossible, the search leaves no unit out.",
+  "id": "s149"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-is-made-only-for-a-scenario-that-cannot-happen",
+  "pred": "spec_a_trial_is_made_only_for_a_scenario_that_cannot_happen",
+  "formula": "all s: Search, c: Scenario | (s in Trial and s->c in Pose.scenario) implies (c in Impossible and s in Afterwards)\n",
+  "statement": "For every search_1 and every scenario_1:\n\nwhen search_1 leaves one unit out and requires scenario_1 to happen,\n\nthen all of these hold:\n- scenario_1 is a scenario that cannot happen while every held unit holds\n- search_1 is asked after the first search is answered",
+  "id": "s150"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest",
+  "pred": "spec_a_trial_leaves_out_one_held_unit_and_keeps_the_rest",
+  "formula": "all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel) implies (u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))\n",
+  "statement": "For every search and every scenario and every unit_1:\n\nwhen the search leaves one unit out, requires the scenario to happen and leaves out unit_1,\n\nthen all of these hold:\n- the analyzer is asked to hold the formula of unit_1\n- the search does not require unit_1 to hold\n- for every unit_2:\n\n  when all of these hold:\n  - the analyzer is asked to hold the formula of unit_2\n  - unit_2 and unit_1 are different\n\n  then the search requires unit_2 to hold.",
+  "id": "s151"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-is-made-for-each-held-unit-of-a-scenario-that-cannot-happen",
+  "pred": "spec_a_trial_is_made_for_each_held_unit_of_a_scenario_that_cannot_happen",
+  "formula": "all c: Scenario, u: Unit | (c in Impossible and u in Held and (no v: Unit | c->v in Probe.rel)) implies (some s: Search | s in Trial and s->c in Pose.scenario and s->u in Leave.rel)\n",
+  "statement": "For every scenario_1 and every unit_1:\n\nwhen all of these hold:\n- scenario_1 is a scenario that cannot happen while every held unit holds\n- the analyzer is asked to hold the formula of unit_1\n- there is no unit_2 such that the author asks about leaving out unit_2 for scenario_1\n\nthen a search that leaves one unit out and leaves out unit_1 requires scenario_1 to happen.",
+  "id": "s152"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-leaves-out-only-the-units-the-author-asks-about",
+  "pred": "spec_a_trial_leaves_out_only_the_units_the_author_asks_about",
+  "formula": "all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel and (some v: Unit | c->v in Probe.rel)) implies c->u in Probe.rel\n",
+  "statement": "For every search and every scenario and every unit_1:\n\nwhen all of these hold:\n- the search leaves one unit out\n- the search requires the scenario to happen\n- the search leaves out unit_1\n- there is a unit_2 such that the author asks about leaving out unit_2 for the scenario\n\nthen the author asks about leaving out unit_1 for the scenario.",
+  "id": "s153"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-scenario-that-cannot-happen-while-every-unit-holds-is-reported",
+  "pred": "spec_a_scenario_that_cannot_happen_while_every_unit_holds_is_reported",
+  "formula": "all c: Scenario | c in Impossible implies c in Raised\n",
+  "statement": "For every scenario_1:\n\nwhen scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cannot happen.",
+  "id": "s154"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-scenario-that-can-happen-is-not-reported",
+  "pred": "spec_a_scenario_that_can_happen_is_not_reported",
+  "formula": "all c: Scenario | c in Possible implies c not in Raised\n",
+  "statement": "For every scenario_1:\n\nwhen scenario_1 is a scenario that can happen while every held unit holds, checker does not report that scenario_1 cannot happen.",
+  "id": "s155"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen",
+  "pred": "spec_the_report_of_a_scenario_names_each_unit_whose_removal_lets_it_happen",
+  "formula": "all c: Scenario, u: Unit | (c in Raised and u->c in Frees.rel) implies c->u in Blame.rel\n",
+  "statement": "For every scenario and every unit:\n\nwhen all of these hold:\n- checker reports that the scenario cannot happen\n- leaving out the unit lets the scenario happen\n\nthen checker names the unit in its report of the scenario.",
+  "id": "s156"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-a-scenario-names-no-other-unit",
+  "pred": "spec_the_report_of_a_scenario_names_no_other_unit",
+  "formula": "all c: Scenario, u: Unit | c->u in Blame.rel implies u->c in Frees.rel\n",
+  "statement": "For every scenario and every unit:\n\nwhen checker names the unit in its report of the scenario, leaving out the unit lets the scenario happen.",
+  "id": "s157"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-units-that-cannot-all-hold-are-named",
+  "pred": "spec_units_that_cannot_all_hold_are_named",
+  "formula": "all u: Unit | u in Contradicting implies u in Named\n",
+  "statement": "For every unit_1:\n\nwhen unit_1 is held with units that cannot all hold, checker names unit_1 in its report of a contradiction.",
+  "id": "s158"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-a-contradiction-names-all-the-units-of-the-group",
+  "pred": "spec_the_report_of_a_contradiction_names_all_the_units_of_the_group",
+  "formula": "all u: Unit, v: Unit | (u in Contradicting and u->v in Together.rel) implies v in Named\n",
+  "statement": "For every unit_1 and every unit_2:\n\nwhen all of these hold:\n- unit_1 is held with units that cannot all hold\n- the analyzer is asked about unit_1 together with unit_2\n\nthen checker names unit_2 in its report of a contradiction.",
+  "id": "s159"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-units-that-share-a-word-are-asked-about-together",
+  "pred": "spec_units_that_share_a_word_are_asked_about_together",
+  "formula": "all u: Unit, v: Unit | u->v in Share.rel implies u->v in Together.rel\n",
+  "statement": "For every unit_1 and every unit_2:\n\nwhen unit_1 shares a word with unit_2, the analyzer is asked about unit_1 together with unit_2.",
+  "id": "s160"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-units-that-share-no-word-are-asked-about-apart",
+  "pred": "spec_units_that_share_no_word_are_asked_about_apart",
+  "formula": "all u: Unit, v: Unit | u->v in Together.rel implies u->v in Chain.rel\n",
+  "statement": "For every unit_1 and every unit_2:\n\nwhen the analyzer is asked about unit_1 together with unit_2, unit_1 is linked to unit_2 through shared words.",
+  "id": "s161"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-logic-succeeds-when-nothing-is-reported",
+  "pred": "spec_logic_succeeds_when_nothing_is_reported",
+  "formula": "all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0\n",
+  "statement": "For every run and every logic command:\n\nwhen all of these hold:\n- the run asks for the logic command\n- there is no scenario such that checker reports that the scenario cannot happen\n- there is no unit_1 such that unit_1 is held with units that cannot all hold\n\nthen the run exits with code 0.",
+  "id": "s162"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-reported-scenario-or-contradiction-fails-logic",
+  "pred": "spec_a_reported_scenario_or_contradiction_fails_logic",
+  "formula": "all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0\n",
+  "statement": "For every run and every logic command:\n\nwhen all of these hold:\n- the run asks for the logic command\n- at least one of these holds:\n  - there is a scenario such that checker reports that the scenario cannot happen\n  - there is a unit_1 such that unit_1 is held with units that cannot all hold\n\nthen the run does not exit with code 0.",
+  "id": "s163"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-claims-of-an-extended-document-join-the-model",
+  "pred": "spec_the_claims_of_an_extended_document_join_the_model",
+  "formula": "all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held\n",
+  "statement": "For every document_1 and every document_2 and every unit:\n\nwhen all of these hold:\n- the project lists document_1 among the documents it checks\n- document_2 is context for document_1\n- document_2 holds the unit\n- the unit holds a formula with no keyword\n\nthen the analyzer is asked to hold the formula of the unit.",
+  "id": "s164"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "axiom-a-formula-can-be-held-against-the-other-formulas",
+  "pred": "axiom_a_formula_can_be_held_against_the_other_formulas",
+  "formula": "(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)\n",
+  "statement": "All of these hold:\n- for every unit:\n\n  when all of these hold:\n  - the unit holds a formula\n  - the unit is not a term\n  - no other formula can contradict the formula of the unit\n\n  then checker reports the formula of the unit as lone on a signature\n- for every unit and every word:\n\n  when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.",
+  "id": "s165"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-that-no-other-formula-can-contradict-is-reported",
+  "pred": "spec_a_formula_that_no_other_formula_can_contradict_is_reported",
+  "formula": "all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)\n",
+  "statement": "For every unit:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit is not a term\n- no other formula can contradict the formula of the unit\n\nthen checker reports the formula of the unit as lone on a signature.",
+  "id": "s166"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-that-is-lone-on-a-signature-is-reported",
+  "pred": "spec_a_formula_that_is_lone_on_a_signature_is_reported",
+  "formula": "all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) implies u->w in Expose.rel\n",
+  "statement": "For every unit and every signature:\n\nwhen all of these hold:\n- the unit holds a formula\n- the unit is not a term\n- the formula of the unit is lone on the signature\n\nthen checker reports the formula of the unit as lone on the signature.",
+  "id": "s167"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-is-reported-only-when-no-other-formula-can-contradict-it",
+  "pred": "spec_a_formula_is_reported_only_when_no_other_formula_can_contradict_it",
+  "formula": "all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged\n",
+  "statement": "For every unit and every word:\n\nwhen checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.",
+  "id": "s168"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-is-reported-only-on-a-signature-it-is-lone-on",
+  "pred": "spec_a_formula_is_reported_only_on_a_signature_it_is_lone_on",
+  "formula": "all u: Unit, w: Word | u->w in Expose.rel implies (u in Logical and u not in Term and w in Signature and loneOn[u, w])\n",
+  "statement": "For every unit and every word:\n\nwhen checker reports the formula of the unit as lone on the word,\n\nthen all of these hold:\n- the unit holds a formula\n- the unit is not a term\n- the word is a signature\n- the formula of the unit is lone on the word",
+  "id": "s169"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-signature-that-another-unit-names-keeps-a-formula-from-being-reported",
+  "pred": "spec_a_signature_that_another_unit_names_keeps_a_formula_from_being_reported",
+  "formula": "all u: Unit, v: Unit, w: Word | (v != u and v->w in Utter.rel) implies u->w not in Expose.rel\n",
+  "statement": "For every unit_1 and every unit_2 and every word:\n\nwhen all of these hold:\n- unit_2 and unit_1 are different\n- a block of unit_2 names the word outside its declaration\n\nthen checker does not report the formula of unit_1 as lone on the word.",
+  "id": "s170"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-signature-that-a-scenario-names-keeps-a-formula-from-being-reported",
+  "pred": "spec_a_signature_that_a_scenario_names_keeps_a_formula_from_being_reported",
+  "formula": "all u: Unit, v: Unit, w: Word | v->w in Picture.rel implies u->w not in Expose.rel\n",
+  "statement": "For every unit_1 and every unit_2 and every word:\n\nwhen a scenario of unit_2 names the word, checker does not report the formula of unit_1 as lone on the word.",
+  "id": "s171"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-signature-that-an-extended-document-names-keeps-a-formula-from-being-reported",
+  "pred": "spec_a_signature_that_an_extended_document_names_keeps_a_formula_from_being_reported",
+  "formula": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and v->w in Utter.rel) implies u->w not in Expose.rel\n",
+  "statement": "For every document_1 and every document_2 and every unit_1 and every unit_2 and every word:\n\nwhen all of these hold:\n- document_2 is context for document_1\n- document_1 holds unit_1\n- document_2 holds unit_2\n- a block of unit_2 names the word outside its declaration\n\nthen checker does not report the formula of unit_1 as lone on the word.",
+  "id": "s172"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-is-not-reported-on-a-field-or-a-predicate",
+  "pred": "spec_a_formula_is_not_reported_on_a_field_or_a_predicate",
+  "formula": "all u: Unit, w: Word | w not in Signature implies u->w not in Expose.rel\n",
+  "statement": "For every unit and every word:\n\nwhen the word is not a signature, checker does not report the formula of the unit as lone on the word.",
+  "id": "s173"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-term-is-not-reported-as-lone",
+  "pred": "spec_a_term_is_not_reported_as_lone",
+  "formula": "all u: Term, w: Word | u->w not in Expose.rel\n",
+  "statement": "For every term and every word:\n\nchecker does not report the formula of the term as lone on the word.",
+  "id": "s174"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-document-that-keeps-no-readings-has-no-formula-reported-as-lone",
+  "pred": "spec_a_document_that_keeps_no_readings_has_no_formula_reported_as_lone",
+  "formula": "all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units) implies u->w not in Expose.rel\n",
+  "statement": "For every document and every unit and every word:\n\nwhen the document keeps no readings and holds the unit, checker does not report the formula of the unit as lone on the word.",
+  "id": "s175"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-lone-formula-fails-check",
+  "pred": "spec_a_lone_formula_fails_check",
+  "formula": "all r: Run, c: CheckCommand, u: Unit, w: Word | (r->c in Ask.rel and u->w in Expose.rel) implies r not in Exits0\n",
+  "statement": "For every run and every check command and every unit and every word:\n\nwhen the run asks for the check command and checker reports the formula of the unit as lone on the word, the run does not exit with code 0.",
+  "id": "s176"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "scenario-1-axiom-a-statement-says-what-its-logic-says",
+  "pred": "scenario_1_axiom_a_statement_says_what_its_logic_says",
+  "formula": "some u: Unit, d: Document | d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported\n",
+  "statement": "It must be possible that:\n\nThere are unit_1 and document_1 such that all of these hold:\n- document_1 keeps readings\n- document_1 holds unit_1\n- unit_1 holds a formula\n- the statement of unit_1 is current\n- checker does not report the statement of unit_1",
+  "id": "s177"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "scenario-1-spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable",
+  "pred": "scenario_1_spec_a_fault_of_the_verbalizer_fails_the_run_and_is_not_explained_as_unsayable",
+  "formula": "some u: Unit | u in Faulted\n",
+  "statement": "It must be possible that:\n\nThere is a unit such that the verbalizer fails on the formula of the unit with a fault of its own.",
+  "id": "s178"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "scenario-1-axiom-the-claims-of-a-canon-never-contradict-each-other",
+  "pred": "scenario_1_axiom_the_claims_of_a_canon_never_contradict_each_other",
+  "formula": "some c: Scenario, u: Unit | c in Impossible and c in Raised and u->c in Frees.rel and c->u in Blame.rel\n",
+  "statement": "It must be possible that:\n\nThere are scenario_1 and unit_1 such that all of these hold:\n- scenario_1 is a scenario that cannot happen while every held unit holds\n- checker reports that scenario_1 cannot happen\n- leaving out unit_1 lets scenario_1 happen\n- checker names unit_1 in its report of scenario_1",
+  "id": "s179"
+ },
+ {
+  "doc": "canon-plugin-alloy",
+  "unit": "scenario-1-axiom-a-formula-can-be-held-against-the-other-formulas",
+  "pred": "scenario_1_axiom_a_formula_can_be_held_against_the_other_formulas",
+  "formula": "some u: Unit, w: Signature | u in Logical and u->w in Rely.rel and u->w not in Expose.rel\n",
+  "statement": "It must be possible that:\n\nThere are unit_1 and signature_1 such that all of these hold:\n- unit_1 holds a formula\n- a claim, a definition or a fact of unit_1 uses signature_1\n- checker does not report the formula of unit_1 as lone on signature_1",
+  "id": "s180"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "term-fit",
+  "pred": "term_fit",
+  "formula": "pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside and f not in TimedCondition }\n",
+  "statement": "For every quantifier_1:\n\nquantifier_1 fits a noun phrase exactly when all of these hold:\n- quantifier_1 is not a quantifier whose reading says the variable twice\n- quantifier_1 is not a quantifier with no fact for its variable beside another thing\n- quantifier_1 is not a quantifier that says no variable differs from another and holds a condition\n- quantifier_1 is not a quantifier whose condition is not about its variable\n- quantifier_1 is not a quantifier with several conditions, one of which begins with a time phrase",
+  "id": "s181"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "term-by-kind",
+  "pred": "term_by_kind",
+  "formula": "pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject }\n",
+  "statement": "For every definition_1:\n\ndefinition_1 can be said kind by kind exactly when all of these hold:\n- definition_1 is not a definition with an alternative that does not begin with its kind\n- definition_1 is not a definition with a run of and beside another alternative of its kind\n- definition_1 is not a definition with an alternative that says something about another unit",
+  "id": "s182"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "term-sentenceable",
+  "pred": "term_sentenceable",
+  "formula": "pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast and f not in RelativeBeforeLast }\n",
+  "statement": "For every list:\n\nthe list can be put in a sentence exactly when all of these hold:\n- the list has three clauses or fewer\n- the list has only items that are one clause\n- at least one of these holds:\n  - the list has no item that holds a comma\n  - the list has two clauses or fewer\n- the list fits a line when it is put in a sentence\n- the list has no clause before its last that begins with a time phrase\n- the list has no clause before its last with a relative clause in it",
+  "id": "s183"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-of-two-clauses-is-said-on-one-line",
+  "pred": "spec_a_rule_of_two_clauses_is_said_on_one_line",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine\n",
+  "statement": "For every list:\n\nwhen all of these hold:\n- the list is a rule whose two sides are each one clause\n- the list is not a rule whose first side begins with a time phrase\n\nthen verbalizer says the list on one line, as \"when\" the first side, the second side.",
+  "id": "s184"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind",
+  "pred": "spec_a_definition_by_cases_is_said_as_a_noun_phrase_for_each_kind",
+  "formula": "all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKind\n",
+  "statement": "For every definition_1:\n\nwhen all of these hold:\n- definition_1 is a definition whose alternatives each begin with the kind of the subject\n- definition_1 can be said kind by kind\n\nthen verbalizer says definition_1 as a list with a noun phrase for each kind, such as \"a spec that cites no axiom\".",
+  "id": "s185"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-the-alternatives-of-one-kind-are-put-together-with-or",
+  "pred": "spec_the_alternatives_of_one_kind_are_put_together_with_or",
+  "formula": "all f: Definition | (f in SameKindTwice and byKind[f]) implies f in JoinedWithOr\n",
+  "statement": "For every definition_1:\n\nwhen definition_1 is a definition with two alternatives for one kind and can be said kind by kind, verbalizer says definition_1 as one noun phrase for that kind, with the alternatives joined by or.",
+  "id": "s186"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-the-options-of-an-or-inside-a-kind-are-one-coordination",
+  "pred": "spec_the_options_of_an_or_inside_a_kind_are_one_coordination",
+  "formula": "all f: Definition | (f in OrInsideKind and byKind[f]) implies f in OneCoordination\n",
+  "statement": "For every definition_1:\n\nwhen definition_1 is a definition with an or inside one kind and can be said kind by kind, verbalizer says definition_1 as one run of clauses joined by commas and or.",
+  "id": "s187"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-with-one-kind-is-one-sentence",
+  "pred": "spec_a_definition_with_one_kind_is_one_sentence",
+  "formula": "all f: Definition | (f in OneKind and byKind[f]) implies f in OneSentenceKind\n",
+  "statement": "For every definition_1:\n\nwhen definition_1 is a definition whose alternatives are of one kind and can be said kind by kind, verbalizer says definition_1 as one sentence.",
+  "id": "s188"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind",
+  "pred": "spec_a_definition_by_cases_is_said_as_it_stands_when_an_alternative_does_not_begin_with_its_kind",
+  "formula": "all f: Definition | f in NoKindFirst implies f in AsItStands\n",
+  "statement": "For every definition_1:\n\nwhen definition_1 is a definition with an alternative that does not begin with its kind, verbalizer says definition_1 as a list of the alternatives as they stand.",
+  "id": "s189"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways",
+  "pred": "spec_a_definition_by_cases_is_said_as_it_stands_when_a_run_of_and_would_read_two_ways",
+  "formula": "all f: Definition | f in AmbiguousAnd implies f in AsItStands\n",
+  "statement": "For every definition_1:\n\nwhen definition_1 is a definition with a run of and beside another alternative of its kind, verbalizer says definition_1 as a list of the alternatives as they stand.",
+  "id": "s190"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject",
+  "pred": "spec_a_definition_by_cases_is_said_as_it_stands_when_an_alternative_is_not_about_its_subject",
+  "formula": "all f: Definition | f in NotAboutSubject implies f in AsItStands\n",
+  "statement": "For every definition_1:\n\nwhen definition_1 is a definition with an alternative that says something about another unit, verbalizer says definition_1 as a list of the alternatives as they stand.",
+  "id": "s191"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase",
+  "pred": "spec_a_variable_said_once_takes_the_place_of_its_quantifier_as_a_noun_phrase",
+  "formula": "all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose variable the sentence says once and fits a noun phrase, verbalizer says quantifier_1 as a noun phrase in the place of the variable, such as \"sits in no unit\".",
+  "id": "s192"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-noun-phrase-can-be-the-subject-of-a-sentence",
+  "pred": "spec_a_noun_phrase_can_be_the_subject_of_a_sentence",
+  "formula": "all f: Quantifier | (f in VariableSubject and fits[f]) implies f in AsSubjectPhrase\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose variable is the subject of the sentence and fits a noun phrase, verbalizer says quantifier_1 with the noun phrase as the subject, such as \"a tag names unit_1\".",
+  "id": "s193"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-what-else-is-true-of-the-variable-is-a-relative-clause",
+  "pred": "spec_what_else_is_true_of_the_variable_is_a_relative_clause",
+  "formula": "all f: Quantifier | (f in VariableWithCondition and fits[f]) implies f in RelativeClause\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose variable has a further condition and fits a noun phrase, verbalizer says quantifier_1 with a relative clause, such as \"a unit that is a spec\".",
+  "id": "s194"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full",
+  "pred": "spec_a_quantifier_whose_variable_would_be_said_twice_is_said_in_full",
+  "formula": "all f: Quantifier | f in VariableTwice implies f in InFull\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose reading says the variable twice, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name.",
+  "id": "s195"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full",
+  "pred": "spec_a_quantifier_with_nothing_to_attach_to_is_said_in_full",
+  "formula": "all f: Quantifier | f in NothingToAttach implies f in InFull\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier with no fact for its variable beside another thing, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name.",
+  "id": "s196"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-no-with-another-is-said-in-full",
+  "pred": "spec_no_with_another_is_said_in_full",
+  "formula": "all f: Quantifier | f in NoWithAnother implies f in InFull\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier that says no variable differs from another and holds a condition, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name.",
+  "id": "s197"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full",
+  "pred": "spec_a_quantifier_with_a_time_phrase_in_one_of_several_conditions_is_said_in_full",
+  "formula": "all f: Quantifier | f in TimedCondition implies f in InFull\n",
+  "statement": "For every quantifier_1:\n\nwhen the following holds:\n\nquantifier_1 is a quantifier with several conditions, one of which begins with a time phrase\n\nthen verbalizer says quantifier_1 in full, with \"there is\" and the numbered name.",
+  "id": "s198"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-condition-that-is-not-about-the-variable-is-said-in-full",
+  "pred": "spec_a_condition_that_is_not_about_the_variable_is_said_in_full",
+  "formula": "all f: Quantifier | f in ConditionAside implies f in InFull\n",
+  "statement": "For every quantifier_1:\n\nwhen quantifier_1 is a quantifier whose condition is not about its variable, verbalizer says quantifier_1 in full, with \"there is\" and the numbered name.",
+  "id": "s199"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-three-clauses-or-fewer-are-said-in-a-sentence",
+  "pred": "spec_three_clauses_or_fewer_are_said_in_a_sentence",
+  "formula": "all f: Series | sentenceable[f] implies f in AsSentence\n",
+  "statement": "For every list:\n\nwhen the list can be put in a sentence, verbalizer says the list in a sentence.",
+  "id": "s200"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-longer-list-or-a-list-with-a-comma-is-bullets",
+  "pred": "spec_a_longer_list_or_a_list_with_a_comma_is_bullets",
+  "formula": "all f: Series | (f in Items and not sentenceable[f]) implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen the list is a run of clauses joined by and or by or and cannot be put in a sentence, verbalizer says the list as bullets.",
+  "id": "s201"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-list-of-more-than-three-clauses-is-bullets",
+  "pred": "spec_a_list_of_more_than_three_clauses_is_bullets",
+  "formula": "all f: Series | f in Many implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen the list has more than three clauses, verbalizer says the list as bullets.",
+  "id": "s202"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets",
+  "pred": "spec_a_list_with_a_comma_in_an_item_and_more_than_two_clauses_is_bullets",
+  "formula": "all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen all of these hold:\n- the list has an item that holds a comma\n- the list has more than two clauses\n\nthen verbalizer says the list as bullets.",
+  "id": "s203"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-list-too-long-for-a-line-is-bullets",
+  "pred": "spec_a_list_too_long_for_a_line_is_bullets",
+  "formula": "all f: Series | f in TooLong implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen the list is longer than a line when it is put in a sentence, verbalizer says the list as bullets.",
+  "id": "s204"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets",
+  "pred": "spec_a_list_with_a_time_phrase_before_its_last_clause_is_bullets",
+  "formula": "all f: Series | f in TimeBeforeLast implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen the list has a clause before its last that begins with a time phrase, verbalizer says the list as bullets.",
+  "id": "s205"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets",
+  "pred": "spec_a_list_with_a_relative_clause_before_its_last_clause_is_bullets",
+  "formula": "all f: Series | f in RelativeBeforeLast implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen the list has a clause before its last with a relative clause in it, verbalizer says the list as bullets.",
+  "id": "s206"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets",
+  "pred": "spec_an_item_that_is_more_than_a_clause_makes_the_list_bullets",
+  "formula": "all f: Series | f in NotClause implies f in AsBullets\n",
+  "statement": "For every list:\n\nwhen the list has an item that is more than one clause, verbalizer says the list as bullets.",
+  "id": "s207"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-an-and-inside-an-or-is-kept-apart",
+  "pred": "spec_an_and_inside_an_or_is_kept_apart",
+  "formula": "all f: Series | f in AndInOr implies f in KeepsAndApart\n",
+  "statement": "For every list_1:\n\nwhen list_1 is a list of alternatives where one alternative holds an and, verbalizer says list_1 as bullets that cannot be read two ways.",
+  "id": "s208"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-keeps-its-then-before-a-time-phrase",
+  "pred": "spec_a_rule_keeps_its_then_before_a_time_phrase",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen\n",
+  "statement": "For every list:\n\nwhen all of these hold:\n- the list is a rule whose two sides are each one clause\n- the list is not a rule whose first side begins with a time phrase\n- the list is a rule whose second side begins with a time phrase\n\nthen verbalizer says the list with \"then\" before the time phrase.",
+  "id": "s209"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-drops-its-then-before-anything-else",
+  "pred": "spec_a_rule_drops_its_then_before_anything_else",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) implies f in DropsThen\n",
+  "statement": "For every list:\n\nwhen all of these hold:\n- the list is a rule whose two sides are each one clause\n- the list is not a rule whose first side begins with a time phrase\n- the list is not a rule whose second side begins with a time phrase\n\nthen verbalizer says the list without \"then\".",
+  "id": "s210"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own",
+  "pred": "spec_a_rule_whose_first_side_begins_with_a_time_phrase_puts_its_then_on_a_line_of_its_own",
+  "formula": "all f: Series | f in TimeFirst implies f in ThenOwnLine\n",
+  "statement": "For every list:\n\nwhen the list is a rule whose first side begins with a time phrase, verbalizer says the list with \"then\" at the start of the second side, on a line of its own.",
+  "id": "s211"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own",
+  "pred": "spec_a_rule_with_a_list_for_a_side_puts_its_then_on_a_line_of_its_own",
+  "formula": "all f: Series | (f in Rule and f not in OneLineRule) implies f in ThenOwnLine\n",
+  "statement": "For every list:\n\nwhen the list is a rule with a first side and a second and is not a rule whose two sides are each one clause, verbalizer says the list with \"then\" at the start of the second side, on a line of its own.",
+  "id": "s212"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-1-term-quantifier",
+  "pred": "scenario_1_term_quantifier",
+  "formula": "some f: Quantifier | f in VariableOnce and f in NoWithAnother\n",
+  "statement": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable the sentence says once\n- quantifier_1 is a quantifier that says no variable differs from another and holds a condition",
+  "id": "s213"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-2-term-quantifier",
+  "pred": "scenario_2_term_quantifier",
+  "formula": "some f: Quantifier | f in VariableSubject and f in VariableTwice\n",
+  "statement": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable is the subject of the sentence\n- quantifier_1 is a quantifier whose reading says the variable twice",
+  "id": "s214"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-3-term-quantifier",
+  "pred": "scenario_3_term_quantifier",
+  "formula": "some f: Quantifier | f in VariableOnce and f in ConditionAside\n",
+  "statement": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable the sentence says once\n- quantifier_1 is a quantifier whose condition is not about its variable",
+  "id": "s215"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-4-term-quantifier",
+  "pred": "scenario_4_term_quantifier",
+  "formula": "some f: Quantifier | f in VariableWithCondition and f in NothingToAttach\n",
+  "statement": "It must be possible that:\n\nThere is a quantifier_1 such that all of these hold:\n- quantifier_1 is a quantifier whose variable has a further condition\n- quantifier_1 is a quantifier with no fact for its variable beside another thing",
+  "id": "s216"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-1-term-definition-passage",
+  "pred": "scenario_1_term_definition_passage",
+  "formula": "some f: Definition | f in SameKindTwice and f in AmbiguousAnd\n",
+  "statement": "It must be possible that:\n\nThere is a definition_1 such that all of these hold:\n- definition_1 is a definition with two alternatives for one kind\n- definition_1 is a definition with a run of and beside another alternative of its kind",
+  "id": "s217"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-2-term-definition-passage",
+  "pred": "scenario_2_term_definition_passage",
+  "formula": "some f: Definition | f in OneKind and f in NotAboutSubject\n",
+  "statement": "It must be possible that:\n\nThere is a definition_1 such that all of these hold:\n- definition_1 is a definition whose alternatives are of one kind\n- definition_1 is a definition with an alternative that says something about another unit",
+  "id": "s218"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-3-term-definition-passage",
+  "pred": "scenario_3_term_definition_passage",
+  "formula": "some f: Definition | f in OrInsideKind and f in NoKindFirst\n",
+  "statement": "It must be possible that:\n\nThere is a definition_1 such that all of these hold:\n- definition_1 is a definition with an or inside one kind\n- definition_1 is a definition with an alternative that does not begin with its kind",
+  "id": "s219"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-1-term-series",
+  "pred": "scenario_1_term_series",
+  "formula": "some f: Series | f in Few and f in CommaItem and f in MoreThanTwo\n",
+  "statement": "It must be possible that:\n\nThere is a list such that all of these hold:\n- the list has three clauses or fewer\n- the list has an item that holds a comma\n- the list has more than two clauses",
+  "id": "s220"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-2-term-series",
+  "pred": "scenario_2_term_series",
+  "formula": "some f: Series | f in Few and f in TooLong\n",
+  "statement": "It must be possible that:\n\nThere is a list such that the list has three clauses or fewer and is longer than a line when it is put in a sentence.",
+  "id": "s221"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-3-term-series",
+  "pred": "scenario_3_term_series",
+  "formula": "some f: Series | f in SharedSubject and f in Many\n",
+  "statement": "It must be possible that:\n\nThere is a list such that all of these hold:\n- the list has clauses that begin with the same subject\n- the list has more than three clauses",
+  "id": "s222"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-4-term-series",
+  "pred": "scenario_4_term_series",
+  "formula": "some f: Series | f in PairInList and f in NotClause\n",
+  "statement": "It must be possible that:\n\nThere is a list such that the list has a clause about a pair of variables and has an item that is more than one clause.",
+  "id": "s223"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-5-term-series",
+  "pred": "scenario_5_term_series",
+  "formula": "some f: Series | f in TimeSecond and f not in OneLineRule\n",
+  "statement": "It must be possible that:\n\nThere is a list such that all of these hold:\n- the list is a rule whose second side begins with a time phrase\n- the list is not a rule whose two sides are each one clause",
+  "id": "s224"
+ },
+ {
+  "doc": "naturalloy",
+  "unit": "scenario-6-term-series",
+  "pred": "scenario_6_term_series",
+  "formula": "some f: Series | f in OneLineRule and f in TimeFirst\n",
+  "statement": "It must be possible that:\n\nThere is a list such that the list is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase.",
+  "id": "s225"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-disposing-an-owner-runs-its-cleanups",
+  "pred": "spec_disposing_an_owner_runs_its_cleanups",
+  "formula": "always all o: Owner, c: Cleanup |\n  (dispose[o] and c in Registered and c.on = o and c not in Ran) implies eventually c in Ran\n",
+  "statement": "Now and at every later moment, for every owner and every cleanup:\n\nwhen all of these hold:\n- pulse disposes the owner\n- code has registered the cleanup\n- the cleanup is on the owner\n- the cleanup has not run\n\nthen now or at a later moment, the cleanup has run.",
+  "id": "s226"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-dispose-runs-once",
+  "pred": "spec_dispose_runs_once",
+  "formula": "(always no c: Cleanup, o: Owner | runByCall[c, o])\nand\n(always no o: Owner | throwByCall[o])\n",
+  "statement": "All of these hold:\n- now and at every later moment, there is no combination of cleanup_1 and owner_1 such that code disposes owner_1 after pulse disposed it, and that call runs cleanup_1, a cleanup that code has registered on owner_1 and that has not run\n- now and at every later moment, there is no owner_2 such that code disposes owner_2 after pulse disposed it, and that call throws",
+  "id": "s227"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-owner-cleanups-run-newest-first-and-in-isolation",
+  "pred": "spec_owner_cleanups_run_newest_first_and_in_isolation",
+  "formula": "(always all o: Owner, c, d: Cleanup |\n  (dispose[o] and c + d in Registered - Ran and c.on = o and d.on = o and c->d in Clock.older)\n  implies ((not runNow[c]) until runNow[d]))\nand\n(always all o: Owner, c: Failing |\n  (runNow[c] and c.on = o and o in Disposed) implies always o not in Stopped)\n",
+  "statement": "All of these hold:\n- now and at every later moment, for every owner_1 and every cleanup_1 and every cleanup_2:\n\n  when all of these hold:\n  - pulse disposes owner_1\n  - code has registered cleanup_1\n  - cleanup_1 has not run\n  - code has registered cleanup_2\n  - cleanup_2 has not run\n  - cleanup_1 is on owner_1\n  - cleanup_2 is on owner_1\n  - code registered cleanup_1 before cleanup_2\n\n  then all of these hold:\n  - now or at a later moment, the following holds:\n\n    cleanup_2 runs\n  - at every moment from now until the first such moment, not including it, the following holds:\n\n    cleanup_1 does not run\n- now and at every later moment, for every owner_2 and every failing cleanup:\n\n  when the failing cleanup runs, is on owner_2 and pulse has disposed owner_2, then now and at every later moment, the dispose of owner_2 has not been stopped.",
+  "id": "s228"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-a-disposed-owner-cannot-be-entered",
+  "pred": "spec_a_disposed_owner_cannot_be_entered",
+  "formula": "always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'\n",
+  "statement": "Now and at every later moment, for every owner:\n\nwhen a call enters the owner and pulse has disposed the owner, then right after, a call is throwing.",
+  "id": "s229"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups",
+  "pred": "spec_an_owner_disposes_its_sub_owners_before_its_own_cleanups",
+  "formula": "(always all o, k: Owner, c: Cleanup |\n  (dispose[o] and k.parent = o and k not in Disposed and c in Registered - Ran and c.on = o)\n  implies ((not runNow[c]) until dispose[k]))\nand\n(always all o, j, k: Owner |\n  (dispose[o] and j.parent = o and k.parent = o and j->k in Birth.order and j not in Disposed and k not in Disposed)\n  implies ((not dispose[j]) until dispose[k]))\n",
+  "statement": "All of these hold:\n- now and at every later moment, for every owner_1 and every owner_2 and every cleanup:\n\n  when all of these hold:\n  - pulse disposes owner_1\n  - owner_1 is the parent of owner_2\n  - pulse has not disposed owner_2\n  - code has registered the cleanup\n  - the cleanup has not run\n  - the cleanup is on owner_1\n\n  then all of these hold:\n  - now or at a later moment, the following holds:\n\n    pulse disposes owner_2\n  - at every moment from now until the first such moment, not including it, the following holds:\n\n    the cleanup does not run\n- now and at every later moment, for every owner_3 and every owner_4 and every owner_5:\n\n  when all of these hold:\n  - pulse disposes owner_3\n  - owner_3 is the parent of owner_4\n  - owner_3 is the parent of owner_5\n  - owner_4 was created before owner_5\n  - pulse has not disposed owner_4\n  - pulse has not disposed owner_5\n\n  then all of these hold:\n  - now or at a later moment, the following holds:\n\n    pulse disposes owner_5\n  - at every moment from now until the first such moment, not including it, the following holds:\n\n    pulse does not dispose owner_4.",
+  "id": "s230"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-a-throwing-owner-cleanup-is-reported",
+  "pred": "spec_a_throwing_owner_cleanup_is_reported",
+  "formula": "(always all o: Owner, c: Failing |\n  (runNow[c] and c.on = o and o in Disposed) implies always o not in Threw)\nand\n(always all o, h: Owner, c: Failing |\n  (runNow[c] and c.on = o and o in Disposed and o.handler = h) implies eventually c.reached = h)\n",
+  "statement": "All of these hold:\n- now and at every later moment, for every owner_1 and every failing_cleanup_1:\n\n  when failing_cleanup_1 runs, is on owner_1 and pulse has disposed owner_1, then now and at every later moment, the dispose of owner_1 has not thrown\n- now and at every later moment, for every owner_2 and every owner_3 and every failing_cleanup_2:\n\n  when all of these hold:\n  - failing_cleanup_2 runs\n  - failing_cleanup_2 is on owner_2\n  - pulse has disposed owner_2\n  - owner_3 is the nearest error handler or boundary above owner_2\n\n  then now or at a later moment, the error of failing_cleanup_2 has reached owner_3.",
+  "id": "s231"
+ },
+ {
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "scenario-1-term-teardown-model",
+  "pred": "scenario_1_term_teardown_model",
+  "formula": "some o, h: Owner, c: Failing | o.handler = h and eventually (dispose[o] and c.on = o and eventually (runNow[c] and eventually c.reached = h))\n",
+  "statement": "It must be possible that:\n\nThere are owner_1 and owner_2 and failing_cleanup_1 such that all of these hold:\n- owner_2 is the nearest error handler or boundary above owner_1\n- now or at a later moment, all of these hold:\n  - pulse disposes owner_1\n  - failing_cleanup_1 is on owner_1\n  - now or at a later moment, all of these hold:\n    - failing_cleanup_1 runs\n    - now or at a later moment, the error of failing_cleanup_1 has reached owner_2",
+  "id": "s232"
+ }
+]

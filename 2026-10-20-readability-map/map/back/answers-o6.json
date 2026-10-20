@@ -1,0 +1,297 @@
+[
+ {
+  "key": "s021-s",
+  "alloy": "all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing",
+  "doubt": ""
+ },
+ {
+  "key": "s022-o",
+  "alloy": "all b: Bug | (no s: Spec | cites[b, s]) implies b in Freelancing",
+  "doubt": ""
+ },
+ {
+  "key": "s023-cur",
+  "alloy": "all u: Unit | miscited[u] implies u in Misnesting",
+  "doubt": ""
+ },
+ {
+  "key": "s033-s",
+  "alloy": "all b: Bug | hidden[b] implies b in Finding",
+  "doubt": ""
+ },
+ {
+  "key": "s034-o",
+  "alloy": "some Tracker implies (all b: Bug | (no i: Issue | b->i in Name.issue) implies b in Untracking)",
+  "doubt": ""
+ },
+ {
+  "key": "s035-cur",
+  "alloy": "all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b in Mistracking",
+  "doubt": ""
+ },
+ {
+  "key": "s044-h",
+  "alloy": "all t: ExpectedFailure | ((no b: Bug | checks[t, b]) and (no e: Exception | checks[t, e])) implies t in UnexplainedFailure",
+  "doubt": "'reported as unexplained' read as checker reports an unexplained failure for it."
+ },
+ {
+  "key": "s045-s",
+  "alloy": "all t: PlainTest | (some b: Bug | checks[t, b]) implies t in Unpinning",
+  "doubt": ""
+ },
+ {
+  "key": "s046-o",
+  "alloy": "(some Runner implies (all c: Claim | unguarded[c] implies c in Finding)) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding) and (all u: Unit | (some r: Trailer | r->u in Follow.rel) implies u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding) and (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Finding) and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)",
+  "doubt": ""
+ },
+ {
+  "key": "s047-cur",
+  "alloy": "all c: Claim | (some Runner and unguarded[c]) implies c in Untesting",
+  "doubt": ""
+ },
+ {
+  "key": "s057-s",
+  "alloy": "all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Misindexing",
+  "doubt": ""
+ },
+ {
+  "key": "s058-o",
+  "alloy": "all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Misindexing",
+  "doubt": ""
+ },
+ {
+  "key": "s059-cur",
+  "alloy": "all c: Claim | (some s: Site | c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Mislocation",
+  "doubt": ""
+ },
+ {
+  "key": "s069-s",
+  "alloy": "all t: Test, c: Claim | (t in Declared and checks[t, c]) implies c not in Untesting",
+  "doubt": "'it' read as the claim, not the test."
+ },
+ {
+  "key": "s070-o",
+  "alloy": "all t: Test, c: Claim | (t not in Declared and checks[t, c]) implies c not in Untesting",
+  "doubt": ""
+ },
+ {
+  "key": "s071-cur",
+  "alloy": "all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting",
+  "doubt": ""
+ },
+ {
+  "key": "s081-s",
+  "alloy": "all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)",
+  "doubt": ""
+ },
+ {
+  "key": "s082-o",
+  "alloy": "all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused",
+  "doubt": ""
+ },
+ {
+  "key": "s083-cur",
+  "alloy": "all f: Misquoted | f in Refused",
+  "doubt": ""
+ },
+ {
+  "key": "s093-s",
+  "alloy": "some Unreadable implies (all r: Run | r in Exits2)",
+  "doubt": ""
+ },
+ {
+  "key": "s094-o",
+  "alloy": "all f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and (all r: Run | r in Exits2))",
+  "doubt": ""
+ },
+ {
+  "key": "s095-cur",
+  "alloy": "all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound",
+  "doubt": ""
+ },
+ {
+  "key": "s104-h",
+  "alloy": "all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1",
+  "doubt": ""
+ },
+ {
+  "key": "s105-s",
+  "alloy": "all r: Run | (no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0",
+  "doubt": ""
+ },
+ {
+  "key": "s106-o",
+  "alloy": "all d1, d2: Document | d1->d2 in Bare.rel implies ((all u: Unit | d1->u in Hold.units iff d2->u in Hold.units) and (d1 in Finding iff d2 in Finding))",
+  "doubt": ""
+ },
+ {
+  "key": "s107-cur",
+  "alloy": "all d1, d2: Document | d1->d2 in Bare.rel implies (all u: Unit | (d2->u in Hold.units implies d1->u in Hold.units) and (d1->u in Hold.units implies d2->u in Hold.units))",
+  "doubt": ""
+ },
+ {
+  "key": "s117-s",
+  "alloy": "all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten",
+  "doubt": ""
+ },
+ {
+  "key": "s118-o",
+  "alloy": "all u: Unit | (u in Logical and u not in Unsayable and u in Generated and u in Differs) implies u in Stale",
+  "doubt": ""
+ },
+ {
+  "key": "s119-cur",
+  "alloy": "all u: Unit | (u in Generated and u not in Differs and u not in Unsayable) implies u in Current",
+  "doubt": ""
+ },
+ {
+  "key": "s129-s",
+  "alloy": "all u: Unit | u in Handwritten implies u not in Rewritten",
+  "doubt": ""
+ },
+ {
+  "key": "s130-o",
+  "alloy": "all u: Unit | u in Unsayable implies u not in Rewritten",
+  "doubt": ""
+ },
+ {
+  "key": "s131-cur",
+  "alloy": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported",
+  "doubt": ""
+ },
+ {
+  "key": "s141-s",
+  "alloy": "all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units and u->w in Introduce.rel) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)",
+  "doubt": ""
+ },
+ {
+  "key": "s142-o",
+  "alloy": "all r: Run | (r->CheckCommand in Ask.rel and some Flagged) implies r not in Exits0",
+  "doubt": ""
+ },
+ {
+  "key": "s143-cur",
+  "alloy": "all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged",
+  "doubt": ""
+ },
+ {
+  "key": "s152-h",
+  "alloy": "all sc: Impossible | (some Held and (no v: Unit | sc->v in Probe.rel)) implies (all u: Held | some s: Trial | s->u in Leave.rel and s->sc in Pose.scenario)",
+  "doubt": "Vague mapping: 'held unit requires a trial search' read as some trial search leaves that unit out; 'makes the scenario possible' read as the search requires the scenario to happen (Pose.scenario). Could instead mean u->sc in Frees.rel."
+ },
+ {
+  "key": "s153-s",
+  "alloy": "all s: Trial, sc: Scenario, u: Unit | (s->sc in Pose.scenario and s->u in Leave.rel and (some v: Unit | sc->v in Probe.rel)) implies sc->u in Probe.rel",
+  "doubt": ""
+ },
+ {
+  "key": "s154-o",
+  "alloy": "all sc: Impossible | sc in Raised",
+  "doubt": ""
+ },
+ {
+  "key": "s155-cur",
+  "alloy": "all sc: Possible | sc not in Raised",
+  "doubt": ""
+ },
+ {
+  "key": "s165-s",
+  "alloy": "(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)",
+  "doubt": ""
+ },
+ {
+  "key": "s166-o",
+  "alloy": "all u: Unit | (u not in Term and u in Logical and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)",
+  "doubt": ""
+ },
+ {
+  "key": "s167-cur",
+  "alloy": "all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) implies u->w in Expose.rel",
+  "doubt": ""
+ },
+ {
+  "key": "s177-s",
+  "alloy": "some u: Unit, d: Document | d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported",
+  "doubt": ""
+ },
+ {
+  "key": "s178-o",
+  "alloy": "some u: Unit | u in Faulted",
+  "doubt": ""
+ },
+ {
+  "key": "s179-cur",
+  "alloy": "some sc: Scenario, u: Unit | sc in Impossible and sc in Raised and u->sc in Frees.rel and sc->u in Blame.rel",
+  "doubt": ""
+ },
+ {
+  "key": "s192-s",
+  "alloy": "all q: Quantifier | (q in VariableOnce and fits[q]) implies q in AsNounPhrase",
+  "doubt": ""
+ },
+ {
+  "key": "s193-o",
+  "alloy": "all q: Quantifier | (fits[q] and q in VariableSubject) implies q in AsSubjectPhrase",
+  "doubt": ""
+ },
+ {
+  "key": "s194-cur",
+  "alloy": "all q: Quantifier | (q in VariableWithCondition and fits[q]) implies q in RelativeClause",
+  "doubt": ""
+ },
+ {
+  "key": "s203-h",
+  "alloy": "all l: Series | (l in CommaItem and l in MoreThanTwo) implies l in AsBullets",
+  "doubt": "'more than two clauses' read as a property of the list, not of the item with the comma."
+ },
+ {
+  "key": "s204-s",
+  "alloy": "all l: Series | l in TooLong implies l in AsBullets",
+  "doubt": ""
+ },
+ {
+  "key": "s205-o",
+  "alloy": "all l: Series | l in TimeBeforeLast implies l in AsBullets",
+  "doubt": ""
+ },
+ {
+  "key": "s206-cur",
+  "alloy": "all l: Series | l in RelativeBeforeLast implies l in AsBullets",
+  "doubt": ""
+ },
+ {
+  "key": "s216-s",
+  "alloy": "some q: Quantifier | q in VariableWithCondition and q in NothingToAttach",
+  "doubt": ""
+ },
+ {
+  "key": "s217-o",
+  "alloy": "some d: Definition | d in SameKindTwice and d in AmbiguousAnd",
+  "doubt": ""
+ },
+ {
+  "key": "s218-cur",
+  "alloy": "some d: Definition | d in OneKind and d in NotAboutSubject",
+  "doubt": ""
+ },
+ {
+  "key": "s227-h",
+  "alloy": "always (no c: Cleanup, o: Owner | runByCall[c, o]) and always (no o: Owner | throwByCall[o])",
+  "doubt": "'disposal never throws' read as throwByCall (code's dispose of an owner pulse disposed); could instead mean no owner's dispose ever throws (always no Threw)."
+ },
+ {
+  "key": "s228-s",
+  "alloy": "always (all o: Owner, c1, c2: Cleanup | (dispose[o] and c1 != c2 and c1 in Registered and c2 in Registered and c1->o in on and c2->o in on and c1 not in Ran and c2 not in Ran and c1->c2 in Clock.older) implies ((not runNow[c1]) until runNow[c2])) and always (all c: Failing, o: Owner | (runNow[c] and c->o in on and o in Disposed) implies always o not in Stopped)",
+  "doubt": "'registered on it' read as registered and on the owner."
+ },
+ {
+  "key": "s229-o",
+  "alloy": "always (all o: Owner | (enter[o] and o in Disposed) implies some Throwing')",
+  "doubt": ""
+ },
+ {
+  "key": "s230-cur",
+  "alloy": "always (all o1, o2: Owner, c: Cleanup | (dispose[o1] and o2->o1 in parent and o2 not in Disposed and c in Registered and c not in Ran and c->o1 in on) implies ((not runNow[c]) until dispose[o2])) and always (all o3, o4, o5: Owner | (dispose[o3] and o4->o3 in parent and o5->o3 in parent and o4->o5 in Birth.order and o4 not in Disposed and o5 not in Disposed) implies ((not dispose[o4]) until dispose[o5]))",
+  "doubt": ""
+ }
+]

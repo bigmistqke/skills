@@ -1,0 +1,29 @@
+noun Owner: owner
+noun Cleanup: cleanup
+noun String: text
+noun univ: thing
+Registered: code has registered {1} | code has not registered {1}
+Ran: {1} has run | {1} has not run
+Disposed: pulse has disposed {1} | pulse has not disposed {1}
+Stopped: the dispose of {1} has been stopped | the dispose of {1} has not been stopped
+on: {1} is on {2} | {1} is not on {2}
+at: {1} waits at {2} | {1} does not wait at {2}
+home: {2} is the home of {1} | {2} is not the home of {1}
+parent: {2} is the parent of {1} | {2} is not the parent of {1}
+name: {1} is named {2} | {1} is not named {2}
+tags: {1} is tagged {2} | {1} is not tagged {2}
+n: {1} counts {2} | {1} does not count {2}
+size: {1} has size {2} | {1} does not have size {2}
+gone: {1} is gone | {1} is not gone
+owners: {2} owns {1} | {2} does not own {1}
+m/Gone: {1} is gone in m | {1} is not gone in m
+q: {1} is quiet for {2} | {1} is not quiet for {2}
+sig Owner { parent: lone Owner }
+sig Cleanup { var on: set Owner, at: lone Owner, home: one Owner, name: one String, tags: set String, n: set Int, size: one Int }
+var sig Registered, Ran in Cleanup {}
+var sig Disposed, Stopped in Owner {}
+pred gone[o: Owner] { o in Disposed }
+pred gone2[o: Owner] { o in Disposed and o not in Stopped }
+fun owners[c: Cleanup]: Owner { c.on }
+fun owners2[c: Cleanup]: Owner { c.on + c.at }
+let twice[x] = x in Disposed

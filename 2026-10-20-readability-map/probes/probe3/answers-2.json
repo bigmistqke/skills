@@ -1,0 +1,50 @@
+[
+  {"q": "U1-never", "holds": false, "why": "pulse never disposes, so the existential requirement fails"},
+  {"q": "U1-now", "holds": true, "why": "pulse disposes at moment 0 (now); no prior moments to check"},
+  {"q": "U1-atEnd", "holds": true, "why": "pulse disposes at moment 2; code registered at moments 0-1"},
+  {"q": "U1-after", "holds": true, "why": "pulse disposes at moment 2; code registered at moments 0-1"},
+  {"q": "U1-first", "holds": true, "why": "pulse disposes at moment 1; code registered at moment 0"},
+  {"q": "U1-broken", "holds": false, "why": "pulse disposes at moment 2, but code not registered at moment 1"},
+
+  {"q": "U2-never", "holds": false, "why": "code never registers, so the existential requirement fails"},
+  {"q": "U2-now", "holds": true, "why": "code registers at moment 0 (now); no prior moments to check"},
+  {"q": "U2-atEnd", "holds": true, "why": "code registers at moment 2; cleanup not run at moments 0-1"},
+  {"q": "U2-after", "holds": true, "why": "code registers at moment 2; cleanup not run at moments 0-1"},
+  {"q": "U2-first", "holds": true, "why": "code registers at moment 1; cleanup not run at moment 0"},
+  {"q": "U2-broken", "holds": false, "why": "code registers at moment 2, but cleanup ran at moment 1"},
+
+  {"q": "U3-never", "holds": false, "why": "dispose never stops, so the existential requirement fails"},
+  {"q": "U3-now", "holds": true, "why": "dispose stops at moment 0 (now); no prior moments to check"},
+  {"q": "U3-atEnd", "holds": true, "why": "dispose stops at moment 2; cleanup on owner at moments 0-1"},
+  {"q": "U3-after", "holds": true, "why": "dispose stops at moment 2; cleanup on owner at moments 0-1"},
+  {"q": "U3-first", "holds": true, "why": "dispose stops at moment 1; cleanup on owner at moment 0"},
+  {"q": "U3-broken", "holds": false, "why": "dispose stops at moment 2, but cleanup not on owner at moment 1"},
+
+  {"q": "S1-never", "holds": false, "why": "pulse never disposed, so no event to anchor ever-since"},
+  {"q": "S1-now", "holds": false, "why": "pulse disposes at moment 4 (now), but code not registered at moment 4"},
+  {"q": "S1-atEnd", "holds": false, "why": "pulse disposed at moment 2, but code not registered at moment 2"},
+  {"q": "S1-before", "holds": true, "why": "pulse last disposed at moment 3; code registered at moments 3-4"},
+  {"q": "S1-last", "holds": true, "why": "pulse last disposed at moment 3; code registered at moments 3-4"},
+  {"q": "S1-broken", "holds": true, "why": "pulse last disposed at moment 4; code registered at moment 4"},
+
+  {"q": "S2-never", "holds": false, "why": "code never registered, so no event to anchor ever-since"},
+  {"q": "S2-now", "holds": false, "why": "code last registered at moment 4, but cleanup ran at moment 4"},
+  {"q": "S2-atEnd", "holds": false, "why": "code last registered at moment 2, but cleanup ran at moment 2"},
+  {"q": "S2-before", "holds": true, "why": "code last registered at moment 2; cleanup not run at moments 2-4"},
+  {"q": "S2-last", "holds": true, "why": "code last registered at moment 3; cleanup not run at moments 3-4"},
+  {"q": "S2-broken", "holds": false, "why": "code last registered at moment 2, but cleanup ran at moment 3"},
+
+  {"q": "S3-never", "holds": false, "why": "dispose never stopped, so no event to anchor the condition"},
+  {"q": "S3-now", "holds": true, "why": "dispose stopped at moment 4; no moments after 4 and up to 4"},
+  {"q": "S3-atEnd", "holds": true, "why": "dispose stopped at moment 2; cleanup on owner at moments 3-4"},
+  {"q": "S3-before", "holds": true, "why": "dispose stopped at moment 2; cleanup on owner at moments 3-4"},
+  {"q": "S3-last", "holds": true, "why": "dispose stopped at moment 3; cleanup on owner at moment 4"},
+  {"q": "S3-broken", "holds": true, "why": "dispose stopped at moment 4; no moments after 4 and up to 4"},
+
+  {"q": "U1", "hard": 2},
+  {"q": "U2", "hard": 2},
+  {"q": "U3", "hard": 3},
+  {"q": "S1", "hard": 4},
+  {"q": "S2", "hard": 4},
+  {"q": "S3", "hard": 4}
+]

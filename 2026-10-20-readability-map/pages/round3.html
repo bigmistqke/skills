@@ -1,0 +1,322 @@
+<title>naturalloy Readability Patterns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #f4f6f6;
+    --sheet: #ffffff;
+    --ink: #1a2326;
+    --muted: #5a676b;
+    --rule: #d5dddf;
+    --code-ground: #eef2f2;
+    --accent: #0f6b66;
+    --accent-ground: #dcefed;
+    --amber: #8a5a00;
+    --amber-ground: #f6ead2;
+    --keep: #4f5b5f;
+    --keep-ground: #e6eaeb;
+    --before: #8b3a3a;
+    --after: #0f6b66;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #111719;
+      --sheet: #182124;
+      --ink: #e3eaeb;
+      --muted: #9aa8ab;
+      --rule: #2c393c;
+      --code-ground: #0f1517;
+      --accent: #5fc4bc;
+      --accent-ground: #173a38;
+      --amber: #e2b45f;
+      --amber-ground: #3a2e15;
+      --keep: #b3bfc2;
+      --keep-ground: #263134;
+      --before: #e39a9a;
+      --after: #5fc4bc;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #111719;
+    --sheet: #182124;
+    --ink: #e3eaeb;
+    --muted: #9aa8ab;
+    --rule: #2c393c;
+    --code-ground: #0f1517;
+    --accent: #5fc4bc;
+    --accent-ground: #173a38;
+    --amber: #e2b45f;
+    --amber-ground: #3a2e15;
+    --keep: #b3bfc2;
+    --keep-ground: #263134;
+    --before: #e39a9a;
+    --after: #5fc4bc;
+  }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 15px/1.6 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 40px 64px;
+    display: grid;
+    gap: 28px;
+  }
+  header { display: grid; gap: 10px; max-width: 68ch; }
+  .eyebrow { font: 500 12px/1.4 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.2; font-weight: 600; margin: 0; text-wrap: balance; }
+  h2 { font-size: 19px; line-height: 1.3; font-weight: 600; margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  .lead { color: var(--muted); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.92em; }
+  .gates { display: flex; flex-wrap: wrap; gap: 8px; }
+  .gate { font: 500 12px/1 "IBM Plex Mono", ui-monospace, monospace; padding: 7px 10px; border-radius: 4px; background: var(--keep-ground); color: var(--keep); }
+  .index { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  .index a { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 12px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
+  .index a:hover .name { text-decoration: underline; }
+  .index a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .letter { font: 600 14px/1 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); }
+  .chip { font: 500 11.5px/1 "IBM Plex Sans", system-ui, sans-serif; letter-spacing: .03em; padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
+  .chip.change { background: var(--accent-ground); color: var(--accent); }
+  .chip.call { background: var(--amber-ground); color: var(--amber); }
+  .chip.keep { background: var(--keep-ground); color: var(--keep); }
+  section.pattern { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 22px 22px 24px; display: grid; gap: 16px; scroll-margin-top: 16px; }
+  .head { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: baseline; justify-content: space-between; }
+  .head .title { display: flex; gap: 12px; align-items: baseline; }
+  .counts { font: 400 12.5px/1.4 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .formula { font: 400 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); }
+  .formula b { color: var(--ink); font-weight: 500; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+  .words { display: grid; gap: 6px; min-width: 0; }
+  .words .label { font: 500 11.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; }
+  .words.before .label { color: var(--before); }
+  .words.after .label { color: var(--after); }
+  .words.after.same .label { color: var(--keep); }
+  pre { margin: 0; background: var(--code-ground); border-radius: 4px; padding: 12px 14px; overflow-x: auto; font: 400 13px/1.55 "IBM Plex Mono", ui-monospace, monospace; white-space: pre; color: var(--ink); }
+  .notes { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; max-width: 80ch; }
+  .notes dt { font: 500 12px/1.6 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .notes dd { margin: 0; }
+  @media (max-width: 520px) { .notes { grid-template-columns: 1fr; } .notes dd { margin-bottom: 6px; } }
+  .divider { font: 500 12px/1.4 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 8px; }
+  footer { color: var(--muted); max-width: 72ch; }
+</style>
+<style>
+  .round { font: 500 12px/1.4 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+  table.probe { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  .probe-wrap { overflow-x: auto; }
+  table.probe th, table.probe td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); font-size: 14px; }
+  table.probe th { font-weight: 500; color: var(--muted); font-size: 12.5px; }
+  details.done { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 18px; }
+  details.done summary { cursor: pointer; font-weight: 500; }
+  details.done ul { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+  .ladder { display: grid; gap: 10px; }
+  .rung { display: grid; grid-template-columns: 3.2em 1fr auto; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  .rung:last-child { border-bottom: 0; }
+  .rung .tag { font: 600 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); }
+  .rung pre { white-space: pre-wrap; }
+  .score { font: 500 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .score small { display: block; color: var(--muted); font-weight: 400; }
+  .rung.pick .tag { color: var(--accent); }
+  .rung.lossy .tag { color: var(--before); }
+  @media (max-width: 620px) { .rung { grid-template-columns: 1fr; } .score { text-align: left; } }
+  .why { color: var(--muted); font-size: 14px; }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">naturalloy · readability pass · round 3 · ideal prose first</div>
+    <h1>From the prose we want, back to what the verbalizer can say</h1>
+    <p class="lead">Rounds 1 and 2 started from the generated words and made them lossless. This round starts at the other end: for real statements, write the prose a careful author would write, then name each collapse that turns today's form into it, and check that each collapse loses nothing. A collapse you approve becomes a rule of the verbalizer and passes the same gates as every other change.</p>
+    <div class="gates" aria-label="Gates each approved collapse passes">
+      <span class="gate">counter-instance judges</span>
+      <span class="gate">analyzer: every rewrite</span>
+      <span class="gate">sweep: 1728 formulas end</span>
+      <span class="gate">timeline probes</span>
+    </div>
+  </header>
+
+  <section class="pattern" id="until">
+    <div class="head">
+      <div class="title"><span class="letter">U</span><h2><code>until</code> and <code>since</code>: a ladder down from the ideal</h2></div>
+      <span class="chip call">your call</span>
+    </div>
+    <p>The ideal sentence drops three things the formula says. For <code>until</code>: the owner <em>is</em> disposed at some point, the registration need not hold at that moment, and if the disposal is now, nothing else is required. Each rung puts back what the ideal drops, in as few words as it can.</p>
+    <p class="why">This time the probe asked no Alloy. Eight Haiku readers each saw one wording per formula, with six timelines, and said whether the sentence holds on each one. The timelines test the edges: the end never comes, it comes now, the moment of the end itself, after the end, the first or last of several ends, and a gap. Each count below is right answers out of answers, over three formulas and two readers per wording. "Hard" is the readers' rating from 1 to 5.</p>
+    <div class="divider">until · now is moment 0</div>
+    <div class="ladder"><div class="rung lossy"><span class="tag">ideal</span><pre>Code has registered the cleanup until pulse has disposed the owner.</pre><span class="score">23 / 36<small>lossy · hard 2.0</small></span></div><div class="rung "><span class="tag">now</span><pre>All of these hold:
+  - now or at a later moment, the following holds:
+      pulse has disposed the owner
+  - at every moment from now until the first such moment,
+    not including it, the following holds:
+      code has registered the cleanup.</pre><span class="score">34 / 36<small>hard 3.3</small></span></div><div class="rung "><span class="tag">R1</span><pre>Pulse has disposed the owner now or at a later moment, and until the first such moment, code has registered the cleanup.</pre><span class="score">32 / 36<small>hard 2.5</small></span></div><div class="rung pick"><span class="tag">R2</span><pre>Pulse has disposed the owner now or at a later moment, and up to the first such moment, but not necessarily at it, code has registered the cleanup.</pre><span class="score">34 / 36<small>hard 2.7</small></span></div></div>
+    <div class="divider">since · now is the last moment</div>
+    <div class="ladder"><div class="rung lossy"><span class="tag">ideal</span><pre>Code has registered the cleanup ever since pulse has disposed the owner.</pre><span class="score">23 / 36<small>lossy · hard 2.0</small></span></div><div class="rung "><span class="tag">now</span><pre>All of these hold:
+  - now or at an earlier moment, the following holds:
+      pulse has disposed the owner
+  - at every moment after the last such moment,
+    up to and including now, the following holds:
+      code has registered the cleanup.</pre><span class="score">32 / 36<small>hard 3.5</small></span></div><div class="rung lossy"><span class="tag">R1</span><pre>Pulse has disposed the owner now or at an earlier moment, and ever since the last such moment, code has registered the cleanup.</pre><span class="score">24 / 36<small>hard 2.7</small></span></div><div class="rung pick"><span class="tag">R2</span><pre>Pulse has disposed the owner now or at an earlier moment, and at every moment after the last such moment, up to and including now, code has registered the cleanup.</pre><span class="score">30 / 36<small>hard 3.3</small></span></div></div>
+    <dl class="notes">
+      <dt>Until</dt><dd>The ideal fails where the disposal never comes: 1 of 6 right. That loss is real, not a reading quirk. R2 is one sentence and exactly as accurate as the two-part form (34 of 36 each), and rated easier; R1 is close behind (32). Their remaining mistakes are on one edge: when the disposal is now, readers still want the registration now. R2 says that edge out loud.</dd>
+      <dt>Since</dt><dd>"Ever since" reads as <em>including</em> the moment of the disposal: R1 gets 0 of 6 on the disposal-now edge. So "ever since" is out. R2 keeps the explicit "after the last such moment, up to and including now" on one line, and scores close to the two-part form (30 against 32 of 36).</dd>
+      <dt>Lean</dt><dd>Use R2 for both, where each side is one clause. Keep the two parts where a side is a list or holds a time phrase of its own. The strict judges check R2 before it ships.</dd>
+    </dl>
+  </section>
+
+  <section class="pattern" id="collapses">
+    <div class="head">
+      <div class="title"><span class="letter">C</span><h2>Collapses found by writing the ideal prose of real statements</h2></div>
+      <span class="chip call">approve or veto each</span>
+    </div>
+    <p>Eight statements from the canons of canon, the Alloy plugin and naturalloy, written as an author would write them. Every difference between the two columns is one of the collapses below, and each collapse is lossless by a plain law of logic.</p>
+    <div class="probe-wrap"><table class="probe">
+      <thead><tr><th>#</th><th>Collapse</th><th>Lossless because</th></tr></thead>
+      <tbody>
+        <tr><td>C1</td><td>A definition over one variable says "a unit … it": <code>For every unit_1: unit_1 is P exactly when …</code> → <code>A unit is P exactly when it …</code></td><td>A definition's "a" is generic: it means every unit.</td></tr>
+        <tr><td>C2</td><td>A rule over every X becomes "every X that …": <code>for every unit: when the unit is P, checker reports a finding for the unit</code> → <code>The checker reports a finding for every unit that is P</code></td><td><code>all x | P[x] implies Q[x]</code> is what "Q of every x that is P" says.</td></tr>
+        <tr><td>C3</td><td>Rules with one consequent merge: "… every unit that is unfounded, miscited or circular"</td><td>(A ⇒ Q) ∧ (B ⇒ Q) ≡ (A ∨ B) ⇒ Q.</td></tr>
+        <tr><td>C4</td><td>A variable that only the condition uses becomes "a …": <code>for every document and unit: when the document keeps readings and holds the unit …</code> → <code>every unit in a document that keeps readings</code></td><td>∀d (P[d] ⇒ Q) ≡ (∃d P[d]) ⇒ Q when Q does not use d.</td></tr>
+        <tr><td>C5</td><td>"There are X and Y such that …" becomes "an X … a Y": <code>a frontmatter lists a missing plugin</code></td><td>Already done for one variable. Each "a" stays inside its own bullet.</td></tr>
+        <tr><td>C6</td><td>The claim goes first: <code>when (list) then run_1 exits with code 2</code> → <code>A run exits with code 2 when at least one of these holds:</code></td><td>The same conditional, reordered.</td></tr>
+        <tr><td>C7</td><td>A prefix that every item shares moves up: eight times "frontmatter_1 has the flaw of …" → "it has the flaw of at least one of these:"</td><td>P(a) ∨ P(b) ≡ P(a or b) for a relation applied to alternatives.</td></tr>
+        <tr><td>C8</td><td>Negated kinds become "none of these": five times "is not a quantifier whose …" → "it is none of these: a quantifier whose …"</td><td>De Morgan.</td></tr>
+        <tr><td>C9</td><td>A one-place adjective reading goes before its noun: "every bug that is hidden" → "every hidden bug"</td><td>The same reading, said attributively.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="divider">canon · every-claim-says-what-it-follows-from · C2, C3</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>All of these hold:
+- for every unit_1:
+    when unit_1 is unfounded, checker reports a finding for unit_1
+- for every unit_1:
+    when unit_1 is miscited, checker reports a finding for unit_1
+- for every unit_1:
+    when unit_1 is circular, checker reports a finding for unit_1.</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>The checker reports a finding for every unit that is
+unfounded, miscited or circular.</pre></div>
+    </div>
+    <div class="divider">canon · a-known-defect-stays-in-sight · C2, C3, C9</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>All of these hold:
+- for every bug_1:
+    when bug_1 is hidden, checker reports a finding for bug_1
+- for every conflict_1:
+    when conflict_1 is hidden, checker reports a finding for conflict_1
+- for every test_1:
+    when test_1 is misleading, checker reports a finding for test_1.</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>The checker reports a finding for every hidden bug,
+every hidden conflict and every misleading test.</pre></div>
+    </div>
+    <div class="divider">canon · availability · C1, C5</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>For every command_1:
+  command_1 is available exactly when at least one of these holds:
+  - command_1 is a command that the checker has of its own
+  - there are installed_plugin_1 and document_1 such that
+    installed_plugin_1 applies to document_1 and adds command_1</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>A command is available exactly when the checker has it
+of its own, or an installed plugin that applies to a
+document adds it.</pre></div>
+    </div>
+    <div class="divider">canon · call · C1, two nouns</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>For every run_1 and every plugin_1:
+  run_1 calls plugin_1 exactly when all of these hold:
+  - run_1 asks for a command that plugin_1 adds
+  - plugin_1 applies to a document</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>A run calls a plugin exactly when the run asks for a
+command that the plugin adds, and the plugin applies
+to a document.</pre></div>
+    </div>
+    <div class="divider">canon · exit code 2 · C1, C5, C6</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>For every run_1:
+  when at least one of these holds:
+  - there are frontmatter_1 and missing_plugin_1 such that
+    frontmatter_1 lists missing_plugin_1
+  - there is a document_1 such that checker reports that
+    document_1 has a frontmatter it cannot read
+  - run_1 asks for a command that is not available
+  - run_1 gets code 2 from a plugin
+  then run_1 exits with code 2.</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>A run exits with code 2 when at least one of these holds:
+- a frontmatter lists a missing plugin
+- the checker reports that a document has a frontmatter
+  it cannot read
+- the run asks for a command that is not available
+- the run gets code 2 from a plugin</pre></div>
+    </div>
+    <div class="divider">naturalloy · fit · C1, C8</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>For every quantifier_1:
+  quantifier_1 fits a noun phrase exactly when all of these hold:
+  - quantifier_1 is not a quantifier whose reading says the variable twice
+  - quantifier_1 is not a quantifier with no fact for its variable …
+  - … three more</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>A quantifier fits a noun phrase exactly when it is none
+of these:
+- a quantifier whose reading says the variable twice
+- a quantifier with no fact for its variable …
+- … three more</pre></div>
+    </div>
+    <div class="divider">Alloy plugin · a-statement-says-what-its-logic-says · C2, C4</div>
+    <div class="pair">
+      <div class="words before"><span class="label">Now</span>
+<pre>For every document_1 and every unit_1:
+  when all of these hold:
+  - document_1 keeps readings
+  - document_1 holds unit_1
+  - unit_1 holds a formula
+  - the statement of unit_1 is not current
+  then checker reports the statement of unit_1.</pre></div>
+      <div class="words after"><span class="label">Ideal</span>
+<pre>The checker reports the statement of every unit that
+holds a formula, sits in a document that keeps readings,
+and whose statement is not current.</pre></div>
+    </div>
+    <dl class="notes">
+      <dt>Order</dt><dd>C1 and C2 reach the most statements: nearly every term is a C1 definition, and nearly every axiom is a list of C2 rules. C3 and C9 follow from C2. C4 to C8 are smaller.</dd>
+      <dt>Watch</dt><dd>C1's "it" is only safe where no other noun in the sentence could take it. Where one could, it says "the unit", as in "call". C4 changes which variables are "for every", so the analyzer checks it as a rewrite.</dd>
+    </dl>
+  </section>
+
+  <section class="pattern" id="a">
+    <div class="head">
+      <div class="title"><span class="letter">A</span><h2>A noun with one variable loses its number</h2></div>
+      <span class="chip change">approved · in review</span>
+    </div>
+    <p>Implemented, and it passes the tests, the analyzer rewrite check and the canon checks. Writing the ideal prose found a bug in it: a link's target, such as <code>(#term-unit)</code>, counted as the noun said elsewhere, so most canon statements kept <code>unit_1</code>. That is fixed, and the canons are regenerated before the PR.</p>
+  </section>
+
+  <details class="done">
+    <summary>Rounds 1 and 2</summary>
+    <ul>
+      <li>Round 1, #49: a series in a condition as "when all of these hold:" with bullets; a reading's own comma after "then"; frame conditions as "X at the next moment exactly when X now"; two-line "for every" merged; "there is an owner" for <code>some Owner</code></li>
+      <li>Round 2: A approved. B, <code>until</code> on one line in the old wording, kept in two parts: superseded by U above.</li>
+      <li>Probe 2 found that the analyzer test of #45 never had a cleanup in its worlds; fixed in #57.</li>
+    </ul>
+  </details>
+
+  <footer>
+    <p>The statements are from the canons regenerated on the pattern A branch. The timeline probe uses the sweep's vocabulary. Its sample is small: each wording got 36 answers.</p>
+  </footer>
+</div>

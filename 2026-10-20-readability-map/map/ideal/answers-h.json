@@ -1,0 +1,236 @@
+[
+  {
+    "id": "s007",
+    "ideal": "A unit is used exactly when another unit sits in it, a pointer names it, or a tag names it.",
+    "lost": "",
+    "note": "Direct, no list needed"
+  },
+  {
+    "id": "s044",
+    "ideal": "An expected failure that checks neither a bug nor an exception is reported as unexplained.",
+    "lost": "",
+    "note": "Collapsed conditions into one clause"
+  },
+  {
+    "id": "s099",
+    "ideal": "When a run asks for a command that is not available, the run exits with code 2.",
+    "lost": "",
+    "note": "Simplified to single clause"
+  },
+  {
+    "id": "s060",
+    "ideal": "A document that extends another is context for it. Context is transitive through extension.",
+    "lost": "",
+    "note": "Separated two related claims"
+  },
+  {
+    "id": "s024",
+    "ideal": "An axiom that cites a non-axiom is reported as misnesting.",
+    "lost": "",
+    "note": "Simplified quantifier"
+  },
+  {
+    "id": "s103",
+    "ideal": "When a run gets code 2 from a plugin, the run exits with code 2.",
+    "lost": "",
+    "note": "Straightforward conditional"
+  },
+  {
+    "id": "s082",
+    "ideal": "A frontmatter with any of these flaws is refused: an entry starting with @ outside quotes, an undefined key, an unclosed list, an unclosed string, a duplicated key, a dangling path, a looping extension, or a misplaced setting.",
+    "lost": "",
+    "note": "Collapsed conditions into list"
+  },
+  {
+    "id": "s023",
+    "ideal": "A miscited unit is reported as misnesting.",
+    "lost": "",
+    "note": "Direct predicate application"
+  },
+  {
+    "id": "s104",
+    "ideal": "A run that gets code 1 from a plugin but not code 2 from any plugin exits with code 1.",
+    "lost": "",
+    "note": "Combined conditions with natural language"
+  },
+  {
+    "id": "s001",
+    "ideal": "A unit is unfounded exactly when it is one of these: a spec that cites no axiom and no spec, an exception that cites no spec or no fact, or a bug that cites no spec.",
+    "lost": "",
+    "note": "Kept list structure from current words"
+  },
+  {
+    "id": "s030",
+    "ideal": "A term that cites a unit is reported as misnesting.",
+    "lost": "",
+    "note": "Simple conditional"
+  },
+  {
+    "id": "s040",
+    "ideal": "A conflict that names an issue the tracker does not know is reported as mistracking.",
+    "lost": "",
+    "note": "Simplified nesting"
+  },
+  {
+    "id": "s160",
+    "ideal": "When units share a word, the analyzer is asked about them together.",
+    "lost": "",
+    "note": "Passive to active shift"
+  },
+  {
+    "id": "s149",
+    "ideal": "A search asked before any scenario is known impossible leaves no unit out.",
+    "lost": "",
+    "note": "Compressed phrase 'First' into condition"
+  },
+  {
+    "id": "s119",
+    "ideal": "A generated statement whose formula would say exactly the same and whose formula can be said in words is current.",
+    "lost": "",
+    "note": "Added 'exactly' to clarify identity"
+  },
+  {
+    "id": "s167",
+    "ideal": "A formula that is lone on a signature and is held by a non-term unit is reported as lone on the signature.",
+    "lost": "",
+    "note": "Clarified 'Logical and u not in Term' as non-term"
+  },
+  {
+    "id": "s223",
+    "ideal": "There exists a list with a clause about a pair of variables and an item that is more than one clause.",
+    "lost": "",
+    "note": "Simplified scenario setup"
+  },
+  {
+    "id": "s148",
+    "ideal": "A unit holding a formula with no keyword asks the analyzer to hold the formula.",
+    "lost": "",
+    "note": "Inverted sense for clarity"
+  },
+  {
+    "id": "s028",
+    "ideal": "A bug that cites a non-spec is reported as misnesting.",
+    "lost": "",
+    "note": "Shortened 'non-spec unit' to 'non-spec'"
+  },
+  {
+    "id": "s163",
+    "ideal": "When a logic command is asked and either a scenario is reported impossible or a unit is held with others that cannot all hold, the run does not exit with code 0.",
+    "lost": "",
+    "note": "Clarified contradicting condition"
+  },
+  {
+    "id": "s152",
+    "ideal": "For an impossible scenario with held units and no author probes, each held unit requires a trial search that makes the scenario possible.",
+    "lost": "",
+    "note": "Restructured to active sense"
+  },
+  {
+    "id": "s212",
+    "ideal": "A rule that is not on one line has its \"then\" on a line of its own.",
+    "lost": "",
+    "note": "Inverted negation for readability"
+  },
+  {
+    "id": "s207",
+    "ideal": "A list with an item that is more than one clause is said as bullets.",
+    "lost": "",
+    "note": "Direct predicate application"
+  },
+  {
+    "id": "s227",
+    "ideal": "Cleanup never runs on behalf of a call after pulse has disposed an owner, and disposal never throws.",
+    "lost": "",
+    "note": "Unpacked nested conditions"
+  },
+  {
+    "id": "s190",
+    "ideal": "A definition with \"and\" beside another alternative is said as its alternatives stand.",
+    "lost": "",
+    "note": "Simplified quantification context"
+  },
+  {
+    "id": "s156",
+    "ideal": "For each impossible scenario, each unit whose removal frees it is named in the scenario's report.",
+    "lost": "",
+    "note": "Restructured for clarity"
+  },
+  {
+    "id": "s216",
+    "ideal": "There exists a quantifier whose variable has a condition and has nothing else to attach.",
+    "lost": "",
+    "note": "Simplified conditions"
+  },
+  {
+    "id": "s139",
+    "ideal": "A declared word that no claim, definition, or fact uses is unused.",
+    "lost": "",
+    "note": "Kept domain term 'Introduce' as 'declared'"
+  },
+  {
+    "id": "s106",
+    "ideal": "When two documents differ only in frontmatter, they hold the same units and their finding status matches.",
+    "lost": "",
+    "note": "Unnested complex conditionals"
+  },
+  {
+    "id": "s198",
+    "ideal": "A quantifier with multiple conditions where one begins with a time phrase is said in full, with \"there is\" and the numbered name.",
+    "lost": "",
+    "note": "Kept domain phrase structure"
+  },
+  {
+    "id": "s097",
+    "ideal": "When a run asks for an unavailable command, that command is reported as unknown and the run exits with code 2.",
+    "lost": "",
+    "note": "Combined conjuncts naturally"
+  },
+  {
+    "id": "s108",
+    "ideal": "When two documents differ only in frontmatter, they either both have findings or neither does.",
+    "lost": "",
+    "note": "Simplified biconditional"
+  },
+  {
+    "id": "s155",
+    "ideal": "A scenario that can happen is not reported as impossible.",
+    "lost": "",
+    "note": "Removed redundant 'while every held unit holds'"
+  },
+  {
+    "id": "s138",
+    "ideal": "A word used in one unit but declared in another is apart.",
+    "lost": "",
+    "note": "Simplified quantifier nesting"
+  },
+  {
+    "id": "s188",
+    "ideal": "A definition whose alternatives are all of one kind and can be said kind by kind is said as one sentence.",
+    "lost": "",
+    "note": "Kept predicate 'byKind'"
+  },
+  {
+    "id": "s203",
+    "ideal": "A list with an item containing a comma and more than two clauses is said as bullets.",
+    "lost": "",
+    "note": "Natural conjunction"
+  },
+  {
+    "id": "s057",
+    "ideal": "A document that holds units but no index is reported as misindexed.",
+    "lost": "",
+    "note": "Simplified conjunction"
+  },
+  {
+    "id": "s144",
+    "ideal": "A word that is undeclared, misplaced, apart, or unused is flagged.",
+    "lost": "",
+    "note": "Collapsed conditions into list"
+  },
+  {
+    "id": "s206",
+    "ideal": "A list with a relative clause before its last clause is said as bullets.",
+    "lost": "",
+    "note": "Direct from predicate"
+  }
+]

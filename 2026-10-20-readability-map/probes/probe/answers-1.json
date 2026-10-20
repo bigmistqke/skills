@@ -1,0 +1,72 @@
+[
+  {
+    "id": "A0",
+    "alloy": "all c: Cleanup | c in Ran => c in Registered",
+    "hard": 1
+  },
+  {
+    "id": "A1",
+    "alloy": "all c1: Cleanup | (some c1.on) => c1 in Ran",
+    "hard": 2
+  },
+  {
+    "id": "A2",
+    "alloy": "all o: Owner | o in Disposed => o not in Stopped",
+    "hard": 1
+  },
+  {
+    "id": "A3",
+    "alloy": "all c1: Cleanup, o1: Owner | o1 in c1.at => o1 in Disposed",
+    "hard": 2
+  },
+  {
+    "id": "A4",
+    "alloy": "some c: Cleanup | c in Ran and c not in Registered",
+    "hard": 2
+  },
+  {
+    "id": "A5",
+    "alloy": "all c1: Cleanup | always (c1 in Ran => c1 in Registered')",
+    "hard": 4
+  },
+  {
+    "id": "A6",
+    "alloy": "all c: Cleanup, o: Owner | o in c.on => eventually o in Disposed",
+    "hard": 4
+  },
+  {
+    "id": "A7",
+    "alloy": "all o1: Owner | (some c: Cleanup | o1 in c.on) => o1 in Disposed",
+    "hard": 3
+  },
+  {
+    "id": "A8",
+    "alloy": "all c: Cleanup | (all o: Owner | o in c.home => o in Disposed) <=> c in Ran",
+    "hard": 4
+  },
+  {
+    "id": "A9",
+    "alloy": "all c1: Cleanup, o1: Owner | (o1 in c1.on and c1 in Ran) => o1 not in Stopped",
+    "hard": 3
+  },
+  {
+    "id": "B0",
+    "alloy": "all c1: Cleanup, o1: Owner | (eventually o1 in Disposed) and (c1 in Registered until o1 in Disposed)",
+    "hard": 5
+  },
+  {
+    "id": "B1",
+    "alloy": "all c1: Cleanup | (eventually c1 in Registered) and (c1 not in Ran until c1 in Registered)",
+    "hard": 5
+  },
+  {
+    "id": "B2",
+    "alloy": "all c1: Cleanup, o1: Owner | (once o1 in Disposed) and (c1 in Ran since o1 in Disposed)",
+    "hard": 5
+  },
+  {
+    "id": "B3",
+    "alloy": "all c1: Cleanup, o1: Owner | c1 in Registered => (eventually o1 in Disposed) and (c1 not in Ran until o1 in Disposed)",
+    "hard": 5
+  }
+]

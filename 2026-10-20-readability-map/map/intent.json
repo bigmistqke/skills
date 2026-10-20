@@ -1,0 +1,2589 @@
+[
+ {
+  "id": "s000",
+  "doc": "canon",
+  "unit": "term-cite",
+  "claim": "cite",
+  "own": "",
+  "rationale": "Nesting and the \"Derives from:\" line are the two ways a unit says what it follows from. A unit [sits in](#term-sit) or [derives from](#term-derive) what it cites. A [link](#term-link) in the body is neither.",
+  "formula": "pred cites[u, v: Unit] { u->v in Sit.rel or u->v in Derive.rel }\n",
+  "parents": []
+ },
+ {
+  "id": "s001",
+  "doc": "canon",
+  "unit": "term-unfounded",
+  "claim": "unfounded",
+  "own": "",
+  "rationale": "A unit that lacks a citation its kind owes: what it follows from.",
+  "formula": "pred unfounded[u: Unit] {\n  (u in Spec and (no a: Axiom | cites[u, a]) and (no s: Spec | cites[u, s]))\n  or (u in Exception and (no s: Spec | cites[u, s]))\n  or (u in Exception and (no f: Fact | cites[u, f]))\n  or (u in Bug and (no s: Spec | cites[u, s]))\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s002",
+  "doc": "canon",
+  "unit": "term-miscited",
+  "claim": "miscited",
+  "own": "",
+  "rationale": "A unit that cites a kind of unit it may not cite. A conflict names the units it sets against each other on a line of its own, which is no citation.",
+  "formula": "pred miscited[u: Unit] {\n  (u in Axiom and (some v: Unit | cites[u, v] and v not in Axiom))\n  or (u in Fact and (some v: Unit | cites[u, v]))\n  or (u in Spec and (some v: Unit | cites[u, v] and v not in Axiom and v not in Spec and v not in Fact))\n  or (u in Exception and (some v: Unit | cites[u, v] and v not in Spec and v not in Fact))\n  or (u in Bug and (some v: Unit | cites[u, v] and v not in Spec))\n  or (u in Conflict and (some v: Unit | cites[u, v]))\n  or (u in Term and (some v: Unit | cites[u, v]))\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s003",
+  "doc": "canon",
+  "unit": "term-circular",
+  "claim": "circular",
+  "own": "",
+  "rationale": "A unit that follows from itself: it cites a unit that [depends](#term-depend) on it, and that unit may be the unit itself. A unit that cites itself is a loop of one, and a unit whose citations lead back to it is a longer loop.",
+  "formula": "pred circular[u: Unit] { some v: Unit | cites[u, v] and v->u in Depend.rel }\n",
+  "parents": []
+ },
+ {
+  "id": "s004",
+  "doc": "canon",
+  "unit": "term-refined",
+  "claim": "refined",
+  "own": "",
+  "rationale": "A bug that sits in a spec marks where the code breaks the spec. It refines nothing, so a spec that holds only bugs is a leaf.",
+  "formula": "pred refined[c: Claim] { (some s: Spec | s->c in Sit.rel) or (some e: Exception | e->c in Sit.rel) }\n",
+  "parents": []
+ },
+ {
+  "id": "s005",
+  "doc": "canon",
+  "unit": "term-unguarded",
+  "claim": "unguarded",
+  "own": "",
+  "rationale": "A leaf that no test checks: the code can stop doing what it says, and no test fails.",
+  "formula": "pred unguarded[c: Claim] { not refined[c] and not tested[c] }\n",
+  "parents": []
+ },
+ {
+  "id": "s006",
+  "doc": "canon",
+  "unit": "term-adrift",
+  "claim": "adrift",
+  "own": "",
+  "rationale": "A test whose tags do not say which leaf it checks.",
+  "formula": "pred adrift[t: Test] {\n  (t in Declared and (no g: Tag | t->g in Carry.rel))\n  or (t in Declared and (some u: Unit | checks[t, u] and u not in Claim))\n  or (some c: Claim | checks[t, c] and refined[c])\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s007",
+  "doc": "canon",
+  "unit": "term-used",
+  "claim": "used",
+  "own": "",
+  "rationale": "A unit that nothing uses can stop being true, and nothing that relies on it notices, because nothing does.",
+  "formula": "pred used[u: Unit] {\n  (some v: Unit | v != u and v->u in Sit.rel)\n  or (some p: Pointer | p->u in Name.pointer)\n  or (some g: Tag | g->u in Name.tag)\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s008",
+  "doc": "canon",
+  "unit": "term-check",
+  "claim": "check",
+  "own": "",
+  "rationale": "A test checks the units its tags name. That is no citation: [citing](#term-cite) is what one unit does to another.",
+  "formula": "pred checks[t: Test, u: Unit] { some g: Tag | t->g in Carry.rel and g->u in Name.tag }\n",
+  "parents": []
+ },
+ {
+  "id": "s009",
+  "doc": "canon",
+  "unit": "term-tested",
+  "claim": "tested",
+  "own": "",
+  "rationale": "A test of a bug asserts what the spec the bug breaks claims, so it tests that spec too. A plain test that checks a bug still makes the bug tested: the checker reports the test instead, as [misleading](#term-misleading).",
+  "formula": "pred tested[u: Unit] {\n  (some t: Test | checks[t, u])\n  or (u in Spec and (some t: Test, b: Bug | checks[t, b] and b->u in Sit.rel))\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s010",
+  "doc": "canon",
+  "unit": "term-paired",
+  "claim": "paired",
+  "own": "",
+  "rationale": "A conflict needs two sides.",
+  "formula": "pred paired[c: Conflict] { some a, b: Unit | a != b and c->a in Name.between and c->b in Name.between }\n",
+  "parents": []
+ },
+ {
+  "id": "s011",
+  "doc": "canon",
+  "unit": "term-hidden",
+  "claim": "hidden",
+  "own": "",
+  "rationale": "A known defect out of sight: no open issue tracks it, no test checks it, or a conflict that does not say which units it sets against each other. A project with no [tracker](#term-tracker) owes no issue, and a project with no [runner](#term-runner) owes no test.",
+  "formula": "pred hidden[x: Unit] {\n  (x in Bug and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or (some Runner and not tested[x])))\n  or (x in Conflict and ((some Tracker and (no i: Issue | x->i in Name.issue)) or (some i: Issue | x->i in Name.issue and i not in Known) or (some i: Issue | x->i in Name.issue and i in Closed) or not paired[x]))\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s012",
+  "doc": "canon",
+  "unit": "term-misleading",
+  "claim": "misleading",
+  "own": "",
+  "rationale": "A test whose outcome says nothing true about a defect: an expected failure that names no defect, or a test that passes while the bug it checks is there.",
+  "formula": "pred misleading[t: Test] {\n  (t in ExpectedFailure and (no b: Bug | checks[t, b]) and (no e: Exception | checks[t, e]))\n  or (t in PlainTest and (some b: Bug | checks[t, b]))\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s013",
+  "doc": "canon",
+  "unit": "term-list",
+  "claim": "list",
+  "own": "",
+  "rationale": "",
+  "formula": "pred lists[f: Frontmatter, p: Plugin] { some e: Entry | f->e in Item.rel and e->p in Spell.rel }\n",
+  "parents": []
+ },
+ {
+  "id": "s014",
+  "doc": "canon",
+  "unit": "term-apply",
+  "claim": "apply",
+  "own": "",
+  "rationale": "",
+  "formula": "pred applies[p: Plugin, d: Document] { some f: Listing | d->f in Head.rel and lists[f, p] }\n",
+  "parents": []
+ },
+ {
+  "id": "s015",
+  "doc": "canon",
+  "unit": "term-call",
+  "claim": "call",
+  "own": "",
+  "rationale": "",
+  "formula": "pred calls[r: Run, p: Plugin] {\n  (some c: Command | r->c in Ask.rel and p->c in Add.rel)\n  and (some d: Document | applies[p, d])\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s016",
+  "doc": "canon",
+  "unit": "term-availability",
+  "claim": "availability",
+  "own": "",
+  "rationale": "",
+  "formula": "pred available[c: Command] {\n  c in Core\n  or (some p: Installed, d: Document | applies[p, d] and p->c in Add.rel)\n}\n",
+  "parents": []
+ },
+ {
+  "id": "s017",
+  "doc": "canon",
+  "unit": "axiom-every-claim-says-what-it-follows-from",
+  "claim": "every claim says what it follows from",
+  "own": "",
+  "rationale": "A claim that cannot say why it holds gives the next reader no reason to keep it, or to change it with care. So a canon passes the check only when every claim [cites](#term-cite) what it follows from, and only what its kind may follow from. A unit that does not is [unfounded](#term-unfounded) or [miscited](#term-miscited), and the checker reports a [finding](#term-finding) for it. A claim that follows from itself says no more than that it holds. A unit that is [circular](#term-circular) has a finding as well.",
+  "formula": "(all u: Unit | unfounded[u] implies u in Finding)\nand (all u: Unit | miscited[u] implies u in Finding)\nand (all u: Unit | circular[u] implies u in Finding)\n",
+  "parents": []
+ },
+ {
+  "id": "s018",
+  "doc": "canon",
+  "unit": "spec-an-unfounded-unit-is-freelancing",
+  "claim": "an unfounded unit is freelancing",
+  "own": "",
+  "rationale": "This follows because a [freelancing](#term-freelancing) is the finding for a claim that cites nothing it follows from.",
+  "formula": "all u: Unit | unfounded[u] implies u in Freelancing\n",
+  "parents": [
+   "every claim says what it follows from"
+  ]
+ },
+ {
+  "id": "s019",
+  "doc": "canon",
+  "unit": "spec-a-spec-cites-an-axiom-or-a-spec",
+  "claim": "a spec cites an axiom or a spec",
+  "own": "",
+  "rationale": "",
+  "formula": "all s: Spec | ((no a: Axiom | cites[s, a]) and (no t: Spec | cites[s, t])) implies s in Freelancing\n",
+  "parents": [
+   "every claim says what it follows from",
+   "an unfounded unit is freelancing"
+  ]
+ },
+ {
+  "id": "s020",
+  "doc": "canon",
+  "unit": "spec-an-exception-cites-a-spec",
+  "claim": "an exception cites a spec",
+  "own": "",
+  "rationale": "",
+  "formula": "all e: Exception | (no s: Spec | cites[e, s]) implies e in Freelancing\n",
+  "parents": [
+   "every claim says what it follows from",
+   "an unfounded unit is freelancing"
+  ]
+ },
+ {
+  "id": "s021",
+  "doc": "canon",
+  "unit": "spec-an-exception-cites-a-fact",
+  "claim": "an exception cites a fact",
+  "own": "",
+  "rationale": "",
+  "formula": "all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing\n",
+  "parents": [
+   "every claim says what it follows from",
+   "an unfounded unit is freelancing"
+  ]
+ },
+ {
+  "id": "s022",
+  "doc": "canon",
+  "unit": "spec-a-bug-cites-a-spec",
+  "claim": "a bug cites a spec",
+  "own": "",
+  "rationale": "",
+  "formula": "all b: Bug | (no s: Spec | cites[b, s]) implies b in Freelancing\n",
+  "parents": [
+   "every claim says what it follows from",
+   "an unfounded unit is freelancing"
+  ]
+ },
+ {
+  "id": "s023",
+  "doc": "canon",
+  "unit": "spec-a-miscited-unit-is-misnested",
+  "claim": "a miscited unit is misnested",
+  "own": "",
+  "rationale": "This follows because a [misnesting](#term-misnesting) is the finding for a unit that cites a kind it may not cite.",
+  "formula": "all u: Unit | miscited[u] implies u in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from"
+  ]
+ },
+ {
+  "id": "s024",
+  "doc": "canon",
+  "unit": "spec-an-axiom-cites-only-axioms",
+  "claim": "an axiom cites only axioms",
+  "own": "",
+  "rationale": "",
+  "formula": "all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) implies a in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s025",
+  "doc": "canon",
+  "unit": "spec-a-fact-cites-nothing",
+  "claim": "a fact cites nothing",
+  "own": "",
+  "rationale": "",
+  "formula": "all f: Fact | (some u: Unit | cites[f, u]) implies f in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s026",
+  "doc": "canon",
+  "unit": "spec-a-spec-cites-only-axioms-specs-and-facts",
+  "claim": "a spec cites only axioms specs and facts",
+  "own": "",
+  "rationale": "",
+  "formula": "all s: Spec | (some u: Unit | cites[s, u] and u not in Axiom and u not in Spec and u not in Fact) implies s in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s027",
+  "doc": "canon",
+  "unit": "spec-an-exception-cites-only-specs-and-facts",
+  "claim": "an exception cites only specs and facts",
+  "own": "",
+  "rationale": "",
+  "formula": "all e: Exception | (some u: Unit | cites[e, u] and u not in Spec and u not in Fact) implies e in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s028",
+  "doc": "canon",
+  "unit": "spec-a-bug-cites-only-specs",
+  "claim": "a bug cites only specs",
+  "own": "",
+  "rationale": "",
+  "formula": "all b: Bug | (some u: Unit | cites[b, u] and u not in Spec) implies b in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s029",
+  "doc": "canon",
+  "unit": "spec-a-conflict-cites-nothing",
+  "claim": "a conflict cites nothing",
+  "own": "",
+  "rationale": "",
+  "formula": "all c: Conflict | (some u: Unit | cites[c, u]) implies c in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s030",
+  "doc": "canon",
+  "unit": "spec-a-term-cites-nothing",
+  "claim": "a term cites nothing",
+  "own": "",
+  "rationale": "",
+  "formula": "all t: Term | (some u: Unit | cites[t, u]) implies t in Misnesting\n",
+  "parents": [
+   "every claim says what it follows from",
+   "a miscited unit is misnested"
+  ]
+ },
+ {
+  "id": "s031",
+  "doc": "canon",
+  "unit": "spec-a-unit-does-not-depend-on-itself",
+  "claim": "a unit does not depend on itself",
+  "own": "",
+  "rationale": "This follows because a unit that [depends](#term-depend) on itself names no ground it stands on, and a [cycle](#term-cycle) is its finding.",
+  "formula": "all u: Unit | circular[u] implies u in Cycle\n",
+  "parents": [
+   "every claim says what it follows from"
+  ]
+ },
+ {
+  "id": "s032",
+  "doc": "canon",
+  "unit": "axiom-a-known-defect-stays-in-sight",
+  "claim": "a known defect stays in sight",
+  "own": "",
+  "rationale": "A defect the canon knows of must stay where the next reader sees it, until it is fixed or the owner of the design rules on it. A bug or a conflict out of sight is [hidden](#term-hidden), and a [test](#term-test) whose outcome says nothing true about a defect is [misleading](#term-misleading). The checker reports a [finding](#term-finding) for each.",
+  "formula": "(all b: Bug | hidden[b] implies b in Finding)\nand (all c: Conflict | hidden[c] implies c in Finding)\nand (all t: Test | misleading[t] implies t in Finding)\n",
+  "parents": []
+ },
+ {
+  "id": "s033",
+  "doc": "canon",
+  "unit": "spec-a-hidden-bug-is-reported",
+  "claim": "a hidden bug is reported",
+  "own": "",
+  "rationale": "This follows because each way a bug is hidden has a finding of its own. A bug that [names](#term-name) no [issue](#term-issue) has an [untracking](#term-untracking), and one that names an issue the [tracker](#term-tracker) does not know has a [mistracking](#term-mistracking). One that names an issue the tracker has closed has an [outdated tracking](#term-outdated-tracking), and one that is not [tested](#term-tested) has an [untesting](#term-untesting).",
+  "formula": "all b: Bug | hidden[b] implies b in Finding\n",
+  "parents": [
+   "a known defect stays in sight"
+  ]
+ },
+ {
+  "id": "s034",
+  "doc": "canon",
+  "unit": "spec-a-bug-names-an-issue",
+  "claim": "a bug names an issue",
+  "own": "",
+  "rationale": "",
+  "formula": "all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in Untracking\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden bug is reported"
+  ]
+ },
+ {
+  "id": "s035",
+  "doc": "canon",
+  "unit": "spec-a-bug-names-an-issue-the-tracker-knows",
+  "claim": "a bug names an issue the tracker knows",
+  "own": "",
+  "rationale": "",
+  "formula": "all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b in Mistracking\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden bug is reported"
+  ]
+ },
+ {
+  "id": "s036",
+  "doc": "canon",
+  "unit": "spec-a-bug-names-an-open-issue",
+  "claim": "a bug names an open issue",
+  "own": "",
+  "rationale": "",
+  "formula": "all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in OutdatedTracking\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden bug is reported"
+  ]
+ },
+ {
+  "id": "s037",
+  "doc": "canon",
+  "unit": "spec-a-bug-is-tested",
+  "claim": "a bug is tested",
+  "own": "",
+  "rationale": "",
+  "formula": "all b: Bug | (some Runner and not tested[b]) implies b in Untesting\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden bug is reported"
+  ]
+ },
+ {
+  "id": "s038",
+  "doc": "canon",
+  "unit": "spec-a-hidden-conflict-is-reported",
+  "claim": "a hidden conflict is reported",
+  "own": "",
+  "rationale": "This follows because each way a conflict is hidden has a finding of its own: the same three as a bug's for its issue, and an [unpairing](#term-unpairing) when it is not [paired](#term-paired).",
+  "formula": "all c: Conflict | hidden[c] implies c in Finding\n",
+  "parents": [
+   "a known defect stays in sight"
+  ]
+ },
+ {
+  "id": "s039",
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-an-issue",
+  "claim": "a conflict names an issue",
+  "own": "",
+  "rationale": "",
+  "formula": "all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies c in Untracking\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden conflict is reported"
+  ]
+ },
+ {
+  "id": "s040",
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-an-issue-the-tracker-knows",
+  "claim": "a conflict names an issue the tracker knows",
+  "own": "",
+  "rationale": "",
+  "formula": "all c: Conflict | (some i: Issue | c->i in Name.issue and i not in Known) implies c in Mistracking\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden conflict is reported"
+  ]
+ },
+ {
+  "id": "s041",
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-an-open-issue",
+  "claim": "a conflict names an open issue",
+  "own": "",
+  "rationale": "",
+  "formula": "all c: Conflict | (some i: Issue | c->i in Name.issue and i in Closed) implies c in OutdatedTracking\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden conflict is reported"
+  ]
+ },
+ {
+  "id": "s042",
+  "doc": "canon",
+  "unit": "spec-a-conflict-names-two-units",
+  "claim": "a conflict names two units",
+  "own": "",
+  "rationale": "",
+  "formula": "all c: Conflict | not paired[c] implies c in Unpairing\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a hidden conflict is reported"
+  ]
+ },
+ {
+  "id": "s043",
+  "doc": "canon",
+  "unit": "spec-a-misleading-test-is-reported",
+  "claim": "a misleading test is reported",
+  "own": "",
+  "rationale": "This follows because each way a test is misleading has a finding of its own. An [expected failure](#term-expected-failure) that [checks](#term-check) no bug and no exception has an [unexplained failure](#term-unexplained-failure), and a [plain test](#term-plain-test) that checks a bug has an [unpinning](#term-unpinning).",
+  "formula": "all t: Test | misleading[t] implies t in Finding\n",
+  "parents": [
+   "a known defect stays in sight"
+  ]
+ },
+ {
+  "id": "s044",
+  "doc": "canon",
+  "unit": "spec-an-expected-failure-checks-a-bug-or-an-exception",
+  "claim": "an expected failure checks a bug or an exception",
+  "own": "",
+  "rationale": "",
+  "formula": "all x: ExpectedFailure | ((no b: Bug | checks[x, b]) and (no e: Exception | checks[x, e])) implies x in UnexplainedFailure\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a misleading test is reported"
+  ]
+ },
+ {
+  "id": "s045",
+  "doc": "canon",
+  "unit": "spec-a-plain-test-does-not-check-a-bug",
+  "claim": "a plain test does not check a bug",
+  "own": "",
+  "rationale": "",
+  "formula": "all t: PlainTest | (some b: Bug | checks[t, b]) implies t in Unpinning\n",
+  "parents": [
+   "a known defect stays in sight",
+   "a misleading test is reported"
+  ]
+ },
+ {
+  "id": "s046",
+  "doc": "canon",
+  "unit": "axiom-a-canon-cannot-go-out-of-date-unnoticed",
+  "claim": "a canon cannot go out of date unnoticed",
+  "own": "",
+  "rationale": "This narrows taking the check at its word to a clean check: when the checker reports nothing, the canon has not gone out of date. Documentation goes out of date because nothing checks it. A canon goes out of date unnoticed when a claim no test checks stops holding, or when a test stops saying which claim it checks. It goes out of date as well when a link no longer leads where it says. So every leaf claim is [tested](#term-tested), and every [test](#term-test) [checks](#term-check) a leaf through its [tags](#term-tag). A claim that is not is [unguarded](#term-unguarded), and a test that does not is [adrift](#term-adrift). A project with no [runner](#term-runner) has no tests, and holds its canon to itself alone: it owes no test. So too every [pointer](#term-pointer), [index](#term-index) and [site](#term-site) leads where it says, and every id names one unit.",
+  "formula": "(all c: Claim | (some Runner and unguarded[c]) implies c in Finding)\nand (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding)\nand (all t: Test | adrift[t] implies t in Finding)\nand (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding)\nand (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding)\nand (all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Finding)\nand (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding)\nand (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding)\nand (all c: Claim | (some s: Site | c->s in Name.site and (no r: Source | r->s in Hold.symbols)) implies c in Finding)\nand (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)\n",
+  "parents": [
+   "the check can be taken at its word"
+  ]
+ },
+ {
+  "id": "s047",
+  "doc": "canon",
+  "unit": "spec-an-unguarded-claim-is-untested",
+  "claim": "an unguarded claim is untested",
+  "own": "",
+  "rationale": "This follows because an [untesting](#term-untesting) is the finding for a leaf that no test checks.",
+  "formula": "all c: Claim | (some Runner and unguarded[c]) implies c in Untesting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s048",
+  "doc": "canon",
+  "unit": "spec-a-tag-names-a-unit",
+  "claim": "a tag names a unit",
+  "own": "",
+  "rationale": "This follows because a tag that names no unit checks nothing, and a [rotting](#term-rotting) is its finding. A tag rots when the unit it names is renamed or removed.",
+  "formula": "all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Rotting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s049",
+  "doc": "canon",
+  "unit": "spec-an-adrift-test-is-reported",
+  "claim": "an adrift test is reported",
+  "own": "",
+  "rationale": "This follows because each way a test is adrift has a finding of its own. A test that [project](#term-project) [declares](#term-declare) has an [uncitation](#term-uncitation) when it [carries](#term-carry) no tag. It has a [misaiming](#term-misaiming) when it checks a unit that is no [claim](#term-claim). A test that checks a [refined](#term-refined) claim has an [overreach](#term-overreach).",
+  "formula": "all t: Test | adrift[t] implies t in Finding\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s050",
+  "doc": "canon",
+  "unit": "spec-a-declared-test-carries-a-tag",
+  "claim": "a declared test carries a tag",
+  "own": "",
+  "rationale": "",
+  "formula": "all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) implies t in Uncitation\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed",
+   "an adrift test is reported"
+  ]
+ },
+ {
+  "id": "s051",
+  "doc": "canon",
+  "unit": "spec-a-declared-test-checks-only-claims",
+  "claim": "a declared test checks only claims",
+  "own": "",
+  "rationale": "",
+  "formula": "all t: Test | (t in Declared and (some u: Unit | checks[t, u] and u not in Claim)) implies t in Misaiming\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed",
+   "an adrift test is reported"
+  ]
+ },
+ {
+  "id": "s052",
+  "doc": "canon",
+  "unit": "spec-a-test-checks-only-leaves",
+  "claim": "a test checks only leaves",
+  "own": "",
+  "rationale": "",
+  "formula": "all t: Test | (some c: Claim | checks[t, c] and refined[c]) implies t in Overreach\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed",
+   "an adrift test is reported"
+  ]
+ },
+ {
+  "id": "s053",
+  "doc": "canon",
+  "unit": "spec-a-pointer-names-a-target",
+  "claim": "a pointer names a target",
+  "own": "",
+  "rationale": "This follows because a pointer that names no [target](#term-target) leads nowhere, and a [rotting](#term-rotting) is its finding. A pointer rots when the file or the unit it names is renamed or removed.",
+  "formula": "all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Rotting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s054",
+  "doc": "canon",
+  "unit": "spec-a-unit-is-declared-once",
+  "claim": "a unit is declared once",
+  "own": "",
+  "rationale": "This follows because a unit that [repeats](#term-repeat) another shares its id, so no pointer or tag can say which of the two it names.",
+  "formula": "all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Rotting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s055",
+  "doc": "canon",
+  "unit": "spec-a-unit-is-used",
+  "claim": "a unit is used",
+  "own": "",
+  "rationale": "This follows because a unit nothing [uses](#term-used) can go out of date, and nothing that relies on it notices. An [orphaning](#term-orphaning) is its finding. A conflict is no part of the theory, only a record of where it fails, so nothing uses it.",
+  "formula": "all u: Unit | (not used[u] and u not in Conflict) implies u in Orphaning\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s056",
+  "doc": "canon",
+  "unit": "spec-a-heading-ends-with-its-id",
+  "claim": "a heading ends with its id",
+  "own": "",
+  "rationale": "This follows because a [trailer](#term-trailer) changes the anchor the page renders, so a pointer to the unit's id leads nowhere on the page. A [misanchoring](#term-misanchoring) is its finding.",
+  "formula": "all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Misanchoring\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s057",
+  "doc": "canon",
+  "unit": "spec-a-document-holds-an-index",
+  "claim": "a document holds an index",
+  "own": "",
+  "rationale": "This follows because a [document](#term-document) with units and no [index](#term-index) has no generated list to check, and a [misindexing](#term-misindexing) is its finding.",
+  "formula": "all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Misindexing\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s058",
+  "doc": "canon",
+  "unit": "spec-an-index-matches-its-document",
+  "claim": "an index matches its document",
+  "own": "",
+  "rationale": "This follows because an index that does not [match](#term-match) its document lists units or statements that are no longer there.",
+  "formula": "all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Misindexing\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s059",
+  "doc": "canon",
+  "unit": "spec-a-site-is-held-by-a-source",
+  "claim": "a site is held by a source",
+  "own": "",
+  "rationale": "This follows because a [site](#term-site) that no [source](#term-source) [holds](#term-hold) was renamed or removed, and a [mislocation](#term-mislocation) is its finding.",
+  "formula": "all c: Claim | (some s: Site | c->s in Name.site and (no r: Source | r->s in Hold.symbols)) implies c in Mislocation\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s060",
+  "doc": "canon",
+  "unit": "spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs",
+  "claim": "a document is context for the documents that extend it and for theirs",
+  "own": "",
+  "rationale": "This follows because a document that extends another takes in what that one takes in, and the author does not list it again.",
+  "formula": "all d: Document, e: Document, g: Document | (d->e in Extend.rel implies d->e in Context.rel) and ((d->e in Extend.rel and e->g in Context.rel) implies d->g in Context.rel)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s061",
+  "doc": "canon",
+  "unit": "spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it",
+  "claim": "a fenced block with a language belongs to the unit whose own text holds it",
+  "own": "",
+  "rationale": "This follows because the logic of a unit is what its own text holds. The statement of the unit says that logic and no other.",
+  "formula": "all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in Blocks.rel\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s062",
+  "doc": "canon",
+  "unit": "spec-a-fence-with-no-language-is-prose",
+  "claim": "a fence with no language is prose",
+  "own": "",
+  "rationale": "This follows because a fence with no language shows text, and no backend can check it.",
+  "formula": "all f: Fence | f not in Languaged implies (no u: Unit | u->f in Blocks.rel)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s063",
+  "doc": "canon",
+  "unit": "spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary",
+  "claim": "a block whose second word is vocabulary has the role of vocabulary",
+  "own": "",
+  "rationale": "This follows because the author states what a block is for in the second word, and the checker reads no other sign.",
+  "formula": "all f: Fence | f in VocabularyWord implies f in VocabularyBlock\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s064",
+  "doc": "canon",
+  "unit": "spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds",
+  "claim": "a block whose second word is bounds has the role of bounds",
+  "own": "",
+  "rationale": "This follows because the second word is the one sign of the role.",
+  "formula": "all f: Fence | f in BoundsWord implies f in BoundsBlock\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s065",
+  "doc": "canon",
+  "unit": "spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario",
+  "claim": "a block whose second word is scenario has the role of scenario",
+  "own": "",
+  "rationale": "This follows because the second word is the one sign of the role.",
+  "formula": "all f: Fence | f in ScenarioWord implies f in ScenarioBlock\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s066",
+  "doc": "canon",
+  "unit": "spec-a-block-with-no-role-word-is-the-formula-of-its-unit",
+  "claim": "a block with no role word is the formula of its unit",
+  "own": "",
+  "rationale": "This follows because most blocks are the formula of the unit, and the author need not write a word for the common case.",
+  "formula": "all f: Fence | f in NoSecondWord implies f in UnitBlock\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s067",
+  "doc": "canon",
+  "unit": "spec-a-nested-units-block-is-its-own",
+  "claim": "a nested units block is its own",
+  "own": "",
+  "rationale": "This follows because a unit nested in another says its own logic. The unit above does not say it.",
+  "formula": "all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v->u in Sit.rel and v->f in Blocks.rel)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a canon cannot go out of date unnoticed"
+  ]
+ },
+ {
+  "id": "s068",
+  "doc": "canon",
+  "unit": "spec-a-tested-claim-is-not-untested",
+  "claim": "a tested claim is not untested",
+  "own": "",
+  "rationale": "This follows because an [untesting](#term-untesting) says that no test checks a claim, and for a [tested](#term-tested) claim that is false.",
+  "formula": "all c: Claim | tested[c] implies c not in Untesting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a finding is never false"
+  ]
+ },
+ {
+  "id": "s069",
+  "doc": "canon",
+  "unit": "spec-a-claim-a-declared-test-checks-is-not-untested",
+  "claim": "a claim a declared test checks is not untested",
+  "own": "",
+  "rationale": "This follows because a test that the project [declares](#term-declare) checks the units its tags name.",
+  "formula": "all c: Claim | (some t: Test | t in Declared and checks[t, c]) implies c not in Untesting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a finding is never false",
+   "a tested claim is not untested"
+  ]
+ },
+ {
+  "id": "s070",
+  "doc": "canon",
+  "unit": "spec-a-claim-an-undeclared-test-checks-is-not-untested",
+  "claim": "a claim an undeclared test checks is not untested",
+  "own": "",
+  "rationale": "This follows because a test checks the units its tags name, in whatever file of the sources it sits. That file can be a suite the project does not declare. It can also be a module that builds tests from a table of cases, which a suite then runs. The tags of such a test are as true as the tags of a test in a declared suite.",
+  "formula": "all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not in Untesting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a finding is never false",
+   "a tested claim is not untested"
+  ]
+ },
+ {
+  "id": "s071",
+  "doc": "canon",
+  "unit": "spec-a-spec-whose-bug-a-test-checks-is-not-untested",
+  "claim": "a spec whose bug a test checks is not untested",
+  "own": "",
+  "rationale": "This follows because a test of a [bug](#term-bug) asserts what the spec the bug sits in claims.",
+  "formula": "all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a finding is never false",
+   "a tested claim is not untested"
+  ]
+ },
+ {
+  "id": "s072",
+  "doc": "canon",
+  "unit": "spec-a-project-with-no-runner-reports-no-untesting",
+  "claim": "a project with no runner reports no untesting",
+  "own": "",
+  "rationale": "This follows because a test is a call that a [runner](#term-runner) declares, so a project with no runner has no tests. An [untesting](#term-untesting) there would ask for a test that the project has chosen not to have.",
+  "formula": "all u: Unit | no Runner implies u not in Untesting\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a finding is never false"
+  ]
+ },
+ {
+  "id": "s073",
+  "doc": "canon",
+  "unit": "spec-a-project-with-no-tracker-reports-no-untracking",
+  "claim": "a project with no tracker reports no untracking",
+  "own": "",
+  "rationale": "This follows because an [issue](#term-issue) is an entry of the [tracker](#term-tracker). A project with no tracker has no issue that a bug or a conflict could name. An [untracking](#term-untracking) there would ask for an issue line that names nothing, which an author could only meet with a number that tracks no work.",
+  "formula": "all u: Unit | no Tracker implies u not in Untracking\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a finding is never false"
+  ]
+ },
+ {
+  "id": "s074",
+  "doc": "canon",
+  "unit": "axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+  "claim": "a check the project asked for is never dropped silently",
+  "own": "",
+  "rationale": "This narrows taking the check at its word to the checks the project asks for: a check that did not run never passes for clean. A project asks for its checks in its documents: the plugins a document names, and the command it runs. A check that the project asks for either runs, or the author hears that it could not. Otherwise a mistake as small as a misspelled key turns a check off, and the author trusts a canon that nothing has checked. So a [run](#term-run) that asks for what the checker cannot deliver exits with code 2. Code 2 stands above a finding and above success. Four things ask for too much. One is a [plugin](#term-plugin) the project lacks. Another is a [frontmatter](#term-frontmatter) the checker cannot read. The others are a [command](#term-command) that nothing adds, and a plugin that could not run.",
+  "formula": "all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2\n",
+  "parents": [
+   "the check can be taken at its word"
+  ]
+ },
+ {
+  "id": "s075",
+  "doc": "canon",
+  "unit": "spec-a-document-gets-the-plugins-it-asks-for",
+  "claim": "a document gets the plugins it asks for",
+  "own": "",
+  "rationale": "This follows because the plugins a document names are the checks it asks for. It gets those and no others. A plugin it did not ask for adds no finding, and one it asked for is not left out. A document that names none asks for none.",
+  "formula": "all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d not in Given and p->d in Over.rel) implies applies[p, d])\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s076",
+  "doc": "canon",
+  "unit": "spec-a-document-with-no-plugins-list-asks-for-no-plugin",
+  "claim": "a document with no plugins list asks for no plugin",
+  "own": "",
+  "rationale": "This follows because such a document names no plugin, so it asks for no check.",
+  "formula": "all p: Plugin, d: Document | ((no f: Listing | d->f in Head.rel) and d not in Given) implies p->d not in Over.rel\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a document gets the plugins it asks for"
+  ]
+ },
+ {
+  "id": "s077",
+  "doc": "canon",
+  "unit": "spec-a-plugin-a-document-lists-runs-over-it",
+  "claim": "a plugin a document lists runs over it",
+  "own": "",
+  "rationale": "This follows because a plugin that is listed is asked for.",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a document gets the plugins it asks for"
+  ]
+ },
+ {
+  "id": "s078",
+  "doc": "canon",
+  "unit": "spec-a-plugin-a-document-does-not-list-does-not-run-over-it",
+  "claim": "a plugin a document does not list does not run over it",
+  "own": "",
+  "rationale": "This follows because a list is the whole of what the document asks for.",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a document gets the plugins it asks for"
+  ]
+ },
+ {
+  "id": "s079",
+  "doc": "canon",
+  "unit": "spec-an-empty-list-asks-for-no-plugin",
+  "claim": "an empty list asks for no plugin",
+  "own": "",
+  "rationale": "This follows because an empty list is an answer: the document asks for no plugin, and the commands of the checker are still there.",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a document gets the plugins it asks for"
+  ]
+ },
+ {
+  "id": "s080",
+  "doc": "canon",
+  "unit": "spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says",
+  "claim": "a document named on the command line is checked whatever its frontmatter says",
+  "own": "",
+  "rationale": "This follows because naming a file on the command line asks for the check of that file.",
+  "formula": "all r: Run, p: Plugin, d: Given | calls[r, p] implies p->d in Over.rel\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a document gets the plugins it asks for"
+  ]
+ },
+ {
+  "id": "s081",
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-with-no-plugins-key-holds-no-entry",
+  "claim": "a frontmatter with no plugins key holds no entry",
+  "own": "",
+  "rationale": "This follows because a block with no key asks for nothing, and so the document names no plugin.",
+  "formula": "all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a frontmatter lists what is written in it"
+  ]
+ },
+ {
+  "id": "s082",
+  "doc": "canon",
+  "unit": "spec-a-flawed-frontmatter-is-refused",
+  "claim": "a flawed frontmatter is refused",
+  "own": "",
+  "rationale": "This follows because the checker reads a small part of YAML and nothing else. A block it misreads would drop a check without a word, so it refuses a block with a flaw.",
+  "formula": "all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s083",
+  "doc": "canon",
+  "unit": "spec-a-misquoted-entry-is-refused",
+  "claim": "a misquoted entry is refused",
+  "own": "",
+  "rationale": "This follows because YAML does not read an unquoted entry with an at sign as a package name, and the author meant the package.",
+  "formula": "all f: Misquoted | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s084",
+  "doc": "canon",
+  "unit": "spec-a-key-the-checker-does-not-know-is-refused",
+  "claim": "a key the checker does not know is refused",
+  "own": "",
+  "rationale": "This follows because a misspelled key would otherwise drop a setting or a list of plugins without a word. The checker accepts a key that a plugin defines once the document lists that plugin.",
+  "formula": "all f: Foreign | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s085",
+  "doc": "canon",
+  "unit": "spec-a-list-that-is-not-closed-is-refused",
+  "claim": "a list that is not closed is refused",
+  "own": "",
+  "rationale": "This follows because the end of the list is unknown, and so is what it names.",
+  "formula": "all f: Unclosed | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s086",
+  "doc": "canon",
+  "unit": "spec-a-string-that-is-not-closed-is-refused",
+  "claim": "a string that is not closed is refused",
+  "own": "",
+  "rationale": "This follows because the end of the string is unknown, and so is the plugin it names.",
+  "formula": "all f: Unterminated | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s087",
+  "doc": "canon",
+  "unit": "spec-a-key-written-twice-is-refused",
+  "claim": "a key written twice is refused",
+  "own": "",
+  "rationale": "This follows because the two lists may differ, and the checker cannot tell which one the author meant.",
+  "formula": "all f: Doubled | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s088",
+  "doc": "canon",
+  "unit": "spec-a-path-that-names-no-document-is-refused",
+  "claim": "a path that names no document is refused",
+  "own": "",
+  "rationale": "This follows because a document that is not there cannot be context, and the author would read a canon that has less than it names.",
+  "formula": "all f: Dangling | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s089",
+  "doc": "canon",
+  "unit": "spec-an-extension-that-leads-back-is-refused",
+  "claim": "an extension that leads back is refused",
+  "own": "",
+  "rationale": "This follows because a document that is its own context has no first reading, and the checker would have to choose where to start.",
+  "formula": "all f: Looping | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s090",
+  "doc": "canon",
+  "unit": "spec-a-setting-outside-the-entry-document-is-refused",
+  "claim": "a setting outside the entry document is refused",
+  "own": "",
+  "rationale": "This follows because the settings of a project come from its entry document alone. Another document that the project checks would ignore the setting without a word. The author would then trust a check that the project never asked for.",
+  "formula": "all f: Stray | f in Refused\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a flawed frontmatter is refused"
+  ]
+ },
+ {
+  "id": "s091",
+  "doc": "canon",
+  "unit": "spec-a-refused-frontmatter-fails-the-run",
+  "claim": "a refused frontmatter fails the run",
+  "own": "",
+  "rationale": "This follows because a refused frontmatter asks for checks that the checker cannot name, so the run must say it could not run them.",
+  "formula": "all r: Run, d: Document, f: Refused | d->f in Head.rel implies (d in Unreadable and r in Exits2)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s092",
+  "doc": "canon",
+  "unit": "spec-a-document-with-a-refused-frontmatter-is-reported",
+  "claim": "a document with a refused frontmatter is reported",
+  "own": "",
+  "rationale": "This follows because the author must find the document that holds the flaw.",
+  "formula": "all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a refused frontmatter fails the run"
+  ]
+ },
+ {
+  "id": "s093",
+  "doc": "canon",
+  "unit": "spec-a-report-of-an-unreadable-frontmatter-stops-the-run",
+  "claim": "a report of an unreadable frontmatter stops the run",
+  "own": "",
+  "rationale": "This follows because a check the author asked for cannot run when the checker cannot tell which one it is.",
+  "formula": "all r: Run | (some d: Document | d in Unreadable) implies r in Exits2\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a refused frontmatter fails the run"
+  ]
+ },
+ {
+  "id": "s094",
+  "doc": "canon",
+  "unit": "spec-a-plugin-the-project-lacks-fails-the-run",
+  "claim": "a plugin the project lacks fails the run",
+  "own": "",
+  "rationale": "This follows because a name that stands for no package is a check that cannot run. A document may name only what the project already has, because the checker fetches and runs nothing new.",
+  "formula": "all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and r in Exits2)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s095",
+  "doc": "canon",
+  "unit": "spec-a-missing-plugin-is-reported",
+  "claim": "a missing plugin is reported",
+  "own": "",
+  "rationale": "This follows because the author must see which name stands for no package.",
+  "formula": "all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a plugin the project lacks fails the run"
+  ]
+ },
+ {
+  "id": "s096",
+  "doc": "canon",
+  "unit": "spec-a-missing-plugin-stops-the-run",
+  "claim": "a missing plugin stops the run",
+  "own": "",
+  "rationale": "This follows because a check the author asked for did not run.",
+  "formula": "all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a plugin the project lacks fails the run"
+  ]
+ },
+ {
+  "id": "s097",
+  "doc": "canon",
+  "unit": "spec-an-unknown-command-fails-the-run",
+  "claim": "an unknown command fails the run",
+  "own": "",
+  "rationale": "This follows because a command that nothing adds is a job that cannot run. The author must hear so, and not get a success.",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies (c in Unknown and r in Exits2)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s098",
+  "doc": "canon",
+  "unit": "spec-a-command-that-is-not-available-is-reported-as-unknown",
+  "claim": "a command that is not available is reported as unknown",
+  "own": "",
+  "rationale": "This follows because the author must see that the word was not understood.",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unknown\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "an unknown command fails the run"
+  ]
+ },
+ {
+  "id": "s099",
+  "doc": "canon",
+  "unit": "spec-a-command-that-is-not-available-stops-the-run",
+  "claim": "a command that is not available stops the run",
+  "own": "",
+  "rationale": "This follows because the job the author asked for did not run.",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Exits2\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "an unknown command fails the run"
+  ]
+ },
+ {
+  "id": "s100",
+  "doc": "canon",
+  "unit": "spec-an-available-command-is-not-reported-as-unknown",
+  "claim": "an available command is not reported as unknown",
+  "own": "",
+  "rationale": "This follows because a command of the package is there for a document that asks for no plugin too.",
+  "formula": "all c: Command | available[c] implies c not in Unknown\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "an unknown command fails the run"
+  ]
+ },
+ {
+  "id": "s101",
+  "doc": "canon",
+  "unit": "spec-every-plugin-a-run-calls-runs",
+  "claim": "every plugin a run calls runs",
+  "own": "",
+  "rationale": "This follows because a check that the project asks for and that does not run is dropped. All the plugins that add one command run, and none stands in for another.",
+  "formula": "all r: Run, p: Plugin | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s102",
+  "doc": "canon",
+  "unit": "spec-a-run-exits-with-the-worst-code-of-its-plugins",
+  "claim": "a run exits with the worst code of its plugins",
+  "own": "",
+  "rationale": "This follows because the exit code is how a script learns what happened. A success must not hide a finding, and a finding must not hide a check that could not run.",
+  "formula": "all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1)\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s103",
+  "doc": "canon",
+  "unit": "spec-a-plugin-that-could-not-run-stops-the-run",
+  "claim": "a plugin that could not run stops the run",
+  "own": "",
+  "rationale": "This follows because code 2 stands above every other code.",
+  "formula": "all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a run exits with the worst code of its plugins"
+  ]
+ },
+ {
+  "id": "s104",
+  "doc": "canon",
+  "unit": "spec-a-finding-fails-the-run",
+  "claim": "a finding fails the run",
+  "own": "",
+  "rationale": "This follows because code 1 stands above success.",
+  "formula": "all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a run exits with the worst code of its plugins"
+  ]
+ },
+ {
+  "id": "s105",
+  "doc": "canon",
+  "unit": "spec-a-run-with-no-finding-succeeds",
+  "claim": "a run with no finding succeeds",
+  "own": "",
+  "rationale": "This follows because a run that finds nothing wrong and could not fail to run has nothing to report.",
+  "formula": "all r: Run | (no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a run exits with the worst code of its plugins"
+  ]
+ },
+ {
+  "id": "s106",
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document",
+  "claim": "a frontmatter changes nothing but the plugins of its document",
+  "own": "",
+  "rationale": "This follows because the block at the top asks for plugins and for nothing else: the document is what it was without it.",
+  "formula": "all d, e: Document | d->e in Bare.rel implies ((all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units)) and (e in Finding implies d in Finding) and (d in Finding implies e in Finding))\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently"
+  ]
+ },
+ {
+  "id": "s107",
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were",
+  "claim": "a frontmatter leaves the units of its document as they were",
+  "own": "",
+  "rationale": "This follows because a comment in the block is no heading, and the text after it stays where it was.",
+  "formula": "all d, e: Document | d->e in Bare.rel implies (all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units))\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a frontmatter changes nothing but the plugins of its document"
+  ]
+ },
+ {
+  "id": "s108",
+  "doc": "canon",
+  "unit": "spec-a-frontmatter-changes-no-finding",
+  "claim": "a frontmatter changes no finding",
+  "own": "",
+  "rationale": "This follows because the checks read the document and not its block.",
+  "formula": "all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Finding) and (d in Finding implies e in Finding))\n",
+  "parents": [
+   "the check can be taken at its word",
+   "a check the project asked for is never dropped silently",
+   "a frontmatter changes nothing but the plugins of its document"
+  ]
+ },
+ {
+  "id": "s115",
+  "doc": "canon-plugin-alloy",
+  "unit": "axiom-a-statement-says-what-its-logic-says",
+  "claim": "a statement says what its logic says",
+  "own": "",
+  "rationale": "A reader of the canon learns what a unit claims from its statement. If a person writes the statement apart from the logic, the two drift, and the reader learns what the logic does not hold. So the checker says the statement of a unit that holds a formula from that formula, in the same words each time, with [naturalloy](../naturalloy/CANON.md#axiom-a-formula-is-said-without-loss). It reports a statement that is not what the formula says. The words of the statements are the words of the logic. A reading of a word that nothing declares, or a word declared out of place, would let a statement say what the logic does not.",
+  "formula": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported\n",
+  "parents": []
+ },
+ {
+  "id": "s116",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-document-that-keeps-no-readings-is-left-as-it-is",
+  "claim": "a document that keeps no readings is left as it is",
+  "own": "",
+  "rationale": "This follows because without readings the checker has no words to say a formula in, and the statement of a person stays what it is.",
+  "formula": "all d: Document, u: Unit | (d->u in Hold.units and d not in Worded) implies (u not in Rewritten and u not in Reported)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s117",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-unit-with-a-formula-and-no-statement-is-unwritten",
+  "claim": "a unit with a formula and no statement is unwritten",
+  "own": "",
+  "rationale": "This follows because a reader finds nothing under the heading, and the checker can say what the formula says.",
+  "formula": "all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s118",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-generated-statement-that-differs-from-its-formula-is-stale",
+  "claim": "a generated statement that differs from its formula is stale",
+  "own": "",
+  "rationale": "This follows because the markers claim that the region is what the formula says. An edited region, or one whose formula changed, no longer is.",
+  "formula": "all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s119",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-generated-statement-that-its-formula-would-say-again-is-current",
+  "claim": "a generated statement that its formula would say again is current",
+  "own": "",
+  "rationale": "This follows because a statement that is what the formula says has nothing to report.",
+  "formula": "all u: Unit | (u in Generated and u not in Differs and u not in Unsayable) implies u in Current\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s120",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-statement-that-a-person-wrote-is-handwritten",
+  "claim": "a statement that a person wrote is handwritten",
+  "own": "",
+  "rationale": "This follows because a person's statement may say more or less than the formula, and only the person can say that the two agree.",
+  "formula": "all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s121",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-that-the-readings-cannot-say-is-unsayable",
+  "claim": "a formula that the readings cannot say is unsayable",
+  "own": "",
+  "rationale": "This follows because the checker says only what the readings let it say, and would otherwise make words up.",
+  "formula": "all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s122",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-with-a-word-that-has-no-reading-is-unsayable",
+  "claim": "a formula with a word that has no reading is unsayable",
+  "own": "",
+  "rationale": "This follows because the checker has no words to use for a word without a reading.",
+  "formula": "all u: Unit | u in Wordless implies u in Unsayable\n",
+  "parents": [
+   "a statement says what its logic says",
+   "a formula that the readings cannot say is unsayable"
+  ]
+ },
+ {
+  "id": "s123",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-unit-with-two-formulas-is-unsayable",
+  "claim": "a unit with two formulas is unsayable",
+  "own": "",
+  "rationale": "This follows because a statement says one formula, and the checker cannot tell which one.",
+  "formula": "all u: Unit | u in Twofold implies u in Unsayable\n",
+  "parents": [
+   "a statement says what its logic says",
+   "a formula that the readings cannot say is unsayable"
+  ]
+ },
+ {
+  "id": "s124",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-an-unsayable-formula-says-why",
+  "claim": "the report of an unsayable formula says why",
+  "own": "",
+  "rationale": "This follows because the author can mend only what the checker names.",
+  "formula": "all u: Unit | u in Unsayable implies u in Explained\n",
+  "parents": [
+   "a statement says what its logic says",
+   "a formula that the readings cannot say is unsayable"
+  ]
+ },
+ {
+  "id": "s125",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable",
+  "claim": "a fault of the verbalizer fails the run and is not explained as unsayable",
+  "own": "",
+  "rationale": "This follows because a report that a formula has no words sends the author to the formula or its readings. A fault needs a change to the verbalizer instead. Reported that way, a fault would hide a formula that has words, and the fault with it, so the checker fails instead. A fault is a mistake of the verbalizer, and the verbalizer has had them, so a run must be able to meet one.",
+  "formula": "all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies (u not in Explained and r not in Exits0)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s126",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-writes-what-is-not-current-and-nothing-else",
+  "claim": "generate writes what is not current and nothing else",
+  "own": "",
+  "rationale": "This follows because a statement is the checker's to write until a person writes it, and what is current needs no writing.",
+  "formula": "all u: Unit | (u in Rewritten implies (u in Unwritten or u in Stale)) and ((u in Unwritten or u in Stale) implies u in Rewritten)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s127",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-writes-the-statement-of-a-stale-unit-again",
+  "claim": "generate writes the statement of a stale unit again",
+  "own": "",
+  "rationale": "This follows because a stale statement is the checker's own region, and it says what the formula does not.",
+  "formula": "all u: Unit | u in Stale implies u in Rewritten\n",
+  "parents": [
+   "a statement says what its logic says",
+   "generate writes what is not current and nothing else"
+  ]
+ },
+ {
+  "id": "s128",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-leaves-a-current-statement-as-it-is",
+  "claim": "generate leaves a current statement as it is",
+  "own": "",
+  "rationale": "This follows because writing what is already there changes nothing, and a second run must leave the document alone.",
+  "formula": "all u: Unit | u in Current implies u not in Rewritten\n",
+  "parents": [
+   "a statement says what its logic says",
+   "generate writes what is not current and nothing else"
+  ]
+ },
+ {
+  "id": "s129",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-never-overwrites-a-handwritten-statement",
+  "claim": "generate never overwrites a handwritten statement",
+  "own": "",
+  "rationale": "This follows because the words of a person are not the checker's to replace. The person deletes the statement to let the checker write it.",
+  "formula": "all u: Unit | u in Handwritten implies u not in Rewritten\n",
+  "parents": [
+   "a statement says what its logic says",
+   "generate writes what is not current and nothing else"
+  ]
+ },
+ {
+  "id": "s130",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-leaves-an-unsayable-unit-as-it-is",
+  "claim": "generate leaves an unsayable unit as it is",
+  "own": "",
+  "rationale": "This follows because the checker has no statement to write, and a half statement would be worse than none.",
+  "formula": "all u: Unit | u in Unsayable implies u not in Rewritten\n",
+  "parents": [
+   "a statement says what its logic says",
+   "generate writes what is not current and nothing else"
+  ]
+ },
+ {
+  "id": "s131",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-reports-a-statement-that-is-not-current",
+  "claim": "check reports a statement that is not current",
+  "own": "",
+  "rationale": "This follows because a statement that is not current may say what the formula does not.",
+  "formula": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s132",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-does-not-report-a-current-statement",
+  "claim": "check does not report a current statement",
+  "own": "",
+  "rationale": "This follows because a statement that says what the formula says has nothing to report, and a report that cries wolf is not read.",
+  "formula": "all u: Unit | u in Current implies u not in Reported\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s133",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-report-of-a-statement-fails-check",
+  "claim": "a report of a statement fails check",
+  "own": "",
+  "rationale": "This follows because a statement that is not current is a canon that may be out of date, and the check must not succeed.",
+  "formula": "all r: Run, c: CheckCommand, u: Unit | (r->c in Ask.rel and u in Reported) implies r not in Exits0\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s134",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-fails-on-a-handwritten-statement-and-says-so",
+  "claim": "generate fails on a handwritten statement and says so",
+  "own": "",
+  "rationale": "This follows because the checker cannot write that statement, and the author must know it left the statement.",
+  "formula": "all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s135",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-fails-on-an-unsayable-formula-and-says-why",
+  "claim": "generate fails on an unsayable formula and says why",
+  "own": "",
+  "rationale": "This follows because the checker cannot write that statement either, and the author can mend only what the checker names.",
+  "formula": "all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Unsayable) implies (u in Explained and r not in Exits0)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s136",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared",
+  "claim": "a word that a reading says and nothing declares is undeclared",
+  "own": "",
+  "rationale": "This follows because a reading of nothing says what the logic does not hold.",
+  "formula": "all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s137",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-declared-outside-a-term-is-misplaced",
+  "claim": "a word declared outside a term is misplaced",
+  "own": "",
+  "rationale": "This follows because a reader looks for a word in the term that names it, with its reading beside it.",
+  "formula": "all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Misplaced\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s138",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-reading-apart-from-the-declaration-it-says-is-apart",
+  "claim": "a reading apart from the declaration it says is apart",
+  "own": "",
+  "rationale": "This follows because a reading and its declaration are one thing, and a reader finds them together.",
+  "formula": "all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s139",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-declared-word-that-no-claim-uses-is-unused",
+  "claim": "a declared word that no claim uses is unused",
+  "own": "",
+  "rationale": "This follows because a word that nothing relies on is a part of the model that no claim holds, and the statements never say it.",
+  "formula": "all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u: Unit | u->w in Rely.rel)) implies w in Unused\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s140",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported",
+  "claim": "a word declared in a term said beside it and used is not reported",
+  "own": "",
+  "rationale": "This follows because such a word is where it belongs, and nothing needs a report.",
+  "formula": "all u: Term, w: Word | (u->w in Introduce.rel and u->w in Voice.rel and (some v: Unit | v->w in Rely.rel)) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s141",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-document-that-keeps-no-readings-has-no-word-reported",
+  "claim": "a document that keeps no readings has no word reported",
+  "own": "",
+  "rationale": "This follows because the checker says words only in a document that has readings.",
+  "formula": "all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units and u->w in Introduce.rel) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s142",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-flagged-word-fails-check",
+  "claim": "a flagged word fails check",
+  "own": "",
+  "rationale": "This follows because a word out of order means a statement that may drift from the logic, and the check must not succeed.",
+  "formula": "all r: Run, c: CheckCommand, w: Word | (r->c in Ask.rel and w in Flagged) implies r not in Exits0\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s143",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-reports-nothing-about-a-word-that-is-in-order",
+  "claim": "check reports nothing about a word that is in order",
+  "own": "",
+  "rationale": "This follows because a report that cries wolf is not read.",
+  "formula": "all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s144",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-check-reports-a-word-that-is-not-in-order",
+  "claim": "check reports a word that is not in order",
+  "own": "",
+  "rationale": "This follows because a statement says only the words its readings give. A reading with no declaration, or a declaration out of place, lets a statement say what the logic does not hold.",
+  "formula": "all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w in Flagged\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s145",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-generate-writes-no-statement-for-a-unit-of-an-extended-document",
+  "claim": "generate writes no statement for a unit of an extended document",
+  "own": "",
+  "rationale": "This follows because the extended document is the author's elsewhere, and is checked and generated where it lives.",
+  "formula": "all d: Document, e: Document, u: Unit | (d in Checked and e not in Checked and d->e in Context.rel and e->u in Hold.units) implies u not in Rewritten\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s146",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-word-declared-in-an-extended-document-is-declared",
+  "claim": "a word declared in an extended document is declared",
+  "own": "",
+  "rationale": "This follows because the checker reads the extended document with the document, so its words are the document's words.",
+  "formula": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and u->w in Voice.rel and e->v in Hold.units and v->w in Introduce.rel) implies w not in Undeclared\n",
+  "parents": [
+   "a statement says what its logic says"
+  ]
+ },
+ {
+  "id": "s147",
+  "doc": "canon-plugin-alloy",
+  "unit": "axiom-the-claims-of-a-canon-never-contradict-each-other",
+  "claim": "the claims of a canon never contradict each other",
+  "own": "",
+  "rationale": "Every claim of a canon says how the project is, and the claims are about one project. If two of them cannot both hold, the canon says nothing. A reader cannot follow both, and a change that obeys one breaks the other. The same goes for a situation that the canon says must be possible and that one of its claims rules out. So the checker asks the analyzer two things. Can the claims hold together? Can each scenario happen? It names the units that a repair has to touch.",
+  "formula": "(all u: Unit | u in Contradicting implies u in Named) and (all c: Scenario | c in Impossible implies c in Raised)\n",
+  "parents": []
+ },
+ {
+  "id": "s148",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-with-no-keyword-is-a-claim-to-hold",
+  "claim": "a formula with no keyword is a claim to hold",
+  "own": "",
+  "rationale": "This follows because a unit that states a bare formula states a claim, and the analyzer must hold the claim to find a contradiction.",
+  "formula": "all u: Unit | u in BareFormula implies u in Held\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s149",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-first-searches-leave-no-unit-out",
+  "claim": "the first searches leave no unit out",
+  "own": "",
+  "rationale": "This follows because the author learns first whether the canon holds together, and the searches that leave a unit out cost much more.",
+  "formula": "all s: Search | s in First implies s not in Trial\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s150",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-is-made-only-for-a-scenario-that-cannot-happen",
+  "claim": "a trial is made only for a scenario that cannot happen",
+  "own": "",
+  "rationale": "This follows because a scenario that can happen has nothing to repair.",
+  "formula": "all s: Search, c: Scenario | (s in Trial and s->c in Pose.scenario) implies (c in Impossible and s in Afterwards)\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s151",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest",
+  "claim": "a trial leaves out one held unit and keeps the rest",
+  "own": "",
+  "rationale": "This follows because the unit whose removal lets the scenario happen is one that a repair has to touch.",
+  "formula": "all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel) implies (u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s152",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-is-made-for-each-held-unit-of-a-scenario-that-cannot-happen",
+  "claim": "a trial is made for each held unit of a scenario that cannot happen",
+  "own": "",
+  "rationale": "This follows because any held unit may be the one that rules the scenario out. The author cannot tell without the search.",
+  "formula": "all c: Scenario, u: Unit | (c in Impossible and u in Held and (no v: Unit | c->v in Probe.rel)) implies (some s: Search | s in Trial and s->c in Pose.scenario and s->u in Leave.rel)\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s153",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-trial-leaves-out-only-the-units-the-author-asks-about",
+  "claim": "a trial leaves out only the units the author asks about",
+  "own": "",
+  "rationale": "This follows because an author who knows which unit keeps a scenario out needs one search and not one for every unit.",
+  "formula": "all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel and (some v: Unit | c->v in Probe.rel)) implies c->u in Probe.rel\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s154",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-scenario-that-cannot-happen-while-every-unit-holds-is-reported",
+  "claim": "a scenario that cannot happen while every unit holds is reported",
+  "own": "",
+  "rationale": "This follows because a canon that rules out what it says must be possible has failed.",
+  "formula": "all c: Scenario | c in Impossible implies c in Raised\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s155",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-scenario-that-can-happen-is-not-reported",
+  "claim": "a scenario that can happen is not reported",
+  "own": "",
+  "rationale": "This follows because a report that cries wolf is not read.",
+  "formula": "all c: Scenario | c in Possible implies c not in Raised\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s156",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen",
+  "claim": "the report of a scenario names each unit whose removal lets it happen",
+  "own": "",
+  "rationale": "This follows because such a unit is in every conflict, so one of them has to change.",
+  "formula": "all c: Scenario, u: Unit | (c in Raised and u->c in Frees.rel) implies c->u in Blame.rel\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s157",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-a-scenario-names-no-other-unit",
+  "claim": "the report of a scenario names no other unit",
+  "own": "",
+  "rationale": "This follows because a unit whose removal changes nothing is not what keeps the scenario out. Naming it would send the author to the wrong place.",
+  "formula": "all c: Scenario, u: Unit | c->u in Blame.rel implies u->c in Frees.rel\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s158",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-units-that-cannot-all-hold-are-named",
+  "claim": "units that cannot all hold are named",
+  "own": "",
+  "rationale": "This follows because the author must find the units that contradict each other.",
+  "formula": "all u: Unit | u in Contradicting implies u in Named\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s159",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-report-of-a-contradiction-names-all-the-units-of-the-group",
+  "claim": "the report of a contradiction names all the units of the group",
+  "own": "",
+  "rationale": "This follows because the analyzer knows that the group cannot hold, and does not know which of its units is wrong.",
+  "formula": "all u: Unit, v: Unit | (u in Contradicting and u->v in Together.rel) implies v in Named\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s160",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-units-that-share-a-word-are-asked-about-together",
+  "claim": "units that share a word are asked about together",
+  "own": "",
+  "rationale": "This follows because units that talk about the same thing may contradict each other. They form a [group](#term-group).",
+  "formula": "all u: Unit, v: Unit | u->v in Share.rel implies u->v in Together.rel\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s161",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-units-that-share-no-word-are-asked-about-apart",
+  "claim": "units that share no word are asked about apart",
+  "own": "",
+  "rationale": "This follows because units about different things cannot contradict each other, and asking about them apart gives the same answer in less time.",
+  "formula": "all u: Unit, v: Unit | u->v in Together.rel implies u->v in Chain.rel\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s162",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-logic-succeeds-when-nothing-is-reported",
+  "claim": "logic succeeds when nothing is reported",
+  "own": "",
+  "rationale": "This follows because a canon that holds together has nothing to fix.",
+  "formula": "all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s163",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-reported-scenario-or-contradiction-fails-logic",
+  "claim": "a reported scenario or contradiction fails logic",
+  "own": "",
+  "rationale": "This follows because a canon that contradicts itself must not pass.",
+  "formula": "all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s164",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-the-claims-of-an-extended-document-join-the-model",
+  "claim": "the claims of an extended document join the model",
+  "own": "",
+  "rationale": "This follows because two claims that contradict each other make a contradiction in the canon, wherever the two sit.",
+  "formula": "all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held\n",
+  "parents": [
+   "the claims of a canon never contradict each other"
+  ]
+ },
+ {
+  "id": "s165",
+  "doc": "canon-plugin-alloy",
+  "unit": "axiom-a-formula-can-be-held-against-the-other-formulas",
+  "claim": "a formula can be held against the other formulas",
+  "own": "",
+  "rationale": "A reader takes a unit with a formula as checked. The analyzer holds its formula against the other formulas, and would find a contradiction between them. That holds only when something else in the model speaks of the words the formula uses. A formula that no other formula can contradict holds whatever the rest of the canon says. It looks checked and is not, and the reader trusts a claim that nothing has checked. So the checker reports a formula that no other formula can contradict, and only such a formula. It finds one by the signatures it is [lone](#term-lone-formula) on. The author can tie the signature to the rest of the model, with a definition, a fact or a scenario that names it. Or the author can take the formula away and write the statement of the unit by hand, so that the unit no longer looks checked. Then its test guards it.",
+  "formula": "(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)\n",
+  "parents": []
+ },
+ {
+  "id": "s166",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-that-no-other-formula-can-contradict-is-reported",
+  "claim": "a formula that no other formula can contradict is reported",
+  "own": "",
+  "rationale": "This follows because the report is what keeps such a formula from looking checked.",
+  "formula": "all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)\n",
+  "parents": [
+   "a formula can be held against the other formulas"
+  ]
+ },
+ {
+  "id": "s167",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-that-is-lone-on-a-signature-is-reported",
+  "claim": "a formula that is lone on a signature is reported",
+  "own": "",
+  "rationale": "This follows because nothing else in the model speaks of a signature that the formula is lone on. The report names the signature, so the author knows what to tie to the model.",
+  "formula": "all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) implies u->w in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula that no other formula can contradict is reported"
+  ]
+ },
+ {
+  "id": "s168",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-is-reported-only-when-no-other-formula-can-contradict-it",
+  "claim": "a formula is reported only when no other formula can contradict it",
+  "own": "",
+  "rationale": "This follows because a report that cries wolf is not read.",
+  "formula": "all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged\n",
+  "parents": [
+   "a formula can be held against the other formulas"
+  ]
+ },
+ {
+  "id": "s169",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-is-reported-only-on-a-signature-it-is-lone-on",
+  "claim": "a formula is reported only on a signature it is lone on",
+  "own": "",
+  "rationale": "This follows because the check knows a formula that no other formula can contradict only by a signature it is lone on.",
+  "formula": "all u: Unit, w: Word | u->w in Expose.rel implies (u in Logical and u not in Term and w in Signature and loneOn[u, w])\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it"
+  ]
+ },
+ {
+  "id": "s170",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-signature-that-another-unit-names-keeps-a-formula-from-being-reported",
+  "claim": "a signature that another unit names keeps a formula from being reported",
+  "own": "",
+  "rationale": "This follows because the other unit constrains the signature, so it can contradict the formula.",
+  "formula": "all u: Unit, v: Unit, w: Word | (v != u and v->w in Utter.rel) implies u->w not in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it",
+   "a formula is reported only on a signature it is lone on"
+  ]
+ },
+ {
+  "id": "s171",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-signature-that-a-scenario-names-keeps-a-formula-from-being-reported",
+  "claim": "a signature that a scenario names keeps a formula from being reported",
+  "own": "",
+  "rationale": "This follows because the analyzer reports a scenario that the formula rules out. So the scenario holds the formula against something, even in the unit of the formula.",
+  "formula": "all u: Unit, v: Unit, w: Word | v->w in Picture.rel implies u->w not in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it",
+   "a formula is reported only on a signature it is lone on"
+  ]
+ },
+ {
+  "id": "s172",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-signature-that-an-extended-document-names-keeps-a-formula-from-being-reported",
+  "claim": "a signature that an extended document names keeps a formula from being reported",
+  "own": "",
+  "rationale": "This follows because the claims of an extended document join the model, so they can contradict the formula.",
+  "formula": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and v->w in Utter.rel) implies u->w not in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it",
+   "a formula is reported only on a signature it is lone on"
+  ]
+ },
+ {
+  "id": "s173",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-formula-is-not-reported-on-a-field-or-a-predicate",
+  "claim": "a formula is not reported on a field or a predicate",
+  "own": "",
+  "rationale": "This follows because a predicate has a body that ties it to the other words. The check leaves fields out for now. It reads a field by its name, and two signatures can give a field the same name.",
+  "formula": "all u: Unit, w: Word | w not in Signature implies u->w not in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it",
+   "a formula is reported only on a signature it is lone on"
+  ]
+ },
+ {
+  "id": "s174",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-term-is-not-reported-as-lone",
+  "claim": "a term is not reported as lone",
+  "own": "",
+  "rationale": "This follows because a term gives a word its meaning and claims nothing.",
+  "formula": "all u: Term, w: Word | u->w not in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it",
+   "a formula is reported only on a signature it is lone on"
+  ]
+ },
+ {
+  "id": "s175",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-document-that-keeps-no-readings-has-no-formula-reported-as-lone",
+  "claim": "a document that keeps no readings has no formula reported as lone",
+  "own": "",
+  "rationale": "This follows because the check of lone formulas is part of the check of words, which reads only a document that keeps readings.",
+  "formula": "all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units) implies u->w not in Expose.rel\n",
+  "parents": [
+   "a formula can be held against the other formulas",
+   "a formula is reported only when no other formula can contradict it",
+   "a formula is reported only on a signature it is lone on"
+  ]
+ },
+ {
+  "id": "s176",
+  "doc": "canon-plugin-alloy",
+  "unit": "spec-a-lone-formula-fails-check",
+  "claim": "a lone formula fails check",
+  "own": "",
+  "rationale": "This follows because a formula that looks checked and is not must not let the check succeed.",
+  "formula": "all r: Run, c: CheckCommand, u: Unit, w: Word | (r->c in Ask.rel and u->w in Expose.rel) implies r not in Exits0\n",
+  "parents": [
+   "a formula can be held against the other formulas"
+  ]
+ },
+ {
+  "id": "s181",
+  "doc": "naturalloy",
+  "unit": "term-fit",
+  "claim": "fit",
+  "own": "",
+  "rationale": "",
+  "formula": "pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside and f not in TimedCondition }\n",
+  "parents": []
+ },
+ {
+  "id": "s182",
+  "doc": "naturalloy",
+  "unit": "term-by-kind",
+  "claim": "by kind",
+  "own": "",
+  "rationale": "",
+  "formula": "pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject }\n",
+  "parents": []
+ },
+ {
+  "id": "s183",
+  "doc": "naturalloy",
+  "unit": "term-sentenceable",
+  "claim": "sentenceable",
+  "own": "",
+  "rationale": "",
+  "formula": "pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast and f not in RelativeBeforeLast }\n",
+  "parents": []
+ },
+ {
+  "id": "s184",
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-of-two-clauses-is-said-on-one-line",
+  "claim": "a rule of two clauses is said on one line",
+  "own": "",
+  "rationale": "This follows because a short rule is clearest as one sentence, \"when this, that\".",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s185",
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind",
+  "claim": "a definition by cases is said as a noun phrase for each kind",
+  "own": "",
+  "rationale": "This follows because a reader takes in \"a spec that cites no axiom\" faster than a sentence about a unit that is a spec. The phrase says the same in fewer words.",
+  "formula": "all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKind\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s186",
+  "doc": "naturalloy",
+  "unit": "spec-the-alternatives-of-one-kind-are-put-together-with-or",
+  "claim": "the alternatives of one kind are put together with or",
+  "own": "",
+  "rationale": "This follows because two alternatives for one kind are two ways to be that kind, and one phrase says so.",
+  "formula": "all f: Definition | (f in SameKindTwice and byKind[f]) implies f in JoinedWithOr\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s187",
+  "doc": "naturalloy",
+  "unit": "spec-the-options-of-an-or-inside-a-kind-are-one-coordination",
+  "claim": "the options of an or inside a kind are one coordination",
+  "own": "",
+  "rationale": "This follows because options in one kind read as one run of \"names, names or is\".",
+  "formula": "all f: Definition | (f in OrInsideKind and byKind[f]) implies f in OneCoordination\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s188",
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-with-one-kind-is-one-sentence",
+  "claim": "a definition with one kind is one sentence",
+  "own": "",
+  "rationale": "This follows because a list of one line is no list.",
+  "formula": "all f: Definition | (f in OneKind and byKind[f]) implies f in OneSentenceKind\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s189",
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind",
+  "claim": "a definition by cases is said as it stands when an alternative does not begin with its kind",
+  "own": "",
+  "rationale": "This follows because a phrase for a kind needs the kind first, and an alternative without it would lose what it says.",
+  "formula": "all f: Definition | f in NoKindFirst implies f in AsItStands\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s190",
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways",
+  "claim": "a definition by cases is said as it stands when a run of and would read two ways",
+  "own": "",
+  "rationale": "This follows because a run of and beside another alternative of its kind could join to either, and the reader should not guess.",
+  "formula": "all f: Definition | f in AmbiguousAnd implies f in AsItStands\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s191",
+  "doc": "naturalloy",
+  "unit": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject",
+  "claim": "a definition by cases is said as it stands when an alternative is not about its subject",
+  "own": "",
+  "rationale": "This follows because a phrase for a kind is about the subject, and an alternative about something else would get the wrong words.",
+  "formula": "all f: Definition | f in NotAboutSubject implies f in AsItStands\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s192",
+  "doc": "naturalloy",
+  "unit": "spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase",
+  "claim": "a variable said once takes the place of its quantifier as a noun phrase",
+  "own": "",
+  "rationale": "This follows because \"sits in no unit\" is one phrase. Spelled out with a numbered name, it takes twice the words.",
+  "formula": "all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s193",
+  "doc": "naturalloy",
+  "unit": "spec-a-noun-phrase-can-be-the-subject-of-a-sentence",
+  "claim": "a noun phrase can be the subject of a sentence",
+  "own": "",
+  "rationale": "This follows because the thing the sentence is about may be the variable.",
+  "formula": "all f: Quantifier | (f in VariableSubject and fits[f]) implies f in AsSubjectPhrase\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s194",
+  "doc": "naturalloy",
+  "unit": "spec-what-else-is-true-of-the-variable-is-a-relative-clause",
+  "claim": "what else is true of the variable is a relative clause",
+  "own": "",
+  "rationale": "This follows because a condition on the variable is a part of the phrase that names it.",
+  "formula": "all f: Quantifier | (f in VariableWithCondition and fits[f]) implies f in RelativeClause\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s195",
+  "doc": "naturalloy",
+  "unit": "spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full",
+  "claim": "a quantifier whose variable would be said twice is said in full",
+  "own": "",
+  "rationale": "This follows because a phrase that says the variable in two places would hide that it is one thing.",
+  "formula": "all f: Quantifier | f in VariableTwice implies f in InFull\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s196",
+  "doc": "naturalloy",
+  "unit": "spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full",
+  "claim": "a quantifier with nothing to attach to is said in full",
+  "own": "",
+  "rationale": "This follows because a phrase needs a place in the sentence, and a variable beside nothing else has none.",
+  "formula": "all f: Quantifier | f in NothingToAttach implies f in InFull\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s197",
+  "doc": "naturalloy",
+  "unit": "spec-no-with-another-is-said-in-full",
+  "claim": "no with another is said in full",
+  "own": "",
+  "rationale": "This follows because \"no\" with \"another\" in one phrase would mean something else than the logic says, so the verbalizer spells it out.",
+  "formula": "all f: Quantifier | f in NoWithAnother implies f in InFull\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s198",
+  "doc": "naturalloy",
+  "unit": "spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full",
+  "claim": "a quantifier with a time phrase in one of several conditions is said in full",
+  "own": "",
+  "rationale": "This follows because a time phrase in a noun phrase would cover the other conditions too, where the formula has it cover one.",
+  "formula": "all f: Quantifier | f in TimedCondition implies f in InFull\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s199",
+  "doc": "naturalloy",
+  "unit": "spec-a-condition-that-is-not-about-the-variable-is-said-in-full",
+  "claim": "a condition that is not about the variable is said in full",
+  "own": "",
+  "rationale": "This follows because the phrase would put the condition in the wrong place.",
+  "formula": "all f: Quantifier | f in ConditionAside implies f in InFull\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s200",
+  "doc": "naturalloy",
+  "unit": "spec-three-clauses-or-fewer-are-said-in-a-sentence",
+  "claim": "three clauses or fewer are said in a sentence",
+  "own": "",
+  "rationale": "This follows because a short list in a sentence is easier to read than bullets.",
+  "formula": "all f: Series | sentenceable[f] implies f in AsSentence\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s201",
+  "doc": "naturalloy",
+  "unit": "spec-a-longer-list-or-a-list-with-a-comma-is-bullets",
+  "claim": "a longer list or a list with a comma is bullets",
+  "own": "",
+  "rationale": "This follows because a sentence of many conditions loses the reader, and so does one with commas or items of more than a clause.",
+  "formula": "all f: Series | (f in Items and not sentenceable[f]) implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s202",
+  "doc": "naturalloy",
+  "unit": "spec-a-list-of-more-than-three-clauses-is-bullets",
+  "claim": "a list of more than three clauses is bullets",
+  "own": "",
+  "rationale": "This follows because a sentence of four conditions loses the reader.",
+  "formula": "all f: Series | f in Many implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss",
+   "a longer list or a list with a comma is bullets"
+  ]
+ },
+ {
+  "id": "s203",
+  "doc": "naturalloy",
+  "unit": "spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets",
+  "claim": "a list with a comma in an item and more than two clauses is bullets",
+  "own": "",
+  "rationale": "This follows because a comma inside an item makes a list of three read as a list of more.",
+  "formula": "all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss",
+   "a longer list or a list with a comma is bullets"
+  ]
+ },
+ {
+  "id": "s204",
+  "doc": "naturalloy",
+  "unit": "spec-a-list-too-long-for-a-line-is-bullets",
+  "claim": "a list too long for a line is bullets",
+  "own": "",
+  "rationale": "This follows because a sentence that runs past a line is hard to take in at once.",
+  "formula": "all f: Series | f in TooLong implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss",
+   "a longer list or a list with a comma is bullets"
+  ]
+ },
+ {
+  "id": "s205",
+  "doc": "naturalloy",
+  "unit": "spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets",
+  "claim": "a list with a time phrase before its last clause is bullets",
+  "own": "",
+  "rationale": "This follows because a time phrase at the start of a sentence reads as covering each clause after it. The formula has it cover one.",
+  "formula": "all f: Series | f in TimeBeforeLast implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss",
+   "a longer list or a list with a comma is bullets"
+  ]
+ },
+ {
+  "id": "s206",
+  "doc": "naturalloy",
+  "unit": "spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets",
+  "claim": "a list with a relative clause before its last clause is bullets",
+  "own": "",
+  "rationale": "This follows because a relative clause can run on over the clauses after it. \"An owner that pulse has disposed and code has registered c\" reads so. The formula ends it with its own clause.",
+  "formula": "all f: Series | f in RelativeBeforeLast implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss",
+   "a longer list or a list with a comma is bullets"
+  ]
+ },
+ {
+  "id": "s207",
+  "doc": "naturalloy",
+  "unit": "spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets",
+  "claim": "an item that is more than a clause makes the list bullets",
+  "own": "",
+  "rationale": "This follows because an item with a quantifier or a list of its own cannot stand in a sentence beside others.",
+  "formula": "all f: Series | f in NotClause implies f in AsBullets\n",
+  "parents": [
+   "a formula is said without loss",
+   "a longer list or a list with a comma is bullets"
+  ]
+ },
+ {
+  "id": "s208",
+  "doc": "naturalloy",
+  "unit": "spec-an-and-inside-an-or-is-kept-apart",
+  "claim": "an and inside an or is kept apart",
+  "own": "",
+  "rationale": "This follows because a sentence \"a and b or c\" has two meanings, and the statement must have one.",
+  "formula": "all f: Series | f in AndInOr implies f in KeepsAndApart\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s209",
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-keeps-its-then-before-a-time-phrase",
+  "claim": "a rule keeps its then before a time phrase",
+  "own": "",
+  "rationale": "This follows because \"when this, then now or at a later moment, that\" reads better than two commas in a row.",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s210",
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-drops-its-then-before-anything-else",
+  "claim": "a rule drops its then before anything else",
+  "own": "",
+  "rationale": "This follows because a \"then\" after every \"when\" fills the one-line sentence with words that add nothing.",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) implies f in DropsThen\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s211",
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own",
+  "claim": "a rule whose first side begins with a time phrase puts its then on a line of its own",
+  "own": "",
+  "rationale": "This follows because on one line, the reader would have to guess whether the time phrase covers the second side too.",
+  "formula": "all f: Series | f in TimeFirst implies f in ThenOwnLine\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s212",
+  "doc": "naturalloy",
+  "unit": "spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own",
+  "claim": "a rule with a list for a side puts its then on a line of its own",
+  "own": "",
+  "rationale": "This follows because a rule whose side is a list cannot fit on a line, and \"then\" tells the reader where the second side starts.",
+  "formula": "all f: Series | (f in Rule and f not in OneLineRule) implies f in ThenOwnLine\n",
+  "parents": [
+   "a formula is said without loss"
+  ]
+ },
+ {
+  "id": "s226",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-disposing-an-owner-runs-its-cleanups",
+  "claim": "disposing an owner runs its cleanups",
+  "own": "",
+  "rationale": "",
+  "formula": "always all o: Owner, c: Cleanup |\n  (dispose[o] and c in Registered and c.on = o and c not in Ran) implies eventually c in Ran\n",
+  "parents": []
+ },
+ {
+  "id": "s227",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-dispose-runs-once",
+  "claim": "dispose runs once",
+  "own": "",
+  "rationale": "",
+  "formula": "(always no c: Cleanup, o: Owner | runByCall[c, o])\nand\n(always no o: Owner | throwByCall[o])\n",
+  "parents": []
+ },
+ {
+  "id": "s228",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-owner-cleanups-run-newest-first-and-in-isolation",
+  "claim": "owner cleanups run newest first and in isolation",
+  "own": "",
+  "rationale": "",
+  "formula": "(always all o: Owner, c, d: Cleanup |\n  (dispose[o] and c + d in Registered - Ran and c.on = o and d.on = o and c->d in Clock.older)\n  implies ((not runNow[c]) until runNow[d]))\nand\n(always all o: Owner, c: Failing |\n  (runNow[c] and c.on = o and o in Disposed) implies always o not in Stopped)\n",
+  "parents": []
+ },
+ {
+  "id": "s229",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-a-disposed-owner-cannot-be-entered",
+  "claim": "a disposed owner cannot be entered",
+  "own": "",
+  "rationale": "",
+  "formula": "always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'\n",
+  "parents": []
+ },
+ {
+  "id": "s230",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups",
+  "claim": "an owner disposes its sub owners before its own cleanups",
+  "own": "",
+  "rationale": "",
+  "formula": "(always all o, k: Owner, c: Cleanup |\n  (dispose[o] and k.parent = o and k not in Disposed and c in Registered - Ran and c.on = o)\n  implies ((not runNow[c]) until dispose[k]))\nand\n(always all o, j, k: Owner |\n  (dispose[o] and j.parent = o and k.parent = o and j->k in Birth.order and j not in Disposed and k not in Disposed)\n  implies ((not dispose[j]) until dispose[k]))\n",
+  "parents": []
+ },
+ {
+  "id": "s231",
+  "doc": "canon-plugin-alloy-fixtures-lifetimes",
+  "unit": "spec-a-throwing-owner-cleanup-is-reported",
+  "claim": "a throwing owner cleanup is reported",
+  "own": "",
+  "rationale": "",
+  "formula": "(always all o: Owner, c: Failing |\n  (runNow[c] and c.on = o and o in Disposed) implies always o not in Threw)\nand\n(always all o, h: Owner, c: Failing |\n  (runNow[c] and c.on = o and o in Disposed and o.handler = h) implies eventually c.reached = h)\n",
+  "parents": []
+ }
+]

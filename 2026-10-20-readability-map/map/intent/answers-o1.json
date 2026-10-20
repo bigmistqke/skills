@@ -1,0 +1,149 @@
+[
+ {
+  "id": "s036",
+  "verdict": "fits"
+ },
+ {
+  "id": "s037",
+  "verdict": "fits"
+ },
+ {
+  "id": "s038",
+  "verdict": "fits"
+ },
+ {
+  "id": "s039",
+  "verdict": "fits"
+ },
+ {
+  "id": "s040",
+  "verdict": "fits"
+ },
+ {
+  "id": "s041",
+  "verdict": "fits"
+ },
+ {
+  "id": "s042",
+  "verdict": "fits"
+ },
+ {
+  "id": "s043",
+  "verdict": "fits"
+ },
+ {
+  "id": "s044",
+  "verdict": "fits"
+ },
+ {
+  "id": "s045",
+  "verdict": "fits"
+ },
+ {
+  "id": "s046",
+  "verdict": "fits"
+ },
+ {
+  "id": "s047",
+  "verdict": "fits"
+ },
+ {
+  "id": "s048",
+  "verdict": "fits"
+ },
+ {
+  "id": "s049",
+  "verdict": "fits"
+ },
+ {
+  "id": "s050",
+  "verdict": "fits"
+ },
+ {
+  "id": "s051",
+  "verdict": "fits"
+ },
+ {
+  "id": "s052",
+  "verdict": "fits"
+ },
+ {
+  "id": "s053",
+  "verdict": "fits"
+ },
+ {
+  "id": "s054",
+  "verdict": "fits"
+ },
+ {
+  "id": "s055",
+  "verdict": "fits"
+ },
+ {
+  "id": "s056",
+  "verdict": "fits"
+ },
+ {
+  "id": "s057",
+  "verdict": "fits"
+ },
+ {
+  "id": "s058",
+  "verdict": "fits"
+ },
+ {
+  "id": "s059",
+  "verdict": "fits"
+ },
+ {
+  "id": "s060",
+  "verdict": "fits"
+ },
+ {
+  "id": "s061",
+  "verdict": "fits"
+ },
+ {
+  "id": "s062",
+  "verdict": "fits"
+ },
+ {
+  "id": "s063",
+  "verdict": "fits"
+ },
+ {
+  "id": "s064",
+  "verdict": "fits"
+ },
+ {
+  "id": "s065",
+  "verdict": "fits"
+ },
+ {
+  "id": "s066",
+  "verdict": "fits"
+ },
+ {
+  "id": "s067",
+  "verdict": "suspect",
+  "intended": "all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | u->v in Sit.rel and v->f in Blocks.rel)",
+  "slip": "relation-direction-swapped",
+  "why": "The claim and rationale say the unit above a nested unit (the one it sits in) must not read the nested unit's fence as its block, but v->u in Sit.rel picks units that sit in u (its children). With f in the own text of u, u sitting in p, and p reading f as a block, the written formula holds while the intended one fails."
+ },
+ {
+  "id": "s068",
+  "verdict": "fits"
+ },
+ {
+  "id": "s069",
+  "verdict": "fits"
+ },
+ {
+  "id": "s070",
+  "verdict": "fits"
+ },
+ {
+  "id": "s071",
+  "verdict": "fits"
+ }
+]

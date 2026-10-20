@@ -1,0 +1,109 @@
+[
+ {
+  "id": "s151",
+  "verdict": "suspect",
+  "intended": "all s: Search, u: Unit | (s in Trial and s->u in Leave.rel) implies (u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))",
+  "slip": "variable-only-in-condition",
+  "why": "The scenario c is bound around the claim but used only in the condition, so the claim binds only for a trial that requires some scenario to happen. A trial that leaves out an unheld unit, or drops other held units, but poses no scenario satisfies the formula while breaking the claim that a trial leaves out one held unit and keeps the rest."
+ },
+ {
+  "id": "s152",
+  "verdict": "fits"
+ },
+ {
+  "id": "s153",
+  "verdict": "fits"
+ },
+ {
+  "id": "s154",
+  "verdict": "fits"
+ },
+ {
+  "id": "s155",
+  "verdict": "fits"
+ },
+ {
+  "id": "s156",
+  "verdict": "fits"
+ },
+ {
+  "id": "s157",
+  "verdict": "fits"
+ },
+ {
+  "id": "s158",
+  "verdict": "fits"
+ },
+ {
+  "id": "s159",
+  "verdict": "fits"
+ },
+ {
+  "id": "s160",
+  "verdict": "fits"
+ },
+ {
+  "id": "s161",
+  "verdict": "fits"
+ },
+ {
+  "id": "s162",
+  "verdict": "fits"
+ },
+ {
+  "id": "s163",
+  "verdict": "fits"
+ },
+ {
+  "id": "s164",
+  "verdict": "fits"
+ },
+ {
+  "id": "s165",
+  "verdict": "fits"
+ },
+ {
+  "id": "s166",
+  "verdict": "fits"
+ },
+ {
+  "id": "s167",
+  "verdict": "fits"
+ },
+ {
+  "id": "s168",
+  "verdict": "fits"
+ },
+ {
+  "id": "s169",
+  "verdict": "fits"
+ },
+ {
+  "id": "s170",
+  "verdict": "fits"
+ },
+ {
+  "id": "s171",
+  "verdict": "fits"
+ },
+ {
+  "id": "s172",
+  "verdict": "fits"
+ },
+ {
+  "id": "s173",
+  "verdict": "fits"
+ },
+ {
+  "id": "s174",
+  "verdict": "fits"
+ },
+ {
+  "id": "s175",
+  "verdict": "fits"
+ },
+ {
+  "id": "s176",
+  "verdict": "fits"
+ }
+]

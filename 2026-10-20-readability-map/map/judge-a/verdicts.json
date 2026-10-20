@@ -1,0 +1,202 @@
+[
+ {
+  "id": "s035",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s135",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s011",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s040",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s074",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s085",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s030",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s028",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s059",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s001",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s073",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s022",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s008",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s041",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s132",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s049",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s149",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s036",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s095",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s099",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s103",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s174",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s134",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s047",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s117",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s211",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s121",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s119",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s004",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s209",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s088",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s089",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s064",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s090",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s029",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s021",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s148",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s044",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s037",
+  "verdict": "lossless",
+  "counter": ""
+ },
+ {
+  "id": "s076",
+  "verdict": "lossy",
+  "counter": "Two runs: run A's command line names document d, run B's does not; d starts with no listing frontmatter; checker runs plugin p over d. Formula: d is in Given (some run names it), so the antecedent is false and the claim holds. Words: 'the command line of a run does not name the document' can be read with the indefinite outside the negation (there is a run, B, whose command line does not name d), so the antecedent holds and the words say checker does not run p over d -- false. The negative reading of Given ('the command line of a run does not name {1}') leaves the scope of 'a run' open; 'no run's command line names the document' would be exact."
+ }
+]

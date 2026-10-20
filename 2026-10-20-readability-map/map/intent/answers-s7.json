@@ -1,0 +1,14 @@
+[
+  {"id": "s226", "verdict": "fits"},
+  {"id": "s227", "verdict": "fits"},
+  {"id": "s228", "verdict": "fits"},
+  {"id": "s229", "verdict": "fits"},
+  {
+    "id": "s230",
+    "verdict": "suspect",
+    "intended": "always all o, k: Owner, c: Cleanup | (dispose[o] and k.parent = o and k not in Disposed and c in Registered - Ran and c.on = o) implies ((not runNow[c]) until dispose[k])",
+    "slip": "extra-unrelated-conjunct",
+    "why": "The claim only orders a parent's sub-owner disposal against the parent's own cleanups, but the formula's second conjunct instead constrains the relative dispose order between two sibling sub-owners (newest-created-first), something the claim's name never mentions and that has nothing to do with cleanups. Take an owner o with two children j (older) and k (younger) and no cleanups registered on o at all: the claim 'an owner disposes its sub owners before its own cleanups' is trivially satisfied (there are no cleanups to order), yet the full formula is still violated if j happens to be disposed before k, a scenario the claim itself has nothing to say about."
+  },
+  {"id": "s231", "verdict": "fits"}
+]

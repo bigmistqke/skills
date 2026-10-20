@@ -1,0 +1,149 @@
+[
+ {
+  "id": "s000",
+  "verdict": "fits"
+ },
+ {
+  "id": "s001",
+  "verdict": "fits"
+ },
+ {
+  "id": "s002",
+  "verdict": "fits"
+ },
+ {
+  "id": "s003",
+  "verdict": "fits"
+ },
+ {
+  "id": "s004",
+  "verdict": "fits"
+ },
+ {
+  "id": "s005",
+  "verdict": "fits"
+ },
+ {
+  "id": "s006",
+  "verdict": "fits"
+ },
+ {
+  "id": "s007",
+  "verdict": "suspect",
+  "intended": "pred used[u: Unit] { (some v: Unit | v != u and cites[v, u]) or (some p: Pointer | p->u in Name.pointer) or (some g: Tag | g->u in Name.tag) }",
+  "slip": "missing-condition",
+  "why": "The rationale says a unit is used when something relies on it, and the canon counts both nesting and 'Derives from:' as ways a unit follows from another; the formula only counts nesting. A unit that another unit derives from, with nothing sitting in it and no pointer or tag naming it, is unused by the formula although that other unit relies on it."
+ },
+ {
+  "id": "s008",
+  "verdict": "fits"
+ },
+ {
+  "id": "s009",
+  "verdict": "fits"
+ },
+ {
+  "id": "s010",
+  "verdict": "fits"
+ },
+ {
+  "id": "s011",
+  "verdict": "fits"
+ },
+ {
+  "id": "s012",
+  "verdict": "fits"
+ },
+ {
+  "id": "s013",
+  "verdict": "fits"
+ },
+ {
+  "id": "s014",
+  "verdict": "fits"
+ },
+ {
+  "id": "s015",
+  "verdict": "fits"
+ },
+ {
+  "id": "s016",
+  "verdict": "fits"
+ },
+ {
+  "id": "s017",
+  "verdict": "fits"
+ },
+ {
+  "id": "s018",
+  "verdict": "fits"
+ },
+ {
+  "id": "s019",
+  "verdict": "fits"
+ },
+ {
+  "id": "s020",
+  "verdict": "fits"
+ },
+ {
+  "id": "s021",
+  "verdict": "fits"
+ },
+ {
+  "id": "s022",
+  "verdict": "fits"
+ },
+ {
+  "id": "s023",
+  "verdict": "fits"
+ },
+ {
+  "id": "s024",
+  "verdict": "fits"
+ },
+ {
+  "id": "s025",
+  "verdict": "fits"
+ },
+ {
+  "id": "s026",
+  "verdict": "fits"
+ },
+ {
+  "id": "s027",
+  "verdict": "fits"
+ },
+ {
+  "id": "s028",
+  "verdict": "fits"
+ },
+ {
+  "id": "s029",
+  "verdict": "fits"
+ },
+ {
+  "id": "s030",
+  "verdict": "fits"
+ },
+ {
+  "id": "s031",
+  "verdict": "fits"
+ },
+ {
+  "id": "s032",
+  "verdict": "fits"
+ },
+ {
+  "id": "s033",
+  "verdict": "fits"
+ },
+ {
+  "id": "s034",
+  "verdict": "fits"
+ },
+ {
+  "id": "s035",
+  "verdict": "fits"
+ }
+]

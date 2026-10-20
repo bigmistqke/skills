@@ -1,0 +1,16 @@
+[
+  {"id": "A0", "alloy": "all c: Cleanup | c in Ran <=> c in Ran'", "hard": 1},
+  {"id": "A1", "alloy": "all c1, c2: Cleanup, o1, o2: Owner | (o2 in c2.on') <=> ((c2 = c1 and o2 = o1) or (o2 in c2.on and c2 != c1))", "hard": 4},
+  {"id": "A2", "alloy": "all o: Owner | (no c: Cleanup | o in c.on) => o not in Disposed", "hard": 1},
+  {"id": "A3", "alloy": "all c1: Cleanup | c1 in Ran => (some o: Owner | o in c1.on and o in Disposed)", "hard": 1},
+  {"id": "A4", "alloy": "all o: Owner | o in Disposed <=> (all c: Cleanup | o in c.on => c in Ran)", "hard": 2},
+  {"id": "A5", "alloy": "all c1: Cleanup | G (c1 in Registered => F c1 in Ran)", "hard": 2},
+  {"id": "A6", "alloy": "all c: Cleanup, o: Owner | (o in c.on and o in Stopped) => c not in Ran", "hard": 1},
+  {"id": "A7", "alloy": "all c1: Cleanup | (#(c1.on) > 1) => c1 in Registered", "hard": 2},
+  {"id": "A8", "alloy": "all o1: Owner | o1 in Disposed => o1.parent in Disposed", "hard": 1},
+  {"id": "A9", "alloy": "all c1: Cleanup, o1: Owner | o1 in c1.at => o1 in c1.on", "hard": 1},
+  {"id": "B0", "alloy": "all c1: Cleanup, o1: Owner | (c1 in Registered) U (o1 in Disposed)", "hard": 3},
+  {"id": "B1", "alloy": "all c1: Cleanup | (c1 not in Ran) U (c1 in Registered)", "hard": 3},
+  {"id": "B2", "alloy": "all c1: Cleanup, o1: Owner | (c1 in Ran) U (o1 not in Disposed)", "hard": 4},
+  {"id": "B3", "alloy": "all c1: Cleanup, o1: Owner | G (c1 in Registered => ((c1 not in Ran) U (o1 in Disposed)))", "hard": 5}
+]

@@ -1,0 +1,2594 @@
+[
+ {
+  "reader": 0,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 0,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 0,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 1,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 1,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 2,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 2,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 3,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 3,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 4,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 4,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 5,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 5,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 6,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 6,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "U1-never",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "U1-now",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U1-atEnd",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U1-after",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U1-first",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U1-broken",
+  "id": "U1",
+  "op": "until",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "U2-never",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "U2-now",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U2-atEnd",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U2-after",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U2-first",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U2-broken",
+  "id": "U2",
+  "op": "until",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "U3-never",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "U3-now",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U3-atEnd",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U3-after",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "after",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U3-first",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "first",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "U3-broken",
+  "id": "U3",
+  "op": "until",
+  "variant": "V1",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "S1-never",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "S1-now",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S1-atEnd",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S1-before",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S1-last",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S1-broken",
+  "id": "S1",
+  "op": "since",
+  "variant": "V2",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "S2-never",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "S2-now",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S2-atEnd",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S2-before",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S2-last",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S2-broken",
+  "id": "S2",
+  "op": "since",
+  "variant": "V3",
+  "timeline": "broken",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "S3-never",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "never",
+  "truth": false
+ },
+ {
+  "reader": 7,
+  "q": "S3-now",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "now",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S3-atEnd",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "atEnd",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S3-before",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "before",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S3-last",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "last",
+  "truth": true
+ },
+ {
+  "reader": 7,
+  "q": "S3-broken",
+  "id": "S3",
+  "op": "since",
+  "variant": "V0",
+  "timeline": "broken",
+  "truth": false
+ }
+]

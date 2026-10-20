@@ -1,0 +1,4224 @@
+{
+ "s017|(all u: Unit | unfounded[u] implies u in Finding) and (all u: Unit | miscited[u] implies u in Finding) and (all u: Unit | circular[u] implies u in Finding)": {
+  "id": "s017",
+  "verdict": "same"
+ },
+ "s027|all e: Exception | (some u: Unit | cites[e, u] and u not in Spec and u not in Fact) implies e in Misnesting": {
+  "id": "s027",
+  "verdict": "same"
+ },
+ "s028|all b: Bug | (some u: Unit | cites[b, u] and u not in Spec) implies b in Misnesting": {
+  "id": "s028",
+  "verdict": "same"
+ },
+ "s029|all c: Conflict | (some u: Unit | cites[c, u]) implies c in Misnesting": {
+  "id": "s029",
+  "verdict": "same"
+ },
+ "s039|all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies c in Untracking": {
+  "id": "s039",
+  "verdict": "same"
+ },
+ "s040|all c: Conflict | (some i: Issue | c->i in Name.issue and i not in Known) implies c in Mistracking": {
+  "id": "s040",
+  "verdict": "same"
+ },
+ "s041|all c: Conflict | (some i: Issue | c->i in Name.issue and i in Closed) implies c in OutdatedTracking": {
+  "id": "s041",
+  "verdict": "same"
+ },
+ "s051|all t: Test | (some u: Unit | checks[t, u] and u not in Claim) implies t in Misaiming": {
+  "id": "s051",
+  "verdict": "differs"
+ },
+ "s052|all t: Test | (some c: Claim | checks[t, c] and refined[c]) implies t in Overreach": {
+  "id": "s052",
+  "verdict": "same"
+ },
+ "s053|all p: Pointer | (no t: Target | p->t in Name.pointer) implies p in Rotting": {
+  "id": "s053",
+  "verdict": "same"
+ },
+ "s063|all f: Fence | f in VocabularyWord implies f in VocabularyBlock": {
+  "id": "s063",
+  "verdict": "same"
+ },
+ "s064|all f: Fence | f in BoundsWord implies f in BoundsBlock": {
+  "id": "s064",
+  "verdict": "same"
+ },
+ "s065|all f: Fence | f in ScenarioWord implies f in ScenarioBlock": {
+  "id": "s065",
+  "verdict": "same"
+ },
+ "s075|(all p: Plugin, d: Document | applies[p, d] implies p->d in Over.rel) and (all r: Run, p: Plugin, d: Document | (d not in Given) and (p->d in Over.rel) implies applies[p, d])": {
+  "id": "s075",
+  "verdict": "differs"
+ },
+ "s076|all d: Document, r: Run | (no f: Listing | d->f in Head.rel) and (d not in Given) implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s076",
+  "verdict": "differs"
+ },
+ "s077|all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel": {
+  "id": "s077",
+  "verdict": "same"
+ },
+ "s087|all f: Frontmatter | f in Doubled implies f in Refused": {
+  "id": "s087",
+  "verdict": "same"
+ },
+ "s088|all f: Frontmatter | f in Dangling implies f in Refused": {
+  "id": "s088",
+  "verdict": "same"
+ },
+ "s089|all f: Frontmatter | f in Looping implies f in Refused": {
+  "id": "s089",
+  "verdict": "same"
+ },
+ "s099|all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Exits2": {
+  "id": "s099",
+  "verdict": "same"
+ },
+ "s100|all c: Command | available[c] implies c not in Unknown": {
+  "id": "s100",
+  "verdict": "same"
+ },
+ "s101|all r: Run, p: Plugin | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)": {
+  "id": "s101",
+  "verdict": "same"
+ },
+ "s111|some c: Conflict | (some u1, u2: Unit | u1 != u2 and c->u1 in Name.between and c->u2 in Name.between) and (some i: Issue | c->i in Name.issue and i in Known and i not in Closed) and (c not in Finding)": {
+  "id": "s111",
+  "verdict": "same"
+ },
+ "s112|some a, b, c: Document | a != c and a->b in Extend.rel and b->c in Extend.rel and c->a in Context.rel": {
+  "id": "s112",
+  "verdict": "differs"
+ },
+ "s113|some r: Run, p: Plugin, d: Document, f: Listing | (d->f in Head.rel) and (lists[f, p]) and (p->d in Over.rel) and (calls[r, p]) and (r->p in Return.code1) and (r in Exits1)": {
+  "id": "s113",
+  "verdict": "differs"
+ },
+ "s123|all u: Unit | u in Twofold implies u in Unsayable": {
+  "id": "s123",
+  "verdict": "same"
+ },
+ "s124|all u: Unit | u in Unsayable implies u in Explained": {
+  "id": "s124",
+  "verdict": "same"
+ },
+ "s125|all r: Run, c: Command, u: Unit | ((r->c in Ask.rel) and (c in GenerateCommand or c in CheckCommand) and (u in Faulted)) implies ((u not in Explained) and (r not in Exits0))": {
+  "id": "s125",
+  "verdict": "same"
+ },
+ "s135|all r: Run, u: Unit | (r->GenerateCommand in Ask.rel and u in Unsayable) implies (u in Explained and r not in Exits0)": {
+  "id": "s135",
+  "verdict": "same"
+ },
+ "s136|all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared": {
+  "id": "s136",
+  "verdict": "same"
+ },
+ "s137|all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Misplaced": {
+  "id": "s137",
+  "verdict": "same"
+ },
+ "s147|(all u: Unit | u in Contradicting implies u in Named) and (all s: Scenario | s in Impossible implies s in Raised)": {
+  "id": "s147",
+  "verdict": "same"
+ },
+ "s148|all u: Unit | u in BareFormula implies u in Held": {
+  "id": "s148",
+  "verdict": "same"
+ },
+ "s149|all s: Search | s in First implies (no u: Unit | s->u in Leave.rel)": {
+  "id": "s149",
+  "verdict": "differs"
+ },
+ "s159|all u1, u2: Unit | (u1 in Contradicting and u1->u2 in Together.rel) implies u2 in Named": {
+  "id": "s159",
+  "verdict": "same"
+ },
+ "s160|all u1, u2: Unit | ((u1->u2 in Share.rel) or (u2->u1 in Share.rel)) implies ((u1->u2 in Together.rel) or (u2->u1 in Together.rel))": {
+  "id": "s160",
+  "verdict": "differs"
+ },
+ "s161|all u1, u2: Unit | (u1->u2 in Together.rel) implies (u1->u2 in Chain.rel)": {
+  "id": "s161",
+  "verdict": "same"
+ },
+ "s171|all w: Word | (some u: Unit | u->w in Picture.rel) implies (no x: Unit | x->w in Expose.rel)": {
+  "id": "s171",
+  "verdict": "same"
+ },
+ "s172|all d1, d2: Document, u1: Unit, w: Word | ((d1->d2 in Context.rel) and (d1->u1 in Hold.units) and (u1->w in Utter.rel)) implies (all u2: Unit | (d2->u2 in Hold.units) implies (u2->w not in Expose.rel))": {
+  "id": "s172",
+  "verdict": "differs"
+ },
+ "s173|all u: Unit, w: Word | (w not in Signature) implies (u->w not in Expose.rel)": {
+  "id": "s173",
+  "verdict": "same"
+ },
+ "s186|all d: Definition | ((d in SameKindTwice) and (d in byKind)) implies (d in JoinedWithOr)": {
+  "id": "s186",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-iH1VOO/q.als at line 207 column 153: Name cannot be resolved; possible incorrect function/predicate call; perhaps you used ( ) when you should have used [ ]"
+ },
+ "s187|all d: Definition | ((d in OrInsideKind) and (d in byKind)) implies (d in OneCoordination)": {
+  "id": "s187",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-9zZYSQ/q.als at line 207 column 154: Name cannot be resolved; possible incorrect function/predicate call; perhaps you used ( ) when you should have used [ ]"
+ },
+ "s188|all d: Definition | ((d in OneKind) and (d in byKind)) implies (d in OneSentenceKind)": {
+  "id": "s188",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-hXvnzM/q.als at line 207 column 144: Name cannot be resolved; possible incorrect function/predicate call; perhaps you used ( ) when you should have used [ ]"
+ },
+ "s198|all q: Quantifier | (q in TimedCondition) implies (q in InFull)": {
+  "id": "s198",
+  "verdict": "same"
+ },
+ "s199|all q: Quantifier | (q in ConditionAside) implies (q in InFull)": {
+  "id": "s199",
+  "verdict": "same"
+ },
+ "s200|all l: Series | (l in sentenceable) implies (l in AsSentence)": {
+  "id": "s200",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-84hBZ4/q.als at line 207 column 98: Name cannot be resolved; possible incorrect function/predicate call; perhaps you used ( ) when you should have used [ ]"
+ },
+ "s210|all l: Series | ((l in OneLineRule) and not (l in TimeFirst) and not (l in TimeSecond)) implies (l in DropsThen)": {
+  "id": "s210",
+  "verdict": "same"
+ },
+ "s211|all l: Series | (l in TimeFirst) implies (l in ThenOwnLine)": {
+  "id": "s211",
+  "verdict": "same"
+ },
+ "s212|all l: Series | ((l in Rule) and not (l in OneLineRule)) implies (l in ThenOwnLine)": {
+  "id": "s212",
+  "verdict": "same"
+ },
+ "s222|some l: Series | (l in Many) and (l in SharedSubject)": {
+  "id": "s222",
+  "verdict": "same"
+ },
+ "s223|some l: Series | (l in NotClause) and (l in PairInList)": {
+  "id": "s223",
+  "verdict": "same"
+ },
+ "s224|some l: Series | ((l in Rule) and (l in TimeSecond) and not (l in OneLineRule))": {
+  "id": "s224",
+  "verdict": "same"
+ },
+ "s017|all u: Unit | (unfounded[u] or miscited[u] or circular[u]) implies u in Finding": {
+  "id": "s017",
+  "verdict": "same"
+ },
+ "s018|all u: Unit | unfounded[u] implies u in Freelancing": {
+  "id": "s018",
+  "verdict": "same"
+ },
+ "s028|all b: Bug, u: Unit | cites[b, u] and u not in Spec implies b in Misnesting": {
+  "id": "s028",
+  "verdict": "same"
+ },
+ "s029|all c: Conflict, u: Unit | cites[c, u] implies c in Misnesting": {
+  "id": "s029",
+  "verdict": "same"
+ },
+ "s030|all t: Term, u: Unit | cites[t, u] implies t in Misnesting": {
+  "id": "s030",
+  "verdict": "same"
+ },
+ "s040|all c: Conflict, i: Issue | c->i in Name.issue and i not in Known implies c in Mistracking": {
+  "id": "s040",
+  "verdict": "same"
+ },
+ "s041|all c: Conflict, i: Issue | c->i in Name.issue and i in Closed implies c in OutdatedTracking": {
+  "id": "s041",
+  "verdict": "same"
+ },
+ "s042|all c: Conflict | not paired[c] implies c in Unpairing": {
+  "id": "s042",
+  "verdict": "same"
+ },
+ "s052|all t: Test, cl: Claim | checks[t, cl] and refined[cl] implies t in Overreach": {
+  "id": "s052",
+  "verdict": "same"
+ },
+ "s054|all u1, u2: Unit | u1->u2 in Repeat.rel implies u1 in Rotting": {
+  "id": "s054",
+  "verdict": "same"
+ },
+ "s066|all f: Fence | f in NoSecondWord implies f in UnitBlock": {
+  "id": "s066",
+  "verdict": "same"
+ },
+ "s076|all d: Document | (no f: Listing | d->f in Head.rel) and d not in Given implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s076",
+  "verdict": "same"
+ },
+ "s077|all d: Document, p: Plugin, l: Listing | d->l in Head.rel and lists[l, p] implies p->d in Over.rel": {
+  "id": "s077",
+  "verdict": "same"
+ },
+ "s078|all p: Plugin, d: Document, l: Listing | d->l in Head.rel and not lists[l, p] and d not in Given implies not (p->d in Over.rel)": {
+  "id": "s078",
+  "verdict": "same"
+ },
+ "s088|all f: Dangling | f in Refused": {
+  "id": "s088",
+  "verdict": "same"
+ },
+ "s089|all f: Looping | f in Refused": {
+  "id": "s089",
+  "verdict": "same"
+ },
+ "s090|all f: Stray | f in Refused": {
+  "id": "s090",
+  "verdict": "same"
+ },
+ "s099|all r: Run, c: Command | r->c in Ask.rel and not available[c] implies r in Exits2": {
+  "id": "s099",
+  "verdict": "same"
+ },
+ "s102|all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) implies r in Exits1)": {
+  "id": "s102",
+  "verdict": "same"
+ },
+ "s112|some d1, d2, d3: Document | d1->d2 in Extend.rel and d2->d3 in Extend.rel and d1 != d3 and d3->d1 in Context.rel": {
+  "id": "s112",
+  "verdict": "differs"
+ },
+ "s113|some d: Document, l: Listing, p: Plugin, r: Run | d->l in Head.rel and lists[l, p] and p in Installed and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1": {
+  "id": "s113",
+  "verdict": "same"
+ },
+ "s114|some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and r in Exits2": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s125|all r: Run, u: Unit | ((r->GenerateCommand in Ask.rel or r->CheckCommand in Ask.rel) and u in Faulted) implies (r not in Exits0 and u not in Explained)": {
+  "id": "s125",
+  "verdict": "same"
+ },
+ "s126|all u: Unit | (u in Rewritten implies (u in Unwritten or u in Stale)) and ((u in Unwritten or u in Stale) implies u in Rewritten)": {
+  "id": "s126",
+  "verdict": "same"
+ },
+ "s136|all u: Unit, w: Word | (u->w in Voice.rel and no u': Unit | u'->w in Introduce.rel) implies w in Undeclared": {
+  "id": "s136",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-ZDqFO1/q.als at line 1158 column 187: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-ZDqFO1/q.als at line 1158 column 187:"
+ },
+ "s137|all u: Unit, w: Word | (u not in Term and u->w in Introduce.rel) implies w in Misplaced": {
+  "id": "s137",
+  "verdict": "same"
+ },
+ "s138|all u1: Unit, w: Word | (u1->w in Voice.rel and (some u2: Unit | u2->w in Introduce.rel) and u1->w not in Introduce.rel) implies w in Apart": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s149|all s: Search | s in First implies s not in Trial": {
+  "id": "s149",
+  "verdict": "same"
+ },
+ "s150|all s: Search, sc: Scenario | (s in Trial and s->sc in Pose.scenario) implies (sc in Impossible and s in Afterwards)": {
+  "id": "s150",
+  "verdict": "same"
+ },
+ "s160|all u1, u2: Unit | u1->u2 in Share.rel implies u1->u2 in Together.rel": {
+  "id": "s160",
+  "verdict": "same"
+ },
+ "s161|all u1, u2: Unit | u1->u2 in Together.rel implies u1->u2 in Chain.rel": {
+  "id": "s161",
+  "verdict": "same"
+ },
+ "s162|all r: Run | (r->LogicCommand in Ask.rel and (no sc: Scenario | sc in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s172|all d1, d2: Document, u1, u2: Unit, w: Word | (d2->d1 in Context.rel and d1->u1 in Hold.units and d2->u2 in Hold.units and u2->w in Utter.rel) implies not loneOn[u1, w]": {
+  "id": "s172",
+  "verdict": "differs"
+ },
+ "s173|all u: Unit, w: Word | w not in Signature implies not loneOn[u, w]": {
+  "id": "s173",
+  "verdict": "differs"
+ },
+ "s174|all t: Term, w: Word | not loneOn[t, w]": {
+  "id": "s174",
+  "verdict": "differs"
+ },
+ "s187|all d: Definition | (d in OrInsideKind and byKind[d]) implies d in OneCoordination": {
+  "id": "s187",
+  "verdict": "same"
+ },
+ "s188|all d: Definition | (d in OneKind and byKind[d]) implies d in OneSentenceKind": {
+  "id": "s188",
+  "verdict": "same"
+ },
+ "s189|all d: Definition | d in NoKindFirst implies d in AsItStands": {
+  "id": "s189",
+  "verdict": "same"
+ },
+ "s198|all q: Quantifier | q in TimedCondition implies q in InFull": {
+  "id": "s198",
+  "verdict": "same"
+ },
+ "s199|all q: Quantifier | q in ConditionAside implies q in InFull": {
+  "id": "s199",
+  "verdict": "same"
+ },
+ "s200|all l: Series | sentenceable[l] implies l in AsSentence": {
+  "id": "s200",
+  "verdict": "same"
+ },
+ "s201|all l: Series | (l in Items and not sentenceable[l]) implies l in AsBullets": {
+  "id": "s201",
+  "verdict": "same"
+ },
+ "s211|all l: Series | (l in Rule and l in TimeFirst) implies l in ThenOwnLine": {
+  "id": "s211",
+  "verdict": "same"
+ },
+ "s212|all l: Series | (l in Rule and l not in OneLineRule) implies l in ThenOwnLine": {
+  "id": "s212",
+  "verdict": "same"
+ },
+ "s213|some q: Quantifier | q in VariableOnce and q in NoWithAnother": {
+  "id": "s213",
+  "verdict": "same"
+ },
+ "s223|some l: Series | l in PairInList and l in NotClause": {
+  "id": "s223",
+  "verdict": "same"
+ },
+ "s224|some l: Series | l in TimeSecond and l not in OneLineRule": {
+  "id": "s224",
+  "verdict": "same"
+ },
+ "s225|some l: Series | l in OneLineRule and l in TimeFirst": {
+  "id": "s225",
+  "verdict": "same"
+ },
+ "s024|all a: Axiom | (some v: Unit | cites[a, v] and v not in Axiom) implies a in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s025|all f: Fact | (some u: Unit | cites[f, u]) implies f in Misnesting": {
+  "id": "s025",
+  "verdict": "same"
+ },
+ "s026|all s: Spec | (some u: Unit | cites[s, u] and u not in Axiom and u not in Spec and u not in Fact) implies s in Misnesting": {
+  "id": "s026",
+  "verdict": "same"
+ },
+ "s037|all b: Bug | (some Runner and not tested[b]) implies b in Untesting": {
+  "id": "s037",
+  "verdict": "same"
+ },
+ "s038|all c: Conflict | hidden[c] implies c in Finding": {
+  "id": "s038",
+  "verdict": "same"
+ },
+ "s039|all c: Conflict | ((some Tracker and (no i: Issue | c->i in Name.issue)) or (some i: Issue | c->i in Name.issue and i not in Known)) implies c in Untracking": {
+  "id": "s039",
+  "verdict": "differs"
+ },
+ "s049|all t: Test | adrift[t] implies t in Finding": {
+  "id": "s049",
+  "verdict": "same"
+ },
+ "s050|all t: Test | t in Declared and (no g: Tag | t->g in Carry.rel) implies t in Uncitation": {
+  "id": "s050",
+  "verdict": "same"
+ },
+ "s051|all t: Test | (t in Declared and (some u: Unit | checks[t, u] and u not in Claim)) implies t in Misaiming": {
+  "id": "s051",
+  "verdict": "same"
+ },
+ "s060|all d1: Document | (some d2: Document | d1->d2 in Extend.rel) implies d2->d1 in Context.rel and all d3: Document | (d2->d3 in Context.rel and d3->d1 in Extend.rel) implies d2->d1 in Context.rel": {
+  "id": "s060",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-ZLWMzt/q.als at line 649 column 263: The name \"d2\" cannot be found."
+ },
+ "s061|all f: Fence | (f in Languaged and (some u: Unit | f->u in Within.rel)) implies u->f in Blocks.rel": {
+  "id": "s061",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-GEvg3z/q.als at line 649 column 192: The name \"u\" cannot be found."
+ },
+ "s062|all f: Fence | f not in Languaged implies f not in Blocks.rel": {
+  "id": "s062",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-aWi4Y1/q.als at line 649 column 141: Left type = {this/Fence}"
+ },
+ "s073|no Tracker implies no Untracking": {
+  "id": "s073",
+  "verdict": "differs"
+ },
+ "s074|(some f: Listing | some e: Entry | f->e in Item.rel and e->Unfound in Spell.rel) or (some d: Document | d in Unreadable) or (some c: Command | not c in Core and not (some p: Installed | c in p->Add.rel)) or (some r: Run, p: Plugin | r->Return.code2[p]) implies (some r: Run | r in Exits2)": {
+  "id": "s074",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-RKQVLi/q.als at line 649 column 435: Left type = {this/Command}"
+ },
+ "s075|all p: Plugin, d: Document | (applies[p, d] iff ((some c: Command | (some r: Run | r->c in Ask.rel) and c not in Given) and applies[p, d]))": {
+  "id": "s075",
+  "verdict": "differs"
+ },
+ "s085|all f: Frontmatter | f in Unclosed implies f in Refused": {
+  "id": "s085",
+  "verdict": "same"
+ },
+ "s086|all f: Frontmatter | f in Unterminated implies f in Refused": {
+  "id": "s086",
+  "verdict": "same"
+ },
+ "s097|all r: Run, c: Command | (r->c in Ask.rel and not c in Core and not (some p: Installed | c in p->Add.rel)) implies (r in Unknown and r in Exits2)": {
+  "id": "s097",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-KDCnm1/q.als at line 649 column 215: Left type = {this/Command}"
+ },
+ "s098|all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Unknown": {
+  "id": "s098",
+  "verdict": "differs"
+ },
+ "s108|all d1: Document | (all d2: Document | (d1->Head.rel = d2->Head.rel) implies ((some Finding | true) iff (some f: Finding | true)))": {
+  "id": "s108",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-TwDKiY/q.als at line 649 column 237: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-TwDKiY/q.als at line 649 column 237:"
+ },
+ "s109|some a: Axiom, s: Spec, t: Test, d: Document, i: Index | (s->a in Sit.rel and t->s in Carry.rel and a in d->Hold.units and s in d->Hold.units and i in d->Hold.indexes and i->d in Match.rel and no Finding)": {
+  "id": "s109",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-NDfEPJ/q.als at line 649 column 396: Left type = {this/Axiom}"
+ },
+ "s110|some b: Bug, e: Test, i: Issue | (b->i in Name.issue and i in Known and i not in Closed and e in ExpectedFailure and checks[e, b] and no Finding)": {
+  "id": "s110",
+  "verdict": "differs"
+ },
+ "s111|some unit_1, unit_2: Unit, conflict_1: Conflict, issue_1: Issue | (unit_1 != unit_2 and conflict_1->issue_1 in Name.issue and issue_1 in Known and issue_1 not in Closed and conflict_1->unit_1 in Name.between and conflict_1->unit_2 in Name.between and no Finding)": {
+  "id": "s111",
+  "verdict": "differs"
+ },
+ "s121|all u: Unit | ((u in Unsayable) or (u in Twofold)) implies u in Unsayable": {
+  "id": "s121",
+  "verdict": "differs"
+ },
+ "s122|all u: Unit | (u in Wordless and u in Stated) implies u in Unsayable": {
+  "id": "s122",
+  "verdict": "differs"
+ },
+ "s133|all r: Run | (r in CheckCommand and some Unit | Unit in Reported) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-E8uSBj/q.als at line 1158 column 166: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-E8uSBj/q.als at line 1158 column 166:"
+ },
+ "s134|all r: Run | (r in GenerateCommand and some u: Unit | u in Handwritten and u in Reported) implies r not in Exits0": {
+  "id": "s134",
+  "verdict": "differs"
+ },
+ "s135|all r: Run, g: GenerateCommand, u: Unit | (r->g in Ask.rel and u in Unsayable and u in Explained) implies r not in Exits0": {
+  "id": "s135",
+  "verdict": "differs"
+ },
+ "s144|all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w in Flagged": {
+  "id": "s144",
+  "verdict": "same"
+ },
+ "s145|all d1, d2: Document, u: Unit | (d1 in Checked and d2 not in Checked and d2->d1 in Context.rel and u in d2->Hold.units) implies u not in Rewritten": {
+  "id": "s145",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-5DTzE2/q.als at line 1158 column 272: Left type = {this/Unit}"
+ },
+ "s146|all u: Unit, w: Word | (u->w in Voice.rel and (some u2: Unit | u2->d in Introduce.rel and (some d: Document | d->u2 in Context.rel and d->u in Context.rel))) implies w not in Undeclared": {
+  "id": "s146",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-WMlfoB/q.als at line 1158 column 290: The name \"d\" cannot be found."
+ },
+ "s147|all u: Unit | u in Contradicting implies u in Named and all s: Scenario | s in Impossible implies s in Raised": {
+  "id": "s147",
+  "verdict": "differs"
+ },
+ "s156|all s: Scenario | s in Impossible implies (all u: Unit | u->s in Frees.rel implies u in Blame.rel)": {
+  "id": "s156",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-4HEIhK/q.als at line 1158 column 195: Left type = {this/Unit}"
+ },
+ "s157|all s: Scenario, u: Unit | u->s in Blame.rel implies u->s in Frees.rel": {
+  "id": "s157",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-jCGZwM/q.als at line 1158 column 133: This name is ambiguous due to multiple matches:"
+ },
+ "s158|all u: Unit | u in Contradicting implies u->Scenario in Blame.rel": {
+  "id": "s158",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-HQnhcZ/q.als at line 1158 column 135: This name is ambiguous due to multiple matches:"
+ },
+ "s159|all u1, u2: Unit, s: Scenario | (u1 in Contradicting and u1->u2 in Together.rel) implies u2->s in Blame.rel": {
+  "id": "s159",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-YE0PZn/q.als at line 1158 column 213: This name is ambiguous due to multiple matches:"
+ },
+ "s169|all u: Unit, w: Word | (u in Stated and u not in Term and w in Signature and w in loneOn[u,w]) implies u in Expose.rel": {
+  "id": "s169",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-IRl73x/q.als at line 1158 column 222: Instead, it has the following possible type(s):"
+ },
+ "s170|all u1, u2: Unit, w: Word | (u2->w in Utter.rel) implies u1 not in Expose.rel": {
+  "id": "s170",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-7lN63I/q.als at line 1158 column 175: Left type = {this/Unit}"
+ },
+ "s171|all u1, u2: Unit, w: Word | (u2->w in Picture.rel) implies u1 not in Expose.rel": {
+  "id": "s171",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-vb6W2c/q.als at line 1158 column 166: Left type = {this/Unit}"
+ },
+ "s184|all l: Series | (l in OneLineRule and l in OneLineRule and l not in TimeFirst) implies l in OneLine": {
+  "id": "s184",
+  "verdict": "same"
+ },
+ "s185|all d: Definition | (d in GuardedByKind and byKind[d]) implies d in PhrasePerKind": {
+  "id": "s185",
+  "verdict": "same"
+ },
+ "s186|all d: Definition | (d in SameKindTwice and byKind[d]) implies d in JoinedWithOr": {
+  "id": "s186",
+  "verdict": "same"
+ },
+ "s196|all q: Quantifier | q in NothingToAttach implies q in InFull": {
+  "id": "s196",
+  "verdict": "same"
+ },
+ "s197|all q: Quantifier | q in NoWithAnother implies q in InFull": {
+  "id": "s197",
+  "verdict": "same"
+ },
+ "s207|all l: Series | l in NotClause implies l in AsBullets": {
+  "id": "s207",
+  "verdict": "same"
+ },
+ "s208|all l: Series | (l in AndInOr) implies l in KeepsAndApart": {
+  "id": "s208",
+  "verdict": "same"
+ },
+ "s209|all l: Series | (l in OneLineRule and l not in TimeFirst and l in TimeSecond) implies l in KeepsThen": {
+  "id": "s209",
+  "verdict": "same"
+ },
+ "s210|all l: Series | (l in OneLineRule and l not in TimeFirst and l not in TimeSecond) implies l in DropsThen": {
+  "id": "s210",
+  "verdict": "same"
+ },
+ "s220|some l: Series | (l in Few and l in MoreThanTwo and l in CommaItem)": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s221|some l: Series | (l in Few and l in TooLong)": {
+  "id": "s221",
+  "verdict": "same"
+ },
+ "s222|some l: Series | (l in Items and l in SharedSubject and l in Many)": {
+  "id": "s222",
+  "verdict": "same"
+ },
+ "s232|some owner_1, owner_2: Owner, failing_cleanup_1: Failing | (owner_2->owner_1 in handler and eventually (owner_1 in Disposed and failing_cleanup_1->owner_1 in on) and eventually (failing_cleanup_1 in Ran) and eventually (failing_cleanup_1.reached = owner_2))": {
+  "id": "s232",
+  "verdict": "differs"
+ },
+ "s039|(some Tracker) implies (all c: Conflict | (no i: Issue | c->i in Name.issue) implies c in Untracking)": {
+  "id": "s039",
+  "verdict": "same"
+ },
+ "s050|all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) implies t in Uncitation": {
+  "id": "s050",
+  "verdict": "same"
+ },
+ "s051|all t: Declared | (some u: Unit | checks[t, u] and u not in Claim) implies t in Misaiming": {
+  "id": "s051",
+  "verdict": "same"
+ },
+ "s062|all f: Fence | f not in Languaged implies (no u: Unit | f->u in Blocks.rel)": {
+  "id": "s062",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-vr0cwW/q.als at line 649 column 168: This name is ambiguous due to multiple matches:"
+ },
+ "s074|all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2": {
+  "id": "s074",
+  "verdict": "same"
+ },
+ "s075|(all p: Plugin, d: Document | applies[p, d] implies p->d in Over.rel) and (all p: Plugin, d: Document | (p->d in Over.rel and not applies[p, d]) implies d in Given)": {
+  "id": "s075",
+  "verdict": "same"
+ },
+ "s076|all p: Plugin, d: Document | ((no f: Listing | d->f in Head.rel) and (d not in Given)) implies p->d not in Over.rel": {
+  "id": "s076",
+  "verdict": "same"
+ },
+ "s086|all f: Unterminated | f in Refused": {
+  "id": "s086",
+  "verdict": "same"
+ },
+ "s087|all f: Doubled | f in Refused": {
+  "id": "s087",
+  "verdict": "same"
+ },
+ "s097|all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies (c in Unknown and r in Exits2)": {
+  "id": "s097",
+  "verdict": "same"
+ },
+ "s098|all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unknown": {
+  "id": "s098",
+  "verdict": "same"
+ },
+ "s110|some b: Bug, i: Issue, e: ExpectedFailure | b->i in Name.issue and i in Known and i not in Closed and checks[e, b] and b not in Finding and e not in Finding": {
+  "id": "s110",
+  "verdict": "same"
+ },
+ "s111|some c: Conflict, u1: Unit, u2: Unit, i: Issue | u1 != u2 and c->u1 in Name.between and c->u2 in Name.between and c->i in Name.issue and i in Known and i not in Closed and c not in Finding": {
+  "id": "s111",
+  "verdict": "same"
+ },
+ "s112|some d1: Document, d2: Document, d3: Document | d1 != d3 and d1->d2 in Extend.rel and d2->d3 in Extend.rel and d3->d1 in Context.rel": {
+  "id": "s112",
+  "verdict": "differs"
+ },
+ "s122|all u: Unit | u in Wordless implies u in Unsayable": {
+  "id": "s122",
+  "verdict": "same"
+ },
+ "s134|all r: Run, u: Unit | (r->GenerateCommand in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)": {
+  "id": "s134",
+  "verdict": "same"
+ },
+ "s135|all r: Run | r->GenerateCommand in Ask.rel implies ((all u: Unit | u in Unsayable implies u in Explained) and ((some u: Unit | u in Unsayable) implies r not in Exits0))": {
+  "id": "s135",
+  "verdict": "same"
+ },
+ "s146|all d1: Document, d2: Document, u1: Unit, u2: Unit, w: Word | (d2->d1 in Context.rel and d1->u1 in Hold.units and u1->w in Voice.rel and d2->u2 in Hold.units and u2->w in Introduce.rel) implies w not in Undeclared": {
+  "id": "s146",
+  "verdict": "differs"
+ },
+ "s158|all u: Unit | u in Contradicting implies u in Named": {
+  "id": "s158",
+  "verdict": "same"
+ },
+ "s159|all u: Unit | u in Contradicting implies (all u': Unit | u'->u in Together.rel implies u' in Named)": {
+  "id": "s159",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-Lg7kNZ/q.als at line 1158 column 151: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-Lg7kNZ/q.als at line 1158 column 151:"
+ },
+ "s160|all u1: Unit, u2: Unit | u1->u2 in Share.rel implies u1->u2 in Together.rel": {
+  "id": "s160",
+  "verdict": "same"
+ },
+ "s170|all u1: Unit, u2: Unit, w: Word | (u1 != u2 and u2->w in Utter.rel) implies not loneOn[u1, w]": {
+  "id": "s170",
+  "verdict": "differs"
+ },
+ "s171|all w: Word | (some u: Unit | u->w in Picture.rel) implies (all u': Unit | not loneOn[u', w])": {
+  "id": "s171",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-SMj9Ew/q.als at line 1158 column 164: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-SMj9Ew/q.als at line 1158 column 164:"
+ },
+ "s172|all d1: Document, d2: Document, u1: Unit, u2: Unit, w: Word | (d2->d1 in Context.rel and d1->u1 in Hold.units and d2->u2 in Hold.units and u2->w in Utter.rel) implies not loneOn[u1, w]": {
+  "id": "s172",
+  "verdict": "differs"
+ },
+ "s185|all def: Definition | (def in GuardedByKind and byKind[def]) implies def in PhrasePerKind": {
+  "id": "s185",
+  "verdict": "same"
+ },
+ "s186|all def: Definition | (def in SameKindTwice and byKind[def]) implies def in JoinedWithOr": {
+  "id": "s186",
+  "verdict": "same"
+ },
+ "s187|all def: Definition | (def in OrInsideKind and byKind[def]) implies def in OneCoordination": {
+  "id": "s187",
+  "verdict": "same"
+ },
+ "s209|all list: Series | (list in OneLineRule and list not in TimeFirst and list in TimeSecond) implies list in KeepsThen": {
+  "id": "s209",
+  "verdict": "same"
+ },
+ "s210|all list: Series | (list in OneLineRule and list not in TimeFirst and list not in TimeSecond) implies list in DropsThen": {
+  "id": "s210",
+  "verdict": "same"
+ },
+ "s211|all list: Series | list in TimeFirst implies list in ThenOwnLine": {
+  "id": "s211",
+  "verdict": "same"
+ },
+ "s221|some list: Series | list in Few and list in TooLong": {
+  "id": "s221",
+  "verdict": "same"
+ },
+ "s222|some list: Series | list in Many and list in SharedSubject": {
+  "id": "s222",
+  "verdict": "same"
+ },
+ "s223|some list: Series | list in PairInList and list in NotClause": {
+  "id": "s223",
+  "verdict": "same"
+ },
+ "s019|all spec_1: Spec | ((no a: Axiom | cites[spec_1, a]) and (no s: Spec | cites[spec_1, s])) implies spec_1 in Freelancing": {
+  "id": "s019",
+  "verdict": "same"
+ },
+ "s030|all t: Term | (some u: Unit | cites[t, u]) implies t in Misnesting": {
+  "id": "s030",
+  "verdict": "same"
+ },
+ "s031|all u: Unit | circular[u] implies u in Cycle": {
+  "id": "s031",
+  "verdict": "same"
+ },
+ "s043|all t: Test | misleading[t] implies t in Finding": {
+  "id": "s043",
+  "verdict": "same"
+ },
+ "s055|all u: Unit | (not used[u] and u not in Conflict) implies u in Orphaning": {
+  "id": "s055",
+  "verdict": "same"
+ },
+ "s067|all f: Fence, u1: Unit | f->u1 in Within.rel implies u1->f in Blocks.rel": {
+  "id": "s067",
+  "verdict": "differs"
+ },
+ "s077|all d: Document, p: Plugin | (some l: Listing | d->l in Head.rel and lists[l, p]) implies p->d in Over.rel": {
+  "id": "s077",
+  "verdict": "same"
+ },
+ "s078|all d: Document, p: Plugin | ((some l: Listing | d->l in Head.rel and not lists[l, p]) and (no r: Run | d in Given)) implies not (p->d in Over.rel)": {
+  "id": "s078",
+  "verdict": "differs"
+ },
+ "s079|all p: Plugin, d: Document, l: Listing | (d->l in Head.rel and (no e: Entry | l->e in Item.rel) and (no r: Run | d in Given)) implies not (p->d in Over.rel)": {
+  "id": "s079",
+  "verdict": "differs"
+ },
+ "s091|all r: Run, d: Document, f: Refused | d->f in Head.rel implies (d in Unreadable and r in Exits2)": {
+  "id": "s091",
+  "verdict": "same"
+ },
+ "s102|all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1)": {
+  "id": "s102",
+  "verdict": "same"
+ },
+ "s103|all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2": {
+  "id": "s103",
+  "verdict": "same"
+ },
+ "s113|some r: Run, p: Installed, d: Document | calls[r, p] and p->d in Over.rel and r->p in Return.code1 and r in Exits1": {
+  "id": "s113",
+  "verdict": "differs"
+ },
+ "s114|some d: Document, f: Refused, r: Run | d->f in Head.rel and d in Unreadable and r in Exits2": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s115|all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported": {
+  "id": "s115",
+  "verdict": "same"
+ },
+ "s125|all r: Run, c: Command, u: Unit | ((r->GenerateCommand in Ask.rel or r->CheckCommand in Ask.rel) and u in Faulted) implies (not (u in Explained) and r not in Exits0)": {
+  "id": "s125",
+  "verdict": "same"
+ },
+ "s126|all u: Unit | u in Rewritten iff (u in Unwritten or u in Stale)": {
+  "id": "s126",
+  "verdict": "same"
+ },
+ "s127|all u: Unit | u in Stale implies u in Rewritten": {
+  "id": "s127",
+  "verdict": "same"
+ },
+ "s137|all w: Word | (some u: Unit | u not in Term and u->w in Introduce.rel) implies (some u2: Unit | u2 not in Term and u2->w in Introduce.rel)": {
+  "id": "s137",
+  "verdict": "differs"
+ },
+ "s138|all u: Unit, w: Word | (some v: Unit | u->w in Voice.rel and v->w in Introduce.rel and v != u) implies w in Apart": {
+  "id": "s138",
+  "verdict": "differs"
+ },
+ "s139|all w1: Word | ((some u: Unit | u->w1 in Introduce.rel) and (no u1: Unit | u1->w1 in Rely.rel)) implies w1 in Unused": {
+  "id": "s139",
+  "verdict": "same"
+ },
+ "s149|all s: Search | (s in First and (no sc: Scenario | sc in Impossible)) implies s not in Trial": {
+  "id": "s149",
+  "verdict": "differs"
+ },
+ "s150|all s: Search, sc: Scenario | (s in Trial and s->sc in Pose.scenario) implies (s in Afterwards and sc in Impossible)": {
+  "id": "s150",
+  "verdict": "same"
+ },
+ "s151|all s: Search, sc: Scenario, u1: Unit | (s in Trial and s->sc in Pose.scenario and u1 in Leave.rel[s]) implies (u1 in Held and u1 not in Pose.units[s] and (all u2: Unit | (u2 in Held and u2 != u1) implies u2 in Pose.units[s]))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s160|all u1, u2: Unit | (u1 != u2 and (some w: Word | u1->w in Rely.rel and u2->w in Rely.rel)) implies u1->u2 in Together.rel": {
+  "id": "s160",
+  "verdict": "differs"
+ },
+ "s163|all r: Run, lc: LogicCommand | (r->lc in Ask.rel and ((some sc: Scenario | sc in Raised) or (some u1: Unit | u1 in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s173|all u: Unit, w: Word | w not in Signature implies not (u->w in Expose.rel)": {
+  "id": "s173",
+  "verdict": "same"
+ },
+ "s174|all t: Term, w: Word | not (t->w in Expose.rel)": {
+  "id": "s174",
+  "verdict": "same"
+ },
+ "s175|all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units) implies not (u->w in Expose.rel)": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s190|all d1: Definition | d1 in AmbiguousAnd implies d1 in AsItStands": {
+  "id": "s190",
+  "verdict": "same"
+ },
+ "s202|all l: Series | l in Many implies l in AsBullets": {
+  "id": "s202",
+  "verdict": "same"
+ },
+ "s214|some q1: Quantifier | q1 in VariableSubject and q1 in VariableTwice": {
+  "id": "s214",
+  "verdict": "same"
+ },
+ "s224|some l: Series | l in Rule and l in TimeSecond and l not in OneLineRule": {
+  "id": "s224",
+  "verdict": "same"
+ },
+ "s225|some l: Series | l in Rule and l in OneLineRule and l in TimeFirst": {
+  "id": "s225",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner, c: Cleanup | (o in Disposed and c in Registered and c->o in on and c not in Ran) implies eventually (c in Ran))": {
+  "id": "s226",
+  "verdict": "differs"
+ },
+ "s018|all u: Unit | unfounded[u] implies (some Freelancing)": {
+  "id": "s018",
+  "verdict": "differs"
+ },
+ "s019|all s: Spec | (no a: Axiom | cites[s, a]) and (no sp: Spec | cites[s, sp]) implies (some Freelancing)": {
+  "id": "s019",
+  "verdict": "differs"
+ },
+ "s020|all e: Exception | (no s: Spec | cites[e, s]) implies (some Freelancing)": {
+  "id": "s020",
+  "verdict": "differs"
+ },
+ "s030|all t: Term, u: Unit | cites[t, u] implies (some Misnesting)": {
+  "id": "s030",
+  "verdict": "differs"
+ },
+ "s031|all u: Unit | circular[u] implies (some Cycle)": {
+  "id": "s031",
+  "verdict": "differs"
+ },
+ "s032|(all b: Bug | hidden[b] implies (some Finding)) and (all c: Conflict | hidden[c] implies (some Finding)) and (all t: Test | misleading[t] implies (some Finding))": {
+  "id": "s032",
+  "verdict": "differs"
+ },
+ "s042|all c: Conflict | not paired[c] implies (some Unpairing)": {
+  "id": "s042",
+  "verdict": "differs"
+ },
+ "s043|all t: Test | misleading[t] implies (some Finding)": {
+  "id": "s043",
+  "verdict": "differs"
+ },
+ "s044|all ef: ExpectedFailure | (no b: Bug | checks[ef, b]) and (no e: Exception | checks[ef, e]) implies (some UnexplainedFailure)": {
+  "id": "s044",
+  "verdict": "differs"
+ },
+ "s054|all u1, u2: Unit | u1->u2 in Repeat.rel implies (some Rotting)": {
+  "id": "s054",
+  "verdict": "differs"
+ },
+ "s055|all u: Unit | (not used[u] and u not in Conflict) implies (some Orphaning)": {
+  "id": "s055",
+  "verdict": "differs"
+ },
+ "s056|all u: Unit, t: Trailer | t->u in Follow.rel implies (some Misanchoring)": {
+  "id": "s056",
+  "verdict": "differs"
+ },
+ "s067|all f: Fence, u1, u2: Unit | (f->u1 in Within.rel and u2->u1 in Sit.rel) implies not (u2->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s068|all c: Claim | tested[c] implies (no Untesting)": {
+  "id": "s068",
+  "verdict": "differs"
+ },
+ "s078|all d: Document, p: Plugin, lf: Listing | (d->lf in Head.rel and not lists[lf, p] and d not in Given) implies not (p->d in Over.rel)": {
+  "id": "s078",
+  "verdict": "same"
+ },
+ "s079|all d: Document, lf: Listing | (d->lf in Head.rel and (no e: Entry | lf->e in Item.rel) and d not in Given) implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s079",
+  "verdict": "same"
+ },
+ "s080|all r: Run, p: Plugin, d: Document | (d in Given and calls[r, p]) implies (p->d in Over.rel)": {
+  "id": "s080",
+  "verdict": "same"
+ },
+ "s090|no d: Document, f: Stray | d->f in Head.rel": {
+  "id": "s090",
+  "verdict": "differs"
+ },
+ "s091|all d: Document, rf: Refused | (d->rf in Head.rel) implies ((d in Unreadable) and (all r: Run | r in Exits2))": {
+  "id": "s091",
+  "verdict": "differs"
+ },
+ "s092|all d: Document, rf: Refused | (d->rf in Head.rel) implies (d in Unreadable)": {
+  "id": "s092",
+  "verdict": "same"
+ },
+ "s102|all r: Run | ((some p: Plugin | r->p in Return.code2) implies (r in Exits2)) and (((some p: Plugin | r->p in Return.code1) and no p: Plugin | r->p in Return.code2) implies (r in Exits1))": {
+  "id": "s102",
+  "verdict": "same"
+ },
+ "s103|all r: Run | (some p: Plugin | r->p in Return.code2) implies (r in Exits2)": {
+  "id": "s103",
+  "verdict": "same"
+ },
+ "s104|all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies (r in Exits1)": {
+  "id": "s104",
+  "verdict": "same"
+ },
+ "s114|some d: Document, rf: Refused, r: Run | (d->rf in Head.rel) and (d in Unreadable) and (r in Exits2)": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s115|all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies (u in Reported)": {
+  "id": "s115",
+  "verdict": "same"
+ },
+ "s116|all d: Document, u: Unit | (d->u in Hold.units and d not in Worded) implies (u not in Rewritten and u not in Reported)": {
+  "id": "s116",
+  "verdict": "same"
+ },
+ "s126|all u: Unit | (u in Rewritten) iff (u in Unwritten or u in Stale)": {
+  "id": "s126",
+  "verdict": "same"
+ },
+ "s127|all u: Unit | (u in Stale) implies (u in Rewritten)": {
+  "id": "s127",
+  "verdict": "same"
+ },
+ "s128|all u: Unit | (u in Current) implies (u not in Rewritten)": {
+  "id": "s128",
+  "verdict": "same"
+ },
+ "s138|all u1: Unit, w: Word | (u1->w in Voice.rel and (some u2: Unit | u2->w in Introduce.rel) and not (u1->w in Introduce.rel)) implies (w in Apart)": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s139|all w: Word | ((some u: Unit | u->w in Introduce.rel) and not (some u: Unit | u->w in Rely.rel)) implies (w in Unused)": {
+  "id": "s139",
+  "verdict": "same"
+ },
+ "s140|all t: Term, w: Word | (t->w in Introduce.rel and t->w in Voice.rel and (some u: Unit | u->w in Rely.rel)) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)": {
+  "id": "s140",
+  "verdict": "same"
+ },
+ "s149|all s: Search | (s in First) implies (s not in Trial)": {
+  "id": "s149",
+  "verdict": "same"
+ },
+ "s150|all s: Search, sc: Scenario | ((s in Trial) and (s->sc in Pose.scenario) and (sc in Impossible)) implies (s in Afterwards)": {
+  "id": "s150",
+  "verdict": "differs"
+ },
+ "s151|all s: Search | ((s in Trial) and (some sc: Scenario | s->sc in Pose.scenario)) implies (all u: Unit | (s->u in Leave.rel) implies (u in Held and not (s->u in Pose.units) and (all v: Unit | (v in Held and v != u) implies (s->v in Pose.units))))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s152|all sc: Scenario, u: Unit | ((sc in Impossible) and (u in Held) and (no u2: Unit | sc->u2 in Probe.rel)) implies (some s: Search | (s in Trial) and (s->u in Leave.rel) and (s->sc in Pose.scenario))": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s162|all r: Run | (r->LogicCommand in Ask.rel and (no sc: Scenario | sc in Impossible) and (no u: Unit | u in Contradicting)) implies (r in Exits0)": {
+  "id": "s162",
+  "verdict": "differs"
+ },
+ "s163|all r: Run | ((r->LogicCommand in Ask.rel) and ((some sc: Scenario | sc in Impossible) or (some u: Unit | u in Contradicting))) implies (r not in Exits0)": {
+  "id": "s163",
+  "verdict": "differs"
+ },
+ "s164|all d1, d2: Document, u: Unit | ((d1 in Checked) and (d2->d1 in Context.rel) and (d2->u in Hold.units) and (u in BareFormula)) implies (u in Held)": {
+  "id": "s164",
+  "verdict": "differs"
+ },
+ "s174|no t: Term, w: Word | t->w in Expose.rel": {
+  "id": "s174",
+  "verdict": "same"
+ },
+ "s175|all d: Document | (d not in Worded) implies (no u: Unit, w: Word | d->u in Hold.units and u->w in Expose.rel)": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s176|all r: Run, u: Unit, w: Word | (r->CheckCommand in Ask.rel and u->w in Expose.rel) implies (r not in Exits0)": {
+  "id": "s176",
+  "verdict": "same"
+ },
+ "s188|all d: Definition | (d in OneKind and byKind[d]) implies (d in OneSentenceKind)": {
+  "id": "s188",
+  "verdict": "same"
+ },
+ "s189|all d: Definition | (d in NoKindFirst) implies (d in AsItStands)": {
+  "id": "s189",
+  "verdict": "same"
+ },
+ "s190|all d: Definition | (d in AmbiguousAnd) implies (d in AsItStands)": {
+  "id": "s190",
+  "verdict": "same"
+ },
+ "s191|all d: Definition | (d in NotAboutSubject) implies (d in AsItStands)": {
+  "id": "s191",
+  "verdict": "same"
+ },
+ "s201|all s: Series | (s in Items and s in TooLong) implies (s in AsBullets)": {
+  "id": "s201",
+  "verdict": "differs"
+ },
+ "s202|all s: Series | (s in Many) implies (s in AsBullets)": {
+  "id": "s202",
+  "verdict": "same"
+ },
+ "s203|all s: Series | (s in CommaItem and s in MoreThanTwo) implies (s in AsBullets)": {
+  "id": "s203",
+  "verdict": "same"
+ },
+ "s212|all s: Series | (s in Rule and s not in OneLineRule) implies (s in ThenOwnLine)": {
+  "id": "s212",
+  "verdict": "same"
+ },
+ "s213|some q: Quantifier | (q in VariableOnce) and (q in NoWithAnother)": {
+  "id": "s213",
+  "verdict": "same"
+ },
+ "s214|some q: Quantifier | (q in VariableSubject) and (q in VariableTwice)": {
+  "id": "s214",
+  "verdict": "same"
+ },
+ "s215|some q: Quantifier | (q in VariableOnce) and (q in ConditionAside)": {
+  "id": "s215",
+  "verdict": "same"
+ },
+ "s225|some s: Series | (s in Rule) and (s in OneLineRule) and (s in TimeFirst)": {
+  "id": "s225",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner | o in Disposed implies (all c: Cleanup | ((c in Registered and c.on = o) implies eventually (c in Ran))))": {
+  "id": "s226",
+  "verdict": "differs"
+ },
+ "s227|always ((no c: Cleanup, o: Owner | (runByCall[c, o] and c in Registered and c.on = o and c not in Ran)) and (no o: Owner | throwByCall[o]))": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s019|all s: Spec | ((no a: Axiom | cites[s, a]) and (no s2: Spec | cites[s, s2])) implies s in Freelancing": {
+  "id": "s019",
+  "verdict": "same"
+ },
+ "s020|all e: Exception | (no s: Spec | cites[e, s]) implies e in Freelancing": {
+  "id": "s020",
+  "verdict": "same"
+ },
+ "s021|all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing": {
+  "id": "s021",
+  "verdict": "same"
+ },
+ "s032|(all b: Bug | hidden[b] implies b in Finding) and (all c: Conflict | hidden[c] implies c in Finding) and (all t: Test | misleading[t] implies t in Finding)": {
+  "id": "s032",
+  "verdict": "same"
+ },
+ "s033|all b: Bug | hidden[b] implies b in Finding": {
+  "id": "s033",
+  "verdict": "same"
+ },
+ "s044|all ef: ExpectedFailure | ((no b: Bug | checks[ef, b]) and (no e: Exception | checks[ef, e])) implies ef in UnexplainedFailure": {
+  "id": "s044",
+  "verdict": "same"
+ },
+ "s045|all pt: PlainTest | (some b: Bug | checks[pt, b]) implies pt in Unpinning": {
+  "id": "s045",
+  "verdict": "same"
+ },
+ "s056|all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Misanchoring": {
+  "id": "s056",
+  "verdict": "same"
+ },
+ "s057|all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Misindexing": {
+  "id": "s057",
+  "verdict": "same"
+ },
+ "s067|all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "differs"
+ },
+ "s068|all c: Claim | tested[c] implies c not in Untesting": {
+  "id": "s068",
+  "verdict": "same"
+ },
+ "s069|all c: Claim | (some t: Test | t in Declared and checks[t, c]) implies c not in Untesting": {
+  "id": "s069",
+  "verdict": "same"
+ },
+ "s079|all d: Document | ((some f: Listing | d->f in Head.rel and (no e: Entry | f->e in Item.rel)) and (no r: Run | d in Given)) implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s079",
+  "verdict": "differs"
+ },
+ "s080|all r: Run, p: Plugin | calls[r, p] implies (all d: Given | p->d in Over.rel)": {
+  "id": "s080",
+  "verdict": "same"
+ },
+ "s081|all f: Frontmatter | (f not in Listing) implies (no e: Entry | f->e in Item.rel)": {
+  "id": "s081",
+  "verdict": "same"
+ },
+ "s091|all d: Document | (some f: Refused | d->f in Head.rel) implies ((d in Unreadable) and (all r: Run | r in Exits2))": {
+  "id": "s091",
+  "verdict": "differs"
+ },
+ "s092|all d: Document | (some f: Refused | d->f in Head.rel) implies d in Unreadable": {
+  "id": "s092",
+  "verdict": "same"
+ },
+ "s093|all r: Run | (some d: Document | d in Unreadable) implies r in Exits2": {
+  "id": "s093",
+  "verdict": "same"
+ },
+ "s104|all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1": {
+  "id": "s104",
+  "verdict": "same"
+ },
+ "s105|all r: Run | (no p: Plugin | (r->p in Return.code1 or r->p in Return.code2)) implies r in Exits0": {
+  "id": "s105",
+  "verdict": "same"
+ },
+ "s116|all d: Document, u: Unit | ((d not in Worded) and (d->u in Hold.units)) implies ((u not in Rewritten) and (u not in Reported))": {
+  "id": "s116",
+  "verdict": "same"
+ },
+ "s117|all u: Unit | ((u in Logical) and (u not in Stated) and (u not in Unsayable)) implies u in Unwritten": {
+  "id": "s117",
+  "verdict": "same"
+ },
+ "s127|all u: Unit | (u in Stale) implies u in Rewritten": {
+  "id": "s127",
+  "verdict": "same"
+ },
+ "s128|all u: Unit | (u in Current) implies u not in Rewritten": {
+  "id": "s128",
+  "verdict": "same"
+ },
+ "s129|all u: Unit | (u in Handwritten) implies u not in Rewritten": {
+  "id": "s129",
+  "verdict": "same"
+ },
+ "s138|all w: Word | (some u1, u2: Unit | u1 != u2 and u1->w in Rely.rel and u2->w in Introduce.rel) implies w in Apart": {
+  "id": "s138",
+  "verdict": "differs"
+ },
+ "s139|all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u: Unit | u->w in Rely.rel)) implies w in Unused": {
+  "id": "s139",
+  "verdict": "same"
+ },
+ "s140|all t: Term, w: Word | ((t->w in Introduce.rel) and (t->w in Voice.rel) and (some u: Unit | u->w in Rely.rel)) implies ((w not in Flagged) and (w not in Undeclared) and (w not in Misplaced) and (w not in Apart) and (w not in Unused))": {
+  "id": "s140",
+  "verdict": "same"
+ },
+ "s141|all d: Document, u1: Unit, w1: Word | ((d not in Worded) and (d->u1 in Hold.units) and (u1->w1 in Introduce.rel)) implies ((w1 not in Undeclared) and (w1 not in Misplaced) and (w1 not in Apart) and (w1 not in Unused) and (w1 not in Flagged))": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s151|all s: Search, u: Unit | (s in Trial and (some sc: Scenario | sc in s.Pose.scenario) and u in s.Leave.rel) implies ((u in Held) and (u not in s.Pose.units) and (all u2: Unit | (u2 in Held and u2 != u) implies u2 in s.Pose.units))": {
+  "id": "s151",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-zpAmRR/q.als at line 1158 column 306: This cannot be a legal relational join where"
+ },
+ "s152|all sc: Scenario | ((sc in Impossible) and (no u: Unit | sc->u in Probe.rel)) implies (all u: Unit | (u in Held) implies (some s: Search | s in Trial and u in s.Leave.rel and sc in s.Pose.scenario))": {
+  "id": "s152",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-9k2iM9/q.als at line 1158 column 363: This cannot be a legal relational join where"
+ },
+ "s153|all s: Search, sc: Scenario, u1: Unit | ((s in Trial) and (sc in s.Pose.scenario) and (u1 in s.Leave.rel) and (some u2: Unit | sc->u2 in Probe.rel)) implies (sc->u1 in Probe.rel)": {
+  "id": "s153",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-CZGRVQ/q.als at line 1158 column 251: This cannot be a legal relational join where"
+ },
+ "s163|all r: Run | ((LogicCommand in r.Ask.rel) and ((some sc: Scenario | sc in Raised) or (some u: Unit | u in Contradicting))) implies (r not in Exits0)": {
+  "id": "s163",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-46tefK/q.als at line 1158 column 203: This cannot be a legal relational join where"
+ },
+ "s164|all d: Document, u: Unit | ((d in Checked) and (some d2: Document | d->d2 in Context.rel and d2->u in Hold.units) and (u in BareFormula)) implies (u in Held)": {
+  "id": "s164",
+  "verdict": "same"
+ },
+ "s165|(all u: Unit | ((u in Logical) and (u not in Term) and (u in Unchallenged)) implies (some w: Word | u->w in Expose.rel and w in Signature)) and (all u: Unit, w: Word | (u->w in Expose.rel) implies (u in Unchallenged))": {
+  "id": "s165",
+  "verdict": "same"
+ },
+ "s175|all d: Document, u: Unit | ((d not in Worded) and (d->u in Hold.units)) implies (no w: Word | u->w in Expose.rel)": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s176|all r: Run | ((CheckCommand in r.Ask.rel) and (some u: Unit, w: Word | u->w in Expose.rel)) implies (r not in Exits0)": {
+  "id": "s176",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-rLsPmz/q.als at line 1158 column 166: This cannot be a legal relational join where"
+ },
+ "s177|some u: Unit, d: Document | (d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported)": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s190|all df: Definition | (df in AmbiguousAnd) implies (df in AsItStands)": {
+  "id": "s190",
+  "verdict": "same"
+ },
+ "s191|all df: Definition | (df in NotAboutSubject) implies (df in AsItStands)": {
+  "id": "s191",
+  "verdict": "same"
+ },
+ "s192|all q: Quantifier | ((q in VariableOnce) and fits[q]) implies (q in AsNounPhrase)": {
+  "id": "s192",
+  "verdict": "same"
+ },
+ "s202|all ls: Series | (ls in Many) implies (ls in AsBullets)": {
+  "id": "s202",
+  "verdict": "same"
+ },
+ "s203|all ls: Series | ((ls in MoreThanTwo) and (ls in CommaItem)) implies (ls in AsBullets)": {
+  "id": "s203",
+  "verdict": "same"
+ },
+ "s204|all ls: Series | (ls in TooLong) implies (ls in AsBullets)": {
+  "id": "s204",
+  "verdict": "same"
+ },
+ "s214|some q: Quantifier | (q in VariableSubject and q in VariableTwice)": {
+  "id": "s214",
+  "verdict": "same"
+ },
+ "s215|some q: Quantifier | (q in VariableOnce and q in ConditionAside)": {
+  "id": "s215",
+  "verdict": "same"
+ },
+ "s216|some q: Quantifier | (q in VariableWithCondition and q in NothingToAttach)": {
+  "id": "s216",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner, c: Cleanup | ((o in Disposed and c.on = o and c in Registered and c not in Ran) implies eventually runNow[c]))": {
+  "id": "s226",
+  "verdict": "differs"
+ },
+ "s227|always not (some o: Owner, c: Cleanup | (throwByCall[o] or runByCall[c, o]) and o in Disposed and c.on = o and c in Registered and c not in Ran)": {
+  "id": "s227",
+  "verdict": "differs"
+ },
+ "s228|(always (all o1: Owner, c1, c2: Cleanup | ((o1 in Disposed and c1 in Registered and c1 not in Ran and c2 in Registered and c2 not in Ran and c1.on = o1 and c2.on = o1 and c1->c2 in Clock.older) implies ((eventually runNow[c2]) and ((not runNow[c1]) until runNow[c2]))))) and (always (all o2: Owner, c: Cleanup | ((c in Failing and runNow[c] and c.on = o2 and o2 in Disposed) implies always (o2 not in Stopped))))": {
+  "id": "s228",
+  "verdict": "differs"
+ },
+ "s020|all e: Exception | (no s: Spec | cites[e, s]) implies (some f: Freelancing | e in Finding)": {
+  "id": "s020",
+  "verdict": "differs"
+ },
+ "s021|all e: Exception | (no f: Fact | cites[e, f]) implies (some x: Freelancing | true)": {
+  "id": "s021",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-z1JpUy/q.als at line 649 column 169: The name \"true\" cannot be found."
+ },
+ "s022|all b: Bug | (no s: Spec | cites[b, s]) implies (some x: Freelancing | true)": {
+  "id": "s022",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-m4NeuK/q.als at line 649 column 157: The name \"true\" cannot be found."
+ },
+ "s032|(all b: Bug | hidden[b] implies (some x: Finding | true)) and (all c: Conflict | hidden[c] implies (some x: Finding | true)) and (all t: Test | misleading[t] implies (some x: Finding | true))": {
+  "id": "s032",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-xPNO9d/q.als at line 651 column 113: The name \"true\" cannot be found."
+ },
+ "s033|all b: Bug | hidden[b] implies (some x: Finding | true)": {
+  "id": "s033",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-NVhjMq/q.als at line 649 column 115: The name \"true\" cannot be found."
+ },
+ "s034|all b: Bug | ((some Tracker) and (no i: Issue | b->i in Name.issue)) implies (some x: Untracking | true)": {
+  "id": "s034",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-rEf85l/q.als at line 649 column 211: The name \"true\" cannot be found."
+ },
+ "s044|all ef: ExpectedFailure | ((no b: Bug | checks[ef, b]) and (no e: Exception | checks[ef, e])) implies (some x: UnexplainedFailure | true)": {
+  "id": "s044",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-Q3Fyrl/q.als at line 649 column 276: The name \"true\" cannot be found."
+ },
+ "s045|all pt: PlainTest | (some b: Bug | checks[pt, b]) implies (some x: Unpinning | true)": {
+  "id": "s045",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-rJrHcu/q.als at line 649 column 171: The name \"true\" cannot be found."
+ },
+ "s046|(all c: Claim | (some Runner) and unguarded[c] implies (some x: Finding | true)) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies (some x: Finding | true)) and (all t: Test | adrift[t] implies (some x: Finding | true)) and (all p: Pointer | (no t: Target | p->t in Name.pointer) implies (some x: Finding | true)) and (all u: Unit | (not used[u]) and (u not in Conflict) implies (some x: Finding | true)) and (all u: Unit | (some tr: Trailer | tr->u in Follow.rel) implies (some x: Finding | true)) and (all d: Document | (some u: Unit | u in Hold.units[d]) and (no i: Index | i in Hold.indexes[d]) implies (some x: Finding | true)) and (all d: Document | (some i: Index | i in Hold.indexes[d]) and not (i->d in Match.rel) implies (some x: Finding | true)) and (all c: Claim | (some st: Site | c->st in Name.site) and (no src: Source | st in Hold.symbols[src]) implies (some x: Finding | true)) and (all u: Unit | (some u2: Unit | u->u2 in Repeat.rel) implies (some x: Finding | true))": {
+  "id": "s046",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-k1P4ZJ/q.als at line 658 column 158: The name \"true\" cannot be found."
+ },
+ "s056|all u: Unit | (some tr: Trailer | tr->u in Follow.rel) implies (some x: Misanchoring | true)": {
+  "id": "s056",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-Gs45Er/q.als at line 649 column 187: The name \"true\" cannot be found."
+ },
+ "s057|all d: Document | ((some u: Unit | u in Hold.units[d]) and (no i: Index | i in Hold.indexes[d])) implies (some x: Misindexing | true)": {
+  "id": "s057",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-c2f1R9/q.als at line 649 column 271: The name \"true\" cannot be found."
+ },
+ "s058|all d: Document | ((some i: Index | i in Hold.indexes[d]) and not (i->d in Match.rel)) implies (some x: Misindexing | true)": {
+  "id": "s058",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-nXgtSZ/q.als at line 649 column 196: The name \"i\" cannot be found."
+ },
+ "s068|all c: Claim | tested[c] implies no u: Untesting | true": {
+  "id": "s068",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-DGuELE/q.als at line 649 column 124: The name \"true\" cannot be found."
+ },
+ "s069|all c: Claim | (some t: Test, d: Run | d in Run) implies (some p: Plugin | calls[d, p] and checks[t, c]) implies (no u: Untesting | true)": {
+  "id": "s069",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-j3UyEq/q.als at line 649 column 192: The name \"d\" cannot be found."
+ },
+ "s070|all c: Claim | (some t: Test | not (some r: Run | r->t in Ask.rel) and checks[t, c]) implies (no u: Untesting | true)": {
+  "id": "s070",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-10ioEn/q.als at line 649 column 177: This name is ambiguous due to multiple matches:"
+ },
+ "s080|all r: Run, p: Plugin | (some c: Command | r->c in Ask.rel and p->c in Add.rel) implies (all d: Given | some u: Unit | true)": {
+  "id": "s080",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-fZz5P3/q.als at line 649 column 211: The name \"true\" cannot be found."
+ },
+ "s081|all f: Listing | (no e: Entry | e in Item.rel[f]) implies (no e2: Entry | e2 in Item.rel[f])": {
+  "id": "s081",
+  "verdict": "differs"
+ },
+ "s082|all f: Frontmatter | ((f in Misquoted) or (f in Foreign) or (f in Unclosed) or (f in Unterminated) or (f in Doubled) or (f in Dangling) or (f in Looping) or (f in Stray)) implies (f in Refused)": {
+  "id": "s082",
+  "verdict": "same"
+ },
+ "s092|all d: Document | (some f: Frontmatter | d->f in Head.rel and f in Refused) implies (d in Unreadable)": {
+  "id": "s092",
+  "verdict": "same"
+ },
+ "s093|all r: Run, d: Document | (d in Unreadable) implies (r in Exits2)": {
+  "id": "s093",
+  "verdict": "same"
+ },
+ "s094|all r: Run, f: Frontmatter, m: Missing | lists[f, m] implies ((some x: Unfound | m in Unfound) and (r in Exits2))": {
+  "id": "s094",
+  "verdict": "same"
+ },
+ "s103|all r: Run, p: Plugin | (r->p in Return.code2) implies (r in Exits2)": {
+  "id": "s103",
+  "verdict": "same"
+ },
+ "s105|all r: Run | ((no p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies (r in Exits0)": {
+  "id": "s105",
+  "verdict": "same"
+ },
+ "s106|all d1, d2: Document | (d1->d2 in Bare.rel) implies ((all u: Unit | (u in Hold.units[d2] iff u in Hold.units[d1])) and ((some x: Finding | d2 in Finding) iff (some x: Finding | d1 in Finding)))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s116|all d: Document, u: Unit | (u in Hold.units[d] and not (d in Worded)) implies (not (some x: Unit | u->x in Blocks.rel) and not (d in Unreadable))": {
+  "id": "s116",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-cdnXs0/q.als at line 1158 column 254: This name is ambiguous due to multiple matches:"
+ },
+ "s117|all u: Unit | ((u in Logical) and not (u in Stated)) implies (u in Unwritten)": {
+  "id": "s117",
+  "verdict": "differs"
+ },
+ "s118|all u: Unit | ((u in Logical) and (some f: Fence | u->f in Blocks.rel and f in UnitBlock) and (u in Differs) and not (u in Unsayable)) implies (u in Stale)": {
+  "id": "s118",
+  "verdict": "differs"
+ },
+ "s128|all u: Unit | (u in Current) implies not (u in Rewritten)": {
+  "id": "s128",
+  "verdict": "same"
+ },
+ "s129|all u: Unit | (u in Handwritten) implies not (u in Rewritten)": {
+  "id": "s129",
+  "verdict": "same"
+ },
+ "s130|all u: Unit | (u in Unsayable) implies not (u in Rewritten)": {
+  "id": "s130",
+  "verdict": "same"
+ },
+ "s139|all w: Word | (not (some u: Unit | u->w in Rely.rel)) implies (w in Unused)": {
+  "id": "s139",
+  "verdict": "differs"
+ },
+ "s140|all t: Term, w: Word | ((t->w in Introduce.rel) and (some r: Unit | r->w in Voice.rel) and (some u: Unit | u->w in Rely.rel)) implies ((not (w in Undeclared)) and (not (w in Misplaced)) and (not (w in Apart)) and (not (w in Unused)) and not (w in Flagged))": {
+  "id": "s140",
+  "verdict": "differs"
+ },
+ "s141|all d: Document | (not (d in Worded)) implies (all u: Unit | (u in Hold.units[d]) implies (all w: Word | ((u->w in Introduce.rel) implies ((not (w in Flagged)) and (not (w in Undeclared)) and (not (w in Misplaced)) and (not (w in Apart)) and (not (w in Unused))))))": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s142|all r: Run, c: CheckCommand, w: Word | ((r->c in Ask.rel) and (w in Flagged)) implies not (r in Exits0)": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s152|all sc: Scenario, u: Unit | ((not (sc in Possible)) and (u in Hold.units) and (no x: Unit | sc->x in Probe.rel)) implies (some s: Search | (s in Trial) and u in Leave.rel[s] and (s in Pose.scenario and sc in Pose.scenario[s]))": {
+  "id": "s152",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-MBAPSc/q.als at line 1158 column 262: Left type = {this/Unit}"
+ },
+ "s153|all sc: Scenario, s: Search | ((some x: Unit | sc in Pose.scenario[s] and (s in Afterwards)) and (some u: Unit | sc->u in Probe.rel)) implies (all u: Unit | (s in Leave.rel[u]) implies (sc->u in Probe.rel))": {
+  "id": "s153",
+  "verdict": "differs"
+ },
+ "s154|all sc: Scenario | (not (sc in Possible)) implies (sc in Raised)": {
+  "id": "s154",
+  "verdict": "same"
+ },
+ "s163|all r: Run, c: Command, sc: Scenario, u: Unit | ((r->c in Ask.rel) and ((sc in Raised) or (some u2: Unit | u->u2 in Together.rel and not (u in Possible and u2 in Possible)))) implies not (r in Exits0)": {
+  "id": "s163",
+  "verdict": "differs"
+ },
+ "s164|all d: Document | ((d in Checked) and (some d2: Document | d->d2 in Context.rel and (some u: Unit | u in Hold.units[d2] and u in BareFormula))) implies (u in Held)": {
+  "id": "s164",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-gJReWy/q.als at line 1158 column 315: The name \"u\" cannot be found."
+ },
+ "s165|all u: Unit | ((not (u in Term)) and (u in Unchallenged)) iff (some w: Word | loneOn[u, w])": {
+  "id": "s165",
+  "verdict": "differs"
+ },
+ "s166|all u: Unit | ((u in Logical) and (not (u in Term)) and (u in Unchallenged)) implies (some w: Word | loneOn[u, w])": {
+  "id": "s166",
+  "verdict": "differs"
+ },
+ "s176|all r: Run, c: CheckCommand, u: Unit, w: Word | ((r->c in Ask.rel) and loneOn[u, w]) implies not (r in Exits0)": {
+  "id": "s176",
+  "verdict": "differs"
+ },
+ "s177|some d: Document, u: Unit | (d in Worded) and (u in Hold.units[d]) and (u in Logical) and (u in Current) and not (u in Reported)": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s178|some u: Unit | (u in Faulted)": {
+  "id": "s178",
+  "verdict": "same"
+ },
+ "s190|all d: Definition | (d in AmbiguousAnd) implies (d->d in AsItStands)": {
+  "id": "s190",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-s7Npmr/q.als at line 207 column 137: Left type = {this/Definition->this/Definition}"
+ },
+ "s191|all d: Definition | (some u: Unit | (d in NotAboutSubject)) implies (d in AsItStands)": {
+  "id": "s191",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-hCH2xs/q.als at line 207 column 115: The name \"Unit\" cannot be found."
+ },
+ "s192|some q: Quantifier | (q in VariableOnce) and (q in AsNounPhrase)": {
+  "id": "s192",
+  "verdict": "differs"
+ },
+ "s193|all q: Quantifier | ((q in VariableSubject) and (fits[q])) implies (q in AsSubjectPhrase)": {
+  "id": "s193",
+  "verdict": "same"
+ },
+ "s203|all l: Series | ((some e: Unit | e in CommaItem) and (l in Many)) implies (l in AsBullets)": {
+  "id": "s203",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-HO7QHR/q.als at line 207 column 124: The name \"Unit\" cannot be found."
+ },
+ "s204|all l: Series | (l in TooLong) implies (l in AsBullets)": {
+  "id": "s204",
+  "verdict": "same"
+ },
+ "s205|all l: Series | ((some e: Unit | e in TimeBeforeLast)) implies (l in AsBullets)": {
+  "id": "s205",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-x6fqS9/q.als at line 207 column 106: The name \"Unit\" cannot be found."
+ },
+ "s215|some q: Quantifier, c: Unit | (q in VariableOnce) and (some x: Unit | not (c in x))": {
+  "id": "s215",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-uAqu9T/q.als at line 207 column 107: The name \"Unit\" cannot be found."
+ },
+ "s216|some q: Quantifier | (q in VariableWithCondition) and (q in NothingToAttach)": {
+  "id": "s216",
+  "verdict": "same"
+ },
+ "s217|some d: Definition | (d in SameKindTwice) and (d in AmbiguousAnd)": {
+  "id": "s217",
+  "verdict": "same"
+ },
+ "s227|always all o: Owner | (o in Disposed and o in Redisposed) implies (all c: Cleanup | (c on o and c not in Ran) implies (not (c in Ran')))": {
+  "id": "s227",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-ZO7qzc/q.als at line 115 column 132: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-ZO7qzc/q.als at line 115 column 132:"
+ },
+ "s228|(always all o: Owner, c1, c2: Cleanup | ((c1 on o and c2 on o and c1 not in Ran and c2 not in Ran and c1 in Clock.older[c2]) implies (c2 in Ran' and not (c1 in Ran')))) and (always all c: Cleanup, o: Owner | ((c in Failing and c in Ran and o in Disposed) implies (always not (o in Stopped))))": {
+  "id": "s228",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-mGYMpq/q.als at line 118 column 130: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-mGYMpq/q.als at line 118 column 130:"
+ },
+ "s229|always all o: Owner | ((some Entering' and o in Disposed) implies (some Throwing'))": {
+  "id": "s229",
+  "verdict": "differs"
+ },
+ "s021|all e: Exception | (no f: Fact | cites[e, f]) implies (some Freelancing)": {
+  "id": "s021",
+  "verdict": "differs"
+ },
+ "s022|all b: Bug | (no s: Spec | cites[b, s]) implies (some Freelancing)": {
+  "id": "s022",
+  "verdict": "differs"
+ },
+ "s023|all u: Unit | miscited[u] implies (some Misnesting)": {
+  "id": "s023",
+  "verdict": "differs"
+ },
+ "s033|all b: Bug | hidden[b] implies (some Finding)": {
+  "id": "s033",
+  "verdict": "differs"
+ },
+ "s034|(some Tracker) implies (all b: Bug | (no i: Issue | b->i in Name.issue) implies (some Untracking))": {
+  "id": "s034",
+  "verdict": "differs"
+ },
+ "s035|all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies (some Mistracking)": {
+  "id": "s035",
+  "verdict": "differs"
+ },
+ "s044|all t: ExpectedFailure | ((no b: Bug | checks[t, b]) and (no e: Exception | checks[t, e])) implies (some UnexplainedFailure)": {
+  "id": "s044",
+  "verdict": "differs"
+ },
+ "s045|all t: PlainTest | (some b: Bug | checks[t, b]) implies (some Unpinning)": {
+  "id": "s045",
+  "verdict": "differs"
+ },
+ "s046|(some Runner implies all c: Claim | (not refined[c] and not tested[c]) implies (some Finding)) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies (some Finding)) and (all t: Test | adrift[t] implies (some Finding)) and (all p: Pointer | (no tgt: Target | p->tgt in Name.pointer) implies (some Finding)) and (all u: Unit | (not used[u] and u not in Conflict) implies (some Finding)) and (all u: Unit | (some tr: Trailer | tr->u in Follow.rel) implies (some Finding)) and (all d: Document | (some u: Unit | d->u in Hold.units and no idx: Index | d->idx in Hold.indexes) implies (some Finding)) and (all d: Document | (some idx: Index | d->idx in Hold.indexes and (idx->d not in Match.rel)) implies (some Finding)) and (all cl: Claim | (some s: Site | cl->s in Name.site and no src: Source | src->s in Hold.symbols) implies (some Finding)) and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies (some Finding))": {
+  "id": "s046",
+  "verdict": "differs"
+ },
+ "s047|(some Runner) implies (all c: Claim | (not refined[c] and not tested[c]) implies (some Untesting))": {
+  "id": "s047",
+  "verdict": "differs"
+ },
+ "s057|all d: Document | (some u: Unit | d->u in Hold.units and no idx: Index | d->idx in Hold.indexes) implies (some Misindexing)": {
+  "id": "s057",
+  "verdict": "differs"
+ },
+ "s058|all d: Document | (some idx: Index | d->idx in Hold.indexes and idx->d not in Match.rel) implies (some Misindexing)": {
+  "id": "s058",
+  "verdict": "differs"
+ },
+ "s059|all cl: Claim | (some s: Site | cl->s in Name.site and no src: Source | src->s in Hold.symbols) implies (some Mislocation)": {
+  "id": "s059",
+  "verdict": "differs"
+ },
+ "s069|all t: Declared | all cl: Claim | checks[t, cl] implies no Untesting": {
+  "id": "s069",
+  "verdict": "differs"
+ },
+ "s070|all t: Test | (t not in Declared and some cl: Claim | checks[t, cl]) implies no Untesting": {
+  "id": "s070",
+  "verdict": "differs"
+ },
+ "s071|all sp: Spec | (some t: Test, b: Bug | checks[t, b] and b->sp in Sit.rel) implies no Untesting": {
+  "id": "s071",
+  "verdict": "differs"
+ },
+ "s082|all f: Frontmatter | ((some e: Entry | f->e in Item.rel and e in Misquoted) or (some k: Entry | f->k in Item.rel and k in Foreign) or (f in Unclosed) or (f in Unterminated) or (some k: Entry | f->k in Item.rel and k in Doubled) or (some p: Entry | f->p in Item.rel and p in Dangling) or (some ex: Entry | f->ex in Item.rel and ex in Looping) or (some s: Entry | f->s in Item.rel and s in Stray)) implies (f in Refused)": {
+  "id": "s082",
+  "verdict": "differs"
+ },
+ "s083|all f: Misquoted | f in Refused": {
+  "id": "s083",
+  "verdict": "same"
+ },
+ "s093|(some d: Document | d in Unreadable) implies (all r: Run | r in Exits2)": {
+  "id": "s093",
+  "verdict": "same"
+ },
+ "s094|(some f: Frontmatter, p: Missing | lists[f, p]) implies ((some r: Run | r in Exits2) and (all p2: Missing | p2 in Unfound))": {
+  "id": "s094",
+  "verdict": "differs"
+ },
+ "s095|all f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound)": {
+  "id": "s095",
+  "verdict": "same"
+ },
+ "s104|all r: Run | (some p: Plugin | r->p in Return.code1 and no p2: Plugin | r->p2 in Return.code2) implies (r in Exits1)": {
+  "id": "s104",
+  "verdict": "same"
+ },
+ "s105|all r: Run | (no p: Plugin | (r->p in Return.code1 or r->p in Return.code2)) implies (r in Exits0)": {
+  "id": "s105",
+  "verdict": "same"
+ },
+ "s106|all d1, d2: Document | (d1->d2 in Bare.rel) implies ((all u: Unit | d2->u in Hold.units iff d1->u in Hold.units))": {
+  "id": "s106",
+  "verdict": "differs"
+ },
+ "s107|all d1, d2: Document | (d1->d2 in Bare.rel) implies (all u: Unit | (d2->u in Hold.units iff d1->u in Hold.units))": {
+  "id": "s107",
+  "verdict": "same"
+ },
+ "s117|all u: Unit | (u in Logical and u not in Stated and u in Unsayable) implies (u in Unwritten)": {
+  "id": "s117",
+  "verdict": "differs"
+ },
+ "s118|all u: Unit | (u in Logical and u in Generated and u in Differs and u in Unsayable) implies (u in Stale)": {
+  "id": "s118",
+  "verdict": "differs"
+ },
+ "s119|all u: Unit | ((u in Generated and not (u in Differs) and not (u in Unsayable)) implies (u in Current))": {
+  "id": "s119",
+  "verdict": "same"
+ },
+ "s129|all u: Unit | (u in Handwritten) implies (not (u in Rewritten))": {
+  "id": "s129",
+  "verdict": "same"
+ },
+ "s130|all u: Unit | (u in Unsayable) implies (not (u in Rewritten))": {
+  "id": "s130",
+  "verdict": "same"
+ },
+ "s131|all d: Document, u: Unit | ((d in Worded and d->u in Hold.units and u in Logical and not (u in Current)) implies (u in Reported))": {
+  "id": "s131",
+  "verdict": "same"
+ },
+ "s141|all d: Document, u: Unit, w: Word | ((d not in Worded and d->u in Hold.units and u->w in Introduce.rel) implies (not ((w in Undeclared) or (w in Misplaced) or (w in Apart) or (w in Unused) or (w in Flagged))))": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s142|all r: Run | ((some c: Command | r->c in Ask.rel and c in CheckCommand) and (some w: Word | w in Flagged)) implies (r not in Exits0)": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s143|all w: Word | ((not (w in Undeclared) and not (w in Misplaced) and not (w in Apart) and not (w in Unused)) implies (not (w in Flagged)))": {
+  "id": "s143",
+  "verdict": "same"
+ },
+ "s152|all s: Scenario | (s in Impossible and (some u: Unit | u in Held) and no p: Unit | s->p in Probe.rel) implies (all u: Unit | u in Held implies (some sr: Search | sr->u in Leave.rel))": {
+  "id": "s152",
+  "verdict": "differs"
+ },
+ "s153|all s1, s2: Search, sc: Scenario | ((s1->u in Leave.rel and s2->u in Leave.rel and sc->u in Frees.rel and s1->sc in Pose.scenario and sc->s1 in Probe.rel) implies (sc->s2 in Probe.rel))": {
+  "id": "s153",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-meGcgW/q.als at line 1158 column 226: The name \"u\" cannot be found."
+ },
+ "s154|all sc: Scenario | (sc in Impossible and (all u: Unit | u in Held)) implies (sc in Raised)": {
+  "id": "s154",
+  "verdict": "differs"
+ },
+ "s155|all sc: Scenario | (sc in Possible and (all u: Unit | u in Held)) implies (sc not in Raised)": {
+  "id": "s155",
+  "verdict": "differs"
+ },
+ "s165|all u: Unit | ((u not in Term and (no v: Unit | v != u and no w: Word | (v->w in Utter.rel or v->w in Picture.rel) and u->w in Rely.rel)) implies (u in Expose.rel)) and (all u2: Unit, w: Word | (u2->w in Expose.rel) implies (no v: Unit | v != u2 and v->w in Utter.rel and u2->w in Rely.rel))": {
+  "id": "s165",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-sLEivX/q.als at line 1158 column 364: Left type = {this/Unit}"
+ },
+ "s166|all u: Unit | (u not in Term and loneOn[u, w]) implies (u->w in Expose.rel)": {
+  "id": "s166",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-43NvNb/q.als at line 1158 column 182: The name \"w\" cannot be found."
+ },
+ "s167|all u: Unit, w: Word | ((u in Logical and u not in Term and u->w in Expose.rel) implies (loneOn[u, w]))": {
+  "id": "s167",
+  "verdict": "differs"
+ },
+ "s177|some d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported)": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s179|some sc: Scenario, u: Unit | (sc in Impossible and (all hu: Unit | hu in Held implies hu->u in Frees.rel) and sc in Raised and u->sc in Blame.rel)": {
+  "id": "s179",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-w8w1xE/q.als at line 1158 column 226: This name is ambiguous due to multiple matches:"
+ },
+ "s192|all q: Quantifier | (q in VariableOnce and fits[q]) implies (q in AsNounPhrase)": {
+  "id": "s192",
+  "verdict": "same"
+ },
+ "s193|all q: Quantifier | (fits[q] and q in VariableSubject) implies (q in AsSubjectPhrase)": {
+  "id": "s193",
+  "verdict": "same"
+ },
+ "s194|all q: Quantifier | (q in VariableWithCondition and fits[q]) implies (q in RelativeClause)": {
+  "id": "s194",
+  "verdict": "same"
+ },
+ "s203|all lst: Series | ((some itm: Series | itm in lst and itm in CommaItem) and (lst in Many)) implies (lst in AsBullets)": {
+  "id": "s203",
+  "verdict": "differs"
+ },
+ "s204|all lst: Series | (lst in TooLong) implies (lst in AsBullets)": {
+  "id": "s204",
+  "verdict": "same"
+ },
+ "s205|all lst: Series | (lst in TimeBeforeLast) implies (lst in AsBullets)": {
+  "id": "s205",
+  "verdict": "same"
+ },
+ "s206|all lst: Series | (lst in RelativeBeforeLast) implies (lst in AsBullets)": {
+  "id": "s206",
+  "verdict": "same"
+ },
+ "s217|some d: Definition | (d in OneKind and d in SameKindTwice and d in AmbiguousAnd)": {
+  "id": "s217",
+  "verdict": "differs"
+ },
+ "s218|some d: Definition | (d in OneKind and d in NotAboutSubject)": {
+  "id": "s218",
+  "verdict": "same"
+ },
+ "s227|always (all c: Cleanup, o: Owner | (o in Disposed and not runByCall[c, o]) implies (not runByCall[c, o]))": {
+  "id": "s227",
+  "verdict": "differs"
+ },
+ "s228|always ((all o: Owner, c1, c2: Cleanup | ((o in Disposed and c1->o in on and c1 not in Ran and c2->o in on and c2 not in Ran and c1->c2 in Clock.older) implies (eventually (c2 in Ran) and (until (c2 in Ran) c1 not in Ran)))) and (all o: Owner, c: Cleanup | ((c in Failing and c in Ran and c->o in on and o in Disposed) implies (o not in Stopped))))": {
+  "id": "s228",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-WN9WOQ/q.als at line 118 column 274: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-WN9WOQ/q.als at line 118 column 274:"
+ },
+ "s229|always (all o: Owner | (o in Disposed and some Entering) implies (after Throwing'))": {
+  "id": "s229",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-4RohFO/q.als at line 113 column 161: This expression failed to be typechecked line 113, column 161 (113,165), filename=/private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-4RohFO/q.als"
+ },
+ "s230|always ((all o1, o2, o3: Owner, c: Cleanup | ((o1 in Disposed and o2 in o1.parent and o2 not in Disposed and c in Registered and c not in Ran and c->o1 in on) implies ((eventually (o3 in Disposed)) and (until (o3 in Disposed) c not in Ran)))) and (all o1, o2, o3, o4, o5: Owner | ((o1 in Disposed and o2 in o1.parent and o3 in o1.parent and o2->o3 in Birth.order and o2 not in Disposed and o3 not in Disposed) implies ((eventually (o5 in Disposed)) and (until (o5 in Disposed) o4 not in Disposed)))))": {
+  "id": "s230",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-QM5UJU/q.als at line 119 column 257: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-QM5UJU/q.als at line 119 column 257:"
+ },
+ "s022|all b: Bug | (no s: Spec | cites[b, s]) => b in Freelancing": {
+  "id": "s022",
+  "verdict": "same"
+ },
+ "s023|all u: Unit | miscited[u] => u in Misnesting": {
+  "id": "s023",
+  "verdict": "same"
+ },
+ "s024|all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) => a in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s034|(some Tracker) => (all b: Bug | (no i: Issue | b->i in Name.issue) => b in Untracking)": {
+  "id": "s034",
+  "verdict": "same"
+ },
+ "s035|all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) => b in Mistracking": {
+  "id": "s035",
+  "verdict": "same"
+ },
+ "s036|all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) => b in OutdatedTracking": {
+  "id": "s036",
+  "verdict": "same"
+ },
+ "s046|((some Runner) => (all c: Claim | unguarded[c] => c in Finding)) and (all g: Tag | (no u: Unit | g->u in Name.tag) => g in Finding) and (all t: Test | adrift[t] => t in Finding) and (all p: Pointer | (no target: Target | p->target in Name.pointer) => p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) => u in Finding) and (all u: Unit | (some t: Trailer | t->u in Follow.rel) => u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no idx: Index | d->idx in Hold.indexes)) => d in Finding) and (all d: Document | (some idx: Index | d->idx in Hold.indexes and idx->d not in Match.rel) => d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no src: Source | src->s in Hold.symbols)) => c in Finding) and (all u: Unit | (some u2: Unit | u != u2 and u->u2 in Repeat.rel) => u in Finding)": {
+  "id": "s046",
+  "verdict": "differs"
+ },
+ "s047|(some Runner) => (all c: Claim | unguarded[c] => c in Untesting)": {
+  "id": "s047",
+  "verdict": "same"
+ },
+ "s048|all g: Tag | (no u: Unit | g->u in Name.tag) => g in Rotting": {
+  "id": "s048",
+  "verdict": "same"
+ },
+ "s057|some d: Document | ((some u: Unit | d->u in Hold.units) and (no idx: Index | d->idx in Hold.indexes)) and d in Misindexing": {
+  "id": "s057",
+  "verdict": "differs"
+ },
+ "s058|all d: Document | (some idx: Index | d->idx in Hold.indexes and idx->d not in Match.rel) => d in Misindexing": {
+  "id": "s058",
+  "verdict": "same"
+ },
+ "s059|all c: Claim | (some s: Site | c->s in Name.site and (no src: Source | src->s in Hold.symbols)) => c in Mislocation": {
+  "id": "s059",
+  "verdict": "same"
+ },
+ "s060|all d1: Document | all d2: Document | all d3: Document | ((d1->d2 in Extend.rel) => (d2->d1 in Context.rel)) and ((d1->d2 in Extend.rel and d3->d2 in Context.rel) => (d3->d1 in Context.rel))": {
+  "id": "s060",
+  "verdict": "differs"
+ },
+ "s070|all c: Claim | (some t: Test | t not in Declared and checks[t, c]) => c not in Untesting": {
+  "id": "s070",
+  "verdict": "same"
+ },
+ "s071|all s: Spec | (some t: Test | some b: Bug | checks[t, b] and b->s in Sit.rel) => s not in Untesting": {
+  "id": "s071",
+  "verdict": "same"
+ },
+ "s072|all u: Unit | (no Runner) => u not in Untesting": {
+  "id": "s072",
+  "verdict": "same"
+ },
+ "s082|all f: Frontmatter | ((f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) => f in Refused)": {
+  "id": "s082",
+  "verdict": "same"
+ },
+ "s083|all f: Frontmatter | f in Misquoted => f in Refused": {
+  "id": "s083",
+  "verdict": "same"
+ },
+ "s084|all f: Frontmatter | f in Foreign => f in Refused": {
+  "id": "s084",
+  "verdict": "same"
+ },
+ "s094|(some f: Frontmatter | some p: Plugin | lists[f, p] and p in Missing) => ((all f: Frontmatter | all p: Plugin | (lists[f, p] and p in Missing) => p in Unfound) and (all r: Run | r in Exits2))": {
+  "id": "s094",
+  "verdict": "differs"
+ },
+ "s095|all f: Frontmatter | all p: Plugin | (lists[f, p] and p in Missing) => p in Unfound": {
+  "id": "s095",
+  "verdict": "same"
+ },
+ "s096|all r: Run | all f: Frontmatter | all p: Plugin | (lists[f, p] and p in Missing) => r in Exits2": {
+  "id": "s096",
+  "verdict": "same"
+ },
+ "s106|all d1: Document | all d2: Document | (d1->d2 in Bare.rel) => ((all u: Unit | d1->u in Hold.units iff d2->u in Hold.units) and (d1 in Finding iff d2 in Finding))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s107|all d1: Document | all d2: Document | (d1->d2 in Bare.rel) => (all u: Unit | d1->u in Hold.units iff d2->u in Hold.units)": {
+  "id": "s107",
+  "verdict": "same"
+ },
+ "s108|all d1: Document | all d2: Document | (d1->d2 in Bare.rel) => ((d2 in Finding => d1 in Finding) and (d1 in Finding => d2 in Finding))": {
+  "id": "s108",
+  "verdict": "same"
+ },
+ "s118|all u: Unit | ((u in Logical and u not in Unsayable and u in Generated and u in Differs) => u in Stale)": {
+  "id": "s118",
+  "verdict": "same"
+ },
+ "s119|all u: Unit | u in Generated => (u in Current iff (u not in Unsayable and u not in Differs))": {
+  "id": "s119",
+  "verdict": "differs"
+ },
+ "s120|all u: Unit | ((u in Logical and u in Stated and u not in Generated and u not in Unsayable) => u in Handwritten)": {
+  "id": "s120",
+  "verdict": "same"
+ },
+ "s130|all u: Unit | u in Unsayable => u not in Rewritten": {
+  "id": "s130",
+  "verdict": "same"
+ },
+ "s131|all d: Document | d in Worded => (all u: Unit | (d->u in Hold.units and u in Logical and u not in Current) => u in Reported)": {
+  "id": "s131",
+  "verdict": "same"
+ },
+ "s132|all u: Unit | u in Current => u not in Reported": {
+  "id": "s132",
+  "verdict": "same"
+ },
+ "s142|all r: Run | (r->CheckCommand in Ask.rel and (some w: Word | w in Flagged)) => r not in Exits0": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s143|all w: Word | ((all u: Unit | u->w not in Voice.rel or (some u2: Unit | u2->w in Introduce.rel)) and (all u: Unit | u->w not in Introduce.rel or u in Term) and (all u1, u2: Unit | u1->w not in Voice.rel or u2->w not in Introduce.rel or u1 = u2) and (some u: Unit | u->w in Rely.rel)) => w not in Flagged": {
+  "id": "s143",
+  "verdict": "differs"
+ },
+ "s144|all w: Word | ((some u: Unit | u->w in Voice.rel and (no u2: Unit | u2->w in Introduce.rel)) or (some u: Unit | u->w in Introduce.rel and u not in Term) or (some u1, u2: Unit | u1->w in Voice.rel and u2->w in Introduce.rel and u1 != u2) or (no u: Unit | u->w in Rely.rel)) => w in Flagged": {
+  "id": "s144",
+  "verdict": "differs"
+ },
+ "s154|all s: Scenario | s in Impossible => s in Raised": {
+  "id": "s154",
+  "verdict": "same"
+ },
+ "s155|all s: Scenario | s in Possible => s not in Raised": {
+  "id": "s155",
+  "verdict": "same"
+ },
+ "s156|all s: Scenario | all u: Unit | (s in Raised and u->s in Frees.rel) => u->s in Blame.rel": {
+  "id": "s156",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-PGEmpa/q.als at line 1158 column 195: This name is ambiguous due to multiple matches:"
+ },
+ "s166|all u: Unit | (u in Logical and u not in Term and u in Unchallenged) => (some w: Word | u->w in Expose.rel)": {
+  "id": "s166",
+  "verdict": "differs"
+ },
+ "s167|all u: Unit | all w: Word | (u not in Term and u in Logical and loneOn[u, w]) => u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "differs"
+ },
+ "s168|all u: Unit | all w: Word | (u->w in Expose.rel) => u in Unchallenged": {
+  "id": "s168",
+  "verdict": "same"
+ },
+ "s178|some u: Unit | u in Faulted": {
+  "id": "s178",
+  "verdict": "same"
+ },
+ "s179|some s: Scenario | s in Impossible and s in Raised and (some u: Unit | u->s in Blame.rel and u->s in Frees.rel)": {
+  "id": "s179",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-fIzZ8F/q.als at line 1158 column 210: This name is ambiguous due to multiple matches:"
+ },
+ "s180|some u: Unit | some w: Word | u in Logical and u->w in Rely.rel and u->w not in Expose.rel": {
+  "id": "s180",
+  "verdict": "differs"
+ },
+ "s193|all q: Quantifier | (q in VariableSubject and fits[q]) => q in AsSubjectPhrase": {
+  "id": "s193",
+  "verdict": "same"
+ },
+ "s194|all q: Quantifier | (q in VariableWithCondition and fits[q]) => q in RelativeClause": {
+  "id": "s194",
+  "verdict": "same"
+ },
+ "s195|all q: Quantifier | q in VariableTwice => q in InFull": {
+  "id": "s195",
+  "verdict": "same"
+ },
+ "s205|all s: Series | s in TimeBeforeLast => s in AsBullets": {
+  "id": "s205",
+  "verdict": "same"
+ },
+ "s206|all s: Series | s in RelativeBeforeLast => s in AsBullets": {
+  "id": "s206",
+  "verdict": "same"
+ },
+ "s207|all s: Series | s in NotClause => s in AsBullets": {
+  "id": "s207",
+  "verdict": "same"
+ },
+ "s216|some q: Quantifier | q in VariableWithCondition and q in NothingToAttach": {
+  "id": "s216",
+  "verdict": "same"
+ },
+ "s217|some d: Definition | d in SameKindTwice and d in AmbiguousAnd": {
+  "id": "s217",
+  "verdict": "same"
+ },
+ "s218|some d: Definition | d in OneKind and d in NotAboutSubject": {
+  "id": "s218",
+  "verdict": "same"
+ },
+ "s219|some d: Definition | d in OrInsideKind and d in NoKindFirst": {
+  "id": "s219",
+  "verdict": "same"
+ },
+ "s229|always ((some Entering' & Disposed) => (Throwing' != none))": {
+  "id": "s229",
+  "verdict": "same"
+ },
+ "s230|always (all p: Owner | p in Disposed => (all o: Owner | (o->p in Extend.rel and o not in Disposed) => (eventually o in Disposed and (until o in Disposed, (all c: Cleanup | (c->o in Carry.rel and c not in Ran) => c not in Ran')))))": {
+  "id": "s230",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-Mt8GJu/q.als at line 119 column 187: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-Mt8GJu/q.als at line 119 column 187:"
+ },
+ "s231|always (all o1: Owner | all fc1: Failing | (fc1 in Ran and fc1->o1 in Carry.rel and o1 in Disposed) => (always (o1 in Threw => fc1 in Ran'))) and always (all o2, o3: Owner | all fc2: Failing | ((fc2 in Ran and fc2->o2 in Carry.rel and o2 in Disposed and o3->o2 in Extend.rel and o3 not in Handler) => (eventually (fc2->o3 in reached))))": {
+  "id": "s231",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-z5aZ7h/q.als at line 117 column 174: The name \"Carry\" cannot be found."
+ },
+ "s023|all u: Unit | miscited[u] implies u in Misnesting": {
+  "id": "s023",
+  "verdict": "same"
+ },
+ "s024|all a: Axiom, u: Unit | cites[a, u] and u not in Axiom implies a in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s035|all b: Bug, i: Issue | b->i in Name.issue and i not in Known implies b in Mistracking": {
+  "id": "s035",
+  "verdict": "same"
+ },
+ "s036|all b: Bug, i: Issue | b->i in Name.issue and i in Closed implies b in OutdatedTracking": {
+  "id": "s036",
+  "verdict": "same"
+ },
+ "s047|all c: Claim | (some Runner and unguarded[c]) implies c in Untesting": {
+  "id": "s047",
+  "verdict": "same"
+ },
+ "s048|all t: Tag | (no u: Unit | t->u in Name.tag) implies t in Rotting": {
+  "id": "s048",
+  "verdict": "same"
+ },
+ "s059|all cl: Claim, s: Site | cl->s in Name.site and (no src: Source | src->s in Hold.symbols) implies cl in Mislocation": {
+  "id": "s059",
+  "verdict": "same"
+ },
+ "s060|all d1, d2: Document | d1->d2 in Extend.rel implies (d2->d1 in Context.rel and all d3: Document | d3->d2 in Context.rel implies d3->d1 in Context.rel)": {
+  "id": "s060",
+  "verdict": "differs"
+ },
+ "s061|all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in Blocks.rel": {
+  "id": "s061",
+  "verdict": "same"
+ },
+ "s071|all t: Test, b: Bug, s: Spec | checks[t, b] and b->s in Sit.rel implies s not in Untesting": {
+  "id": "s071",
+  "verdict": "same"
+ },
+ "s072|(no Runner) implies (all u: Unit | u not in Untesting)": {
+  "id": "s072",
+  "verdict": "same"
+ },
+ "s073|all u: Unit | (no Tracker) implies u not in Untracking": {
+  "id": "s073",
+  "verdict": "same"
+ },
+ "s082|all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused": {
+  "id": "s082",
+  "verdict": "same"
+ },
+ "s083|all f: Frontmatter | f in Misquoted implies f in Refused": {
+  "id": "s083",
+  "verdict": "same"
+ },
+ "s084|all f: Frontmatter | f in Foreign implies f in Refused": {
+  "id": "s084",
+  "verdict": "same"
+ },
+ "s095|all f: Frontmatter, p: Plugin | lists[f, p] and p in Missing implies p in Unfound": {
+  "id": "s095",
+  "verdict": "same"
+ },
+ "s096|(some f: Frontmatter, p: Plugin | lists[f, p] and p in Missing) implies (all r: Run | r in Exits2)": {
+  "id": "s096",
+  "verdict": "same"
+ },
+ "s106|all d1, d2: Document | d1->d2 in Bare.rel implies Hold.units[d1] = Hold.units[d2]": {
+  "id": "s106",
+  "verdict": "differs"
+ },
+ "s107|all d1, d2: Document | d1->d2 in Bare.rel implies Hold.units[d1] = Hold.units[d2]": {
+  "id": "s107",
+  "verdict": "same"
+ },
+ "s108|all d1, d2: Document | d1->d2 in Bare.rel implies (Finding & Hold.units[d1]) = (Finding & Hold.units[d2])": {
+  "id": "s108",
+  "verdict": "differs"
+ },
+ "s109|some a: Axiom, s: Spec, t: Test, tg: Tag, d: Document, i: Index | (s->a in Sit.rel) and (t in Declared) and (t->tg in Carry.rel) and (tg->s in Name.tag) and (a in Hold.units[d]) and (s in Hold.units[d]) and (i in Hold.indexes[d]) and (i->d in Match.rel) and (no Finding)": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s119|all u: Unit | (u in Generated and u not in Differs and u not in Unsayable) implies u in Current": {
+  "id": "s119",
+  "verdict": "same"
+ },
+ "s120|all u: Unit | (u in Logical and u not in Unsayable and u not in Generated) implies u in Handwritten": {
+  "id": "s120",
+  "verdict": "differs"
+ },
+ "s121|all u: Unit | ((u in Wordless) or (u in Twofold)) implies u in Unsayable": {
+  "id": "s121",
+  "verdict": "same"
+ },
+ "s131|all d: Document, u: Unit | (d in Worded and u in Hold.units[d] and u in Logical and u not in Current) implies u in Reported": {
+  "id": "s131",
+  "verdict": "same"
+ },
+ "s132|all u: Unit | u in Current implies u not in Reported": {
+  "id": "s132",
+  "verdict": "same"
+ },
+ "s133|all r: Run, cc: CheckCommand, u: Unit | (r->cc in Ask.rel and u in Reported) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s143|all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged": {
+  "id": "s143",
+  "verdict": "same"
+ },
+ "s144|all w: Word | ((w in Undeclared) or (w in Misplaced) or (w in Apart) or (w in Unused)) implies w in Flagged": {
+  "id": "s144",
+  "verdict": "same"
+ },
+ "s145|all d1, d2: Document, u: Unit | (d1 in Checked and d2 not in Checked and d2->d1 in Context.rel and u in Hold.units[d2]) implies u not in Rewritten": {
+  "id": "s145",
+  "verdict": "differs"
+ },
+ "s155|all sc: Scenario | sc in Possible implies sc not in Raised": {
+  "id": "s155",
+  "verdict": "same"
+ },
+ "s156|all sc: Scenario, u: Unit | (sc in Raised and u->sc in Frees.rel) implies sc->u in Blame.rel": {
+  "id": "s156",
+  "verdict": "same"
+ },
+ "s157|all sc: Scenario, u: Unit | sc->u in Blame.rel implies u->sc in Frees.rel": {
+  "id": "s157",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, w: Word | (u in Logical and u not in Term and w in Signature and loneOn[u, w]) implies u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "same"
+ },
+ "s168|all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged": {
+  "id": "s168",
+  "verdict": "same"
+ },
+ "s169|all u: Unit, w: Word | u->w in Expose.rel implies (u in Logical and u not in Term and w in Signature and loneOn[u, w])": {
+  "id": "s169",
+  "verdict": "same"
+ },
+ "s179|some sc: Scenario, u: Unit | (sc in Impossible and sc in Raised and sc->u in Blame.rel and u->sc in Frees.rel)": {
+  "id": "s179",
+  "verdict": "same"
+ },
+ "s180|some u: Unit, w: Word | (u in Logical and u->w in Rely.rel and w in Signature and u->w not in Expose.rel)": {
+  "id": "s180",
+  "verdict": "same"
+ },
+ "s184|all s: Series | (s in Rule and s in OneLineRule and s not in TimeFirst) implies s in OneLine": {
+  "id": "s184",
+  "verdict": "same"
+ },
+ "s194|all q: Quantifier | (q in VariableWithCondition and fits[q]) implies q in RelativeClause": {
+  "id": "s194",
+  "verdict": "same"
+ },
+ "s195|all q: Quantifier | q in VariableTwice implies q in InFull": {
+  "id": "s195",
+  "verdict": "same"
+ },
+ "s206|all s: Series | s in RelativeBeforeLast implies s in AsBullets": {
+  "id": "s206",
+  "verdict": "same"
+ },
+ "s207|all s: Series | s in NotClause implies s in AsBullets": {
+  "id": "s207",
+  "verdict": "same"
+ },
+ "s208|all s: Series | s in AndInOr implies s in KeepsAndApart": {
+  "id": "s208",
+  "verdict": "same"
+ },
+ "s219|some d: Definition | (d in OrInsideKind and d in NoKindFirst)": {
+  "id": "s219",
+  "verdict": "same"
+ },
+ "s220|some s: Series | (s in Few and s in CommaItem and s in MoreThanTwo)": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s230|always (all o1, o2: Owner, c: Cleanup | (o1 in Disposed and o2 in o1.parent and o2 not in Disposed and c in Registered and c not in Ran and o1 in c.on) implies ((c in Ran or c not in Ran') until (o2 in Disposed))) and always (all o3, o4, o5: Owner | (o3 in Disposed and o4 in o3.parent and o5 in o3.parent and o4->o5 in Birth.order and o4 not in Disposed and o5 not in Disposed) implies ((o4 in Disposed or o4 not in Disposed') until (o5 in Disposed)))": {
+  "id": "s230",
+  "verdict": "differs"
+ },
+ "s231|always (all c: Cleanup, o: Owner | (c in Failing and c in Ran and o in Disposed and c.on = o) implies (always (o not in Threw) and eventually (c.reached = some h: Owner | h in Handler and h in o.^parent)))": {
+  "id": "s231",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-wygQZF/q.als at line 117 column 306: Syntax error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-wygQZF/q.als at line 117 column 306:"
+ },
+ "s232|some o1, o2: Owner, fc: Cleanup | (o2 = (o1.handler) and (eventually (o1 in Disposed and fc in fc.on and eventually (fc in Ran and eventually fc.reached = o2))))": {
+  "id": "s232",
+  "verdict": "differs"
+ },
+ "s024|all a: Axiom | (some v: Unit | cites[a, v] and v not in Axiom) => a in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s025|all f: Fact | (some u: Unit | cites[f, u]) => f in Misnesting": {
+  "id": "s025",
+  "verdict": "same"
+ },
+ "s026|all s: Spec | (some v: Unit | cites[s, v] and v not in Axiom and v not in Spec and v not in Fact) => s in Misnesting": {
+  "id": "s026",
+  "verdict": "same"
+ },
+ "s036|all b: Bug, i: Issue | (b->i in Name.issue and i in Closed) => b in OutdatedTracking": {
+  "id": "s036",
+  "verdict": "same"
+ },
+ "s037|all b: Bug | (some Runner and not tested[b]) => b in Untesting": {
+  "id": "s037",
+  "verdict": "same"
+ },
+ "s038|all c: Conflict | hidden[c] => c in Finding": {
+  "id": "s038",
+  "verdict": "same"
+ },
+ "s048|all t: Tag | (no u: Unit | t->u in Name.tag) => t in Rotting": {
+  "id": "s048",
+  "verdict": "same"
+ },
+ "s049|all t: Test | adrift[t] => t in Finding": {
+  "id": "s049",
+  "verdict": "same"
+ },
+ "s050|all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) => t in Uncitation": {
+  "id": "s050",
+  "verdict": "same"
+ },
+ "s060|all d1, d2: Document | d1->d2 in Extend.rel => d2->d1 in Context.rel": {
+  "id": "s060",
+  "verdict": "differs"
+ },
+ "s061|all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) => u->f in Blocks.rel": {
+  "id": "s061",
+  "verdict": "same"
+ },
+ "s062|all f: Fence | f not in Languaged => (no u: Unit | u->f in Blocks.rel)": {
+  "id": "s062",
+  "verdict": "same"
+ },
+ "s072|no Runner => (no u: Unit | u in Untesting)": {
+  "id": "s072",
+  "verdict": "same"
+ },
+ "s073|no Tracker => (no u: Unit | u in Untracking)": {
+  "id": "s073",
+  "verdict": "same"
+ },
+ "s074|all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) => r in Exits2": {
+  "id": "s074",
+  "verdict": "same"
+ },
+ "s085|all f: Frontmatter | f in Unclosed => f in Refused": {
+  "id": "s085",
+  "verdict": "same"
+ },
+ "s086|all f: Frontmatter | f in Unterminated => f in Refused": {
+  "id": "s086",
+  "verdict": "same"
+ },
+ "s096|(some f: Frontmatter, p: Missing | lists[f, p]) => all r: Run | r in Exits2": {
+  "id": "s096",
+  "verdict": "same"
+ },
+ "s097|all r: Run, c: Command | (r->c in Ask.rel and not available[c]) => (c in Unknown and r in Exits2)": {
+  "id": "s097",
+  "verdict": "same"
+ },
+ "s098|all r: Run, c: Command | (r->c in Ask.rel and not available[c]) => c in Unknown": {
+  "id": "s098",
+  "verdict": "same"
+ },
+ "s108|all d1, d2: Document | d1->d2 in Bare.rel => ((some u: Unit | d1->u in Hold.units and u in Finding) iff (some u: Unit | d2->u in Hold.units and u in Finding))": {
+  "id": "s108",
+  "verdict": "differs"
+ },
+ "s109|(some d: Document, a: Axiom, s: Spec, idx: Index, t: Test, tag: Tag | d->a in Hold.units and a->s in Sit.rel and d->idx in Hold.indexes and idx->d in Match.rel and t in Declared and t->tag in Carry.rel and tag->s in Name.tag) and (all u: Unit | u not in Finding)": {
+  "id": "s109",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-yBisVk/q.als at line 649 column 514: This cannot be a legal relational join where"
+ },
+ "s110|some b: Bug, e: ExpectedFailure, i: Issue | (b->i in Name.issue and i in Known and i not in Closed and checks[e, b] and b not in Finding and e not in Finding)": {
+  "id": "s110",
+  "verdict": "same"
+ },
+ "s119|all u: Unit | (u in Generated and u not in Differs and u not in Unsayable) => u in Current": {
+  "id": "s119",
+  "verdict": "same"
+ },
+ "s120|all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) => u in Handwritten": {
+  "id": "s120",
+  "verdict": "same"
+ },
+ "s121|all u: Unit | (u in Wordless or u in Twofold) => u in Unsayable": {
+  "id": "s121",
+  "verdict": "same"
+ },
+ "s122|all u: Unit | u in Wordless => u in Unsayable": {
+  "id": "s122",
+  "verdict": "same"
+ },
+ "s133|all r: Run | (r->CheckCommand in Ask.rel and (some u: Unit | u in Reported)) => r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s134|all r: Run, u: Unit | (r->GenerateCommand in Ask.rel and u in Handwritten) => (u in Reported and r not in Exits0)": {
+  "id": "s134",
+  "verdict": "same"
+ },
+ "s144|all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) => w in Flagged": {
+  "id": "s144",
+  "verdict": "same"
+ },
+ "s145|all u: Unit, d1: Document | (d1->u in Hold.units and d1 not in Checked and (some d2: Document | d2 in Checked and d1->d2 in Context.rel)) => u not in Rewritten": {
+  "id": "s145",
+  "verdict": "differs"
+ },
+ "s146|all d1, d2: Document, u1, u2: Unit, w: Word | (d2->d1 in Context.rel and d1->u1 in Hold.units and u1->w in Voice.rel and d2->u2 in Hold.units and u2->w in Introduce.rel) => w not in Undeclared": {
+  "id": "s146",
+  "verdict": "differs"
+ },
+ "s156|all s: Scenario, u: Unit | (s in Raised and u->s in Frees.rel) => u->s in Blame.rel": {
+  "id": "s156",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-lRjNUA/q.als at line 1158 column 190: This name is ambiguous due to multiple matches:"
+ },
+ "s157|all s: Scenario, u: Unit | (u->s in Blame.rel) => (u->s in Frees.rel)": {
+  "id": "s157",
+  "verdict": "malformed",
+  "error": "[main] ERROR alloy - excuting sub command CLI:exec error Type error in /private/var/folders/g1/m1n9pj9x2b184xp93pb9_6d00000gn/T/equiv-gAMz4g/q-5YNaZm/q.als at line 1158 column 134: This name is ambiguous due to multiple matches:"
+ },
+ "s158|all u: Unit | (u in Held and u in Contradicting) => u in Named": {
+  "id": "s158",
+  "verdict": "differs"
+ },
+ "s167|all u: Unit, w: Word | (loneOn[u, w] and u not in Term) => u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "differs"
+ },
+ "s168|all u: Unit, w: Word | (u->w in Expose.rel) => u in Unchallenged": {
+  "id": "s168",
+  "verdict": "same"
+ },
+ "s169|all u: Unit, w: Word | (u->w in Expose.rel) => (u in Logical and u not in Term and w in Signature and loneOn[u, w])": {
+  "id": "s169",
+  "verdict": "same"
+ },
+ "s170|all u1, u2: Unit, w: Word | (u1 != u2 and u2->w in Utter.rel) => (u1->w not in Expose.rel)": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s184|all s: Series | (s in OneLineRule and s not in TimeFirst) => s in OneLine": {
+  "id": "s184",
+  "verdict": "same"
+ },
+ "s185|all d: Definition | (d in GuardedByKind and byKind[d]) => d in PhrasePerKind": {
+  "id": "s185",
+  "verdict": "same"
+ },
+ "s196|all q: Quantifier | q in NothingToAttach => q in InFull": {
+  "id": "s196",
+  "verdict": "same"
+ },
+ "s197|all q: Quantifier | (q in NoWithAnother and q in VariableWithCondition) => q in InFull": {
+  "id": "s197",
+  "verdict": "differs"
+ },
+ "s208|all s: Series | s in AndInOr => s in KeepsAndApart": {
+  "id": "s208",
+  "verdict": "same"
+ },
+ "s209|all s: Series | (s in OneLineRule and s not in TimeFirst and s in TimeSecond) => s in KeepsThen": {
+  "id": "s209",
+  "verdict": "same"
+ },
+ "s219|some d: Definition | (d in OrInsideKind and (some alt: Definition | alt not in GuardedByKind))": {
+  "id": "s219",
+  "verdict": "differs"
+ },
+ "s220|some s: Series | (s in MoreThanTwo and s in Few and s in CommaItem)": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s221|some s: Series | (s in Few and s in TooLong)": {
+  "id": "s221",
+  "verdict": "same"
+ },
+ "s231|always ((all o: Owner, c: Failing | (c in Ran and c.on = o and o in Disposed) => always (o not in Threw)) and (all o: Owner, c: Failing | (c in Ran and c.on = o and o in Disposed) => eventually (c->c.handler in reached)))": {
+  "id": "s231",
+  "verdict": "differs"
+ },
+ "s232|some o: Owner, c: Failing | eventually (o in Disposed and c.on = o and eventually (c in Ran and eventually (c->o.handler in reached)))": {
+  "id": "s232",
+  "verdict": "differs"
+ },
+ "s027|all e: Exception, u: Unit | (cites[e, u] and u not in Spec and u not in Fact) implies e in Misnesting": {
+  "id": "s027",
+  "verdict": "same"
+ },
+ "s051|all t: Declared, u: Unit | (checks[t, u] and u not in Claim) implies t in Misaiming": {
+  "id": "s051",
+  "verdict": "same"
+ },
+ "s075|(all p: Plugin, d: Document | applies[p, d] implies p->d in Over.rel) and (all p: Plugin, d: Document | (d not in Given and p->d in Over.rel) implies applies[p, d])": {
+  "id": "s075",
+  "verdict": "same"
+ },
+ "s076|all d: Document | ((no f: Listing | d->f in Head.rel) and d not in Given) implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s076",
+  "verdict": "same"
+ },
+ "s111|some c: Conflict, a, b: Unit, i: Issue | a != b and c->a in Name.between and c->b in Name.between and c->i in Name.issue and i in Known and i not in Closed and c not in Finding": {
+  "id": "s111",
+  "verdict": "same"
+ },
+ "s112|some a, b, c: Document | c != a and a->b in Extend.rel and b->c in Extend.rel and a->c in Context.rel": {
+  "id": "s112",
+  "verdict": "same"
+ },
+ "s113|some r: Run, p: Installed, d: Document, f: Listing | d->f in Head.rel and lists[f, p] and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1": {
+  "id": "s113",
+  "verdict": "same"
+ },
+ "s125|all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies (u not in Explained and r not in Exits0)": {
+  "id": "s125",
+  "verdict": "same"
+ },
+ "s136|all u: Unit, w: Word | (u->w in Voice.rel and (no v: Unit | v->w in Introduce.rel)) implies w in Undeclared": {
+  "id": "s136",
+  "verdict": "same"
+ },
+ "s160|all u1, u2: Unit | (u1 != u2 and u1->u2 in Share.rel) implies u1->u2 in Together.rel": {
+  "id": "s160",
+  "verdict": "differs"
+ },
+ "s171|all u: Unit, w: Word | u->w in Picture.rel implies (no v: Unit | v->w in Expose.rel)": {
+  "id": "s171",
+  "verdict": "same"
+ },
+ "s172|all d1, d2: Document, u: Unit, w: Word | (d1 != d2 and d2->d1 in Context.rel and d1->u in Hold.units and u->w in Utter.rel) implies (no v: Unit | d2->v in Hold.units and v->w in Expose.rel)": {
+  "id": "s172",
+  "verdict": "differs"
+ },
+ "s173|all u: Unit, w: Word | w not in Signature implies u->w not in Expose.rel": {
+  "id": "s173",
+  "verdict": "same"
+ },
+ "s211|all l: Series | l in TimeFirst implies l in ThenOwnLine": {
+  "id": "s211",
+  "verdict": "same"
+ },
+ "s222|some l: Series | l in Many and l in SharedSubject": {
+  "id": "s222",
+  "verdict": "same"
+ },
+ "s053|all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Rotting": {
+  "id": "s053",
+  "verdict": "same"
+ },
+ "s054|all u1: Unit | (some u: Unit | u1->u in Repeat.rel) implies u1 in Rotting": {
+  "id": "s054",
+  "verdict": "same"
+ },
+ "s077|all d: Document, f: Listing, p: Plugin | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel": {
+  "id": "s077",
+  "verdict": "same"
+ },
+ "s078|all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel": {
+  "id": "s078",
+  "verdict": "same"
+ },
+ "s090|all f: Stray | f in Frontmatter and f in Refused": {
+  "id": "s090",
+  "verdict": "same"
+ },
+ "s099|all r: Run | (some c: Command | r->c in Ask.rel and not available[c]) implies r in Exits2": {
+  "id": "s099",
+  "verdict": "same"
+ },
+ "s112|some d1, d2, d3: Document | d1->d2 in Extend.rel and d2->d3 in Extend.rel and d3 != d1 and d1->d3 in Context.rel": {
+  "id": "s112",
+  "verdict": "same"
+ },
+ "s113|some d: Document, f: Listing, p: Installed, r: Run | d->f in Head.rel and lists[f, p] and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1": {
+  "id": "s113",
+  "verdict": "same"
+ },
+ "s114|some r1: Run, d1: Document, f1: Refused | d1->f1 in Head.rel and d1 in Unreadable and r1 in Exits2": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s138|all u1: Unit, w1: Word | (u1->w1 in Voice.rel and (some u: Unit | u->w1 in Introduce.rel) and u1->w1 not in Introduce.rel) implies w1 in Apart": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s150|all s1: Search, c1: Scenario | (s1 in Trial and s1->c1 in Pose.scenario) implies (c1 in Impossible and s1 in Afterwards)": {
+  "id": "s150",
+  "verdict": "same"
+ },
+ "s160|all u, v: Unit | (u != v and u->v in Share.rel) implies u->v in Together.rel": {
+  "id": "s160",
+  "verdict": "differs"
+ },
+ "s161|all u, v: Unit | (u != v and u->v in Together.rel) implies u->v in Chain.rel": {
+  "id": "s161",
+  "verdict": "differs"
+ },
+ "s162|all r: Run, c: LogicCommand | (r->c in Ask.rel and (no s: Scenario | s in Raised) and (no u1: Unit | u1 in Contradicting)) implies r in Exits0": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s172|all d1, d2: Document, u1, u2: Unit, w: Word | (d1->d2 in Context.rel and d1->u1 in Hold.units and d2->u2 in Hold.units and u2->w in Utter.rel) implies u1->w not in Expose.rel": {
+  "id": "s172",
+  "verdict": "same"
+ },
+ "s174|all t: Term, w: Word | t->w not in Expose.rel": {
+  "id": "s174",
+  "verdict": "same"
+ },
+ "s189|all d1: Definition | d1 in NoKindFirst implies d1 in AsItStands": {
+  "id": "s189",
+  "verdict": "same"
+ },
+ "s200|all s: Series | sentenceable[s] implies s in AsSentence": {
+  "id": "s200",
+  "verdict": "same"
+ },
+ "s201|all s: Series | (s in Items and not sentenceable[s]) implies s in AsBullets": {
+  "id": "s201",
+  "verdict": "same"
+ },
+ "s211|all s: Series | s in TimeFirst implies s in ThenOwnLine": {
+  "id": "s211",
+  "verdict": "same"
+ },
+ "s212|all s: Series | (s in Rule and s not in OneLineRule) implies s in ThenOwnLine": {
+  "id": "s212",
+  "verdict": "same"
+ },
+ "s213|some q1: Quantifier | q1 in VariableOnce and q1 in NoWithAnother": {
+  "id": "s213",
+  "verdict": "same"
+ },
+ "s223|some s: Series | s in PairInList and s in NotClause": {
+  "id": "s223",
+  "verdict": "same"
+ },
+ "s224|some s: Series | s in TimeSecond and s not in OneLineRule": {
+  "id": "s224",
+  "verdict": "same"
+ },
+ "s225|some s: Series | s in OneLineRule and s in TimeFirst": {
+  "id": "s225",
+  "verdict": "same"
+ },
+ "s060|(all a, b: Document | a->b in Extend.rel implies b->a in Context.rel) and (all a, b, c: Document | (a->b in Extend.rel and b->c in Extend.rel) implies c->a in Context.rel)": {
+  "id": "s060",
+  "verdict": "differs"
+ },
+ "s062|all f: Fence | f not in Languaged implies (no u: Unit | u->f in Blocks.rel)": {
+  "id": "s062",
+  "verdict": "same"
+ },
+ "s073|no Tracker implies (all u: Unit | u not in Untracking)": {
+  "id": "s073",
+  "verdict": "same"
+ },
+ "s075|all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d not in Given and p->d in Over.rel) implies applies[p, d])": {
+  "id": "s075",
+  "verdict": "same"
+ },
+ "s085|all f: Unclosed | f in Refused": {
+  "id": "s085",
+  "verdict": "same"
+ },
+ "s108|all a, c: Document | (a != c and (some b: Document | b->a in Bare.rel and b->c in Bare.rel)) implies (a in Finding iff c in Finding)": {
+  "id": "s108",
+  "verdict": "differs"
+ },
+ "s109|some a: Axiom, s: Spec, t: Test, g: Tag, d: Document, i: Index | s->a in Sit.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and no Finding": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s110|some b: Bug, i: Issue, t: ExpectedFailure | b->i in Name.issue and i in Known and i not in Closed and checks[t, b] and b not in Finding and t not in Finding": {
+  "id": "s110",
+  "verdict": "same"
+ },
+ "s111|some c: Conflict, i: Issue, u1, u2: Unit | u1 != u2 and c->i in Name.issue and i in Known and i not in Closed and c->u1 in Name.between and c->u2 in Name.between and c not in Finding": {
+  "id": "s111",
+  "verdict": "same"
+ },
+ "s121|all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable": {
+  "id": "s121",
+  "verdict": "same"
+ },
+ "s133|all r: Run, u: Unit | (r->CheckCommand in Ask.rel and u in Reported) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s134|all r: Run | r->GenerateCommand in Ask.rel implies ((all u: Unit | u in Handwritten implies u in Reported) and ((some u: Unit | u in Handwritten) implies r not in Exits0))": {
+  "id": "s134",
+  "verdict": "same"
+ },
+ "s135|all r: Run, g: GenerateCommand, u: Unit | (r->g in Ask.rel and u in Unsayable) implies (u in Explained and r not in Exits0)": {
+  "id": "s135",
+  "verdict": "same"
+ },
+ "s145|all d1, d2: Document, u: Unit | (d1 in Checked and d2 not in Checked and d1->d2 in Context.rel and d2->u in Hold.units) implies u not in Rewritten": {
+  "id": "s145",
+  "verdict": "same"
+ },
+ "s146|all d1, d2: Document, u1, u2: Unit, w: Word | (d1->u1 in Hold.units and u1->w in Voice.rel and d1->d2 in Context.rel and d2->u2 in Hold.units and u2->w in Introduce.rel) implies w not in Undeclared": {
+  "id": "s146",
+  "verdict": "same"
+ },
+ "s156|all s: Impossible, u: Unit | u->s in Frees.rel implies s->u in Blame.rel": {
+  "id": "s156",
+  "verdict": "differs"
+ },
+ "s157|all s: Scenario, u: Unit | s->u in Blame.rel implies u->s in Frees.rel": {
+  "id": "s157",
+  "verdict": "same"
+ },
+ "s170|all u, v: Unit, w: Word | (v != u and v->w in Utter.rel) implies u->w not in Expose.rel": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s171|all u1, u2: Unit, w: Word | u2->w in Picture.rel implies u1->w not in Expose.rel": {
+  "id": "s171",
+  "verdict": "same"
+ },
+ "s184|all s: Series | (s in OneLineRule and s not in TimeFirst) implies s in OneLine": {
+  "id": "s184",
+  "verdict": "same"
+ },
+ "s209|all s: Series | (s in OneLineRule and s in TimeSecond and s not in TimeFirst) implies s in KeepsThen": {
+  "id": "s209",
+  "verdict": "same"
+ },
+ "s210|all s: Series | (s in OneLineRule and s not in TimeFirst and s not in TimeSecond) implies s in DropsThen": {
+  "id": "s210",
+  "verdict": "same"
+ },
+ "s220|some s: Series | s in Few and s in MoreThanTwo and s in CommaItem": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s221|some s: Series | s in Few and s in TooLong": {
+  "id": "s221",
+  "verdict": "same"
+ },
+ "s222|some s: Series | s in SharedSubject and s in Many": {
+  "id": "s222",
+  "verdict": "same"
+ },
+ "s232|some o1, o2: Owner, f: Failing | o2 in o1.handler and eventually (dispose[o1] and f->o1 in on and eventually (runNow[f] and eventually f->o2 in reached))": {
+  "id": "s232",
+  "verdict": "same"
+ },
+ "s039|some Tracker implies (all c: Conflict | (no i: Issue | c->i in Name.issue) implies c in Untracking)": {
+  "id": "s039",
+  "verdict": "same"
+ },
+ "s050|all t: Declared | (no g: Tag | t->g in Carry.rel) implies t in Uncitation": {
+  "id": "s050",
+  "verdict": "same"
+ },
+ "s074|all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2": {
+  "id": "s074",
+  "verdict": "same"
+ },
+ "s075|all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((not applies[p, d] and p->d in Over.rel) implies d in Given)": {
+  "id": "s075",
+  "verdict": "same"
+ },
+ "s076|all p: Plugin, d: Document | ((no f: Listing | d->f in Head.rel) and d not in Given) implies p->d not in Over.rel": {
+  "id": "s076",
+  "verdict": "same"
+ },
+ "s112|some d1, d2, d3: Document | d1 != d3 and d1->d2 in Extend.rel and d2->d3 in Extend.rel and d1->d3 in Context.rel": {
+  "id": "s112",
+  "verdict": "same"
+ },
+ "s135|all r: Run | r->GenerateCommand in Ask.rel implies ((all u: Unsayable | u in Explained) and (some Unsayable implies r not in Exits0))": {
+  "id": "s135",
+  "verdict": "same"
+ },
+ "s146|all d1, d2: Document, u1, u2: Unit, w: Word | (d1->d2 in Context.rel and d1->u1 in Hold.units and u1->w in Voice.rel and d2->u2 in Hold.units and u2->w in Introduce.rel) implies w not in Undeclared": {
+  "id": "s146",
+  "verdict": "same"
+ },
+ "s159|all u: Unit | u in Contradicting implies (all v: Unit | v->u in Together.rel implies v in Named)": {
+  "id": "s159",
+  "verdict": "differs"
+ },
+ "s170|all u1, u2: Unit, w: Word | (u1 != u2 and u2->w in Utter.rel) implies u1->w not in Expose.rel": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s221|some l: Series | l in Few and l in TooLong": {
+  "id": "s221",
+  "verdict": "same"
+ },
+ "s019|all s1: Spec | ((no a: Axiom | cites[s1, a]) and (no s: Spec | cites[s1, s])) implies s1 in Freelancing": {
+  "id": "s019",
+  "verdict": "same"
+ },
+ "s041|all c: Conflict, i: Issue | (c->i in Name.issue and i in Closed) implies c in OutdatedTracking": {
+  "id": "s041",
+  "verdict": "same"
+ },
+ "s054|all u, v: Unit | u->v in Repeat.rel implies u in Rotting": {
+  "id": "s054",
+  "verdict": "same"
+ },
+ "s067|all f: Fence, u1: Unit | f->u1 in Within.rel implies (no u: Unit | u->u1 in Sit.rel and u->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s079|all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel": {
+  "id": "s079",
+  "verdict": "same"
+ },
+ "s089|Looping in Refused": {
+  "id": "s089",
+  "verdict": "same"
+ },
+ "s090|Stray in Refused": {
+  "id": "s090",
+  "verdict": "same"
+ },
+ "s113|some r: Run, p: Installed, d: Document, f: Frontmatter | calls[r, p] and p->d in Over.rel and d->f in Head.rel and lists[f, p] and r->p in Return.code1 and r in Exits1": {
+  "id": "s113",
+  "verdict": "differs"
+ },
+ "s114|some d: Document, f: Refused | d->f in Head.rel and d in Unreadable and (some r: Run | r in Exits2)": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s138|all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s150|all s: Search, x: Scenario | (s in Trial and s->x in Pose.scenario) implies (s in Afterwards and x in Impossible)": {
+  "id": "s150",
+  "verdict": "same"
+ },
+ "s151|all s: Search, x: Scenario, u1: Unit | (s in Trial and s->x in Pose.scenario and s->u1 in Leave.rel) implies (u1 in Held and s->u1 not in Pose.units and (all u2: Unit | (u2 in Held and u2 != u1) implies s->u2 in Pose.units))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s160|all u, v: Unit | u->v in Share.rel implies u->v in Together.rel": {
+  "id": "s160",
+  "verdict": "same"
+ },
+ "s161|all u, v: Unit | u->v in Together.rel implies u->v in Chain.rel": {
+  "id": "s161",
+  "verdict": "same"
+ },
+ "s162|all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s163|all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u1: Unit | u1 in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s175|all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units) implies u->w not in Expose.rel": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner, c: Cleanup | (dispose[o] and c in Registered and c->o in on and c not in Ran) implies eventually c in Ran)": {
+  "id": "s226",
+  "verdict": "same"
+ },
+ "s019|all s: Spec | ((no a: Axiom | cites[s, a]) and (no t: Spec | cites[s, t])) implies s in Freelancing": {
+  "id": "s019",
+  "verdict": "same"
+ },
+ "s044|all t: ExpectedFailure | ((no b: Bug | checks[t, b]) and (no e: Exception | checks[t, e])) implies t in UnexplainedFailure": {
+  "id": "s044",
+  "verdict": "same"
+ },
+ "s054|all u, v: Unit | (u != v and u->v in Repeat.rel) implies u in Rotting": {
+  "id": "s054",
+  "verdict": "differs"
+ },
+ "s067|all f: Fence, u, v: Unit | (f->u in Within.rel and v->u in Sit.rel) implies v->f not in Blocks.rel": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s078|all d: Document, f: Listing, p: Plugin | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel": {
+  "id": "s078",
+  "verdict": "same"
+ },
+ "s079|all d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s079",
+  "verdict": "same"
+ },
+ "s080|all r: Run, p: Plugin, d: Given | calls[r, p] implies p->d in Over.rel": {
+  "id": "s080",
+  "verdict": "same"
+ },
+ "s091|all d: Document, f: Refused | d->f in Head.rel implies (d in Unreadable and (all r: Run | r in Exits2))": {
+  "id": "s091",
+  "verdict": "differs"
+ },
+ "s092|all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable": {
+  "id": "s092",
+  "verdict": "same"
+ },
+ "s128|all u: Unit | u in Current implies u not in Rewritten": {
+  "id": "s128",
+  "verdict": "same"
+ },
+ "s150|all s: Search, c: Scenario | (s in Trial and s->c in Pose.scenario) implies (c in Impossible and s in Afterwards)": {
+  "id": "s150",
+  "verdict": "same"
+ },
+ "s151|all s: Search | (s in Trial and (some c: Scenario | s->c in Pose.scenario)) implies (all u: Unit | s->u in Leave.rel implies (u in Held and s->u not in Pose.units and (all v: Unit | (v != u and v in Held) implies s->v in Pose.units)))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s152|all c: Scenario, u: Unit | (c in Impossible and u in Held and (no v: Unit | c->v in Probe.rel)) implies (some s: Search | s in Trial and s->u in Leave.rel and s->c in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s162|all r: Run | r->LogicCommand in Ask.rel implies ((no Raised and no Contradicting) implies r in Exits0)": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s163|all r: Run | (r->LogicCommand in Ask.rel and (some Raised or some Contradicting)) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s164|all d1, d2: Document, u: Unit | (d1 in Checked and d1->d2 in Context.rel and d2->u in Hold.units and u in BareFormula) implies u in Held": {
+  "id": "s164",
+  "verdict": "same"
+ },
+ "s175|all d: Document | d not in Worded implies (all u: Unit | d->u in Hold.units implies (no w: Word | u->w in Expose.rel))": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s176|all r: Run, c: CheckCommand, u: Unit, w: Word | (r->c in Ask.rel and u->w in Expose.rel) implies r not in Exits0": {
+  "id": "s176",
+  "verdict": "same"
+ },
+ "s190|all d: Definition | d in AmbiguousAnd implies d in AsItStands": {
+  "id": "s190",
+  "verdict": "same"
+ },
+ "s191|all d: Definition | d in NotAboutSubject implies d in AsItStands": {
+  "id": "s191",
+  "verdict": "same"
+ },
+ "s203|all l: Series | (l in CommaItem and l in MoreThanTwo) implies l in AsBullets": {
+  "id": "s203",
+  "verdict": "same"
+ },
+ "s212|all l: Series | (l in Rule and l not in OneLine) implies l in ThenOwnLine": {
+  "id": "s212",
+  "verdict": "differs"
+ },
+ "s214|some q: Quantifier | q in VariableSubject and q in VariableTwice": {
+  "id": "s214",
+  "verdict": "same"
+ },
+ "s215|some q: Quantifier | q in VariableOnce and q in ConditionAside": {
+  "id": "s215",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner | dispose[o] implies (all c: Cleanup | (o in c.on and c in Registered and c not in Ran) implies eventually c in Ran))": {
+  "id": "s226",
+  "verdict": "same"
+ },
+ "s227|(always (no c: Cleanup, o: Owner | runByCall[c, o])) and (always (no o: Owner | throwByCall[o]))": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s045|all t: PlainTest | (some b: Bug | checks[t, b]) implies t in Unpinning": {
+  "id": "s045",
+  "verdict": "same"
+ },
+ "s067|all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v->u in Sit.rel and v->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s069|all c: Claim | (some t: Declared | checks[t, c]) implies c not in Untesting": {
+  "id": "s069",
+  "verdict": "same"
+ },
+ "s079|all d: Document | ((some f: Listing | d->f in Head.rel and (no e: Entry | f->e in Item.rel)) and d not in Given) implies (no p: Plugin | p->d in Over.rel)": {
+  "id": "s079",
+  "verdict": "same"
+ },
+ "s081|all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)": {
+  "id": "s081",
+  "verdict": "same"
+ },
+ "s091|all d: Document | (some f: Refused | d->f in Head.rel) implies (d in Unreadable and (all r: Run | r in Exits2))": {
+  "id": "s091",
+  "verdict": "differs"
+ },
+ "s103|all r: Run, p: Plugin | r->p in Return.code2 implies r in Exits2": {
+  "id": "s103",
+  "verdict": "same"
+ },
+ "s105|all r: Run | (no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0": {
+  "id": "s105",
+  "verdict": "same"
+ },
+ "s115|all d: Worded, u: Unit | (d->u in Hold.units and u in Logical and u not in Current) implies u in Reported": {
+  "id": "s115",
+  "verdict": "same"
+ },
+ "s116|all d: Document, u: Unit | (d not in Worded and d->u in Hold.units) implies (u not in Rewritten and u not in Reported)": {
+  "id": "s116",
+  "verdict": "same"
+ },
+ "s117|all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten": {
+  "id": "s117",
+  "verdict": "same"
+ },
+ "s129|all u: Unit | u in Handwritten implies u not in Rewritten": {
+  "id": "s129",
+  "verdict": "same"
+ },
+ "s138|all w: Word | (some u, v: Unit | u != v and u->w in Rely.rel and v->w in Introduce.rel) implies w in Apart": {
+  "id": "s138",
+  "verdict": "differs"
+ },
+ "s140|all w: Word | ((some t: Term | t->w in Introduce.rel and t->w in Voice.rel) and (some u: Unit | u->w in Rely.rel)) implies (w not in Flagged and w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused)": {
+  "id": "s140",
+  "verdict": "same"
+ },
+ "s141|all d: Document, u1: Unit, w1: Word | (d not in Worded and d->u1 in Hold.units and u1->w1 in Introduce.rel) implies (w1 not in Undeclared and w1 not in Misplaced and w1 not in Apart and w1 not in Unused and w1 not in Flagged)": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s151|all s: Trial, c: Scenario, u: Unit | (s->c in Pose.scenario and s->u in Leave.rel) implies (u in Held and s->u not in Pose.units and (all v: Held | v != u implies s->v in Pose.units))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s152|all c: Impossible | (no u: Unit | c->u in Probe.rel) implies (all u: Held | some s: Trial | s->u in Leave.rel and s->c in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s153|all s: Search, c: Scenario, u1: Unit | (s in Trial and s->c in Pose.scenario and s->u1 in Leave.rel and (some u2: Unit | c->u2 in Probe.rel)) implies c->u1 in Probe.rel": {
+  "id": "s153",
+  "verdict": "same"
+ },
+ "s163|all r: Run | (r->LogicCommand in Ask.rel and ((some c: Scenario | c in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s164|all d: Checked, c: Document, u: Unit | (d->c in Context.rel and c->u in Hold.units and u in BareFormula) implies u in Held": {
+  "id": "s164",
+  "verdict": "same"
+ },
+ "s165|(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)": {
+  "id": "s165",
+  "verdict": "same"
+ },
+ "s175|all d: Document, u: Unit | (d not in Worded and d->u in Hold.units) implies (no w: Word | u->w in Expose.rel)": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s176|all r: Run | (r->CheckCommand in Ask.rel and (some u: Unit, w: Word | u->w in Expose.rel)) implies r not in Exits0": {
+  "id": "s176",
+  "verdict": "same"
+ },
+ "s177|some u1: Unit, d1: Document | d1 in Worded and d1->u1 in Hold.units and u1 in Logical and u1 in Current and u1 not in Reported": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s192|all q: Quantifier | (q in VariableOnce and fits[q]) implies q in AsNounPhrase": {
+  "id": "s192",
+  "verdict": "same"
+ },
+ "s203|all l: Series | (l in MoreThanTwo and l in CommaItem) implies l in AsBullets": {
+  "id": "s203",
+  "verdict": "same"
+ },
+ "s204|all l: Series | l in TooLong implies l in AsBullets": {
+  "id": "s204",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner, c: Cleanup | (dispose[o] and c in Registered and c not in Ran and c->o in on) implies eventually runNow[c])": {
+  "id": "s226",
+  "verdict": "same"
+ },
+ "s227|always (all o: Owner | not throwByCall[o] and (all c: Cleanup | not runByCall[c, o]))": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s228|(always (all o1: Owner, c1, c2: Cleanup | (dispose[o1] and c1 in Registered and c1 not in Ran and c2 in Registered and c2 not in Ran and c1->o1 in on and c2->o1 in on and c1->c2 in Clock.older) implies ((eventually runNow[c2]) and ((not runNow[c1]) until runNow[c2])))) and (always (all o2: Owner, f: Failing | (runNow[f] and f->o2 in on and o2 in Disposed) implies always o2 not in Stopped))": {
+  "id": "s228",
+  "verdict": "same"
+ },
+ "s022|all b: Bug | (no s: Spec | cites[b, s]) implies b in Freelancing": {
+  "id": "s022",
+  "verdict": "same"
+ },
+ "s034|all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in Untracking": {
+  "id": "s034",
+  "verdict": "same"
+ },
+ "s046|(all c: Claim | (some Runner and unguarded[c]) implies c in Finding) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding) and (all u: Unit | (some r: Trailer | r->u in Follow.rel) implies u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding) and (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Finding) and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)": {
+  "id": "s046",
+  "verdict": "same"
+ },
+ "s056|all u: Unit | (some r: Trailer | r->u in Follow.rel) implies u in Misanchoring": {
+  "id": "s056",
+  "verdict": "same"
+ },
+ "s058|all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Misindexing": {
+  "id": "s058",
+  "verdict": "same"
+ },
+ "s070|all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not in Untesting": {
+  "id": "s070",
+  "verdict": "same"
+ },
+ "s081|all f: Frontmatter - Listing | no e: Entry | f->e in Item.rel": {
+  "id": "s081",
+  "verdict": "same"
+ },
+ "s094|all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and r in Exits2)": {
+  "id": "s094",
+  "verdict": "same"
+ },
+ "s105|all r: Run | ((no p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits0": {
+  "id": "s105",
+  "verdict": "same"
+ },
+ "s106|all d1, d2: Document | d1->d2 in Bare.rel implies ((all u: Unit | (d2->u in Hold.units implies d1->u in Hold.units) and (d1->u in Hold.units implies d2->u in Hold.units)) and (d2 in Finding implies d1 in Finding) and (d1 in Finding implies d2 in Finding))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s117|all u: Unit | (u in Logical and u not in Unsayable and u not in Stated) implies u in Unwritten": {
+  "id": "s117",
+  "verdict": "same"
+ },
+ "s118|all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale": {
+  "id": "s118",
+  "verdict": "same"
+ },
+ "s130|all u: Unit | u in Unsayable implies u not in Rewritten": {
+  "id": "s130",
+  "verdict": "same"
+ },
+ "s141|all d: Document | d not in Worded implies (all u: Unit, w: Word | (d->u in Hold.units and u->w in Introduce.rel) implies (w not in Flagged and w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused))": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s142|all r: Run, c: CheckCommand, w: Word | (r->c in Ask.rel and w in Flagged) implies r not in Exits0": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s152|all s: Scenario, u: Unit | (s in Impossible and u in Held and (no v: Unit | s->v in Probe.rel)) implies (some x: Search | x->u in Leave.rel and (all v: Unit | x->v in Leave.rel implies v = u) and x->s in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "differs"
+ },
+ "s153|all s: Scenario, x: Trial | (x->s in Pose.scenario and (some v: Unit | s->v in Probe.rel)) implies (all v: Unit | x->v in Leave.rel implies s->v in Probe.rel)": {
+  "id": "s153",
+  "verdict": "same"
+ },
+ "s154|all s: Scenario | s in Impossible implies s in Raised": {
+  "id": "s154",
+  "verdict": "same"
+ },
+ "s163|all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some s: Scenario | s in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s164|all d, e: Document, u: Unit | (d in Checked and e != d and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held": {
+  "id": "s164",
+  "verdict": "differs"
+ },
+ "s165|(all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged) and (all u: Unit | (u not in Term and u in Logical and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel))": {
+  "id": "s165",
+  "verdict": "same"
+ },
+ "s166|all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)": {
+  "id": "s166",
+  "verdict": "same"
+ },
+ "s177|some d: Worded, u: Unit | d->u in Hold.units and u in Logical and u in Current and u not in Reported": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s193|all q: Quantifier | (q in VariableSubject and fits[q]) implies q in AsSubjectPhrase": {
+  "id": "s193",
+  "verdict": "same"
+ },
+ "s205|all l: Series | l in TimeBeforeLast implies l in AsBullets": {
+  "id": "s205",
+  "verdict": "same"
+ },
+ "s227|always all o: Owner | o in Disposed implies ((no c: Cleanup | o in c.on and c in Registered and c not in Ran and runByCall[c, o]) and not throwByCall[o])": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s228|(always all o: Owner | dispose[o] implies (all a, b: Cleanup | (o in a.on and o in b.on and a in Registered and b in Registered and a not in Ran and b not in Ran and a->b in Clock.older) implies ((not runNow[a]) until runNow[b]))) and (always all c: Failing, o: Owner | (o in c.on and o in Disposed and runNow[c]) implies always o not in Stopped)": {
+  "id": "s228",
+  "verdict": "same"
+ },
+ "s229|always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'": {
+  "id": "s229",
+  "verdict": "same"
+ },
+ "s034|some Tracker implies (all b: Bug | (no i: Issue | b->i in Name.issue) implies b in Untracking)": {
+  "id": "s034",
+  "verdict": "same"
+ },
+ "s035|all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b in Mistracking": {
+  "id": "s035",
+  "verdict": "same"
+ },
+ "s046|(some Runner implies (all c: Claim | unguarded[c] implies c in Finding)) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding) and (all u: Unit | (some r: Trailer | r->u in Follow.rel) implies u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding) and (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Finding) and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)": {
+  "id": "s046",
+  "verdict": "same"
+ },
+ "s059|all c: Claim | (some s: Site | c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Mislocation": {
+  "id": "s059",
+  "verdict": "same"
+ },
+ "s069|all t: Test, c: Claim | (t in Declared and checks[t, c]) implies c not in Untesting": {
+  "id": "s069",
+  "verdict": "same"
+ },
+ "s070|all t: Test, c: Claim | (t not in Declared and checks[t, c]) implies c not in Untesting": {
+  "id": "s070",
+  "verdict": "same"
+ },
+ "s071|all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting": {
+  "id": "s071",
+  "verdict": "same"
+ },
+ "s093|some Unreadable implies (all r: Run | r in Exits2)": {
+  "id": "s093",
+  "verdict": "same"
+ },
+ "s094|all f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and (all r: Run | r in Exits2))": {
+  "id": "s094",
+  "verdict": "differs"
+ },
+ "s095|all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound": {
+  "id": "s095",
+  "verdict": "same"
+ },
+ "s106|all d1, d2: Document | d1->d2 in Bare.rel implies ((all u: Unit | d1->u in Hold.units iff d2->u in Hold.units) and (d1 in Finding iff d2 in Finding))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s107|all d1, d2: Document | d1->d2 in Bare.rel implies (all u: Unit | (d2->u in Hold.units implies d1->u in Hold.units) and (d1->u in Hold.units implies d2->u in Hold.units))": {
+  "id": "s107",
+  "verdict": "same"
+ },
+ "s118|all u: Unit | (u in Logical and u not in Unsayable and u in Generated and u in Differs) implies u in Stale": {
+  "id": "s118",
+  "verdict": "same"
+ },
+ "s131|all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported": {
+  "id": "s131",
+  "verdict": "same"
+ },
+ "s141|all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units and u->w in Introduce.rel) implies (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused and w not in Flagged)": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s142|all r: Run | (r->CheckCommand in Ask.rel and some Flagged) implies r not in Exits0": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s152|all sc: Impossible | (some Held and (no v: Unit | sc->v in Probe.rel)) implies (all u: Held | some s: Trial | s->u in Leave.rel and s->sc in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s153|all s: Trial, sc: Scenario, u: Unit | (s->sc in Pose.scenario and s->u in Leave.rel and (some v: Unit | sc->v in Probe.rel)) implies sc->u in Probe.rel": {
+  "id": "s153",
+  "verdict": "same"
+ },
+ "s154|all sc: Impossible | sc in Raised": {
+  "id": "s154",
+  "verdict": "same"
+ },
+ "s155|all sc: Possible | sc not in Raised": {
+  "id": "s155",
+  "verdict": "same"
+ },
+ "s166|all u: Unit | (u not in Term and u in Logical and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)": {
+  "id": "s166",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) implies u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "same"
+ },
+ "s177|some u: Unit, d: Document | d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s179|some sc: Scenario, u: Unit | sc in Impossible and sc in Raised and u->sc in Frees.rel and sc->u in Blame.rel": {
+  "id": "s179",
+  "verdict": "same"
+ },
+ "s193|all q: Quantifier | (fits[q] and q in VariableSubject) implies q in AsSubjectPhrase": {
+  "id": "s193",
+  "verdict": "same"
+ },
+ "s206|all l: Series | l in RelativeBeforeLast implies l in AsBullets": {
+  "id": "s206",
+  "verdict": "same"
+ },
+ "s227|always (no c: Cleanup, o: Owner | runByCall[c, o]) and always (no o: Owner | throwByCall[o])": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s228|always (all o: Owner, c1, c2: Cleanup | (dispose[o] and c1 != c2 and c1 in Registered and c2 in Registered and c1->o in on and c2->o in on and c1 not in Ran and c2 not in Ran and c1->c2 in Clock.older) implies ((not runNow[c1]) until runNow[c2])) and always (all c: Failing, o: Owner | (runNow[c] and c->o in on and o in Disposed) implies always o not in Stopped)": {
+  "id": "s228",
+  "verdict": "same"
+ },
+ "s229|always (all o: Owner | (enter[o] and o in Disposed) implies some Throwing')": {
+  "id": "s229",
+  "verdict": "same"
+ },
+ "s230|always (all o1, o2: Owner, c: Cleanup | (dispose[o1] and o2->o1 in parent and o2 not in Disposed and c in Registered and c not in Ran and c->o1 in on) implies ((not runNow[c]) until dispose[o2])) and always (all o3, o4, o5: Owner | (dispose[o3] and o4->o3 in parent and o5->o3 in parent and o4->o5 in Birth.order and o4 not in Disposed and o5 not in Disposed) implies ((not dispose[o4]) until dispose[o5]))": {
+  "id": "s230",
+  "verdict": "same"
+ },
+ "s024|all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) implies a in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s036|all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in OutdatedTracking": {
+  "id": "s036",
+  "verdict": "same"
+ },
+ "s046|(all c: Claim | (some Runner and unguarded[c]) implies c in Finding) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding) and (all r: Trailer, u: Unit | r->u in Follow.rel implies u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding) and (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Finding) and (all u, v: Unit | (u != v and u->v in Repeat.rel) implies u in Finding)": {
+  "id": "s046",
+  "verdict": "differs"
+ },
+ "s047|some Runner implies (all c: Claim | unguarded[c] implies c in Untesting)": {
+  "id": "s047",
+  "verdict": "same"
+ },
+ "s048|all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Rotting": {
+  "id": "s048",
+  "verdict": "same"
+ },
+ "s060|all d1, d2, d3: Document | (d1->d2 in Extend.rel implies d1->d2 in Context.rel) and ((d1->d2 in Extend.rel and d2->d3 in Context.rel) implies d1->d3 in Context.rel)": {
+  "id": "s060",
+  "verdict": "same"
+ },
+ "s071|all t: Test, b: Bug, s: Spec | (checks[t, b] and b->s in Sit.rel) implies s not in Untesting": {
+  "id": "s071",
+  "verdict": "same"
+ },
+ "s072|all u: Unit | no Runner implies u not in Untesting": {
+  "id": "s072",
+  "verdict": "same"
+ },
+ "s084|all f: Foreign | f in Refused": {
+  "id": "s084",
+  "verdict": "same"
+ },
+ "s096|all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2": {
+  "id": "s096",
+  "verdict": "same"
+ },
+ "s107|all d1, d2: Document | d1->d2 in Bare.rel implies (all u: Unit | d1->u in Hold.units iff d2->u in Hold.units)": {
+  "id": "s107",
+  "verdict": "same"
+ },
+ "s108|all d1, d2: Document | d1->d2 in Bare.rel implies ((d2 in Finding implies d1 in Finding) and (d1 in Finding implies d2 in Finding))": {
+  "id": "s108",
+  "verdict": "same"
+ },
+ "s119|all u: Unit | (u in Generated and u not in Unsayable and u not in Differs) implies u in Current": {
+  "id": "s119",
+  "verdict": "same"
+ },
+ "s120|all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten": {
+  "id": "s120",
+  "verdict": "same"
+ },
+ "s131|all d: Document | d in Worded implies (all u: Unit | (d->u in Hold.units and u in Logical and u not in Current) implies u in Reported)": {
+  "id": "s131",
+  "verdict": "same"
+ },
+ "s142|all r: Run | (r->CheckCommand in Ask.rel and some w: Word | w in Flagged) implies r not in Exits0": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s155|all s: Scenario | s in Possible implies s not in Raised": {
+  "id": "s155",
+  "verdict": "same"
+ },
+ "s156|all s: Scenario, u: Unit | (s in Raised and u->s in Frees.rel) implies s->u in Blame.rel": {
+  "id": "s156",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, w: Signature | (u not in Term and u in Logical and loneOn[u, w]) implies u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "same"
+ },
+ "s179|some s: Scenario | s in Impossible and s in Raised and (some u: Unit | s->u in Blame.rel and u->s in Frees.rel)": {
+  "id": "s179",
+  "verdict": "same"
+ },
+ "s180|some u: Unit, w: Signature | u in Logical and u->w in Rely.rel and u->w not in Expose.rel": {
+  "id": "s180",
+  "verdict": "same"
+ },
+ "s230|always (all p: Owner | dispose[p] implies ((all c: Owner | (p in c.parent and c not in Disposed) implies ((no x: Cleanup | x in Registered and p in x.on and x not in Ran and runNow[x]) until dispose[c])) and (all a, b: Owner | (p in a.parent and p in b.parent and a not in Disposed and b not in Disposed and a->b in Birth.order) implies ((not dispose[a]) until dispose[b]))))": {
+  "id": "s230",
+  "verdict": "differs"
+ },
+ "s231|(always (all o1: Owner, f1: Failing | (runNow[f1] and o1 in f1.on and o1 in Disposed) implies always o1 not in Threw)) and (always (all o2, o3: Owner, f2: Failing | (runNow[f2] and o2 in f2.on and o2 in Disposed and o3 in o2.handler) implies eventually o3 in f2.reached))": {
+  "id": "s231",
+  "verdict": "same"
+ },
+ "s024|all a: Axiom, v: Unit | (cites[a, v] and v not in Axiom) implies a in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s035|all b: Bug, i: Issue | (b->i in Name.issue and i not in Known) implies b in Mistracking": {
+  "id": "s035",
+  "verdict": "same"
+ },
+ "s036|all b: Bug, i: Issue | (b->i in Name.issue and i in Closed) implies b in OutdatedTracking": {
+  "id": "s036",
+  "verdict": "same"
+ },
+ "s059|all c: Claim, s: Site | (c->s in Name.site and (no o: Source | o->s in Hold.symbols)) implies c in Mislocation": {
+  "id": "s059",
+  "verdict": "same"
+ },
+ "s060|all d, e: Document | d->e in Extend.rel implies (d->e in Context.rel and (all f: Document | e->f in Context.rel implies d->f in Context.rel))": {
+  "id": "s060",
+  "verdict": "same"
+ },
+ "s072|no Runner implies (all u: Unit | u not in Untesting)": {
+  "id": "s072",
+  "verdict": "same"
+ },
+ "s073|all u: Unit | no Tracker implies u not in Untracking": {
+  "id": "s073",
+  "verdict": "same"
+ },
+ "s096|(some f: Frontmatter, p: Missing | lists[f, p]) implies (all r: Run | r in Exits2)": {
+  "id": "s096",
+  "verdict": "same"
+ },
+ "s106|all d, e: Document | d->e in Bare.rel implies (d.(Hold.units) = e.(Hold.units) and (d in Finding iff e in Finding))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s107|all d, e: Document | d->e in Bare.rel implies d.(Hold.units) = e.(Hold.units)": {
+  "id": "s107",
+  "verdict": "same"
+ },
+ "s108|all d, e: Document | d->e in Bare.rel implies (d in Finding iff e in Finding)": {
+  "id": "s108",
+  "verdict": "same"
+ },
+ "s109|some a: Axiom, s: Spec, t: Test, g: Tag, d: Document, i: Index | s->a in Sit.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and (all x: Thing | x not in Finding)": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s133|all r: Run, c: CheckCommand, u: Unit | (r->c in Ask.rel and u in Reported) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s156|all s: Scenario | s in Raised implies (all u: Unit | u->s in Frees.rel implies s->u in Blame.rel)": {
+  "id": "s156",
+  "verdict": "same"
+ },
+ "s184|all l: Series | (l in OneLineRule and l not in TimeFirst) implies l in OneLine": {
+  "id": "s184",
+  "verdict": "same"
+ },
+ "s208|all l: Series | l in AndInOr implies l in KeepsAndApart": {
+  "id": "s208",
+  "verdict": "same"
+ },
+ "s220|some l: Series | l in Few and l in CommaItem and l in MoreThanTwo": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s230|(always all o1, o2: Owner, c: Cleanup | (dispose[o1] and o1 in o2.parent and o2 not in Disposed and c in Registered and c not in Ran and o1 in c.on) implies (not runNow[c] until dispose[o2])) and (always all o3, o4, o5: Owner | (dispose[o3] and o3 in o4.parent and o3 in o5.parent and o4->o5 in Birth.order and o4 not in Disposed and o5 not in Disposed) implies (not dispose[o4] until dispose[o5]))": {
+  "id": "s230",
+  "verdict": "same"
+ },
+ "s231|always all c: Failing, o: Owner | (runNow[c] and o in c.on and o in Disposed) implies ((always o not in Threw) and (some o.handler implies eventually o.handler in c.reached))": {
+  "id": "s231",
+  "verdict": "same"
+ },
+ "s232|some o1, o2: Owner, f: Failing | o2 in o1.handler and eventually (dispose[o1] and o1 in f.on and eventually (runNow[f] and eventually o2 in f.reached))": {
+  "id": "s232",
+  "verdict": "same"
+ },
+ "s025|all f: Fact | (some v: Unit | cites[f, v]) implies f in Misnesting": {
+  "id": "s025",
+  "verdict": "same"
+ },
+ "s026|all s: Spec | (some v: Unit | cites[s, v] and v not in Axiom and v not in Spec and v not in Fact) implies s in Misnesting": {
+  "id": "s026",
+  "verdict": "same"
+ },
+ "s037|some Runner implies (all b: Bug | not tested[b] implies b in Untesting)": {
+  "id": "s037",
+  "verdict": "same"
+ },
+ "s060|all d1, d2: Document | d1->d2 in Extend.rel implies (d1->d2 in Context.rel and (all x: Document | d2->x in Context.rel implies d1->x in Context.rel))": {
+  "id": "s060",
+  "verdict": "same"
+ },
+ "s074|all r: Run | ((some f: Frontmatter, m: Missing | lists[f, m]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2": {
+  "id": "s074",
+  "verdict": "same"
+ },
+ "s108|all d1, d2: Document | d1->d2 in Bare.rel implies (d1 in Finding iff d2 in Finding)": {
+  "id": "s108",
+  "verdict": "same"
+ },
+ "s109|no Finding and (some d: Document, a: Axiom, s: Spec, i: Index, t: Test, g: Tag | d->a in Hold.units and d->s in Hold.units and s->a in Sit.rel and d->i in Hold.indexes and i->d in Match.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag)": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s110|some b: Bug, e: ExpectedFailure, i: Issue | b->i in Name.issue and i in Known and i not in Closed and checks[e, b] and b not in Finding and e not in Finding": {
+  "id": "s110",
+  "verdict": "same"
+ },
+ "s133|all r: Run, c: CheckCommand | (r->c in Ask.rel and (some u: Unit | u in Reported)) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s134|all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)": {
+  "id": "s134",
+  "verdict": "same"
+ },
+ "s145|all d: Document, u: Unit | (d->u in Hold.units and d not in Checked and (some e: Checked | e->d in Context.rel)) implies u not in Rewritten": {
+  "id": "s145",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, w: Signature | (loneOn[u, w] and u in Logical and u not in Term) implies u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "same"
+ },
+ "s170|all u1, u2: Unit, w: Word | (u2 != u1 and u2->w in Utter.rel) implies u1->w not in Expose.rel": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s220|some l: Series | l in MoreThanTwo and l in Few and l in CommaItem": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s231|always ((all o: Owner, c: Failing | (runNow[c] and c->o in on and o in Disposed) implies always o not in Threw) and (all o, h: Owner, c: Failing | (o->h in handler and runNow[c] and c->o in on and o in Disposed) implies eventually c->h in reached))": {
+  "id": "s231",
+  "verdict": "same"
+ },
+ "s232|some o, h: Owner | o != h and o->h in handler and eventually (some c: Failing | dispose[o] and c->o in on and eventually (runNow[c] and eventually c->h in reached))": {
+  "id": "s232",
+  "verdict": "same"
+ },
+ "s027|all e: Exception, v: Unit | (cites[e, v] and v not in Spec and v not in Fact) implies e in Misnesting": {
+  "id": "s027",
+  "verdict": "same"
+ },
+ "s028|all b: Bug | (some v: Unit | cites[b, v] and v not in Spec) implies b in Misnesting": {
+  "id": "s028",
+  "verdict": "same"
+ },
+ "s113|some r1: Run, p1: Installed, d1: Document, f1: Listing | d1->f1 in Head.rel and lists[f1, p1] and p1->d1 in Over.rel and calls[r1, p1] and r1->p1 in Return.code1 and r1 in Exits1": {
+  "id": "s113",
+  "verdict": "same"
+ },
+ "s136|all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u2: Unit | u2->w in Introduce.rel)) implies w in Undeclared": {
+  "id": "s136",
+  "verdict": "same"
+ },
+ "s172|all d1, d2: Document, u: Unit, w: Word | (d2->d1 in Context.rel and d1->u in Hold.units and u->w in Utter.rel) implies (no v: Unit | d2->v in Hold.units and v->w in Expose.rel)": {
+  "id": "s172",
+  "verdict": "same"
+ },
+ "s028|all b: Bug, u: Unit | (cites[b, u] and u not in Spec) implies b in Misnesting": {
+  "id": "s028",
+  "verdict": "same"
+ },
+ "s040|all c: Conflict, i: Issue | (c->i in Name.issue and i not in Known) implies c in Mistracking": {
+  "id": "s040",
+  "verdict": "same"
+ },
+ "s052|all t: Test, c: Claim | (checks[t, c] and refined[c]) implies t in Overreach": {
+  "id": "s052",
+  "verdict": "same"
+ },
+ "s053|all p: Pointer | (no tg: Target | p->tg in Name.pointer) implies p in Rotting": {
+  "id": "s053",
+  "verdict": "same"
+ },
+ "s054|all unit_1: Unit | (some u: Unit | unit_1->u in Repeat.rel) implies unit_1 in Rotting": {
+  "id": "s054",
+  "verdict": "same"
+ },
+ "s114|some run_1: Run, document_1: Document, refused_frontmatter_1: Refused | document_1->refused_frontmatter_1 in Head.rel and document_1 in Unreadable and run_1 in Exits2": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s138|all unit_1: Unit, word_1: Word | (unit_1->word_1 in Voice.rel and (some u: Unit | u->word_1 in Introduce.rel) and unit_1->word_1 not in Introduce.rel) implies word_1 in Apart": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s150|all search_1: Search, scenario_1: Scenario | (search_1 in Trial and search_1->scenario_1 in Pose.scenario) implies (scenario_1 in Impossible and search_1 in Afterwards)": {
+  "id": "s150",
+  "verdict": "same"
+ },
+ "s162|all r: Run, lc: LogicCommand | (r->lc in Ask.rel and (no s: Scenario | s in Raised) and (no unit_1: Unit | unit_1 in Contradicting)) implies r in Exits0": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s172|all document_1, document_2: Document, unit_1, unit_2: Unit, word: Word | (document_1->document_2 in Context.rel and document_1->unit_1 in Hold.units and document_2->unit_2 in Hold.units and unit_2->word in Utter.rel) implies unit_1->word not in Expose.rel": {
+  "id": "s172",
+  "verdict": "same"
+ },
+ "s189|all definition_1: Definition | definition_1 in NoKindFirst implies definition_1 in AsItStands": {
+  "id": "s189",
+  "verdict": "same"
+ },
+ "s213|some quantifier_1: Quantifier | quantifier_1 in VariableOnce and quantifier_1 in NoWithAnother": {
+  "id": "s213",
+  "verdict": "same"
+ },
+ "s024|all u: Axiom | (some v: Unit | cites[u, v] and v not in Axiom) implies u in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s025|all u: Fact | (some v: Unit | cites[u, v]) implies u in Misnesting": {
+  "id": "s025",
+  "verdict": "same"
+ },
+ "s026|all u: Spec | (some v: Unit | cites[u, v] and v not in Axiom and v not in Spec and v not in Fact) implies u in Misnesting": {
+  "id": "s026",
+  "verdict": "same"
+ },
+ "s027|all u: Exception | (some v: Unit | cites[u, v] and v not in Spec and v not in Fact) implies u in Misnesting": {
+  "id": "s027",
+  "verdict": "same"
+ },
+ "s037|all u: Bug | (some Runner and not tested[u]) implies u in Untesting": {
+  "id": "s037",
+  "verdict": "same"
+ },
+ "s060|(all d1, d2: Document | d1->d2 in Extend.rel implies d2->d1 in Context.rel) and (all a, b, c: Document | (a->b in Extend.rel and b->c in Extend.rel) implies c->a in Context.rel)": {
+  "id": "s060",
+  "verdict": "differs"
+ },
+ "s073|no Tracker implies (no u: Unit | u in Untracking)": {
+  "id": "s073",
+  "verdict": "same"
+ },
+ "s108|all d1, d2: Document | (d1->d2 in Bare.rel or d2->d1 in Bare.rel) implies (d1 in Finding iff d2 in Finding)": {
+  "id": "s108",
+  "verdict": "same"
+ },
+ "s109|some a: Axiom, s: Spec, t: Declared, g: Tag, d: Document, i: Index | s->a in Sit.rel and t->g in Carry.rel and g->s in Name.tag and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and no Finding": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s110|some b: Bug, iss: Issue, ef: ExpectedFailure | b->iss in Name.issue and iss in Known and iss not in Closed and checks[ef, b] and b not in Finding and ef not in Finding": {
+  "id": "s110",
+  "verdict": "same"
+ },
+ "s111|some conflict_1: Conflict, issue_1: Issue, unit_1, unit_2: Unit | unit_1 != unit_2 and conflict_1->issue_1 in Name.issue and issue_1 in Known and issue_1 not in Closed and conflict_1->unit_1 in Name.between and conflict_1->unit_2 in Name.between and conflict_1 not in Finding": {
+  "id": "s111",
+  "verdict": "same"
+ },
+ "s134|all r: Run | (r->GenerateCommand in Ask.rel) implies ((all u: Handwritten | u in Reported) and (some Handwritten implies r not in Exits0))": {
+  "id": "s134",
+  "verdict": "same"
+ },
+ "s146|all d, d2: Document, u, u2: Unit, w: Word | (d->u in Hold.units and u->w in Voice.rel and d->d2 in Context.rel and d2->u2 in Hold.units and u2->w in Introduce.rel) implies w not in Undeclared": {
+  "id": "s146",
+  "verdict": "same"
+ },
+ "s170|all u: Unit, w: Word | (some v: Unit | v != u and v->w in Utter.rel) implies u->w not in Expose.rel": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s209|all l: Series | (l in OneLineRule and l in TimeSecond and l not in TimeFirst) implies l in KeepsThen": {
+  "id": "s209",
+  "verdict": "same"
+ },
+ "s220|some l: Series | l in Few and l in MoreThanTwo and l in CommaItem": {
+  "id": "s220",
+  "verdict": "same"
+ },
+ "s222|some l: Series | l in SharedSubject and l in Many": {
+  "id": "s222",
+  "verdict": "same"
+ },
+ "s232|some owner_1, owner_2: Owner, failing_cleanup_1: Failing | owner_1.handler = owner_2 and eventually (dispose[owner_1] and failing_cleanup_1.on = owner_1 and after eventually (runNow[failing_cleanup_1] and after eventually failing_cleanup_1.reached = owner_2))": {
+  "id": "s232",
+  "verdict": "same"
+ },
+ "s027|all e: Exception | (some v: Unit | cites[e, v] and v not in Spec and v not in Fact) implies e in Misnesting": {
+  "id": "s027",
+  "verdict": "same"
+ },
+ "s075|(all p: Plugin, d: Document | applies[p, d] implies p->d in Over.rel) and (all p: Plugin, d: Document | (not applies[p, d] and p->d in Over.rel) implies d in Given)": {
+  "id": "s075",
+  "verdict": "same"
+ },
+ "s100|all command_1: Command | available[command_1] implies command_1 not in Unknown": {
+  "id": "s100",
+  "verdict": "same"
+ },
+ "s112|some document_1, document_2, document_3: Document | document_1 != document_3 and document_1->document_2 in Extend.rel and document_2->document_3 in Extend.rel and document_1->document_3 in Context.rel": {
+  "id": "s112",
+  "verdict": "same"
+ },
+ "s136|all word_1: Word | ((some unit_1: Unit | unit_1->word_1 in Voice.rel) and (no u: Unit | u->word_1 in Introduce.rel)) implies word_1 in Undeclared": {
+  "id": "s136",
+  "verdict": "same"
+ },
+ "s146|all document_1, document_2: Document, unit_1, unit_2: Unit, word_1: Word | (document_1->document_2 in Context.rel and document_1->unit_1 in Hold.units and unit_1->word_1 in Voice.rel and document_2->unit_2 in Hold.units and unit_2->word_1 in Introduce.rel) implies word_1 not in Undeclared": {
+  "id": "s146",
+  "verdict": "same"
+ },
+ "s147|(all u: Contradicting | u in Named) and (all s: Impossible | s in Raised)": {
+  "id": "s147",
+  "verdict": "same"
+ },
+ "s160|all unit_1, unit_2: Unit | unit_1->unit_2 in Share.rel implies unit_1->unit_2 in Together.rel": {
+  "id": "s160",
+  "verdict": "same"
+ },
+ "s170|all unit_1, unit_2: Unit, word: Word | (unit_1 != unit_2 and unit_2->word in Utter.rel) implies unit_1->word not in Expose.rel": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s171|all u: Unit, word: Word | u->word in Picture.rel implies (no v: Unit | v->word in Expose.rel)": {
+  "id": "s171",
+  "verdict": "same"
+ },
+ "s187|all definition_1: Definition | (definition_1 in OrInsideKind and byKind[definition_1]) implies definition_1 in OneCoordination": {
+  "id": "s187",
+  "verdict": "same"
+ },
+ "s199|all quantifier_1: Quantifier | quantifier_1 in ConditionAside implies quantifier_1 in InFull": {
+  "id": "s199",
+  "verdict": "same"
+ },
+ "s054|all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Rotting": {
+  "id": "s054",
+  "verdict": "same"
+ },
+ "s067|all f: Fence, u1: Unit | f->u1 in Within.rel implies (no v: Unit | v->u1 in Sit.rel and v->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s077|all d: Document, p: Plugin | applies[p, d] implies p->d in Over.rel": {
+  "id": "s077",
+  "verdict": "same"
+ },
+ "s078|all d: Document, p: Plugin | ((some f: Listing | d->f in Head.rel and not lists[f, p]) and d not in Given) implies p->d not in Over.rel": {
+  "id": "s078",
+  "verdict": "same"
+ },
+ "s102|(all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2) and (all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1)": {
+  "id": "s102",
+  "verdict": "same"
+ },
+ "s113|some r: Run, p: Installed, d: Document | calls[r, p] and p->d in Over.rel and applies[p, d] and r->p in Return.code1 and r in Exits1": {
+  "id": "s113",
+  "verdict": "same"
+ },
+ "s138|all u: Unit, w: Word | (u->w in Voice.rel and (some u2: Unit | u2->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s139|all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u1: Unit | u1->w in Rely.rel)) implies w in Unused": {
+  "id": "s139",
+  "verdict": "same"
+ },
+ "s151|all s: Search, sc: Scenario, u1: Unit | (s in Trial and s->sc in Pose.scenario and s->u1 in Leave.rel) implies (u1 in Held and s->u1 not in Pose.units and (all u2: Unit | (u2 in Held and u2 != u1) implies s->u2 in Pose.units))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s162|all r: Run, c: LogicCommand | (r->c in Ask.rel and (no sc: Scenario | sc in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s163|all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some sc: Scenario | sc in Raised) or (some u1: Unit | u1 in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner, c: Cleanup | (o in Disposed and c in Registered and c.on = o and c not in Ran) implies eventually (c in Ran))": {
+  "id": "s226",
+  "verdict": "differs"
+ },
+ "s020|all e: Exception | (no sp: Spec | cites[e, sp]) implies e in Freelancing": {
+  "id": "s020",
+  "verdict": "same"
+ },
+ "s044|all ef: ExpectedFailure | ((no b: Bug | checks[ef, b]) and (no x: Exception | checks[ef, x])) implies ef in UnexplainedFailure": {
+  "id": "s044",
+  "verdict": "same"
+ },
+ "s054|all u: Unit | (some v: Unit | v != u and u->v in Repeat.rel) implies u in Rotting": {
+  "id": "s054",
+  "verdict": "differs"
+ },
+ "s056|all u: Unit | (some tr: Trailer | tr->u in Follow.rel) implies u in Misanchoring": {
+  "id": "s056",
+  "verdict": "same"
+ },
+ "s067|no f: Fence, u1, u2: Unit | (f->u2 in Within.rel and u1->u2 in Sit.rel and u1->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s114|some d: Document, f: Refused, r: Run | (d->f in Head.rel and d in Unreadable and r in Exits2)": {
+  "id": "s114",
+  "verdict": "same"
+ },
+ "s138|all u1: Unit, w1: Word | (u1->w1 in Voice.rel and (some u2: Unit | u2->w1 in Introduce.rel) and u1->w1 not in Introduce.rel) implies w1 in Apart": {
+  "id": "s138",
+  "verdict": "same"
+ },
+ "s139|all w: Word | ((some u: Unit | u->w in Introduce.rel) and (no u2: Unit | u2->w in Rely.rel)) implies w in Unused": {
+  "id": "s139",
+  "verdict": "same"
+ },
+ "s140|all t1: Term, w1: Word | (t1->w1 in Introduce.rel and t1->w1 in Voice.rel and (some u1: Unit | u1->w1 in Rely.rel)) implies (w1 not in Undeclared and w1 not in Misplaced and w1 not in Apart and w1 not in Unused and w1 not in Flagged)": {
+  "id": "s140",
+  "verdict": "same"
+ },
+ "s151|all s: Search | (s in Trial and (some sc: Scenario | s->sc in Pose.scenario)) implies (all u: Unit | s->u in Leave.rel implies (u in Held and s->u not in Pose.units and (all u2: Unit | (u2 in Held and u2 != u) implies s->u2 in Pose.units)))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s152|all sc1: Scenario, u1: Unit | (sc1 in Impossible and u1 in Held and (no u2: Unit | sc1->u2 in Probe.rel)) implies (some s: Search | s in Trial and s->u1 in Leave.rel and s->sc1 in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s162|all r: Run | (some c: LogicCommand | r->c in Ask.rel) implies (((no sc: Scenario | sc in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0)": {
+  "id": "s162",
+  "verdict": "same"
+ },
+ "s163|all r: Run | (some c: LogicCommand | r->c in Ask.rel) implies (((some sc: Scenario | sc in Raised) or (some u: Unit | u in Contradicting)) implies r not in Exits0)": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s175|all d: Document | d not in Worded implies (no u: Unit, w: Word | d->u in Hold.units and u->w in Expose.rel)": {
+  "id": "s175",
+  "verdict": "same"
+ },
+ "s191|all d1: Definition | d1 in NotAboutSubject implies d1 in AsItStands": {
+  "id": "s191",
+  "verdict": "same"
+ },
+ "s212|all r: Series | (r in Rule and r not in OneLine) implies r in ThenOwnLine": {
+  "id": "s212",
+  "verdict": "differs"
+ },
+ "s215|some q1: Quantifier | q1 in VariableOnce and q1 in ConditionAside": {
+  "id": "s215",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner | dispose[o] implies (all c: Cleanup | (c->o in on and c in Registered and c not in Ran) implies eventually c in Ran))": {
+  "id": "s226",
+  "verdict": "same"
+ },
+ "s019|all u: Spec | ((no a: Axiom | cites[u,a]) and (no s: Spec | cites[u,s])) implies u in Freelancing": {
+  "id": "s019",
+  "verdict": "same"
+ },
+ "s020|all u: Exception | (no s: Spec | cites[u,s]) implies u in Freelancing": {
+  "id": "s020",
+  "verdict": "same"
+ },
+ "s021|all u: Exception | (no f: Fact | cites[u,f]) implies u in Freelancing": {
+  "id": "s021",
+  "verdict": "same"
+ },
+ "s030|all t: Term | (some v: Unit | cites[t,v]) implies t in Misnesting": {
+  "id": "s030",
+  "verdict": "same"
+ },
+ "s044|all t: ExpectedFailure | ((no b: Bug | checks[t,b]) and (no e: Exception | checks[t,e])) implies t in UnexplainedFailure": {
+  "id": "s044",
+  "verdict": "same"
+ },
+ "s045|all t: PlainTest | (some b: Bug | checks[t,b]) implies t in Unpinning": {
+  "id": "s045",
+  "verdict": "same"
+ },
+ "s067|all f: Fence, u: Unit | f->u in Within.rel implies (no u2: Unit | u2->u in Sit.rel and u2->f in Blocks.rel)": {
+  "id": "s067",
+  "verdict": "same"
+ },
+ "s069|all c: Claim | (some t: Declared | checks[t,c]) implies c not in Untesting": {
+  "id": "s069",
+  "verdict": "same"
+ },
+ "s080|all r: Run, p: Plugin | calls[r,p] implies (all d: Given | p->d in Over.rel)": {
+  "id": "s080",
+  "verdict": "same"
+ },
+ "s138|all w: Word | (some u1: Unit, u2: Unit | u1 != u2 and u1->w in Voice.rel and u2->w in Introduce.rel) implies w in Apart": {
+  "id": "s138",
+  "verdict": "differs"
+ },
+ "s140|all t: Term, w: Word | (t->w in Introduce.rel and t->w in Voice.rel and (some u: Unit | u->w in Rely.rel)) implies (w not in Flagged and w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused)": {
+  "id": "s140",
+  "verdict": "same"
+ },
+ "s151|all s: Trial, sc: Scenario, u: Unit | (s->sc in Pose.scenario and s->u in Leave.rel) implies (u in Held and s->u not in Pose.units and (all u2: Held | u2 != u implies s->u2 in Pose.units))": {
+  "id": "s151",
+  "verdict": "same"
+ },
+ "s152|all sc: Impossible | (no u: Unit | sc->u in Probe.rel) implies (all u: Held | some s: Trial | s->u in Leave.rel and s->sc in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s153|all s: Search, sc: Scenario, u1: Unit | (s in Trial and s->sc in Pose.scenario and s->u1 in Leave.rel and (some u2: Unit | sc->u2 in Probe.rel)) implies sc->u1 in Probe.rel": {
+  "id": "s153",
+  "verdict": "same"
+ },
+ "s163|all r: Run | (r->LogicCommand in Ask.rel and ((some sc: Scenario | sc in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s164|all d: Checked, u: Unit | ((some d2: Document | d->d2 in Context.rel and d2->u in Hold.units) and u in BareFormula) implies u in Held": {
+  "id": "s164",
+  "verdict": "same"
+ },
+ "s192|all q1: Quantifier | (q1 in VariableOnce and fits[q1]) implies q1 in AsNounPhrase": {
+  "id": "s192",
+  "verdict": "same"
+ },
+ "s216|some q1: Quantifier | q1 in VariableWithCondition and q1 in NothingToAttach": {
+  "id": "s216",
+  "verdict": "same"
+ },
+ "s226|always (all o: Owner, c: Cleanup | (dispose[o] and c in Registered and c not in Ran and c.on = o) implies eventually runNow[c])": {
+  "id": "s226",
+  "verdict": "same"
+ },
+ "s227|always (no o: Owner | throwByCall[o] or (some c: Cleanup | runByCall[c,o]))": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s228|(always (all o1: Owner, c1: Cleanup, c2: Cleanup | (dispose[o1] and c1 in Registered and c1 not in Ran and c2 in Registered and c2 not in Ran and c1.on = o1 and c2.on = o1 and c1->c2 in Clock.older) implies ((not runNow[c1]) until runNow[c2]))) and (always (all o2: Owner, c: Failing | (runNow[c] and c.on = o2 and o2 in Disposed) implies always (o2 not in Stopped)))": {
+  "id": "s228",
+  "verdict": "same"
+ },
+ "s044|all e: ExpectedFailure | ((no b: Bug | checks[e, b]) and (no x: Exception | checks[e, x])) implies e in UnexplainedFailure": {
+  "id": "s044",
+  "verdict": "same"
+ },
+ "s046|(all c: Claim | (some Runner and unguarded[c]) implies c in Finding) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no tg: Target | p->tg in Name.pointer) implies p in Finding) and (all u1: Unit | (not used[u1] and u1 not in Conflict) implies u1 in Finding) and (all u1: Unit | (some tr: Trailer | tr->u1 in Follow.rel) implies u1 in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no ix: Index | d->ix in Hold.indexes)) implies d in Finding) and (all d: Document | (some ix: Index | d->ix in Hold.indexes and not (ix->d in Match.rel)) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no src: Source | src->s in Hold.symbols)) implies c in Finding) and (all u1: Unit | (some u: Unit | u1->u in Repeat.rel) implies u1 in Finding)": {
+  "id": "s046",
+  "verdict": "same"
+ },
+ "s057|all d: Document | ((some u: Unit | d->u in Hold.units) and (no ix: Index | d->ix in Hold.indexes)) implies d in Misindexing": {
+  "id": "s057",
+  "verdict": "same"
+ },
+ "s058|all d: Document | (some ix: Index | d->ix in Hold.indexes and not (ix->d in Match.rel)) implies d in Misindexing": {
+  "id": "s058",
+  "verdict": "same"
+ },
+ "s082|all f1: Frontmatter | (f1 in Misquoted or f1 in Foreign or f1 in Unclosed or f1 in Unterminated or f1 in Doubled or f1 in Dangling or f1 in Looping or f1 in Stray) implies f1 in Refused": {
+  "id": "s082",
+  "verdict": "same"
+ },
+ "s094|all r: Run, f: Frontmatter, mp: Missing | lists[f, mp] implies (mp in Unfound and r in Exits2)": {
+  "id": "s094",
+  "verdict": "same"
+ },
+ "s106|all d1: Document, d2: Document | d1->d2 in Bare.rel implies ((all u: Unit | (d2->u in Hold.units implies d1->u in Hold.units) and (d1->u in Hold.units implies d2->u in Hold.units)) and (d2 in Finding implies d1 in Finding) and (d1 in Finding implies d2 in Finding))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s141|all d: Document | d not in Worded implies (all w: Word | (some u: Unit | d->u in Hold.units and u->w in Introduce.rel) implies (w not in Flagged and w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused))": {
+  "id": "s141",
+  "verdict": "same"
+ },
+ "s142|all r: Run, cc: CheckCommand, w1: Word | (r->cc in Ask.rel and w1 in Flagged) implies r not in Exits0": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s152|all sc: Scenario, u: Unit | (sc in Impossible and u in Held and (no u2: Unit | sc->u2 in Probe.rel)) implies (some s: Search | s in Trial and s->u in Leave.rel and s->sc in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s153|all s: Trial, sc: Scenario | (s->sc in Pose.scenario and (some u: Unit | sc->u in Probe.rel)) implies (all u2: Unit | s->u2 in Leave.rel implies sc->u2 in Probe.rel)": {
+  "id": "s153",
+  "verdict": "same"
+ },
+ "s154|all sc1: Scenario | sc1 in Impossible implies sc1 in Raised": {
+  "id": "s154",
+  "verdict": "same"
+ },
+ "s163|all r: Run | ((some lc: LogicCommand | r->lc in Ask.rel) and ((some sc: Scenario | sc in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0": {
+  "id": "s163",
+  "verdict": "same"
+ },
+ "s164|all d1: Document, d2: Document, u: Unit | (d1 in Checked and d2 != d1 and d1->d2 in Context.rel and d2->u in Hold.units and u in BareFormula) implies u in Held": {
+  "id": "s164",
+  "verdict": "differs"
+ },
+ "s165|(all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged) and (all u: Unit | (u not in Term and u in Logical and u in Unchallenged) implies (some sg: Signature | u->sg in Expose.rel))": {
+  "id": "s165",
+  "verdict": "same"
+ },
+ "s166|all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some sg: Signature | u->sg in Expose.rel)": {
+  "id": "s166",
+  "verdict": "same"
+ },
+ "s176|all r: Run, cc: CheckCommand, u: Unit, w: Word | (r->cc in Ask.rel and u->w in Expose.rel) implies r not in Exits0": {
+  "id": "s176",
+  "verdict": "same"
+ },
+ "s177|some d: Document, u: Unit | d in Worded and d->u in Hold.units and u in Logical and u in Current and u not in Reported": {
+  "id": "s177",
+  "verdict": "same"
+ },
+ "s193|all q1: Quantifier | (q1 in VariableSubject and fits[q1]) implies q1 in AsSubjectPhrase": {
+  "id": "s193",
+  "verdict": "same"
+ },
+ "s217|some d1: Definition | d1 in SameKindTwice and d1 in AmbiguousAnd": {
+  "id": "s217",
+  "verdict": "same"
+ },
+ "s227|always (all o: Owner | o in Disposed implies ((all c: Cleanup | (c in Registered and c not in Ran and c.on = o) implies not runByCall[c, o]) and not throwByCall[o]))": {
+  "id": "s227",
+  "verdict": "same"
+ },
+ "s228|(always (all o: Owner | dispose[o] implies (all c1, c2: Cleanup | (c1.on = o and c2.on = o and c1 in Registered and c1 not in Ran and c2 in Registered and c2 not in Ran and c1->c2 in Clock.older) implies ((not runNow[c1]) until runNow[c2])))) and (always (all c: Cleanup, o: Owner | (c in Failing and c.on = o and o in Disposed and runNow[c]) implies (always o not in Stopped)))": {
+  "id": "s228",
+  "verdict": "same"
+ },
+ "s046|(some Runner implies (all c: Claim | unguarded[c] implies c in Finding)) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no tg: Target | p->tg in Name.pointer) implies p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding) and (all u: Unit | (some tr: Trailer | tr->u in Follow.rel) implies u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding) and (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no src: Source | src->s in Hold.symbols)) implies c in Finding) and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)": {
+  "id": "s046",
+  "verdict": "same"
+ },
+ "s059|all c: Claim | (some s: Site | c->s in Name.site and (no src: Source | src->s in Hold.symbols)) implies c in Mislocation": {
+  "id": "s059",
+  "verdict": "same"
+ },
+ "s069|all t: Declared, c: Claim | checks[t, c] implies c not in Untesting": {
+  "id": "s069",
+  "verdict": "same"
+ },
+ "s152|all s: Impossible | (no u: Unit | s->u in Probe.rel) implies (all u: Held | some srch: Trial | srch->u in Leave.rel and srch->s in Pose.scenario)": {
+  "id": "s152",
+  "verdict": "same"
+ },
+ "s153|all srch: Trial, s: Scenario, u: Unit | (srch->s in Pose.scenario and srch->u in Leave.rel and (some u2: Unit | s->u2 in Probe.rel)) implies s->u in Probe.rel": {
+  "id": "s153",
+  "verdict": "same"
+ },
+ "s165|(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some sg: Signature | u->sg in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)": {
+  "id": "s165",
+  "verdict": "same"
+ },
+ "s166|all u: Unit | (u not in Term and u in Logical and u in Unchallenged) implies (some sg: Signature | u->sg in Expose.rel)": {
+  "id": "s166",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, sg: Signature | (u in Logical and u not in Term and loneOn[u, sg]) implies u->sg in Expose.rel": {
+  "id": "s167",
+  "verdict": "same"
+ },
+ "s179|some s: Scenario, u: Unit | s in Impossible and s in Raised and u->s in Frees.rel and s->u in Blame.rel": {
+  "id": "s179",
+  "verdict": "same"
+ },
+ "s228|(always (all o: Owner, c1, c2: Cleanup | (dispose[o] and c1 in Registered and c2 in Registered and c1 not in Ran and c2 not in Ran and c1.on = o and c2.on = o and c1->c2 in Clock.older) implies ((not runNow[c1]) until runNow[c2]))) and (always (all c: Failing, o: Owner | (runNow[c] and c.on = o and o in Disposed) implies (always o not in Stopped)))": {
+  "id": "s228",
+  "verdict": "same"
+ },
+ "s230|(always (all o1, o2: Owner, c: Cleanup | (dispose[o1] and o2.parent = o1 and o2 not in Disposed and c in Registered and c not in Ran and c.on = o1) implies ((not runNow[c]) until dispose[o2]))) and (always (all o3, o4, o5: Owner | (dispose[o3] and o4.parent = o3 and o5.parent = o3 and o4->o5 in Birth.order and o4 not in Disposed and o5 not in Disposed) implies ((not dispose[o4]) until dispose[o5])))": {
+  "id": "s230",
+  "verdict": "same"
+ },
+ "s024|all axiom_1: Axiom | (some u: Unit | cites[axiom_1, u] and u not in Axiom) implies axiom_1 in Misnesting": {
+  "id": "s024",
+  "verdict": "same"
+ },
+ "s046|(all c: Claim | (some Runner and unguarded[c]) implies c in Finding) and (all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Finding) and (all t: Test | adrift[t] implies t in Finding) and (all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Finding) and (all u: Unit | (not used[u] and u not in Conflict) implies u in Finding) and (all tr: Trailer, u: Unit | tr->u in Follow.rel implies u in Finding) and (all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Finding) and (all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Finding) and (all c: Claim | (some s: Site | c->s in Name.site and (no src: Source | src->s in Hold.symbols)) implies c in Finding) and (all u, v: Unit | u->v in Repeat.rel implies u in Finding)": {
+  "id": "s046",
+  "verdict": "same"
+ },
+ "s047|(some Runner) implies (all c: Claim | unguarded[c] implies c in Untesting)": {
+  "id": "s047",
+  "verdict": "same"
+ },
+ "s060|all d1, d2, d3: Document | ((d1->d2 in Extend.rel implies d1->d2 in Context.rel) and ((d1->d2 in Extend.rel and d2->d3 in Context.rel) implies d1->d3 in Context.rel))": {
+  "id": "s060",
+  "verdict": "same"
+ },
+ "s072|all u: Unit | (no Runner) implies u not in Untesting": {
+  "id": "s072",
+  "verdict": "same"
+ },
+ "s142|all r: Run | (r->CheckCommand in Ask.rel and (some w: Word | w in Flagged)) implies r not in Exits0": {
+  "id": "s142",
+  "verdict": "same"
+ },
+ "s143|all w: Word | not (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w not in Flagged": {
+  "id": "s143",
+  "verdict": "same"
+ },
+ "s166|all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some s: Signature | u->s in Expose.rel)": {
+  "id": "s166",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, s: Signature | (u not in Term and loneOn[u, s]) implies u->s in Expose.rel": {
+  "id": "s167",
+  "verdict": "differs"
+ },
+ "s180|some u: Unit, s: Signature | u in Logical and u->s in Rely.rel and u->s not in Expose.rel": {
+  "id": "s180",
+  "verdict": "same"
+ },
+ "s230|always (all o: Owner | dispose[o] implies ((all c: Owner | (c->o in parent and c not in Disposed) implies ((no cl: Cleanup | cl->o in on and cl in Registered and cl not in Ran and runNow[cl]) until dispose[c])) and (all a, b: Owner | (a->o in parent and b->o in parent and a != b and a not in Disposed and b not in Disposed and a->b in Birth.order) implies ((not dispose[a]) until dispose[b]))))": {
+  "id": "s230",
+  "verdict": "differs"
+ },
+ "s231|(always (all o1: Owner, fc1: Failing | (runNow[fc1] and fc1->o1 in on and o1 in Disposed) implies (always o1 not in Threw))) and (always (all o2, o3: Owner, fc2: Failing | (runNow[fc2] and fc2->o2 in on and o2 in Disposed and o2->o3 in handler) implies (eventually fc2->o3 in reached)))": {
+  "id": "s231",
+  "verdict": "same"
+ },
+ "s060|all d1, d2: Document | d1->d2 in Extend.rel implies (d2->d1 in Context.rel and (all d3: Document | d3->d2 in Context.rel implies d3->d1 in Context.rel))": {
+  "id": "s060",
+  "verdict": "differs"
+ },
+ "s061|all fence_1: Fence, u: Unit | (fence_1 in Languaged and fence_1->u in Within.rel) implies u->fence_1 in Blocks.rel": {
+  "id": "s061",
+  "verdict": "same"
+ },
+ "s097|all r: Run, command_1: Command | (r->command_1 in Ask.rel and not available[command_1]) implies (command_1 in Unknown and r in Exits2)": {
+  "id": "s097",
+  "verdict": "same"
+ },
+ "s106|all d1, d2: Document | (d1->d2 in Bare.rel or d2->d1 in Bare.rel) implies ((all u: Unit | d1->u in Hold.units iff d2->u in Hold.units) and (d1 in Finding iff d2 in Finding))": {
+  "id": "s106",
+  "verdict": "same"
+ },
+ "s109|some axiom_1: Axiom, spec_1: Spec, test_1: Test, tag_1: Tag, document_1: Document, index_1: Index | spec_1->axiom_1 in Sit.rel and test_1 in Declared and test_1->tag_1 in Carry.rel and tag_1->spec_1 in Name.tag and document_1->axiom_1 in Hold.units and document_1->spec_1 in Hold.units and document_1->index_1 in Hold.indexes and index_1->document_1 in Match.rel and (all th: Thing | th not in Finding)": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s133|all r: Run, cmd: CheckCommand, u: Unit | (r->cmd in Ask.rel and u in Reported) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s145|all document_1, document_2: Document, u: Unit | (document_1 in Checked and document_2 not in Checked and document_2->document_1 in Context.rel and document_2->u in Hold.units) implies u not in Rewritten": {
+  "id": "s145",
+  "verdict": "differs"
+ },
+ "s168|all u: Unit | (some w: Word | u->w in Expose.rel) implies u in Unchallenged": {
+  "id": "s168",
+  "verdict": "same"
+ },
+ "s179|some s: Scenario, u: Unit | s in Impossible and s in Raised and s->u in Blame.rel and u->s in Frees.rel": {
+  "id": "s179",
+  "verdict": "same"
+ },
+ "s196|all quantifier_1: Quantifier | quantifier_1 in NothingToAttach implies quantifier_1 in InFull": {
+  "id": "s196",
+  "verdict": "same"
+ },
+ "s208|all list_1: Series | list_1 in AndInOr implies list_1 in KeepsAndApart": {
+  "id": "s208",
+  "verdict": "same"
+ },
+ "s230|(always (all owner_1, owner_2: Owner, cleanup: Cleanup | (dispose[owner_1] and owner_2.parent = owner_1 and owner_2 not in Disposed and cleanup in Registered and cleanup not in Ran and cleanup.on = owner_1) implies ((not runNow[cleanup]) until dispose[owner_2]))) and (always (all owner_3, owner_4, owner_5: Owner | (dispose[owner_3] and owner_4.parent = owner_3 and owner_5.parent = owner_3 and owner_4->owner_5 in Birth.order and owner_4 not in Disposed and owner_5 not in Disposed) implies ((not dispose[owner_4]) until dispose[owner_5])))": {
+  "id": "s230",
+  "verdict": "same"
+ },
+ "s231|always (all o: Owner, c: Failing | (runNow[c] and c.on = o and o in Disposed) implies ((always o not in Threw) and (some o.handler implies eventually c.reached = o.handler)))": {
+  "id": "s231",
+  "verdict": "same"
+ },
+ "s232|some owner_1, owner_2: Owner, failing_cleanup_1: Failing | owner_2 = owner_1.handler and eventually (dispose[owner_1] and failing_cleanup_1.on = owner_1 and eventually (runNow[failing_cleanup_1] and eventually (failing_cleanup_1.reached = owner_2)))": {
+  "id": "s232",
+  "verdict": "same"
+ },
+ "s026|all spec_1: Spec | (some u: Unit | cites[spec_1, u] and u not in Axiom and u not in Spec and u not in Fact) implies spec_1 in Misnesting": {
+  "id": "s026",
+  "verdict": "same"
+ },
+ "s037|(some Runner) implies (all b: Bug | not tested[b] implies b in Untesting)": {
+  "id": "s037",
+  "verdict": "same"
+ },
+ "s060|all d1, d2: Document | d1->d2 in Extend.rel implies (d1->d2 in Context.rel and (all d3: Document | d2->d3 in Context.rel implies d1->d3 in Context.rel))": {
+  "id": "s060",
+  "verdict": "same"
+ },
+ "s062|all f1: Fence | f1 not in Languaged implies (no u: Unit | u->f1 in Blocks.rel)": {
+  "id": "s062",
+  "verdict": "same"
+ },
+ "s074|all r: Run | ((some f1: Frontmatter, mp1: Missing | lists[f1, mp1]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2": {
+  "id": "s074",
+  "verdict": "same"
+ },
+ "s096|all f: Frontmatter | (some mp: Missing | lists[f, mp]) implies (all r: Run | r in Exits2)": {
+  "id": "s096",
+  "verdict": "same"
+ },
+ "s098|all r: Run, c1: Command | (r->c1 in Ask.rel and not available[c1]) implies c1 in Unknown": {
+  "id": "s098",
+  "verdict": "same"
+ },
+ "s109|some d: Document, a: Axiom, s: Spec, i: Index, t: Test, g: Tag | no Finding and d->a in Hold.units and d->s in Hold.units and d->i in Hold.indexes and i->d in Match.rel and s->a in Sit.rel and t in Declared and t->g in Carry.rel and g->s in Name.tag": {
+  "id": "s109",
+  "verdict": "same"
+ },
+ "s110|some bug_1: Bug, expected_failure_1: ExpectedFailure, issue_1: Issue | bug_1->issue_1 in Name.issue and issue_1 in Known and issue_1 not in Closed and checks[expected_failure_1, bug_1] and bug_1 not in Finding and expected_failure_1 not in Finding": {
+  "id": "s110",
+  "verdict": "same"
+ },
+ "s133|all r: Run | (r->CheckCommand in Ask.rel and (some u: Unit | u in Reported)) implies r not in Exits0": {
+  "id": "s133",
+  "verdict": "same"
+ },
+ "s134|all r: Run, gc: GenerateCommand, u: Unit | (r->gc in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)": {
+  "id": "s134",
+  "verdict": "same"
+ },
+ "s145|all d: Document, d2: Document, u: Unit | (d not in Checked and d->u in Hold.units and d2 in Checked and d->d2 in Context.rel) implies u not in Rewritten": {
+  "id": "s145",
+  "verdict": "differs"
+ },
+ "s158|all unit_1: Unit | unit_1 in Contradicting implies unit_1 in Named": {
+  "id": "s158",
+  "verdict": "same"
+ },
+ "s167|all u: Unit, w: Signature | (u not in Term and loneOn[u, w]) implies u->w in Expose.rel": {
+  "id": "s167",
+  "verdict": "differs"
+ },
+ "s170|all unit_1, unit_2: Unit, word: Word | (unit_2 != unit_1 and unit_2->word in Utter.rel) implies unit_1->word not in Expose.rel": {
+  "id": "s170",
+  "verdict": "same"
+ },
+ "s185|all definition_1: Definition | (definition_1 in GuardedByKind and byKind[definition_1]) implies definition_1 in PhrasePerKind": {
+  "id": "s185",
+  "verdict": "same"
+ },
+ "s197|all quantifier_1: Quantifier | quantifier_1 in NoWithAnother implies quantifier_1 in InFull": {
+  "id": "s197",
+  "verdict": "same"
+ },
+ "s231|always ((all o: Owner, c: Failing | (c->o in on and o in Disposed and runNow[c]) implies always (o not in Threw)) and (all o: Owner, h: Owner, c: Failing | (o->h in handler and c->o in on and o in Disposed and runNow[c]) implies eventually (c->h in reached)))": {
+  "id": "s231",
+  "verdict": "same"
+ },
+ "s232|some o: Owner, h: Owner, c: Failing | o->h in handler and h != o and eventually (dispose[o] and c->o in on and after eventually (runNow[c] and after eventually (c->h in reached)))": {
+  "id": "s232",
+  "verdict": "same"
+ }
+}

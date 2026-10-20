@@ -1,0 +1,11 @@
+chunks 1/10 (canon, 23 checks, 117s)
+chunks 2/10 (canon, 25 checks, 127s)
+chunks 3/10 (canon, 25 checks, 129s)
+chunks 4/10 (canon, 25 checks, 130s)
+chunks 5/10 (naturalloy, 25 checks, 12s)
+chunks 6/10 (naturalloy, 17 checks, 9s)
+chunks 7/10 (canon-plugin-alloy-fixtures-lifetimes, 7 checks, 9s)
+chunks 8/10 (canon-plugin-alloy, 16 checks, 623s)
+chunks 9/10 (canon-plugin-alloy, 25 checks, 957s)
+chunks 10/10 (canon-plugin-alloy, 25 checks, 970s)
+{ skipped: 20, same: 213 }

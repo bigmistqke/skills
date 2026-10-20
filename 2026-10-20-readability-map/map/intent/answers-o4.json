@@ -1,0 +1,149 @@
+[
+ {
+  "id": "s115",
+  "verdict": "fits"
+ },
+ {
+  "id": "s116",
+  "verdict": "fits"
+ },
+ {
+  "id": "s117",
+  "verdict": "fits"
+ },
+ {
+  "id": "s118",
+  "verdict": "fits"
+ },
+ {
+  "id": "s119",
+  "verdict": "fits"
+ },
+ {
+  "id": "s120",
+  "verdict": "fits"
+ },
+ {
+  "id": "s121",
+  "verdict": "fits"
+ },
+ {
+  "id": "s122",
+  "verdict": "fits"
+ },
+ {
+  "id": "s123",
+  "verdict": "fits"
+ },
+ {
+  "id": "s124",
+  "verdict": "fits"
+ },
+ {
+  "id": "s125",
+  "verdict": "suspect",
+  "intended": "(all u: Unit | u in Faulted implies u not in Explained) and (all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies r not in Exits0)",
+  "slip": "variable-bound-around-whole-claim",
+  "why": "The run and command are bound around the whole claim, but 'is not explained as unsayable' does not depend on a run, so it binds only when some run asks for generate or check. With no such run, a faulted unit in Explained satisfies the formula, though the claim says a fault is never explained as unsayable (s124 binds Explained with no run at all)."
+ },
+ {
+  "id": "s126",
+  "verdict": "fits"
+ },
+ {
+  "id": "s127",
+  "verdict": "fits"
+ },
+ {
+  "id": "s128",
+  "verdict": "fits"
+ },
+ {
+  "id": "s129",
+  "verdict": "fits"
+ },
+ {
+  "id": "s130",
+  "verdict": "fits"
+ },
+ {
+  "id": "s131",
+  "verdict": "fits"
+ },
+ {
+  "id": "s132",
+  "verdict": "fits"
+ },
+ {
+  "id": "s133",
+  "verdict": "fits"
+ },
+ {
+  "id": "s134",
+  "verdict": "fits"
+ },
+ {
+  "id": "s135",
+  "verdict": "fits"
+ },
+ {
+  "id": "s136",
+  "verdict": "fits"
+ },
+ {
+  "id": "s137",
+  "verdict": "fits"
+ },
+ {
+  "id": "s138",
+  "verdict": "fits"
+ },
+ {
+  "id": "s139",
+  "verdict": "fits"
+ },
+ {
+  "id": "s140",
+  "verdict": "fits"
+ },
+ {
+  "id": "s141",
+  "verdict": "fits"
+ },
+ {
+  "id": "s142",
+  "verdict": "fits"
+ },
+ {
+  "id": "s143",
+  "verdict": "fits"
+ },
+ {
+  "id": "s144",
+  "verdict": "fits"
+ },
+ {
+  "id": "s145",
+  "verdict": "fits"
+ },
+ {
+  "id": "s146",
+  "verdict": "fits"
+ },
+ {
+  "id": "s147",
+  "verdict": "fits"
+ },
+ {
+  "id": "s148",
+  "verdict": "fits"
+ },
+ {
+  "id": "s149",
+  "verdict": "fits"
+ },
+ {
+  "id": "s150",
+  "verdict": "fits"
+ }
+]

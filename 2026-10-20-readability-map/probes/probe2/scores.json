@@ -1,0 +1,506 @@
+[
+ {
+  "reader": 0,
+  "id": "A0",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "malformed",
+  "hard": 3,
+  "alloy": "all c: Cleanup | always (next (c in Ran) <=> c in Ran)"
+ },
+ {
+  "reader": 0,
+  "id": "A1",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "malformed",
+  "hard": 5,
+  "alloy": "all c1, c2: Cleanup, o1, o2: Owner | always (next (o2 in c2.on) <=> ((c2 = c1 and o2 = o1) or (c2 != c1 and o2 in c2.on)))"
+ },
+ {
+  "reader": 0,
+  "id": "A2",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all o: Owner | (no c: Cleanup | o in c.on) => (o not in Disposed)"
+ },
+ {
+  "reader": 0,
+  "id": "A3",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup | (c in Ran) => (some o: Owner | o in c.on and o in Disposed)"
+ },
+ {
+  "reader": 0,
+  "id": "A4",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all o: Owner | (o in Disposed) <=> (all c: Cleanup | (o in c.on) => (c in Ran))"
+ },
+ {
+  "reader": 0,
+  "id": "A5",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup | always ((c in Registered) => (eventually (c in Ran)))"
+ },
+ {
+  "reader": 0,
+  "id": "A6",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup, o: Owner | ((o in c.on) and (o in Stopped)) => (c not in Ran)"
+ },
+ {
+  "reader": 0,
+  "id": "A7",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup | (#(c.on) > 1) => (c in Registered)"
+ },
+ {
+  "reader": 0,
+  "id": "A8",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all o: Owner | (o in Disposed) => (all p: Owner | (p = o.parent) => (p in Disposed))"
+ },
+ {
+  "reader": 0,
+  "id": "A9",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all c: Cleanup, o: Owner | (o = c.at) => (o in c.on)"
+ },
+ {
+  "reader": 0,
+  "id": "B0",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all c: Cleanup, o: Owner | (eventually (o in Disposed)) and ((c in Registered) until (o in Disposed))"
+ },
+ {
+  "reader": 0,
+  "id": "B1",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup | (eventually (c in Registered)) and ((c not in Ran) until (c in Registered))"
+ },
+ {
+  "reader": 0,
+  "id": "B2",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "wrong",
+  "hard": 2,
+  "alloy": "all c: Cleanup, o: Owner | (o in Disposed) and (c in Ran)"
+ },
+ {
+  "reader": 0,
+  "id": "B3",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "wrong",
+  "hard": 4,
+  "alloy": "all c: Cleanup, o: Owner | always ((c in Registered) => (eventually (o in Disposed) and ((c not in Ran) until (o in Disposed))))"
+ },
+ {
+  "reader": 1,
+  "id": "A0",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "wrong",
+  "hard": 2,
+  "alloy": "all c: Cleanup | (c in next.Ran) iff (c in Ran)"
+ },
+ {
+  "reader": 1,
+  "id": "A1",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "wrong",
+  "hard": 5,
+  "alloy": "all c1, c2: Cleanup, o1, o2: Owner | (o2 in next.c2.on) iff ((c2 = c1 and o2 = o1) or (o2 in c2.on and c2 != c1))"
+ },
+ {
+  "reader": 1,
+  "id": "A2",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all o: Owner | (no c: Cleanup | o in c.on) implies (o not in Disposed)"
+ },
+ {
+  "reader": 1,
+  "id": "A3",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup | (c in Ran) implies (some o: Owner | o in c.on and o in Disposed)"
+ },
+ {
+  "reader": 1,
+  "id": "A4",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all o: Owner | (o in Disposed) iff (all c: Cleanup | o in c.on implies c in Ran)"
+ },
+ {
+  "reader": 1,
+  "id": "A5",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 5,
+  "alloy": "all c: Cleanup | always (c in Registered implies eventually c in Ran)"
+ },
+ {
+  "reader": 1,
+  "id": "A6",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c: Cleanup, o: Owner | (o in c.on and o in Stopped) implies (c not in Ran)"
+ },
+ {
+  "reader": 1,
+  "id": "A7",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all c: Cleanup | (#c.on > 1) implies (c in Registered)"
+ },
+ {
+  "reader": 1,
+  "id": "A8",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all o1: Owner | (o1 in Disposed) implies (o1.parent in Disposed)"
+ },
+ {
+  "reader": 1,
+  "id": "A9",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all c: Cleanup, o: Owner | (o = c.at) implies (o in c.on)"
+ },
+ {
+  "reader": 1,
+  "id": "B0",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 4,
+  "alloy": "all c: Cleanup, o: Owner | (c in Registered) until (o in Disposed)"
+ },
+ {
+  "reader": 1,
+  "id": "B1",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 4,
+  "alloy": "all c: Cleanup | (c not in Ran) until (c in Registered)"
+ },
+ {
+  "reader": 1,
+  "id": "B2",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "wrong",
+  "hard": 5,
+  "alloy": "all c: Cleanup, o: Owner | (o in Disposed) implies (c in Ran)"
+ },
+ {
+  "reader": 1,
+  "id": "B3",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 4,
+  "alloy": "all c: Cleanup, o: Owner | (c in Registered) implies ((c not in Ran) until (o in Disposed))"
+ },
+ {
+  "reader": 2,
+  "id": "A0",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "malformed",
+  "hard": 3,
+  "alloy": "all cleanup_1: Cleanup | (cleanup_1 in next Ran) iff (cleanup_1 in Ran)"
+ },
+ {
+  "reader": 2,
+  "id": "A1",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "malformed",
+  "hard": 5,
+  "alloy": "all cleanup_1, cleanup_2: Cleanup, owner_1, owner_2: Owner | (owner_2 in next cleanup_2.on) iff ((cleanup_2 = cleanup_1 and owner_2 = owner_1) or (owner_2 in cleanup_2.on and cleanup_2 != cleanup_1))"
+ },
+ {
+  "reader": 2,
+  "id": "A2",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all owner_1: Owner | (no c: Cleanup | owner_1 in c.on) implies (owner_1 not in Disposed)"
+ },
+ {
+  "reader": 2,
+  "id": "A3",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all cleanup: Cleanup | (cleanup in Ran) implies (some owner: Owner | owner in cleanup.on and owner in Disposed)"
+ },
+ {
+  "reader": 2,
+  "id": "A4",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all owner_1: Owner | (owner_1 in Disposed) iff (all cleanup_1: Cleanup | (owner_1 in cleanup_1.on) implies (cleanup_1 in Ran))"
+ },
+ {
+  "reader": 2,
+  "id": "A5",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 4,
+  "alloy": "all cleanup: Cleanup | always (cleanup in Registered implies eventually (cleanup in Ran))"
+ },
+ {
+  "reader": 2,
+  "id": "A6",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (owner_1 in cleanup_1.on and owner_1 in Stopped) implies (cleanup_1 not in Ran)"
+ },
+ {
+  "reader": 2,
+  "id": "A7",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all cleanup: Cleanup | (#(cleanup.on) > 1) implies (cleanup in Registered)"
+ },
+ {
+  "reader": 2,
+  "id": "A8",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all owner_1: Owner | (owner_1 in Disposed) implies (all owner_2: Owner | (owner_2 = owner_1.parent) implies (owner_2 in Disposed))"
+ },
+ {
+  "reader": 2,
+  "id": "A9",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all cleanup: Cleanup, owner: Owner | (owner in cleanup.at) implies (owner in cleanup.on)"
+ },
+ {
+  "reader": 2,
+  "id": "B0",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (cleanup_1 in Registered) until (owner_1 in Disposed)"
+ },
+ {
+  "reader": 2,
+  "id": "B1",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all cleanup_1: Cleanup | (cleanup_1 not in Ran) until (cleanup_1 in Registered)"
+ },
+ {
+  "reader": 2,
+  "id": "B2",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 4,
+  "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (once (owner_1 in Disposed)) and ((cleanup_1 in Ran) since (owner_1 in Disposed))"
+ },
+ {
+  "reader": 2,
+  "id": "B3",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 3,
+  "alloy": "all cleanup_1: Cleanup, owner_1: Owner | (cleanup_1 in Registered) implies ((cleanup_1 not in Ran) until (owner_1 in Disposed))"
+ },
+ {
+  "reader": 3,
+  "id": "A0",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all c: Cleanup | c in Ran <=> c in Ran'"
+ },
+ {
+  "reader": 3,
+  "id": "A1",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 4,
+  "alloy": "all c1, c2: Cleanup, o1, o2: Owner | (o2 in c2.on') <=> ((c2 = c1 and o2 = o1) or (o2 in c2.on and c2 != c1))"
+ },
+ {
+  "reader": 3,
+  "id": "A2",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all o: Owner | (no c: Cleanup | o in c.on) => o not in Disposed"
+ },
+ {
+  "reader": 3,
+  "id": "A3",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all c1: Cleanup | c1 in Ran => (some o: Owner | o in c1.on and o in Disposed)"
+ },
+ {
+  "reader": 3,
+  "id": "A4",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all o: Owner | o in Disposed <=> (all c: Cleanup | o in c.on => c in Ran)"
+ },
+ {
+  "reader": 3,
+  "id": "A5",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "malformed",
+  "hard": 2,
+  "alloy": "all c1: Cleanup | G (c1 in Registered => F c1 in Ran)"
+ },
+ {
+  "reader": 3,
+  "id": "A6",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all c: Cleanup, o: Owner | (o in c.on and o in Stopped) => c not in Ran"
+ },
+ {
+  "reader": 3,
+  "id": "A7",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 2,
+  "alloy": "all c1: Cleanup | (#(c1.on) > 1) => c1 in Registered"
+ },
+ {
+  "reader": 3,
+  "id": "A8",
+  "pattern": "A",
+  "variant": "after",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all o1: Owner | o1 in Disposed => o1.parent in Disposed"
+ },
+ {
+  "reader": 3,
+  "id": "A9",
+  "pattern": "A",
+  "variant": "before",
+  "verdict": "right",
+  "hard": 1,
+  "alloy": "all c1: Cleanup, o1: Owner | o1 in c1.at => o1 in c1.on"
+ },
+ {
+  "reader": 3,
+  "id": "B0",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "malformed",
+  "hard": 3,
+  "alloy": "all c1: Cleanup, o1: Owner | (c1 in Registered) U (o1 in Disposed)"
+ },
+ {
+  "reader": 3,
+  "id": "B1",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "malformed",
+  "hard": 3,
+  "alloy": "all c1: Cleanup | (c1 not in Ran) U (c1 in Registered)"
+ },
+ {
+  "reader": 3,
+  "id": "B2",
+  "pattern": "B",
+  "variant": "after",
+  "verdict": "malformed",
+  "hard": 4,
+  "alloy": "all c1: Cleanup, o1: Owner | (c1 in Ran) U (o1 not in Disposed)"
+ },
+ {
+  "reader": 3,
+  "id": "B3",
+  "pattern": "B",
+  "variant": "before",
+  "verdict": "malformed",
+  "hard": 5,
+  "alloy": "all c1: Cleanup, o1: Owner | G (c1 in Registered => ((c1 not in Ran) U (o1 in Disposed)))"
+ }
+]
