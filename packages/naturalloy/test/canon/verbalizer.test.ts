@@ -228,6 +228,23 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-an-and-or-an-or-below-a-time-phrase-is-a-list
+   */
+  it('says an and or an or below a time phrase as a list', () => {
+    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, at least one of these holds:\n  - c has run\n  - code has registered c');
+    expect(say('eventually (c in Ran and c in Registered)')).toBe('Now or at a later moment, all of these hold:\n  - c has run\n  - code has registered c');
+  });
+
+  /**
+   * @canon spec-an-equality-with-a-side-of-unknown-type-is-refused
+   */
+  it('refuses an equality with a side whose type the vocabulary does not tell', () => {
+    const other = withDefinitions(parseReadings(`${read('readings.txt')}\nm/Gone: {1} is gone in m | {1} is not gone in m`), read('vocabulary.als'));
+    expect(() => say('m/Gone = Disposed', other)).toThrow('the vocabulary does not tell what kind of thing "m/Gone" holds');
+    expect(say('all p: Owner | p.*parent = Disposed')).toContain('for every owner_2:');
+  });
+
+  /**
    * @canon spec-sides-that-alloy-does-not-compare-are-refused
    */
   it('refuses sides that Alloy does not compare', () => {
@@ -321,8 +338,8 @@ describe('the words', () => {
     expect(say('eventually (c in Registered until c in Ran)')).toBe(
       ['Now or at a later moment, all of these hold:', '  - now or at a later moment, the following holds:', '      c has run', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
     );
-    expect(say("always (c in Ran and d in Ran')")).toBe('Now and at every later moment:\n  c has run and at the next moment, d has run.');
-    expect(say('always (c in Ran and d in Ran)')).toBe('Now and at every later moment, c has run and d has run.');
+    expect(say("always (c in Ran and d in Ran')")).toBe('Now and at every later moment, all of these hold:\n  - c has run\n  - at the next moment, d has run');
+    expect(say('always (c in Ran and d in Ran)')).toBe('Now and at every later moment, all of these hold:\n  - c has run\n  - d has run');
   });
 
   /**
@@ -1195,7 +1212,7 @@ describe('an expression said through the types of its columns', () => {
    * @canon spec-a-primed-expression-is-said-at-the-next-moment
    */
   it('says a primed expression at the next moment', () => {
-    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, c has run or code has registered c.');
+    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, at least one of these holds:\n  - c has run\n  - code has registered c');
   });
 
   /**
