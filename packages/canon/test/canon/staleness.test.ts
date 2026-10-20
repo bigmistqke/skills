@@ -4,7 +4,7 @@
  * say which leaf it checks.
  */
 import { describe, expect, it } from 'vitest';
-import { canon, check, tagged } from './project.ts';
+import { canon, check, generated, tagged } from './project.ts';
 
 const LEAF = `
 ### @spec a-leaf-says-one-thing
@@ -165,6 +165,16 @@ describe('an index', () => {
    */
   it('reports a misindexing for an index generate has not written since a unit changed', () => {
     expect(check(canon(LEAF), TEST, { generate: false })['stale-toc']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-statement-with-a-list-keeps-its-lines
+   */
+  it('shows a statement with a list under its entry, with its lines', () => {
+    const SPEC = ['@', 'spec'].join('');
+    const listed = generated(canon(`\n#### ${SPEC} a-rule\n\n> when these hold:\n> - a holds\n> - b holds\n>\n> then c holds.\n`));
+    expect(listed).toContain('  - [`@spec a-rule`](#spec-a-rule) —\n    > when these hold:\n    > - a holds\n    > - b holds\n    >\n    > then c holds.');
+    expect(listed).toContain('- [`@axiom a-program-means-one-thing`](#axiom-a-program-means-one-thing) — A program means one thing.');
   });
 });
 

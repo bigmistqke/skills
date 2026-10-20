@@ -327,10 +327,14 @@ function tocOf(src: string): string {
     for (let p = u.parent; p; p = byId.get(p)?.parent) n++;
     return n;
   };
-  const rows = units.map(
-    u =>
-      `${'  '.repeat(depth(u))}- [\`${u.label}\`](#${u.id})${u.statement ? ` — ${u.statement}` : ''}`
-  );
+  const rows = units.map(u => {
+    const indent = '  '.repeat(depth(u));
+    const entry = `${indent}- [\`${u.label}\`](#${u.id})`;
+    if (!u.statement) return entry;
+    if (!u.statement.includes('\n')) return `${entry} — ${u.statement}`;
+    // A statement with a list keeps its lines under the entry, so the indentation still says where each part ends.
+    return [`${entry} —`, ...u.statement.split('\n').map(line => `${indent}  >${line === '' ? '' : ` ${line}`}`)].join('\n');
+  });
   return rows.join('\n');
 }
 
@@ -458,7 +462,9 @@ function prose(id: string): string {
 /** One line of a statement, cut at a word so a tree stays a tree. */
 function clip(said: string, indent: number): string {
   const room = Math.max(24, (process.stdout.columns || 100) - indent);
-  const flat = said.replace(/\s+/g, ' ').trim();
+  // A statement with a list is shown by its first line: joined, the list would no longer show where it ends.
+  const lines = said.split('\n');
+  const flat = lines.length > 1 ? `${(lines[0] as string).trim()} …` : said.replace(/\s+/g, ' ').trim();
   if (flat.length <= room) return flat;
   const cut = flat.slice(0, room - 1);
   return `${cut.slice(0, cut.lastIndexOf(' ')) || cut}…`;

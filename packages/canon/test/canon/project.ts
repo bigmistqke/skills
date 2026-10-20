@@ -6,7 +6,7 @@
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -58,6 +58,11 @@ function project(document: string, tests: string, tracker?: Record<string, unkno
   }
   if (extra.generate !== false) spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
   return dir;
+}
+
+/** The document as `generate` leaves it, in a project of it alone. */
+export function generated(document: string): string {
+  return readFileSync(join(project(document, ''), 'CANON.md'), 'utf8');
 }
 
 /** Each finding the output of `check` lists with any entries, and its count. */
