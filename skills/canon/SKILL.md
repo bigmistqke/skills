@@ -18,7 +18,7 @@ description: The methodology that governs all work on a project with a CANON.md 
 - Canon: the documents, `CANON.md` by default, that state the theory as units, linked into a derivation graph that tests cite and a checker holds closed.
 - Unit: one entry of the canon, with a kind, a stem and a statement. [The kinds](writing-units.md#1-kinds) lists them.
 - Derivation: the edge from a unit to the unit it follows from, by nesting or on a `Derives from:` line. Together, the derivations answer the second of the three things above: why each part is the way it is.
-- Flow: how directly the units follow from their parents. In a strong flow, few axioms and facts force many specs, and each "This follows because" sentence is short.
+- Flow: how directly the units follow from their parents. In a strong flow, few axioms and facts force many specs, and each unit gives a short reason. That reason is its "This follows because" sentence, or the intent of a unit with a formula.
 - Owner of the design: the person who decides the project's values. You propose, and the owner judges.
 - Session: one run of work by an agent, which starts without the theory and must rebuild it from the canon.
 
