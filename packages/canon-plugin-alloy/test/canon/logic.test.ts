@@ -67,6 +67,15 @@ some Node
   });
 
   /**
+   * @canon spec-each-unit-the-author-asks-about-gets-a-trial
+   */
+  it('makes a trial for each held unit the author asks about', () => {
+    const asked = ['spec-dispose-runs-once', 'spec-a-disposed-owner-cannot-be-entered'];
+    const blame = alloyProgram(LIFETIMES, 'blame', { leave: { 'term-teardown-model': asked } }).program;
+    for (const unit of asked) expect(blame).toContain(`_without_${predicateName(unit)} {`);
+  });
+
+  /**
    * @canon spec-a-search-about-the-units-together-asks-for-every-held-unit-and-no-other
    * @canon spec-each-scenario-gets-a-search-with-every-held-unit
    * @canon spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest
