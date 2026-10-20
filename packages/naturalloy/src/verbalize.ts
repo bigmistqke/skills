@@ -1338,6 +1338,8 @@ class Verbalizer {
       if (l.t === 'union' || r.t === 'diff') return undefined;
       // x in "a", where x is one thing: a string is one atom, so to be in it is to be it.
       if (r.t === 'string' && this.exact(l)) return not({ t: 'cmp', op: '=', l, r });
+      // x in p, for a variable p that a quantifier declares: p is one thing, so x is it; an expression of several things is p in each of its members.
+      if (r.t === 'name' && this.bound.has(r.name) && l.t !== 'arrow') return not(this.exact(l) ? { t: 'cmp', op: '=', l, r } : this.subset(l, r));
       if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
       if (this.direct(r) || this.signature(r)) return undefined;
       // With nothing to spell out, `inside` gives back `l in r`, which would lower to itself again: it is said as it stands, or refused.
@@ -1543,8 +1545,8 @@ class Verbalizer {
       if (seen(then).includes(',')) then = apart(then);
       else if (seen(when).includes(',')) when = apart(when);
     }
-    // A time phrase inside the second side, after the one it begins with, would reach over the "otherwise".
-    if (typeof then === 'string' && third !== undefined && holdsTime(then, true)) then = apart(then);
+    // A time phrase in the second side, the one it begins with included, would reach over the "otherwise".
+    if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
     // A series in the second or the last side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
     const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll('there is a moment before, and at it, ', ''));
     if (series(then)) then = apart(then as string);
@@ -1629,7 +1631,8 @@ class Verbalizer {
       const x: Node = { t: 'name', name: '\u0000' };
       // no y.f: no member of the type of the field is in y.f
       if (nav !== undefined) return this.quantified({ t: 'quant', q: none ? 'no' : 'some', decls: [{ names: ['\u0000'], type: { t: 'name', name: nav.type } }], body: { t: 'cmp', op: 'in', l: x, r: e } });
-      if (e.t === 'name' && !this.readings.fields.has(e.name) && !this.isVariable(e.name)) {
+      const signature = e.t === 'name' && this.readings.nouns.has(e.name) && !this.readings.atoms.has(e.name);
+      if (e.t === 'name' && !signature && !this.readings.fields.has(e.name) && !this.isVariable(e.name)) {
         if (!this.readings.atoms.get(e.name)?.positive.includes('{1}')) return this.say(e.name, [], none);
         return this.membersOf(e.name, none);
       }
@@ -1654,6 +1657,8 @@ class Verbalizer {
       return holds ? { t: 'true' } : FALSE;
     }
     if (given.t === 'rclosure') throw new Refusal(`"${shown(given)}" holds every member of every type, Int included, which no noun names`);
+    // Of one thing, some, one and lone always hold, and no never does.
+    if (this.exact(given)) return (node.q === 'no') !== negative ? FALSE : { t: 'true' };
     if (node.q === 'some' || node.q === 'no') {
       if (this.readPrimed(given)) return undefined;
       const { e, primed } = this.unprimed(given);
@@ -1661,7 +1666,9 @@ class Verbalizer {
         const f = this.counted({ ...node, e }, negative);
         return f === undefined ? undefined : { t: 'unary', op: 'after', f };
       }
-      if (this.navigation(e) !== undefined || (e.t === 'name' && !this.readings.fields.has(e.name) && !this.isVariable(e.name))) return undefined;
+      // A signature with a noun and no reading of its own is said over its members, as one and lone are.
+      const signature = e.t === 'name' && this.readings.nouns.has(e.name) && !this.readings.atoms.has(e.name);
+      if (this.navigation(e) !== undefined || (e.t === 'name' && !signature && !this.readings.fields.has(e.name) && !this.isVariable(e.name))) return undefined;
     }
     const types = this.columns(given);
     if (types === undefined || types.includes('')) throw this.untyped(node.e);
@@ -1886,6 +1893,8 @@ class Verbalizer {
     }
     // A time phrase at the start of a clause would read as covering the clauses after it, and a relative clause as running over them.
     if (said.slice(0, -1).some(clause => timed(clause) || holdsRelative(clause))) return undefined;
+    // A clause whose subject is two names, "o and p are the same", has an "and" of its own: among others it would not show where it ends.
+    if (said.length > 1 && said.some(clause => clause.includes(`${VARIABLE} and ${VARIABLE}`))) return undefined;
     const clauses = shareSubject(said);
     const text = clauses.length === 2 ? `${clauses[0]} ${word} ${clauses[1]}` : `${clauses.slice(0, -1).join(', ')} ${word} ${clauses[clauses.length - 1]}`;
     return plain(text).replaceAll(VARIABLE, '').length <= INLINE_LENGTH ? text : undefined;

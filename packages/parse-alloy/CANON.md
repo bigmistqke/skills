@@ -36,6 +36,7 @@ How parse-alloy reads Alloy, and why. It is the canon of the package `@bigmistqk
   - [`@spec joins-and-boxes-are-read-left-to-right`](#spec-joins-and-boxes-are-read-left-to-right) — The parser reads a run of joins and boxes from left to right: `a.b[c].d` is `((a.b)[c]).d`.
   - [`@spec arrows-group-to-the-right`](#spec-arrows-group-to-the-right) — The parser reads a run of arrows from the right: `a -> b -> c` is `a -> (b -> c)`.
   - [`@spec a-prefix-operator-binds-tighter-than-a-prime`](#spec-a-prefix-operator-binds-tighter-than-a-prime) — The parser reads `~`, `^` and `*` before an operand as binding tighter than a prime after it: `~a'` is `(~a)'`.
+  - [`@spec sum-or-int-before-brackets-is-read-as-a-cast`](#spec-sum-or-int-before-brackets-is-read-as-a-cast) — The parser reads `sum[e]` and `int[e]` as the cast of `e` to an integer, as it reads `sum e` and `int e`.
   - [`@spec a-name-stays-unresolved`](#spec-a-name-stays-unresolved) — The parser leaves a name as the text spells it. It reads `p[x]` with a name before the bracket as a call, which may also be a box join.
 <!-- toc:end -->
 
@@ -194,6 +195,12 @@ This follows because the grammar of the analyzer groups the arrow to the right.
 > The parser reads `~`, `^` and `*` before an operand as binding tighter than a prime after it: `~a'` is `(~a)'`.
 
 This follows because the precedence of the analyzer's grammar ranks the three above the prime.
+
+#### @spec sum-or-int-before-brackets-is-read-as-a-cast
+
+> The parser reads `sum[e]` and `int[e]` as the cast of `e` to an integer, as it reads `sum e` and `int e`.
+
+This follows because the analyzer's grammar reads both with brackets as that cast (`BracketExprB ::= SUM LBRACKET Exprs RBRACKET`), and refuses more than one expression in them.
 
 #### @spec a-name-stays-unresolved
 

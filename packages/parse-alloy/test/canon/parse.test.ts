@@ -184,6 +184,14 @@ describe('the grammar', () => {
   });
 
   /**
+   * @canon spec-sum-or-int-before-brackets-is-read-as-a-cast
+   */
+  it('reads sum[e] and int[e] as the cast of e, as sum e and int e', () => {
+    for (const formula of ['sum[c.n] < 3', 'int[c.n] < 3', 'sum c.n < 3']) expect(parseFormula(formula)).toMatchObject({ t: 'cmp', op: '<', l: { t: 'cast', e: { t: 'join' } } });
+    expect(() => parseFormula('sum[a, b] < 3')).toThrow('"sum[…]" takes one expression');
+  });
+
+  /**
    * @canon spec-a-name-stays-unresolved
    */
   it('leaves names as written, and reads a name with brackets as a call', () => {

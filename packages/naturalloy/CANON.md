@@ -125,6 +125,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec disj-of-expressions-is-said-as-no-two-sharing-a-member`](#spec-disj-of-expressions-is-said-as-no-two-sharing-a-member) — The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
   - [`@spec a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes) — The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
   - [`@spec an-expression-is-one-thing-where-its-declarations-make-it-so`](#spec-an-expression-is-one-thing-where-its-declarations-make-it-so) — The verbalizer takes an expression for one thing only where the declarations make it so. That covers a variable, a string and a number. It also covers a navigation of a `one` field from one thing, and such an expression primed.
+  - [`@spec a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it`](#spec-a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it) — The verbalizer says `x in p`, for a variable `p` that a quantifier declares, as `x = p` where `x` is one thing. Where `x` can hold several things, it says that each of them is `p`.
+  - [`@spec some-or-no-of-a-signature-is-said-over-its-members`](#spec-some-or-no-of-a-signature-is-said-over-its-members) — The verbalizer says `some S` and `no S`, for a signature `S` with a noun and no reading of its own, over the members of `S`, as it says `one S` and `lone S`.
+  - [`@spec a-count-of-one-thing-is-a-formula-that-always-or-never-holds`](#spec-a-count-of-one-thing-is-a-formula-that-always-or-never-holds) — The verbalizer takes `some`, `one` and `lone` of one thing as a formula that always holds, and `no` of one thing as one that never does.
   - [`@spec a-value-in-a-string-is-said-as-equal-to-it`](#spec-a-value-in-a-string-is-said-as-equal-to-it) — The verbalizer says `x in "a"`, where `x` is [one thing](#spec-an-expression-is-one-thing-where-its-declarations-make-it-so), as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
   - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
@@ -248,6 +251,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — For every [list_1](#term-series): when list_1 is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — For every [list_1](#term-series): when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
     - [`@spec a-list-with-a-relative-clause-before-its-last-clause-is-bullets`](#spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets) — For every [list_1](#term-series): when list_1 has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says list_1 as bullets.
+    - [`@spec a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets`](#spec-a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets) — The verbalizer says a list as bullets when a clause in it has two names for a subject: "o and p are the same".
     - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list_1](#term-series): when list_1 has an item that is more than one clause, [verbalizer](#term-verbalizer) says list_1 as bullets.
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
@@ -259,7 +263,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-rule-that-is-a-side-of-a-rule-is-set-apart`](#spec-a-rule-that-is-a-side-of-a-rule-is-set-apart) — The verbalizer sets a rule that is a side of another rule apart, below "the following holds".
   - [`@spec a-first-side-that-holds-a-time-phrase-is-set-apart`](#spec-a-first-side-that-holds-a-time-phrase-is-set-apart) — The verbalizer sets the first side of a rule apart, below "when the following holds", when the side holds a time phrase.
   - [`@spec a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side`](#spec-a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side) — When a rule would stand on one line with no "then", the verbalizer sets apart a side of it that holds a comma. When both sides hold one, it sets the second side apart.
-  - [`@spec a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart`](#spec-a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart) — In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase other than one it begins with.
+  - [`@spec a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart`](#spec-a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart) — In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase, the one it begins with included.
   - [`@spec a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart`](#spec-a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart) — The verbalizer sets apart a side of a rule after "then" or "otherwise" when that side is a series of clauses after a comma.
 <!-- toc:end -->
 
@@ -1300,6 +1304,24 @@ This follows because a string is one thing, and its quotes show the reader where
 
 This follows because a rewrite that takes an expression for one thing is lossless only when it holds exactly one. The kind of syntax does not tell that: `c.name` is one thing when `name` is a `one` field, and `c.tags` is not when `tags` is a `set` field.
 
+#### @spec a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it
+
+> The verbalizer says `x in p`, for a variable `p` that a quantifier declares, as `x = p` where `x` is one thing. Where `x` can hold several things, it says that each of them is `p`.
+
+This follows because a variable holds one thing, so what is in it is that thing. A name that no quantifier declares is not known to hold one thing, and is still refused when it has no reading.
+
+#### @spec some-or-no-of-a-signature-is-said-over-its-members
+
+> The verbalizer says `some S` and `no S`, for a signature `S` with a noun and no reading of its own, over the members of `S`, as it says `one S` and `lone S`.
+
+This follows because `some S` claims that `S` has a member, and the noun of `S` names one.
+
+#### @spec a-count-of-one-thing-is-a-formula-that-always-or-never-holds
+
+> The verbalizer takes `some`, `one` and `lone` of one thing as a formula that always holds, and `no` of one thing as one that never does.
+
+This follows because one thing is exactly one. The verbalizer leaves such a formula out of an `and` or an `or` where it changes nothing. Alone, it refuses it, as it refuses the other formulas that always or never hold.
+
 #### @spec a-value-in-a-string-is-said-as-equal-to-it
 
 > The verbalizer says `x in "a"`, where `x` is [one thing](#spec-an-expression-is-one-thing-where-its-declarations-make-it-so), as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
@@ -2286,6 +2308,12 @@ This follows because a relative clause can run on over the clauses after it. "An
 all f: Series | f in RelativeBeforeLast implies f in AsBullets
 ```
 
+##### @spec a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets
+
+> The verbalizer says a list as bullets when a clause in it has two names for a subject: "o and p are the same".
+
+This follows because the "and" of that subject reads like the "and" of the list. In "c has run, o and p are the same and d has run", a reader cannot tell where each clause ends.
+
 ##### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets
 
 <!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:begin — generated by `canon generate`; edits are overwritten -->
@@ -2420,7 +2448,7 @@ This follows because the comma would read as where the second side starts. On on
 
 #### @spec a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart
 
-> In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase other than one it begins with.
+> In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase, the one it begins with included.
 
 This follows because a reader could take the time phrase as covering the "otherwise" too.
 

@@ -699,7 +699,7 @@ class Parser {
       this.take();
       return this.spanned(start, { t: 'card' as const, e: this.right(() => this.numUnop()) });
     }
-    if ((this.is('sum') && !this.peek().binds) || (this.is('int') && !this.is('[', 1))) {
+    if ((this.is('sum') || this.is('int')) && !this.peek().binds && !this.is('[', 1)) {
       this.take();
       return this.spanned(start, { t: 'cast' as const, e: this.right(() => this.numUnop()) });
     }
@@ -858,12 +858,12 @@ class Parser {
       this.take(']');
       return this.spanned(start, { t: 'call' as const, name: 'disj', args });
     }
-    if (this.is('int') && this.is('[', 1)) {
-      this.take();
+    if ((this.is('int') || this.is('sum')) && this.is('[', 1)) {
+      const keyword = this.take().text;
       this.take('[');
       const args = this.exprs(']');
       this.take(']');
-      return this.spanned(start, { t: 'cast' as const, e: args.length === 1 ? (args[0] as Node) : this.fail('"int[…]" takes one expression') });
+      return this.spanned(start, { t: 'cast' as const, e: args.length === 1 ? (args[0] as Node) : this.fail(`"${keyword}[…]" takes one expression`) });
     }
     if (token.kind === 'name') return this.spanned(start, { t: 'name' as const, name: this.name() });
     this.fail(`cannot read ${this.found(token)} here`, token);
