@@ -87,7 +87,7 @@ describe('the states of the statements', () => {
     expect(states(changed)).toMatchObject([{ kind: 'stale' }]);
     const again = write(changed);
     expect(again.written).toEqual(['spec-a-leaf']);
-    expect(again.src).toContain('when the node has started, the node is done.');
+    expect(again.src).toContain('whenever the node has started, the node is done.');
     expect(states(again.src)).toMatchObject([{ kind: 'current' }]);
   });
 
@@ -96,7 +96,8 @@ describe('the states of the statements', () => {
    */
   it('overwrites an edit made inside the markers', () => {
     const { src } = write(doc());
-    const edited = src.replace('> Now and at every later moment', '> Sometimes');
+    const edited = src.replace('> For every node', '> For some node');
+    expect(edited).not.toBe(src);
     expect(states(edited)).toMatchObject([{ kind: 'stale' }]);
   });
 

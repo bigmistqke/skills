@@ -307,7 +307,7 @@ const holeOf = (level: number): string => String.fromCharCode(3 + level);
 const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
 
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
-const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including|in integers that wrap)\b/;
+const TIME_PHRASE = /^(?:from now on|now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including|in integers that wrap)\b/;
 
 /** Whether a clause begins with a time phrase, which covers what follows it in the sentence. */
 const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_MARK, (_, __, word: string) => word).replaceAll(VARIABLE, ''));
@@ -316,7 +316,7 @@ const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_
 const TIME_ANYWHERE = new RegExp(TIME_PHRASE.source.replace('^', '\\b'));
 
 /** The time phrases a part begins with, each with the comma that ends it. */
-const LEADS = ['now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
+const LEADS = ['from now on, ', 'now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
 
 /** The words of a part as a reader sees them, without the marks of variables and links. */
 const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
@@ -401,7 +401,7 @@ type Doc =
   | string
   | { kind: 'list'; intro: string; items: Doc[] }
   | { kind: 'block'; intro: string; body: Doc }
-  | { kind: 'rule'; when: Doc; then: Doc; otherwise?: Doc };
+  | { kind: 'rule'; when: Doc; then: Doc; otherwise?: Doc; lead?: string };
 
 const isList = (doc: Doc): doc is Extract<Doc, { kind: 'list' }> => typeof doc !== 'string' && doc.kind === 'list';
 
@@ -2395,6 +2395,27 @@ class Verbalizer {
           once: 'now or at an earlier moment, ',
           historically: 'now and at every earlier moment, '
         };
+        // `always` over "for every" of sets that never change is "for every" of `always`: the same things exist at every moment, so
+        // the two orders mean the same. The rule inside then reads as "from now on, whenever". A `var` set, or one the vocabulary
+        // does not declare, keeps the order it has.
+        if (node.op === 'always') {
+          const chain: Extract<Node, { t: 'quant' }>[] = [];
+          let inner: Node = node.f;
+          while (inner.t === 'quant' && inner.q === 'all') {
+            chain.push(inner);
+            inner = inner.body;
+          }
+          const constant = (decl: { type: Node; var?: boolean }): boolean => !decl.var && decl.type.t === 'name' && this.readings.holders.has(decl.type.name) && !this.readings.variables.has(decl.type.name);
+          if (chain.length > 0 && inner.t === 'implies' && chain.every(q => q.decls.every(constant))) {
+            const moved = chain.reduceRight<Node>((body, q) => ({ ...q, body }), { t: 'unary', op: 'always', f: inner });
+            return this.doc(this.rewrote(node, moved));
+          }
+        }
+        // A rule at every moment from now is "from now on, whenever" its condition: the moments it covers start now, as "now and at every later moment" says.
+        if (node.op === 'always' && node.f.t === 'implies') {
+          const rule = this.doc(node.f);
+          if (typeof rule !== 'string' && rule.kind === 'rule') return { ...rule, lead: 'from now on, whenever' };
+        }
         // Below a time phrase an "and" or an "or" is a list: on one line, the phrase could read as covering its first part alone.
         return prefix(words[node.op], node.f.t === 'and' || node.f.t === 'or' ? this.junction(node.f, false) : this.doc(node.f));
       }
@@ -2460,9 +2481,9 @@ function lines(doc: Doc): string[] {
   const when = lines(doc.when);
   const then = lines(doc.then);
   const otherwise = doc.otherwise === undefined ? undefined : lines(doc.otherwise);
-  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1) && !timed(when[0] as string)) return [oneLine(when, then, otherwise)];
+  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1) && !timed(when[0] as string)) return [oneLine(when, then, otherwise, doc.lead)];
   return [
-    `when ${when[0]}`,
+    `${doc.lead ?? 'when'} ${when[0]}`,
     ...when.slice(1),
     `then ${then[0]}`,
     ...then.slice(1).map(line => `     ${line}`),
@@ -2470,9 +2491,9 @@ function lines(doc: Doc): string[] {
   ];
 }
 
-/** A rule of one-line sides on one line: "when a, b", or "when a, b; otherwise, c". */
-function oneLine(when: string[], then: string[], otherwise: string[] | undefined): string {
-  return `when ${when[0]}, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}${otherwise === undefined ? '' : `; otherwise, ${otherwise[0]}`}`;
+/** A rule of one-line sides on one line: "when a, b", or "when a, b; otherwise, c"; a rule at every moment from now leads with "from now on, whenever". */
+function oneLine(when: string[], then: string[], otherwise: string[] | undefined, lead = 'when'): string {
+  return `${lead} ${when[0]}, ${TIME_PHRASE.test(then[0] as string) ? 'then ' : ''}${then[0]}${otherwise === undefined ? '' : `; otherwise, ${otherwise[0]}`}`;
 }
 
 /**
@@ -2496,9 +2517,9 @@ function markdownLines(doc: Doc): string[] {
   const when = markdownLines(doc.when);
   const then = markdownLines(doc.then);
   const otherwise = doc.otherwise === undefined ? undefined : markdownLines(doc.otherwise);
-  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1) && !timed(when[0] as string)) return [oneLine(when, then, otherwise)];
+  if (when.length === 1 && then.length === 1 && (otherwise === undefined || otherwise.length === 1) && !timed(when[0] as string)) return [oneLine(when, then, otherwise, doc.lead)];
   return [
-    `when ${when[0]}${when.length === 1 ? ',' : ''}`,
+    `${doc.lead ?? 'when'} ${when[0]}${when.length === 1 ? ',' : ''}`,
     ...when.slice(1),
     '',
     `then ${then[0]}`,

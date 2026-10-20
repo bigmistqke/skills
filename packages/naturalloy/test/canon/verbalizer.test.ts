@@ -2242,14 +2242,22 @@ describe('what it refuses', () => {
   });
 
   /**
+   * @canon spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever
+   */
+  it('says a rule at every moment from now as from now on, whenever', () => {
+    expect(say('always (c in Ran implies d in Ran)')).toBe('From now on, whenever c has run, d has run.');
+    expect(say('always (c in Ran implies after d in Ran)')).toBe('From now on, whenever c has run, then at the next moment, d has run.');
+    expect(say('c in Registered implies always (c in Ran implies d in Ran)')).toContain('from now on, whenever c has run, d has run');
+  });
+
+  /**
    * @canon spec-releases-is-said-as-always-or-until
    */
   it('says releases with a side of more than a clause as always, or until', () => {
     expect(say('runNow[d] releases (c in Ran implies d in Ran)')).toBe(
       [
         'At least one of these holds:',
-        '  - now and at every later moment:',
-        '      when c has run, d has run',
+        '  - from now on, whenever c has run, d has run',
         '  - all of these hold:',
         '      - now or at a later moment, the following holds:',
         '          all of these hold:',

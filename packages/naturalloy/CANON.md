@@ -185,7 +185,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The verbalizer says `eventually` as "now or at a later moment".
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The verbalizer says `after` as "at the next moment".
-  - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The verbalizer says `always` as "now and at every later moment".
+  - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The verbalizer says `always` as "now and at every later moment", unless what it covers is a rule.
+  - [`@spec a-rule-at-every-later-moment-is-said-from-now-on-whenever`](#spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever) — The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
   - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The verbalizer says `before` as `there is a moment before, and at it`.
   - [`@spec once-is-said-as-now-or-at-an-earlier-moment`](#spec-once-is-said-as-now-or-at-an-earlier-moment) — The verbalizer says `once` as "now or at an earlier moment".
   - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The verbalizer says `historically` as "now and at every earlier moment".
@@ -1571,9 +1572,15 @@ This follows because after looks one step ahead and no further.
 
 #### @spec always-is-said-as-now-and-at-every-later-moment
 
-> The verbalizer says `always` as "now and at every later moment".
+> The verbalizer says `always` as "now and at every later moment", unless what it covers is a rule.
 
 This follows because always holds from the present on. "At every moment" would also reach back to the moments before it, which historically covers.
+
+#### @spec a-rule-at-every-later-moment-is-said-from-now-on-whenever
+
+> The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
+
+This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as "now and at every later moment" does. So the words still leave the moments before it out.
 
 #### @spec before-is-said-as-there-is-a-moment-before-and-at-it
 

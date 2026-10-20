@@ -246,5 +246,14 @@ export const SWEEP: { what: string; formula: string }[] = [
     })
   ),
   ...STRINGS.map(([kind, f]) => ({ what: kind, formula: `all c: Cleanup, s: String | ${f}` })),
-  ...NUMBERS.flatMap(([kind, n]) => NUMBER_POSITIONS.map(([position, shape]) => ({ what: `${kind}, ${position}`, formula: `all c: Cleanup, x, y: Int | ${shape.replace('N', n)}` })))
+  ...NUMBERS.flatMap(([kind, n]) => NUMBER_POSITIONS.map(([position, shape]) => ({ what: `${kind}, ${position}`, formula: `all c: Cleanup, x, y: Int | ${shape.replace('N', n)}` }))),
+  // `always` around "for every": of sets that never change, of a `var` set, nested, and `disj`, over a rule and over a plain clause.
+  ...[
+    'always all c: Cleanup | c in Registered implies c in Ran',
+    'always all c: Cleanup, o: Owner | (o in c.on and o in Disposed) implies after c in Ran',
+    'always all o: Owner | all c: Cleanup | c in Ran implies o in Disposed',
+    'always all disj o, p: Owner | o in Disposed implies p not in Disposed',
+    'always all c: Registered | c in Ran implies c.on in Disposed',
+    'always all c: Cleanup | c in Ran'
+  ].map(formula => ({ what: '`always` around "for every"', formula }))
 ];
