@@ -149,7 +149,7 @@ some o, h: Owner, c: Failing | o.handler = h and eventually (dispose[o] and c.on
 > then now or at a later moment, the cleanup has run.
 <!-- statement-spec-disposing-an-owner-runs-its-cleanups:end -->
 
-Disposing an owner is how its cleanups get their turn. Every cleanup registered on the owner that has not run yet runs at some point after pulse disposes the owner. Pulse leaves none behind.
+Disposing an owner is how its cleanups get their turn. When pulse disposes the owner, every cleanup that code has registered on it runs sooner or later, unless it has already run. Pulse leaves none behind.
 
 ```alloy
 always all o: Owner, c: Cleanup |
@@ -164,7 +164,7 @@ always all o: Owner, c: Cleanup |
 > - now and at every later moment, there is no owner_2 such that code disposes owner_2 after pulse disposed it, and that call throws
 <!-- statement-spec-dispose-runs-once:end -->
 
-Pulse disposes an owner once. When code disposes it again afterwards, that call does nothing: it runs no cleanup, and it does not throw.
+Disposing an owner a second time is harmless. When code disposes an owner that pulse has already disposed, the call runs none of its cleanups and does not throw.
 
 ```alloy
 (always no c: Cleanup, o: Owner | runByCall[c, o])
@@ -265,7 +265,7 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >     pulse does not dispose owner_4.
 <!-- statement-spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups:end -->
 
-An owner tears down from the inside out. Its children are disposed before any cleanup it holds runs, so a cleanup never finds a child still alive. The children go newest first, like the cleanups.
+An owner tears down from the inside out. Pulse disposes each of its children before it runs any cleanup registered on the owner, so a cleanup never finds a child still alive. The children go newest first, like the cleanups.
 
 ```alloy
 (always all o, k: Owner, c: Cleanup |
