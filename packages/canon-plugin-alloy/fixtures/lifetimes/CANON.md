@@ -190,13 +190,9 @@ and
 >   - cleanup_2 is on owner_1
 >   - code registered cleanup_1 before cleanup_2
 >
->   then all of these hold:
->   - now or at a later moment, the following holds:
+>   then the following holds:
 >
->     cleanup_2 runs
->   - at every moment from now until the first such moment, not including it, the following holds:
->
->     cleanup_1 does not run
+>   cleanup_2 runs now or later, and up to the first such moment, but not necessarily at it, cleanup_1 does not run
 > - from now on, for every owner_2 and every failing cleanup:
 >
 >   when the failing cleanup runs, is on owner_2 and pulse has disposed owner_2, then from now on, the dispose of owner_2 has not been stopped.
@@ -241,13 +237,9 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >   - the cleanup has not run
 >   - the cleanup is on owner_1
 >
->   then all of these hold:
->   - now or at a later moment, the following holds:
+>   then the following holds:
 >
->     pulse disposes owner_2
->   - at every moment from now until the first such moment, not including it, the following holds:
->
->     the cleanup does not run
+>   pulse disposes owner_2 now or later, and up to the first such moment, but not necessarily at it, the cleanup does not run
 > - from now on, for every owner_3, every owner_4 and every owner_5:
 >
 >   when all of these hold:
@@ -258,13 +250,9 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >   - pulse has not disposed owner_4
 >   - pulse has not disposed owner_5
 >
->   then all of these hold:
->   - now or at a later moment, the following holds:
+>   then the following holds:
 >
->     pulse disposes owner_5
->   - at every moment from now until the first such moment, not including it, the following holds:
->
->     pulse does not dispose owner_4.
+>   pulse disposes owner_5 now or later, and up to the first such moment, but not necessarily at it, pulse does not dispose owner_4.
 <!-- statement-spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups:end -->
 
 An owner tears down from the inside out. Pulse disposes each of its children before it runs any cleanup registered on the owner, so a cleanup never finds a child still alive. The children go newest first, like the cleanups.

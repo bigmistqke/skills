@@ -342,19 +342,19 @@ describe('the words', () => {
     expect(say('eventually c in Ran')).toBe('Now or later, c has run.');
     expect(say('after c in Ran')).toBe('At the next moment, c has run.');
     expect(say('(not runNow[c]) until runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      d runs', '  - at every moment from now until the first such moment, not including it, the following holds:', '      c does not run.'].join('\n')
+      ['d runs now or later, and up to the first such moment, but not necessarily at it, c does not run.'].join('\n')
     );
   });
 
   /**
    * @canon spec-always-is-said-as-from-now-on
-   * @canon spec-before-is-said-as-there-is-a-moment-before-and-at-it
+   * @canon spec-before-is-said-as-there-is-a-moment-just-before-and-at-it
    * @canon spec-once-is-said-as-now-or-earlier
    * @canon spec-historically-is-said-as-now-and-at-every-earlier-moment
    */
   it('says always and the past operators of one formula', () => {
     expect(say('always c in Ran')).toBe('From now on, c has run.');
-    expect(say('before c in Ran')).toBe('There is a moment before, and at it, c has run.');
+    expect(say('before c in Ran')).toBe('There is a moment just before, and at it, c has run.');
     expect(say('once c in Ran')).toBe('Now or earlier, c has run.');
     expect(say('historically c in Ran')).toBe('Now and at every earlier moment, c has run.');
   });
@@ -367,7 +367,7 @@ describe('the words', () => {
     expect(say("o in (Disposed')'")).toBe('At the next moment:\n  at the next moment, pulse has disposed o.');
     expect(say('after (c in Ran ; o in Disposed)')).toBe('At the next moment:\n  c has run, and at the next moment, pulse has disposed o.');
     expect(say('eventually (c in Registered until c in Ran)')).toBe(
-      ['Now or later, all of these hold:', '  - now or at a later moment, the following holds:', '      c has run', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
+      ['Now or later:', '  c has run now or later, and up to the first such moment, but not necessarily at it, code has registered c.'].join('\n')
     );
     expect(say("always (c in Ran and d in Ran')")).toBe('From now on, all of these hold:\n  - c has run\n  - at the next moment, d has run');
     expect(say('always (c in Ran and d in Ran)')).toBe('From now on, all of these hold:\n  - c has run\n  - d has run');
@@ -381,17 +381,17 @@ describe('the words', () => {
    */
   it('says since, releases, triggered and the semicolon', () => {
     expect(say('(not runNow[c]) since runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      d runs', '  - at every moment after the last such moment, up to and including now, the following holds:', '      c does not run.'].join('\n')
+      ['d runs now or earlier, and at every moment after the last such moment, up to and including now, c does not run.'].join('\n')
     );
     expect(say('runNow[d] releases (not runNow[c])')).toBe(
-      ['At least one of these holds:', '  - from now on, c does not run', '  - all of these hold:', '      - now or at a later moment, the following holds:', '          d runs and c does not run', '      - at every moment from now until the first such moment, not including it, the following holds:', '          c does not run.'].join('\n')
+      ['At least one of these holds:', '  - from now on, c does not run', '  - all of these hold:', '      - now or later, the following holds:', '          d runs and c does not run', '      - at every moment from now until the first such moment, not including it, the following holds:', '          c does not run.'].join('\n')
     );
     expect(say('runNow[d] triggered (not runNow[c])')).toBe(
       [
         'At least one of these holds:',
         '  - now and at every earlier moment, c does not run',
         '  - all of these hold:',
-        '      - now or at an earlier moment, the following holds:',
+        '      - now or earlier, the following holds:',
         '          d runs and c does not run',
         '      - at every moment after the last such moment, up to and including now, the following holds:',
         '          c does not run.'
@@ -1057,7 +1057,7 @@ describe('the items of a list said in a sentence', () => {
    */
   it('set apart the first side of a rule when it holds a time phrase', () => {
     expect(say('(after c in Ran) implies c in Registered')).toBe('When the following holds:\n  at the next moment, c has run\nthen code has registered c.');
-    expect(say('(before c in Ran) implies c in Registered')).toBe('When the following holds:\n  there is a moment before, and at it, c has run\nthen code has registered c.');
+    expect(say('(before c in Ran) implies c in Registered')).toBe('When the following holds:\n  there is a moment just before, and at it, c has run\nthen code has registered c.');
     expect(say('(once c in Ran) implies c in Registered')).toBe('When the following holds:\n  now or earlier, c has run\nthen code has registered c.');
     expect(say('(historically c in Ran) implies c in Registered')).toBe('When the following holds:\n  now and at every earlier moment, c has run\nthen code has registered c.');
     expect(say('(c in Ran ; o in Disposed) implies c in Registered')).toBe('When the following holds:\n  c has run, and at the next moment, pulse has disposed o\nthen code has registered c.');
@@ -1164,7 +1164,7 @@ describe('the items of a list said in a sentence', () => {
     expect(said('u in Spec implies eventually u in Axiom')).toBe('when the unit is a spec, then now or later, the unit is an axiom.');
     expect(said('u in Spec implies after u in Axiom')).toBe('when the unit is a spec, then at the next moment, the unit is an axiom.');
     expect(said('u in Spec implies once u in Axiom')).toBe('when the unit is a spec, then now or earlier, the unit is an axiom.');
-    expect(said('u in Spec implies before u in Axiom')).toBe('when the unit is a spec, then there is a moment before, and at it, the unit is an axiom.');
+    expect(said('u in Spec implies before u in Axiom')).toBe('when the unit is a spec, then there is a moment just before, and at it, the unit is an axiom.');
     expect(said('u in Spec implies u in Axiom')).toBe('when the unit is a spec, the unit is an axiom.');
   });
 });
@@ -2011,9 +2011,9 @@ describe('connectives, quantifiers and let', () => {
   it('says a not with no formula to move into as "it is not the case that", with the formula set apart', () => {
     expect(say('not one c: Cleanup | c in Ran')).toBe('It is not the case that:\n  there is exactly one cleanup such that the cleanup has run.');
     expect(say('not lone c: Cleanup | c in Ran')).toBe('It is not the case that:\n  there is at most one cleanup such that the cleanup has run.');
-    expect(say('not before c in Ran')).toBe('It is not the case that:\n  there is a moment before, and at it, c has run.');
+    expect(say('not before c in Ran')).toBe('It is not the case that:\n  there is a moment just before, and at it, c has run.');
     expect(say('not (runNow[d] releases runNow[c])')).toBe(
-      ['It is not the case that:', '  at least one of these holds:', '    - from now on, c runs', '    - all of these hold:', '        - now or at a later moment, the following holds:', '            d runs and c runs', '        - at every moment from now until the first such moment, not including it, the following holds:', '            c runs.'].join('\n')
+      ['It is not the case that:', '  at least one of these holds:', '    - from now on, c runs', '    - all of these hold:', '        - now or later, the following holds:', '            d runs and c runs', '        - at every moment from now until the first such moment, not including it, the following holds:', '            c runs.'].join('\n')
     );
   });
 
@@ -2229,7 +2229,7 @@ describe('what it refuses', () => {
    */
   it('says until with a side of more than a clause as two parts', () => {
     expect(say('(c in Ran implies d in Ran) until runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      d runs', '  - at every moment from now until the first such moment, not including it, the following holds:', '      when c has run, d has run.'].join('\n')
+      ['All of these hold:', '  - now or later, the following holds:', '      d runs', '  - at every moment from now until the first such moment, not including it, the following holds:', '      when c has run, d has run.'].join('\n')
     );
   });
 
@@ -2238,7 +2238,7 @@ describe('what it refuses', () => {
    */
   it('says since with a side of more than a clause as two parts', () => {
     expect(say('(c in Ran implies d in Ran) since runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      d runs', '  - at every moment after the last such moment, up to and including now, the following holds:', '      when c has run, d has run.'].join('\n')
+      ['All of these hold:', '  - now or earlier, the following holds:', '      d runs', '  - at every moment after the last such moment, up to and including now, the following holds:', '      when c has run, d has run.'].join('\n')
     );
   });
 
@@ -2252,6 +2252,16 @@ describe('what it refuses', () => {
   });
 
   /**
+   * @canon spec-until-of-two-plain-clauses-is-one-sentence
+   * @canon spec-since-of-two-plain-clauses-is-one-sentence
+   */
+  it('says until and since of two plain clauses as one sentence', () => {
+    expect(say('c in Registered until o in Disposed')).toBe('Pulse has disposed o now or later, and up to the first such moment, but not necessarily at it, code has registered c.');
+    expect(say('c in Ran since o in Disposed')).toBe('Pulse has disposed o now or earlier, and at every moment after the last such moment, up to and including now, c has run.');
+    expect(say('c in Registered until (c in Ran or o in Disposed)')).toMatch(/^All of these hold:/);
+  });
+
+  /**
    * @canon spec-releases-is-said-as-always-or-until
    */
   it('says releases with a side of more than a clause as always, or until', () => {
@@ -2260,7 +2270,7 @@ describe('what it refuses', () => {
         'At least one of these holds:',
         '  - from now on, whenever c has run, d has run',
         '  - all of these hold:',
-        '      - now or at a later moment, the following holds:',
+        '      - now or later, the following holds:',
         '          all of these hold:',
         '            - d runs',
         '            - when c has run, d has run',
@@ -2280,7 +2290,7 @@ describe('what it refuses', () => {
         '  - now and at every earlier moment:',
         '      when c has run, d has run',
         '  - all of these hold:',
-        '      - now or at an earlier moment, the following holds:',
+        '      - now or earlier, the following holds:',
         '          all of these hold:',
         '            - d runs',
         '            - when c has run, d has run',
@@ -2303,12 +2313,12 @@ describe('what it refuses', () => {
    */
   it('says until as two parts when a side holds a time phrase, a noun phrase, a list, a "where" or a "not" set apart', () => {
     const until = (b: string, a: string): string =>
-      ['All of these hold:', '  - now or at a later moment, the following holds:', `      ${b}`, '  - at every moment from now until the first such moment, not including it, the following holds:', `      ${a}.`].join('\n');
+      ['All of these hold:', '  - now or later, the following holds:', `      ${b}`, '  - at every moment from now until the first such moment, not including it, the following holds:', `      ${a}.`].join('\n');
     expect(say('c in Registered until no c.on')).toBe(until('c is on no owner', 'code has registered c'));
     expect(say('c in Registered until (c in Ran or o in Disposed)')).toBe(until('c has run or pulse has disposed o', 'code has registered c'));
     expect(say('c in Registered until always c in Ran')).toBe(until('from now on, c has run', 'code has registered c'));
     expect(say('(after c in Ran) until c in Registered')).toBe(until('code has registered c', 'at the next moment, c has run'));
-    expect(say('(before c in Ran) until c in Registered')).toBe(until('code has registered c', 'there is a moment before, and at it, c has run'));
+    expect(say('(before c in Ran) until c in Registered')).toBe(until('code has registered c', 'there is a moment just before, and at it, c has run'));
     expect(say('c in Registered until (some x: Owner | x in c.on and x in Disposed)')).toBe(until('c is on an owner that pulse has disposed', 'code has registered c'));
     expect(say('c in Registered until (one x: Owner | x in c.on)')).toBe(until('there is exactly one owner such that c is on the owner', 'code has registered c'));
     expect(say('c in Registered until { c in Ran o in Disposed }')).toBe(until('c has run and pulse has disposed o', 'code has registered c'));
@@ -2316,7 +2326,7 @@ describe('what it refuses', () => {
     expect(say('#c.on > 1 until c in Registered')).toBe(
       until('code has registered c', "in integers that wrap around at the analyzer's bit width, number_1 is greater than 1, where number_1 is the number of values of owner_1 such that c is on owner_1")
     );
-    expect(say('c in Registered until c in Ran')).toBe(until('c has run', 'code has registered c'));
+    expect(say('c in Registered until c in Ran')).toBe('c has run now or later, and up to the first such moment, but not necessarily at it, code has registered c.');
   });
 
   /**
@@ -2329,10 +2339,10 @@ describe('what it refuses', () => {
       'sig Owner {} sig Cleanup {} var sig Ran, Registered in Cleanup {} var sig Disposed, Stopped in Owner {} pred gone[o: Owner] { o in Disposed } pred gone2[o: Owner] { o in Disposed and o not in Stopped }'
     );
     expect(say('c in Registered until gone2[o]', readings)).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      pulse has disposed o and the dispose of o has not been stopped', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
+      ['All of these hold:', '  - now or later, the following holds:', '      pulse has disposed o and the dispose of o has not been stopped', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
     );
     expect(say('c in Registered until gone[o]', readings)).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      pulse has disposed o', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
+      ['Pulse has disposed o now or later, and up to the first such moment, but not necessarily at it, code has registered c.'].join('\n')
     );
   });
 
@@ -2342,7 +2352,7 @@ describe('what it refuses', () => {
    */
   it('says since as two parts when a side holds a noun phrase', () => {
     expect(say('c in Registered since no c.on')).toBe(
-      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      c is on no owner', '  - at every moment after the last such moment, up to and including now, the following holds:', '      code has registered c.'].join('\n')
+      ['All of these hold:', '  - now or earlier, the following holds:', '      c is on no owner', '  - at every moment after the last such moment, up to and including now, the following holds:', '      code has registered c.'].join('\n')
     );
   });
 
@@ -2352,7 +2362,7 @@ describe('what it refuses', () => {
    */
   it('says releases as always, or until, when a side holds a noun phrase', () => {
     expect(say('no c.on releases c in Registered')).toBe(
-      ['At least one of these holds:', '  - from now on, code has registered c', '  - all of these hold:', '      - now or at a later moment, the following holds:', '          c is on no owner and code has registered c', '      - at every moment from now until the first such moment, not including it, the following holds:', '          code has registered c.'].join('\n')
+      ['At least one of these holds:', '  - from now on, code has registered c', '  - all of these hold:', '      - now or later, the following holds:', '          c is on no owner and code has registered c', '      - at every moment from now until the first such moment, not including it, the following holds:', '          code has registered c.'].join('\n')
     );
   });
 
@@ -2366,7 +2376,7 @@ describe('what it refuses', () => {
         'At least one of these holds:',
         '  - now and at every earlier moment, code has registered c',
         '  - all of these hold:',
-        '      - now or at an earlier moment, the following holds:',
+        '      - now or earlier, the following holds:',
         '          all of these hold:',
         '            - at the next moment, c has run',
         '            - code has registered c',

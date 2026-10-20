@@ -307,7 +307,7 @@ const holeOf = (level: number): string => String.fromCharCode(3 + level);
 const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
 
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
-const TIME_PHRASE = /^(?:from now on|now or later|now or earlier|now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including|in integers that wrap)\b/;
+const TIME_PHRASE = /^(?:from now on|now or later|now or earlier|now or at|now and at|at every|at the next|right after|there is a moment (?:just )?before|up to and including|back to and including|in integers that wrap)\b/;
 
 /** Whether a clause begins with a time phrase, which covers what follows it in the sentence. */
 const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_MARK, (_, __, word: string) => word).replaceAll(VARIABLE, ''));
@@ -327,7 +327,7 @@ function anchored(node: Node): boolean {
 }
 
 /** The time phrases a part begins with, each with the comma that ends it. */
-const LEADS = ['from now on, ', 'now or later, ', 'now or earlier, ', 'now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
+const LEADS = ['from now on, ', 'now or later, ', 'now or earlier, ', 'now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment just before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
 
 /** The words of a part as a reader sees them, without the marks of variables and links. */
 const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
@@ -1682,7 +1682,7 @@ class Verbalizer {
     // A time phrase in the second side, the one it begins with included, would reach over the "otherwise".
     if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
     // A series in the second or the last side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
-    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll('there is a moment before, and at it, ', ''));
+    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll('there is a moment just before, and at it, ', ''));
     if (series(then)) then = apart(then as string);
     const otherwise = series(third) ? apart(third as string) : third;
     return { kind: 'rule', when, then, ...(otherwise === undefined ? {} : { otherwise }) };
@@ -1708,9 +1708,9 @@ class Verbalizer {
     const part = (intro: string, side: Node): Doc => ({ kind: 'block', intro, body: this.side(side) });
     switch (node.op) {
       case 'until':
-        return { kind: 'list', intro: ALL, items: [part('now or at a later moment, the following holds:', b), part('at every moment from now until the first such moment, not including it, the following holds:', a)] };
+        return { kind: 'list', intro: ALL, items: [part('now or later, the following holds:', b), part('at every moment from now until the first such moment, not including it, the following holds:', a)] };
       case 'since':
-        return { kind: 'list', intro: ALL, items: [part('now or at an earlier moment, the following holds:', b), part('at every moment after the last such moment, up to and including now, the following holds:', a)] };
+        return { kind: 'list', intro: ALL, items: [part('now or earlier, the following holds:', b), part('at every moment after the last such moment, up to and including now, the following holds:', a)] };
       case 'releases':
         return this.doc(this.rewrote(node, { t: 'or', items: [{ t: 'unary', op: 'always', f: b }, { t: 'binary', op: 'until', l: b, r: { t: 'and', items: [a, b] } }] }));
       case 'triggered':
@@ -2405,7 +2405,7 @@ class Verbalizer {
           always: 'from now on, ',
           eventually: 'now or later, ',
           after: 'at the next moment, ',
-          before: 'there is a moment before, and at it, ',
+          before: 'there is a moment just before, and at it, ',
           once: 'now or earlier, ',
           historically: 'now and at every earlier moment, '
         };
@@ -2440,6 +2440,14 @@ class Verbalizer {
         // Until, since, releases and triggered are always said in parts set apart: written on one line, "the first moment where"
         // could count from before now, and "if one comes" could read as a condition on the whole claim. A sequence is one line
         // where both its sides are plain clauses.
+        // Until and since of two plain clauses are one sentence: each side is a clause with no time phrase, comma or relative
+        // clause, so the time phrase after the first can only cover it, and "the first such moment" can only mean its moments.
+        if ((node.op === 'until' || node.op === 'since') && this.single(node.l) && this.single(node.r)) {
+          const [a, b] = [this.doc(node.l), this.doc(node.r)] as [string, string];
+          return node.op === 'until'
+            ? `${b} now or later, and up to the first such moment, but not necessarily at it, ${a}`
+            : `${b} now or earlier, and at every moment after the last such moment, up to and including now, ${a}`;
+        }
         if (node.op !== ';' || !this.single(node.l) || !this.single(node.r)) return this.setApart(node);
         const [l, r] = [this.doc(node.l), this.doc(node.r)];
         return `${l}, and at the next moment, ${r}`;

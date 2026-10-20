@@ -189,7 +189,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The verbalizer says `after` as "at the next moment".
   - [`@spec always-is-said-as-from-now-on`](#spec-always-is-said-as-from-now-on) — The verbalizer says `always` as "from now on", unless what it covers is a rule.
   - [`@spec a-rule-at-every-later-moment-is-said-from-now-on-whenever`](#spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever) — The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
-  - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The verbalizer says `before` as `there is a moment before, and at it`.
+  - [`@spec before-is-said-as-there-is-a-moment-just-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-just-before-and-at-it) — The verbalizer says `before` as `there is a moment just before, and at it`.
   - [`@spec once-is-said-as-now-or-earlier`](#spec-once-is-said-as-now-or-earlier) — The verbalizer says `once` as "now or earlier".
   - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The verbalizer says `historically` as "now and at every earlier moment".
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
@@ -197,9 +197,11 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec an-and-or-an-or-below-a-time-phrase-is-a-list`](#spec-an-and-or-an-or-below-a-time-phrase-is-a-list) — The verbalizer says an "and" or an "or" that a time phrase covers as a list below it, and never as one sentence after it.
   - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
   - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
-  - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
-    - [`@spec until-is-said-as-two-parts`](#spec-until-is-said-as-two-parts) — The verbalizer says `a until b` in two parts. First comes `b` "now or at a later moment", then `a` "at every moment from now until the first such moment, not including it".
-    - [`@spec since-is-said-as-two-parts`](#spec-since-is-said-as-two-parts) — The verbalizer says `a since b` in two parts. First comes `b` "now or at an earlier moment", then `a` "at every moment after the last such moment, up to and including now".
+  - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart when either side is more than one plain clause, and each side of `;` that is. It puts them below the words that place them in time.
+    - [`@spec until-is-said-as-two-parts`](#spec-until-is-said-as-two-parts) — When a side is more than one plain clause, the verbalizer says `a until b` in two parts. First comes `b` "now or later", then `a` "at every moment from now until the first such moment, not including it".
+    - [`@spec since-is-said-as-two-parts`](#spec-since-is-said-as-two-parts) — When a side is more than one plain clause, the verbalizer says `a since b` in two parts. First comes `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
+    - [`@spec until-of-two-plain-clauses-is-one-sentence`](#spec-until-of-two-plain-clauses-is-one-sentence) — The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and up to the first such moment, but not necessarily at it," `a`.
+    - [`@spec since-of-two-plain-clauses-is-one-sentence`](#spec-since-of-two-plain-clauses-is-one-sentence) — Of two plain clauses, the verbalizer says `a since b` as one sentence. It says `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
     - [`@spec releases-is-said-as-always-or-until`](#spec-releases-is-said-as-always-or-until) — The verbalizer says `a releases b` as `always b or (b until (a and b))`.
     - [`@spec triggered-is-said-as-historically-or-since`](#spec-triggered-is-said-as-historically-or-since) — The verbalizer says `a triggered b` as `historically b or (b since (a and b))`.
     - [`@spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment`](#spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b`, with a side that is more than one plain clause, as `a and after b`.
@@ -1596,11 +1598,11 @@ This follows because always holds from the present on, the present included. "At
 
 This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as `always` alone does. So the words still leave the moments before it out.
 
-#### @spec before-is-said-as-there-is-a-moment-before-and-at-it
+#### @spec before-is-said-as-there-is-a-moment-just-before-and-at-it
 
-> The verbalizer says `before` as `there is a moment before, and at it`.
+> The verbalizer says `before` as `there is a moment just before, and at it`.
 
-This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out.
+This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out, and "a moment before" alone would read as any earlier moment, which once covers.
 
 #### @spec once-is-said-as-now-or-earlier
 
@@ -1646,21 +1648,33 @@ This follows because a formula the analyzer cannot read claims nothing, so no wo
 
 #### @spec a-binary-temporal-operator-is-said-with-its-sides-set-apart
 
-> The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
+> The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart when either side is more than one plain clause, and each side of `;` that is. It puts them below the words that place them in time.
 
 This follows because each operator bounds a stretch of moments by a moment where a side holds. On one line, the words name that moment as "the first moment where" or "the last moment where". A reader can count such a moment from the start of the run, or past now. Set apart, the moment is "the first such moment" after one counted from now, and the stretch says where it starts and ends. A longer side set apart also shows where it ends.
 
 ##### @spec until-is-said-as-two-parts
 
-> The verbalizer says `a until b` in two parts. First comes `b` "now or at a later moment", then `a` "at every moment from now until the first such moment, not including it".
+> When a side is more than one plain clause, the verbalizer says `a until b` in two parts. First comes `b` "now or later", then `a` "at every moment from now until the first such moment, not including it".
 
 This follows because until claims that `b` comes, now or later, and that `a` holds at every moment before it first does.
 
 ##### @spec since-is-said-as-two-parts
 
-> The verbalizer says `a since b` in two parts. First comes `b` "now or at an earlier moment", then `a` "at every moment after the last such moment, up to and including now".
+> When a side is more than one plain clause, the verbalizer says `a since b` in two parts. First comes `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
 
 This follows because since is until turned to the past.
+
+##### @spec until-of-two-plain-clauses-is-one-sentence
+
+> The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and up to the first such moment, but not necessarily at it," `a`.
+
+This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "the first such moment" can only be a moment of `b` counted from now. "Not necessarily at it" keeps the moment itself out, as until does.
+
+##### @spec since-of-two-plain-clauses-is-one-sentence
+
+> Of two plain clauses, the verbalizer says `a since b` as one sentence. It says `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
+
+This follows because since is until turned to the past, and the same plain clauses leave its words one reading. "Ever since" would read as covering the moment of `b` too, so the words name the stretch in full.
 
 ##### @spec releases-is-said-as-always-or-until
 
