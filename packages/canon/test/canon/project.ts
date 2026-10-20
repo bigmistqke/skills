@@ -60,6 +60,17 @@ function project(document: string, tests: string, tracker?: Record<string, unkno
   return dir;
 }
 
+/** A project of the document, the test file and what else it holds, left for a command to change; its directory. */
+export function scratch(document: string, tests = '', extra: Extra = {}): string {
+  return project(document, tests, undefined, extra);
+}
+
+/** Run the checker with `args` in the project at `dir`: its exit code, and what it printed. */
+export function run(dir: string, ...args: string[]): { status: number | null; stdout: string; stderr: string } {
+  const { status, stdout, stderr } = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8' });
+  return { status, stdout, stderr };
+}
+
 /** The document as `generate` leaves it, in a project of it alone. */
 export function generated(document: string): string {
   return readFileSync(join(project(document, ''), 'CANON.md'), 'utf8');
