@@ -13,7 +13,8 @@ import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { beginMarker, regionAt, replaceRegion } from '@bigmistqke/canon/regions';
 import { readUnits } from '@bigmistqke/canon/units';
 import { PARAGRAPHS } from './words.ts';
-import { isDefinition, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from '@bigmistqke/naturalloy';
+import { AlloyParseError } from '@bigmistqke/parse-alloy';
+import { isDefinition, isRefusal, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from '@bigmistqke/naturalloy';
 
 /** The name of the region that holds the generated statement of a unit. */
 export const regionName = (unit: string): string => `statement-${unit}`;
@@ -82,7 +83,8 @@ export function states(src: string, context: Context[] = []): StatementState[] {
   try {
     readings = readingsOf(src, context);
   } catch (error) {
-    return [{ unit: '(readings)', kind: 'unsayable', message: (error as Error).message }];
+    if (!isRefusal(error) && !(error instanceof AlloyParseError)) throw error;
+    return [{ unit: '(readings)', kind: 'unsayable', message: error.message }];
   }
   if (readings === undefined) return [];
   const units = readUnits(src);
@@ -100,7 +102,9 @@ export function states(src: string, context: Context[] = []): StatementState[] {
       const { body } = predicates[0] as { body: string };
       words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown', `#${unit.id}`) : verbalize(body, readings, 'markdown', `#${unit.id}`));
     } catch (error) {
-      found.push({ unit: unit.id, kind: 'unsayable', message: (error as Error).message });
+      // A refusal says why the unit has no statement; anything else is a fault of naturalloy, and is not hidden as one.
+      if (!isRefusal(error)) throw error;
+      found.push({ unit: unit.id, kind: 'unsayable', message: error.message });
       continue;
     }
     const region = regionName(unit.id);
@@ -113,7 +117,8 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     try {
       words = quote(`It must be possible that:\n\n${verbalize(body, readings, 'markdown', `#${unit}`)}`);
     } catch (error) {
-      found.push({ unit: key, kind: 'unsayable', message: (error as Error).message });
+      if (!isRefusal(error)) throw error;
+      found.push({ unit: key, kind: 'unsayable', message: error.message });
       continue;
     }
     const region = regionName(key);
