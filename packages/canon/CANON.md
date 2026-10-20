@@ -305,7 +305,14 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) — For every [fence](#term-fence): when the fence has no second word that names a role, the fence has the role of the formula of its unit.
     - [`@spec the-body-of-a-block-is-the-lines-between-its-fences`](#spec-the-body-of-a-block-is-the-lines-between-its-fences) — The checker reads the body of a fence that names a language as the lines between its fences.
     - [`@spec the-offset-of-a-block-is-where-its-body-starts-in-the-document`](#spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document) — The checker says where the body of a fence that names a language starts in the document.
-    - [`@spec a-nested-units-block-is-its-own`](#spec-a-nested-units-block-is-its-own) — For every [fence](#term-fence) and every [unit_1](#term-unit): when the fence lies in the own text of unit_1, [checker](#term-checker) reads the fence as a block of no unit that [sits in](#term-sit) unit_1.
+    - [`@spec a-nested-units-block-is-its-own`](#spec-a-nested-units-block-is-its-own) —
+      > For every [fence](#term-fence) and every [unit_1](#term-unit):
+      >
+      > when the fence lies in the own text of unit_1,
+      >
+      > then there is no unit_2 such that all of these hold:
+      > - unit_2 and unit_1 are different
+      > - [checker](#term-checker) reads the fence as a block of unit_2
   - [`@axiom a-finding-is-never-false`](#axiom-a-finding-is-never-false) — The checker reports a finding only for what breaks the canon.
     - [`@spec a-tested-claim-is-not-untested`](#spec-a-tested-claim-is-not-untested) — For every [claim](#term-claim): when the claim is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
       - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — For every [claim](#term-claim): when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
@@ -346,7 +353,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       >
       > all of these hold:
       > - when the plugin [applies](#term-apply) to the document, [checker](#term-checker) runs the plugin over the document
-      > - when the command line of a [run](#term-run) does not name the document and checker runs the plugin over the document, the plugin applies to the document
+      > - when the command line of no [run](#term-run) names the document and checker runs the plugin over the document, the plugin applies to the document
       - [`@spec a-document-with-no-plugins-list-asks-for-no-plugin`](#spec-a-document-with-no-plugins-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter) and the command line of a [run](#term-run) does not name document_1, [checker](#term-checker) does not run plugin_1 over document_1.
       - [`@spec a-plugin-a-document-lists-runs-over-it`](#spec-a-plugin-a-document-lists-runs-over-it) — For every [plugin](#term-plugin) and every [document](#term-document) and every [listing frontmatter](#term-frontmatter): when the document starts with the listing frontmatter and the listing frontmatter [lists](#term-list) the plugin, [checker](#term-checker) runs the plugin over the document.
       - [`@spec a-plugin-a-document-does-not-list-does-not-run-over-it`](#spec-a-plugin-a-document-does-not-list-does-not-run-over-it) —
@@ -355,7 +362,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
         > when all of these hold:
         > - the document starts with the listing frontmatter
         > - the listing frontmatter does not [list](#term-list) the plugin
-        > - the command line of a [run](#term-run) does not name the document
+        > - the command line of no [run](#term-run) names the document
         >
         > then [checker](#term-checker) does not run the plugin over the document.
       - [`@spec an-empty-list-asks-for-no-plugin`](#spec-an-empty-list-asks-for-no-plugin) —
@@ -364,7 +371,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
         > when all of these hold:
         > - the document starts with the listing frontmatter
         > - the listing frontmatter holds no [entry](#term-entry)
-        > - the command line of a [run](#term-run) does not name the document
+        > - the command line of no [run](#term-run) names the document
         >
         > then [checker](#term-checker) does not run the plugin over the document.
       - [`@spec a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says`](#spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says) — For every [run_1](#term-run) and every [plugin](#term-plugin) and every given document: when run_1 [calls](#term-call) the plugin, [checker](#term-checker) runs the plugin over the given document.
@@ -403,23 +410,23 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — The checker does not refuse a key that a plugin in the list of the frontmatter defines.
     - [`@spec a-package-field-serves-a-run-that-enters-no-document`](#spec-a-package-field-serves-a-run-that-enters-no-document) — A [run](#term-run) that [enters](#term-enter) no document takes its settings from the package field.
     - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) —
-      > For every [run](#term-run) and every [document](#term-document) and every [refused frontmatter](#term-frontmatter):
+      > All of these hold:
+      > - for every [document](#term-document) and every [refused frontmatter](#term-frontmatter):
       >
-      > when the document starts with the refused frontmatter,
+      >   when the document starts with the refused frontmatter, [checker](#term-checker) reports that the document has a frontmatter it cannot read
+      > - for every [run](#term-run) and every document and every refused frontmatter:
       >
-      > then all of these hold:
-      > - [checker](#term-checker) reports that the document has a frontmatter it cannot read
-      > - the run exits with code 2
+      >   when the document starts with the refused frontmatter, the run exits with code 2.
       - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document](#term-document) and every [refused frontmatter](#term-frontmatter): when the document starts with the refused frontmatter, [checker](#term-checker) reports that the document has a frontmatter it cannot read.
       - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run](#term-run): when there is a [document](#term-document) such that [checker](#term-checker) reports that the document has a [frontmatter](#term-frontmatter) it cannot read, the run exits with code 2.
     - [`@spec a-plugin-the-project-lacks-fails-the-run`](#spec-a-plugin-the-project-lacks-fails-the-run) —
-      > For every [run](#term-run) and every [frontmatter](#term-frontmatter) and every [missing plugin](#term-plugin):
+      > All of these hold:
+      > - for every [frontmatter](#term-frontmatter) and every [missing plugin](#term-plugin):
       >
-      > when the frontmatter [lists](#term-list) the missing plugin,
+      >   when the frontmatter [lists](#term-list) the missing plugin, [checker](#term-checker) reports that the project lacks the missing plugin
+      > - for every [run](#term-run) and every frontmatter and every missing plugin:
       >
-      > then all of these hold:
-      > - [checker](#term-checker) reports that the project lacks the missing plugin
-      > - the run exits with code 2
+      >   when the frontmatter lists the missing plugin, the run exits with code 2.
       - [`@spec a-missing-plugin-is-reported`](#spec-a-missing-plugin-is-reported) — For every [frontmatter](#term-frontmatter) and every [missing plugin](#term-plugin): when the frontmatter [lists](#term-list) the missing plugin, [checker](#term-checker) reports that the project lacks the missing plugin.
       - [`@spec a-missing-plugin-stops-the-run`](#spec-a-missing-plugin-stops-the-run) — For every [run](#term-run) and every [frontmatter](#term-frontmatter) and every [missing plugin](#term-plugin): when the frontmatter [lists](#term-list) the missing plugin, the run exits with code 2.
     - [`@spec an-unknown-command-fails-the-run`](#spec-an-unknown-command-fails-the-run) — For every [run](#term-run) and every [command_1](#term-command): when the run asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command and the run exits with code 2.
@@ -1293,6 +1300,7 @@ When two units have one id, a pointer or a tag that names it cannot say which it
 
 ```alloy vocabulary
 one sig Repeat { rel: Unit -> Unit }
+fact repeats_another { no iden & Repeat.rel }
 ```
 
 ```readings
@@ -1782,6 +1790,7 @@ A path starts from the folder of the document that lists it. A document is conte
 ```alloy vocabulary
 one sig Extend { rel: Document -> Document }
 one sig Context { rel: Document -> Document }
+fact context_is_another { no iden & Context.rel }
 ```
 
 ```readings
@@ -1870,7 +1879,7 @@ Exits0: {1} exits with code 0 | {1} does not exit with code 0
 Exits1: {1} exits with code 1 | {1} does not exit with code 1
 Exits2: {1} exits with code 2 | {1} does not exit with code 2
 noun Given: [given document]
-Given: the command line of a [run](#term-run) names {1} | the command line of a [run](#term-run) does not name {1}
+Given: the command line of a [run](#term-run) names {1} | the command line of no [run](#term-run) names {1}
 Ask.rel: {1} asks for {2} | {1} does not ask for {2}
 Return.code0: {1} gets code 0 from {2} | {1} does not get code 0 from {2}
 Return.code1: {1} gets code 1 from {2} | {1} does not get code 1 from {2}
@@ -2933,13 +2942,17 @@ This follows because a tool that rewrites a block needs to know where its body s
 <!-- statement-spec-a-nested-units-block-is-its-own:begin — generated by `canon generate`; edits are overwritten -->
 > For every [fence](#term-fence) and every [unit_1](#term-unit):
 >
-> when the fence lies in the own text of unit_1, [checker](#term-checker) reads the fence as a block of no unit that [sits in](#term-sit) unit_1.
+> when the fence lies in the own text of unit_1,
+>
+> then there is no unit_2 such that all of these hold:
+> - unit_2 and unit_1 are different
+> - [checker](#term-checker) reads the fence as a block of unit_2
 <!-- statement-spec-a-nested-units-block-is-its-own:end -->
 
 This follows because a unit nested in another says its own logic. The unit above does not say it.
 
 ```alloy
-all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v->u in Sit.rel and v->f in Blocks.rel)
+all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v != u and v->f in Blocks.rel)
 ```
 
 ### @axiom a-finding-is-never-false
@@ -3204,7 +3217,7 @@ some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and 
 >
 > all of these hold:
 > - when the plugin [applies](#term-apply) to the document, [checker](#term-checker) runs the plugin over the document
-> - when the command line of a [run](#term-run) does not name the document and checker runs the plugin over the document, the plugin applies to the document
+> - when the command line of no [run](#term-run) names the document and checker runs the plugin over the document, the plugin applies to the document
 <!-- statement-spec-a-document-gets-the-plugins-it-asks-for:end -->
 
 This follows because the plugins a document names are the checks it asks for. It gets those and no others. A plugin it did not ask for adds no finding, and one it asked for is not left out. A document that names none asks for none.
@@ -3224,7 +3237,7 @@ all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d no
 <!-- statement-spec-a-document-with-no-plugins-list-asks-for-no-plugin:begin — generated by `canon generate`; edits are overwritten -->
 > For every [plugin](#term-plugin) and every [document](#term-document):
 >
-> when the document starts with no [listing frontmatter](#term-frontmatter) and the command line of a [run](#term-run) does not name the document, [checker](#term-checker) does not run the plugin over the document.
+> when the document starts with no [listing frontmatter](#term-frontmatter) and the command line of no [run](#term-run) names the document, [checker](#term-checker) does not run the plugin over the document.
 <!-- statement-spec-a-document-with-no-plugins-list-asks-for-no-plugin:end -->
 
 This follows because such a document names no plugin, so it asks for no check.
@@ -3255,7 +3268,7 @@ all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) impl
 > when all of these hold:
 > - the document starts with the listing frontmatter
 > - the listing frontmatter does not [list](#term-list) the plugin
-> - the command line of a [run](#term-run) does not name the document
+> - the command line of no [run](#term-run) names the document
 >
 > then [checker](#term-checker) does not run the plugin over the document.
 <!-- statement-spec-a-plugin-a-document-does-not-list-does-not-run-over-it:end -->
@@ -3274,7 +3287,7 @@ all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] a
 > when all of these hold:
 > - the document starts with the listing frontmatter
 > - the listing frontmatter holds no [entry](#term-entry)
-> - the command line of a [run](#term-run) does not name the document
+> - the command line of no [run](#term-run) names the document
 >
 > then [checker](#term-checker) does not run the plugin over the document.
 <!-- statement-spec-an-empty-list-asks-for-no-plugin:end -->
@@ -3518,19 +3531,20 @@ This follows because a project that keeps its settings in the canon field of its
 #### @spec a-refused-frontmatter-fails-the-run
 
 <!-- statement-spec-a-refused-frontmatter-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run) and every [document](#term-document) and every [refused frontmatter](#term-frontmatter):
+> All of these hold:
+> - for every [document](#term-document) and every [refused frontmatter](#term-frontmatter):
 >
-> when the document starts with the refused frontmatter,
+>   when the document starts with the refused frontmatter, [checker](#term-checker) reports that the document has a frontmatter it cannot read
+> - for every [run](#term-run) and every document and every refused frontmatter:
 >
-> then all of these hold:
-> - [checker](#term-checker) reports that the document has a frontmatter it cannot read
-> - the run exits with code 2
+>   when the document starts with the refused frontmatter, the run exits with code 2.
 <!-- statement-spec-a-refused-frontmatter-fails-the-run:end -->
 
 This follows because a refused frontmatter asks for checks that the checker cannot name, so the run must say it could not run them.
 
 ```alloy
-all r: Run, d: Document, f: Refused | d->f in Head.rel implies (d in Unreadable and r in Exits2)
+(all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable)
+and (all r: Run, d: Document, f: Refused | d->f in Head.rel implies r in Exits2)
 ```
 
 ##### @spec a-document-with-a-refused-frontmatter-is-reported
@@ -3564,19 +3578,20 @@ all r: Run | (some d: Document | d in Unreadable) implies r in Exits2
 #### @spec a-plugin-the-project-lacks-fails-the-run
 
 <!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run) and every [frontmatter](#term-frontmatter) and every [missing plugin](#term-plugin):
+> All of these hold:
+> - for every [frontmatter](#term-frontmatter) and every [missing plugin](#term-plugin):
 >
-> when the frontmatter [lists](#term-list) the missing plugin,
+>   when the frontmatter [lists](#term-list) the missing plugin, [checker](#term-checker) reports that the project lacks the missing plugin
+> - for every [run](#term-run) and every frontmatter and every missing plugin:
 >
-> then all of these hold:
-> - [checker](#term-checker) reports that the project lacks the missing plugin
-> - the run exits with code 2
+>   when the frontmatter lists the missing plugin, the run exits with code 2.
 <!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:end -->
 
 This follows because a name that stands for no package is a check that cannot run. A document may name only what the project already has, because the checker fetches and runs nothing new.
 
 ```alloy
-all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies (p in Unfound and r in Exits2)
+(all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound)
+and (all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2)
 ```
 
 ##### @spec a-missing-plugin-is-reported
