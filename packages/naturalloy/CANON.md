@@ -2283,7 +2283,7 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 > when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
-A noun phrase needs a place in the sentence to sit. When no fact ties the variable to anything else, the phrase has nowhere to go. So the verbalizer spells the quantifier out in full, with a numbered name.
+A noun phrase needs another thing in the sentence to hang from. Sometimes the sentence says only a fact about the variable itself, as in "some unit is a spec". Then the phrase has nothing to attach to. So the verbalizer spells the quantifier out in full, with a numbered name.
 
 ```alloy
 all f: Quantifier | f in NothingToAttach implies f in InFull
@@ -2297,7 +2297,7 @@ all f: Quantifier | f in NothingToAttach implies f in InFull
 > when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-no-with-another-is-said-in-full:end -->
 
-A "no" phrase that says its thing differs from another, with a condition besides, can mean something the logic does not. Rather than risk that, the verbalizer spells the quantifier out in full, with a numbered name.
+The short way to say that no unit but this one sits in it would be "no other unit sits in it". But "no other" hints that this unit itself does, which the logic does not say. So the verbalizer spells the quantifier out in full, with a numbered name.
 
 ```alloy
 all f: Quantifier | f in NoWithAnother implies f in InFull
