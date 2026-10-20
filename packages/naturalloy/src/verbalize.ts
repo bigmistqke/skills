@@ -333,6 +333,24 @@ function nameOf(node: Node, what: string): string {
   return node.name;
 }
 
+/** The operator a `not` before a comparison of two values makes: `not x = y` is `x != y`, and `not x in y` is `x not in y`. */
+const NEGATED_MEMBERSHIP: Record<string, string> = { '=': '!=', in: 'not in' };
+
+/**
+ * What a condition says the variable `x` differs from, when that is all it
+ * says: `x != y`, `not x = y`, and for a string, which is one atom, `x not in
+ * "a"` and `not x in "a"`. Undefined for any other condition.
+ */
+function differsFrom(part: Node, x: string): Node | undefined {
+  const [op, l, r] = part.t === 'cmp' ? [part.op, part.l, part.r] : part.t === 'not' && part.f.t === 'cmp' ? [NEGATED_MEMBERSHIP[part.f.op], part.f.l, part.f.r] : [undefined, undefined, undefined];
+  if (l === undefined || r === undefined) return undefined;
+  const value = (n: Node): boolean => n.t === 'name' || n.t === 'string';
+  const isX = (n: Node): boolean => n.t === 'name' && n.name === x;
+  if (op === '!=' && value(l) && value(r) && (isX(l) || isX(r))) return isX(l) ? r : l;
+  if (op === 'not in' && isX(l) && r.t === 'string') return r;
+  return undefined;
+}
+
 /** A doc said as untrue. Only a clause, or a list of them, can be. */
 function untrue(doc: Doc): Doc {
   if (typeof doc === 'string') return `it is not the case that ${doc}`;
@@ -1642,12 +1660,12 @@ class Verbalizer {
     const written = this.readings.nouns.get(typeName);
     if (written === undefined) return undefined;
     const parts = body.t === 'and' ? body.items : [body];
-    let other: string | undefined;
+    let other: Node | undefined;
     const rest: Node[] = [];
     for (const part of parts) {
-      if (part.t === 'cmp' && part.op === '!=' && part.l.t === 'name' && part.r.t === 'name' && (part.l.name === x || part.r.name === x)) {
-        other = part.l.name === x ? part.r.name : part.l.name;
-      } else rest.push(part);
+      const differs = other === undefined ? differsFrom(part, x) : undefined;
+      if (differs !== undefined) other = differs;
+      else rest.push(part);
     }
     if (rest.length === 0 || (other !== undefined && q === 'no')) return undefined;
     if (another) other = undefined;
@@ -1676,6 +1694,8 @@ class Verbalizer {
       const asSubject = relative.filter(s => s.startsWith(hole));
       if (asSubject.length === relative.length) {
         const rests = asSubject.map(s => s.slice(hole.length));
+        // "x and y are different" has the variable in a subject of two, which a relative clause cannot take.
+        if (rests.some(r => /^ (?:and|or)\b/.test(r))) return undefined;
         const negations = rests.every(r => r.startsWith(' is not '));
         suffix = ` that${negations ? ' is not ' : ' '}${coordinate(rests.map(r => (negations ? r.slice(' is not '.length) : r.trim())), negations ? 'or' : 'and')}`;
       } else if (relative.length === 1 && (relative[0] as string).endsWith(hole)) {
@@ -1691,7 +1711,7 @@ class Verbalizer {
     else if (another) phrase = `another ${noun}${suffix}`;
     else if (other === undefined) phrase = `${article}${noun}${suffix}`;
     else {
-      const shown = this.variable({ t: 'name', name: other }, 'the other variable');
+      const shown = this.variable(other, 'the other variable');
       phrase = new RegExp(`^${nounText.replace(/\s+/g, '_')}_\\d+$`).test(shown) ? `another ${noun}${suffix}` : `${article}${noun} other than ${VARIABLE}${shown}${VARIABLE}${suffix}`;
     }
     return main.replace(hole, phrase);

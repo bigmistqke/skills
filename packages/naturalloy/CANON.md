@@ -229,6 +229,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec what-else-is-true-of-the-variable-is-a-relative-clause`](#spec-what-else-is-true-of-the-variable-is-a-relative-clause) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has a further condition and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 with a relative clause, such as "a unit that is a spec".
   - [`@spec several-negations-of-a-variable-are-one-negation`](#spec-several-negations-of-a-variable-are-one-negation) — The verbalizer says several negations of a variable as one negation that lists the kinds, when the quantifier fits a noun phrase.
   - [`@spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another`](#spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another) — The verbalizer says a variable that must differ from another of its kind as "another" before the noun, when the [quantifier](#term-quantifier) fits a noun phrase.
+  - [`@spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it`](#spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it) — When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
   - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — The verbalizer says variables of different kinds as nested phrases, when the quantifier fits a noun phrase.
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
@@ -1253,7 +1254,7 @@ This follows because a string is one thing, and its quotes show the reader where
 
 Derives from: [`spec-a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes)
 
-This follows because a string is one atom, so the one thing `x` is in it exactly when it is that atom.
+This follows because `x` is one thing and a string is one thing, so `x` is in the string exactly when the two are the same. A left side that can hold none or several things is not one thing: `c.tags in "a"` holds when `c.tags` is empty, and `c.tags = "a"` does not. The verbalizer says such a side member by member, as [`spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member`](#spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member) says.
 
 #### @spec set-or-seq-before-an-expression-is-refused
 
@@ -2012,6 +2013,12 @@ This follows because "that is not an axiom, a spec or a fact" is shorter and eas
 > The verbalizer says a variable that must differ from another of its kind as "another" before the noun, when the [quantifier](#term-quantifier) fits a noun phrase.
 
 This follows because "another unit" says what the logic compares, without a name to follow.
+
+#### @spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it
+
+> When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
+
+This follows because "other than" names the one value the variable is not. A phrase has room for one such value, so it would leave out a second.
 
 #### @spec variables-of-different-kinds-nest-as-phrases
 

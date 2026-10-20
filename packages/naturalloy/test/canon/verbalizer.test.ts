@@ -858,6 +858,15 @@ describe('a quantifier said as a noun phrase', () => {
   });
 
   /**
+   * @canon spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it
+   */
+  it('says "other than" for a variable that must differ from one value, and in full when it must differ from more', () => {
+    expect(said('some v: Unit | u->v in Sit.rel and v != w')).toBe('unit_1 sits in a unit other than w.');
+    expect(said('some v: Unit | u->v in Sit.rel and not v = w')).toBe('unit_1 sits in a unit other than w.');
+    expect(said('some v: Unit | u->v in Sit.rel and v != w and v != x')).toBe('there is a unit_2 such that unit_1 sits in unit_2, unit_2 and w are different and unit_2 and x are different.');
+  });
+
+  /**
    * @canon spec-variables-of-different-kinds-nest-as-phrases
    */
   it('nests when the variables are of different kinds: "a test checks a bug that sits in unit_1"', () => {
@@ -1402,6 +1411,28 @@ describe('relations and atoms', () => {
     expect(say('not c in "a"', named)).toBe('c and "a" are different.');
     expect(say('"a" in "b"', named)).toBe('"a" and "b" are the same.');
     expect(() => say('Ran in "a"', named)).toThrow('"Ran" is a set or a field, where a variable must be');
+  });
+
+  /**
+   * @canon spec-a-value-in-a-string-is-said-as-equal-to-it
+   */
+  it('says a field of many values in a string member by member, and never as the field equal to it', () => {
+    const texts = withDefinitions(
+      parseReadings('noun Cleanup: cleanup\nnoun String: text\ntags: {1} is tagged {2} | {1} is not tagged {2}\nalias: {1} has alias {2} | {1} has no alias {2}'),
+      'sig Cleanup { name: one String, tags: set String, alias: lone String }'
+    );
+    const cases: [string, string][] = [
+      ['c.tags in "a"', 'For every text_1:\n  when c is tagged text_1, text_1 and "a" are the same.'],
+      ['c.alias in "a"', 'For every text_1:\n  when c has alias text_1, text_1 and "a" are the same.'],
+      ['c.tags not in "a"', 'c is tagged a text other than "a".'],
+      ['c.alias not in "a"', 'c has alias a text other than "a".'],
+      ['not c.tags in "a"', 'c is tagged a text other than "a".']
+    ];
+    for (const [formula, words] of cases) {
+      expect(say(formula, texts)).toBe(words);
+      expect(say(formula, texts)).not.toContain('that and');
+      expect(say(formula, texts)).not.toMatch(/^c\.\w+ and "a" are/);
+    }
   });
 
   /**
