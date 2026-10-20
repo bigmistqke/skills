@@ -91,8 +91,8 @@ describe('the statements of a document that extends another', () => {
   it('say the words of the extended document, and link them to it', () => {
     const { read } = project({ 'alloy/CANON.md': child('all n: Node | n in Done'), 'canon/CANON.md': PARENT }, ['check']);
     const statement = read('alloy/CANON.md');
-    expect(statement).toContain('For every [node_1](../canon/CANON.md#term-node):');
-    expect(statement).toContain('node_1 is done');
+    expect(statement).toContain('For every [node](../canon/CANON.md#term-node):');
+    expect(statement).toContain('the node is done');
   });
 
   /**

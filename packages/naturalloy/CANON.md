@@ -35,17 +35,17 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 - [`@term sentenceable`](#term-sentenceable) —
-  > For every [list_1](#term-series):
+  > For every [list](#term-series):
   >
-  > list_1 can be put in a sentence exactly when all of these hold:
-  > - list_1 has three clauses or fewer
-  > - list_1 has only items that are one clause
+  > the list can be put in a sentence exactly when all of these hold:
+  > - the list has three clauses or fewer
+  > - the list has only items that are one clause
   > - at least one of these holds:
-  >   - list_1 has no item that holds a comma
-  >   - list_1 has two clauses or fewer
-  > - list_1 fits a line when it is put in a sentence
-  > - list_1 has no clause before its last that begins with a time phrase
-  > - list_1 has no clause before its last with a relative clause in it
+  >   - the list has no item that holds a comma
+  >   - the list has two clauses or fewer
+  > - the list fits a line when it is put in a sentence
+  > - the list has no clause before its last that begins with a time phrase
+  > - the list has no clause before its last with a relative clause in it
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
 - [`@fact every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment) — In Alloy 6, a trace is infinite: every moment has exactly one next moment.
 - [`@fact the-analyzer-wraps-integers-at-their-bit-width`](#fact-the-analyzer-wraps-integers-at-their-bit-width) — With its default options, the analyzer keeps every integer in a fixed bit width. A number that leaves that range wraps around into it.
@@ -58,8 +58,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
   - [`@spec a-rewrite-means-what-the-formula-it-replaces-means`](#spec-a-rewrite-means-what-the-formula-it-replaces-means) — Where the verbalizer says a formula through another, the two hold at the same moments, for every value of their free variables.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
-  - [`@spec a-for-every-right-inside-a-for-every-is-one-for-every`](#spec-a-for-every-right-inside-a-for-every-is-one-for-every) — The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup_1 and every owner_1".
-  - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — The verbalizer names each quantified variable after its noun and the number it has among the variables of that noun.
+  - [`@spec a-for-every-right-inside-a-for-every-is-one-for-every`](#spec-a-for-every-right-inside-a-for-every-is-one-for-every) — The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup and every owner".
+  - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — Where a variable needs a number, the verbalizer names it after its noun and its number among the variables of that noun.
+  - [`@spec a-variable-alone-of-its-noun-is-named-the-noun`](#spec-a-variable-alone-of-its-noun-is-named-the-noun) — The verbalizer names a variable "the" and its noun, with no number, when a quantifier says it first. No other variable may have its noun, and no other word of the statement may say that noun.
   - [`@spec a-variable-is-named-the-same-however-the-formula-names-it`](#spec-a-variable-is-named-the-same-however-the-formula-names-it) — The verbalizer names the variables the same way, whatever names the formula gives them.
   - [`@spec some-is-said-with-an-article-chosen-by-the-sound-of-the-noun`](#spec-some-is-said-with-an-article-chosen-by-the-sound-of-the-noun) — The verbalizer says `some` of a type with the article "a" or "an" that fits the sound of the noun.
   - [`@spec an-article-the-noun-is-written-with-wins-over-its-sound`](#spec-an-article-the-noun-is-written-with-wins-over-its-sound) — When the noun of a type carries an article, the verbalizer uses that article, whatever the sound of the noun.
@@ -166,13 +167,13 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-value-in-a-string-is-said-as-equal-to-it`](#spec-a-value-in-a-string-is-said-as-equal-to-it) — The verbalizer says `x in "a"`, where `x` is [one thing](#spec-an-expression-is-one-thing-where-its-declarations-make-it-so), as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
   - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) —
-    > For every [list_1](#term-series):
+    > For every [list](#term-series):
     >
     > when all of these hold:
-    > - list_1 is a rule whose two sides are each one clause
-    > - list_1 is not a rule whose first side begins with a time phrase
+    > - the list is a rule whose two sides are each one clause
+    > - the list is not a rule whose first side begins with a time phrase
     >
-    > then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
+    > then [verbalizer](#term-verbalizer) says the list on one line, as "when" the first side, the second side.
   - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
   - [`@spec an-equivalence-of-more-than-clauses-is-said-as-both-or-neither`](#spec-an-equivalence-of-more-than-clauses-is-said-as-both-or-neither) — The verbalizer says `a iff b`, when a side is more than one clause, as a list of the two sides under "both or neither of these hold".
   - [`@spec an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither`](#spec-an-equivalence-that-is-a-side-of-a-rule-is-said-as-both-or-neither) — As a side of a rule, of a binary temporal operator or of a definition, the verbalizer says `a iff b` as both or neither.
@@ -295,45 +296,45 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — For every [quantifier_1](#term-quantifier): when the following holds: quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
-  - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — For every [list_1](#term-series): when list_1 can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says list_1 in a sentence.
-  - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — For every [list_1](#term-series): when list_1 is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says list_1 as bullets.
-    - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — For every [list_1](#term-series): when list_1 has more than three clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
+  - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — For every [list](#term-series): when the list can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list in a sentence.
+  - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — For every [list](#term-series): when the list is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
+    - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — For every [list](#term-series): when the list has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets`](#spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets) —
-      > For every [list_1](#term-series):
+      > For every [list](#term-series):
       >
       > when all of these hold:
-      > - list_1 has an item that holds a comma
-      > - list_1 has more than two clauses
+      > - the list has an item that holds a comma
+      > - the list has more than two clauses
       >
-      > then [verbalizer](#term-verbalizer) says list_1 as bullets.
-    - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — For every [list_1](#term-series): when list_1 is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says list_1 as bullets.
-    - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — For every [list_1](#term-series): when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
-    - [`@spec a-list-with-a-relative-clause-before-its-last-clause-is-bullets`](#spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets) — For every [list_1](#term-series): when list_1 has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says list_1 as bullets.
+      > then [verbalizer](#term-verbalizer) says the list as bullets.
+    - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — For every [list](#term-series): when the list is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says the list as bullets.
+    - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — For every [list](#term-series): when the list has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
+    - [`@spec a-list-with-a-relative-clause-before-its-last-clause-is-bullets`](#spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets) — For every [list](#term-series): when the list has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets`](#spec-a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets) — The verbalizer says a list as bullets when a clause in it has two names for a subject: "o and p are the same".
-    - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list_1](#term-series): when list_1 has an item that is more than one clause, [verbalizer](#term-verbalizer) says list_1 as bullets.
+    - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list](#term-series): when the list has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
   - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
   - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) —
-    > For every [list_1](#term-series):
+    > For every [list](#term-series):
     >
     > when all of these hold:
-    > - list_1 is a rule whose two sides are each one clause
-    > - list_1 is not a rule whose first side begins with a time phrase
-    > - list_1 is a rule whose second side begins with a time phrase
+    > - the list is a rule whose two sides are each one clause
+    > - the list is not a rule whose first side begins with a time phrase
+    > - the list is a rule whose second side begins with a time phrase
     >
-    > then [verbalizer](#term-verbalizer) says list_1 with "then" before the time phrase.
+    > then [verbalizer](#term-verbalizer) says the list with "then" before the time phrase.
   - [`@spec a-rule-drops-its-then-before-anything-else`](#spec-a-rule-drops-its-then-before-anything-else) —
-    > For every [list_1](#term-series):
+    > For every [list](#term-series):
     >
     > when all of these hold:
-    > - list_1 is a rule whose two sides are each one clause
-    > - list_1 is not a rule whose first side begins with a time phrase
-    > - list_1 is not a rule whose second side begins with a time phrase
+    > - the list is a rule whose two sides are each one clause
+    > - the list is not a rule whose first side begins with a time phrase
+    > - the list is not a rule whose second side begins with a time phrase
     >
-    > then [verbalizer](#term-verbalizer) says list_1 without "then".
-  - [`@spec a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
-  - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — For every [list_1](#term-series): when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
+    > then [verbalizer](#term-verbalizer) says the list without "then".
+  - [`@spec a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own) — For every [list](#term-series): when the list is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
+  - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — For every [list](#term-series): when the list is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
   - [`@spec a-rule-that-is-a-side-of-a-rule-is-set-apart`](#spec-a-rule-that-is-a-side-of-a-rule-is-set-apart) — The verbalizer sets a rule that is a side of another rule apart, below "the following holds".
   - [`@spec a-first-side-that-holds-a-time-phrase-is-set-apart`](#spec-a-first-side-that-holds-a-time-phrase-is-set-apart) — The verbalizer sets the first side of a rule apart, below "when the following holds", when the side holds a time phrase.
   - [`@spec a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side`](#spec-a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side) — When a rule would stand on one line with no "then", the verbalizer sets apart a side with a comma of its own. When both sides hold one, it sets the second side apart.
@@ -630,10 +631,10 @@ ThenOwnLine: [verbalizer](#term-verbalizer) says {1} with "then" at the start of
 <!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that all of these hold:
-> - list_1 has three clauses or fewer
-> - list_1 has an item that holds a comma
-> - list_1 has more than two clauses
+> There is a list such that all of these hold:
+> - the list has three clauses or fewer
+> - the list has an item that holds a comma
+> - the list has more than two clauses
 <!-- statement-scenario-1-term-series:end -->
 
 ```alloy scenario
@@ -643,7 +644,7 @@ some f: Series | f in Few and f in CommaItem and f in MoreThanTwo
 <!-- statement-scenario-2-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that list_1 has three clauses or fewer and is longer than a line when it is put in a sentence.
+> There is a list such that the list has three clauses or fewer and is longer than a line when it is put in a sentence.
 <!-- statement-scenario-2-term-series:end -->
 
 ```alloy scenario
@@ -653,9 +654,9 @@ some f: Series | f in Few and f in TooLong
 <!-- statement-scenario-3-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that all of these hold:
-> - list_1 has clauses that begin with the same subject
-> - list_1 has more than three clauses
+> There is a list such that all of these hold:
+> - the list has clauses that begin with the same subject
+> - the list has more than three clauses
 <!-- statement-scenario-3-term-series:end -->
 
 ```alloy scenario
@@ -665,7 +666,7 @@ some f: Series | f in SharedSubject and f in Many
 <!-- statement-scenario-4-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that list_1 has a clause about a pair of variables and has an item that is more than one clause.
+> There is a list such that the list has a clause about a pair of variables and has an item that is more than one clause.
 <!-- statement-scenario-4-term-series:end -->
 
 ```alloy scenario
@@ -675,9 +676,9 @@ some f: Series | f in PairInList and f in NotClause
 <!-- statement-scenario-5-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that all of these hold:
-> - list_1 is a rule whose second side begins with a time phrase
-> - list_1 is not a rule whose two sides are each one clause
+> There is a list such that all of these hold:
+> - the list is a rule whose second side begins with a time phrase
+> - the list is not a rule whose two sides are each one clause
 <!-- statement-scenario-5-term-series:end -->
 
 ```alloy scenario
@@ -687,7 +688,7 @@ some f: Series | f in TimeSecond and f not in OneLineRule
 <!-- statement-scenario-6-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list_1 such that list_1 is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase.
+> There is a list such that the list is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase.
 <!-- statement-scenario-6-term-series:end -->
 
 ```alloy scenario
@@ -697,17 +698,17 @@ some f: Series | f in OneLineRule and f in TimeFirst
 ### @term sentenceable
 
 <!-- statement-term-sentenceable:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> list_1 can be put in a sentence exactly when all of these hold:
-> - list_1 has three clauses or fewer
-> - list_1 has only items that are one clause
+> the list can be put in a sentence exactly when all of these hold:
+> - the list has three clauses or fewer
+> - the list has only items that are one clause
 > - at least one of these holds:
->   - list_1 has no item that holds a comma
->   - list_1 has two clauses or fewer
-> - list_1 fits a line when it is put in a sentence
-> - list_1 has no clause before its last that begins with a time phrase
-> - list_1 has no clause before its last with a relative clause in it
+>   - the list has no item that holds a comma
+>   - the list has two clauses or fewer
+> - the list fits a line when it is put in a sentence
+> - the list has no clause before its last that begins with a time phrase
+> - the list has no clause before its last with a relative clause in it
 <!-- statement-term-sentenceable:end -->
 
 ```alloy
@@ -802,15 +803,21 @@ This follows because the noun tells the reader what kind of thing the variable s
 
 #### @spec a-for-every-right-inside-a-for-every-is-one-for-every
 
-> The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup_1 and every owner_1".
+> The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup and every owner".
 
 This follows because for every x, for every y, a formula holds exactly when for every x and every y it holds. The second "for every" on a line of its own adds a level of indent and nothing else.
 
 #### @spec a-variable-is-named-after-its-noun-and-its-number
 
-> The verbalizer names each quantified variable after its noun and the number it has among the variables of that noun.
+> Where a variable needs a number, the verbalizer names it after its noun and its number among the variables of that noun.
 
-This follows because a name such as unit_1 tells the reader the kind of the variable wherever it shows.
+This follows because a name such as unit_1 tells the reader the kind of the variable wherever it shows. The number tells it apart from the other units.
+
+#### @spec a-variable-alone-of-its-noun-is-named-the-noun
+
+> The verbalizer names a variable "the" and its noun, with no number, when a quantifier says it first. No other variable may have its noun, and no other word of the statement may say that noun.
+
+This follows because "the unit" can then point at one thing only. A number that tells nothing apart is one more thing to read. A variable that a count says first keeps its number: "the values of the owner" would read as the values of one owner.
 
 #### @spec a-variable-is-named-the-same-however-the-formula-names-it
 
@@ -1475,13 +1482,13 @@ This follows because the analyzer does not read either as a formula, so neither 
 #### @spec a-rule-of-two-clauses-is-said-on-one-line
 
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
 > when all of these hold:
-> - list_1 is a rule whose two sides are each one clause
-> - list_1 is not a rule whose first side begins with a time phrase
+> - the list is a rule whose two sides are each one clause
+> - the list is not a rule whose first side begins with a time phrase
 >
-> then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
+> then [verbalizer](#term-verbalizer) says the list on one line, as "when" the first side, the second side.
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:end -->
 
 This follows because a short rule is clearest as one sentence, "when this, that".
@@ -2325,9 +2332,9 @@ all f: Quantifier | f in ConditionAside implies f in InFull
 #### @spec three-clauses-or-fewer-are-said-in-a-sentence
 
 <!-- statement-spec-three-clauses-or-fewer-are-said-in-a-sentence:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says list_1 in a sentence.
+> when the list can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list in a sentence.
 <!-- statement-spec-three-clauses-or-fewer-are-said-in-a-sentence:end -->
 
 This follows because a short list in a sentence is easier to read than bullets.
@@ -2339,9 +2346,9 @@ all f: Series | sentenceable[f] implies f in AsSentence
 #### @spec a-longer-list-or-a-list-with-a-comma-is-bullets
 
 <!-- statement-spec-a-longer-list-or-a-list-with-a-comma-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when the list is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-longer-list-or-a-list-with-a-comma-is-bullets:end -->
 
 This follows because a sentence of many conditions loses the reader, and so does one with commas or items of more than a clause.
@@ -2353,9 +2360,9 @@ all f: Series | (f in Items and not sentenceable[f]) implies f in AsBullets
 ##### @spec a-list-of-more-than-three-clauses-is-bullets
 
 <!-- statement-spec-a-list-of-more-than-three-clauses-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 has more than three clauses, [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when the list has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-of-more-than-three-clauses-is-bullets:end -->
 
 This follows because a sentence of four conditions loses the reader.
@@ -2367,13 +2374,13 @@ all f: Series | f in Many implies f in AsBullets
 ##### @spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets
 
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
 > when all of these hold:
-> - list_1 has an item that holds a comma
-> - list_1 has more than two clauses
+> - the list has an item that holds a comma
+> - the list has more than two clauses
 >
-> then [verbalizer](#term-verbalizer) says list_1 as bullets.
+> then [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:end -->
 
 This follows because a comma inside an item makes a list of three read as a list of more.
@@ -2385,9 +2392,9 @@ all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets
 ##### @spec a-list-too-long-for-a-line-is-bullets
 
 <!-- statement-spec-a-list-too-long-for-a-line-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when the list is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-too-long-for-a-line-is-bullets:end -->
 
 This follows because a sentence that runs past a line is hard to take in at once.
@@ -2399,9 +2406,9 @@ all f: Series | f in TooLong implies f in AsBullets
 ##### @spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets
 
 <!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when the list has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:end -->
 
 This follows because a time phrase at the start of a sentence reads as covering each clause after it. The formula has it cover one.
@@ -2413,9 +2420,9 @@ all f: Series | f in TimeBeforeLast implies f in AsBullets
 ##### @spec a-list-with-a-relative-clause-before-its-last-clause-is-bullets
 
 <!-- statement-spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when the list has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets:end -->
 
 This follows because a relative clause can run on over the clauses after it. "An owner that pulse has disposed and code has registered c" reads so. The formula ends it with its own clause.
@@ -2433,9 +2440,9 @@ This follows because the "and" of that subject reads like the "and" of the list.
 ##### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets
 
 <!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 has an item that is more than one clause, [verbalizer](#term-verbalizer) says list_1 as bullets.
+> when the list has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:end -->
 
 This follows because an item with a quantifier or a list of its own cannot stand in a sentence beside others.
@@ -2473,14 +2480,14 @@ This follows because "unit_1 and unit_2 are different" is about both, and cannot
 #### @spec a-rule-keeps-its-then-before-a-time-phrase
 
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
 > when all of these hold:
-> - list_1 is a rule whose two sides are each one clause
-> - list_1 is not a rule whose first side begins with a time phrase
-> - list_1 is a rule whose second side begins with a time phrase
+> - the list is a rule whose two sides are each one clause
+> - the list is not a rule whose first side begins with a time phrase
+> - the list is a rule whose second side begins with a time phrase
 >
-> then [verbalizer](#term-verbalizer) says list_1 with "then" before the time phrase.
+> then [verbalizer](#term-verbalizer) says the list with "then" before the time phrase.
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
 This follows because "when this, then now or at a later moment, that" reads better than two commas in a row.
@@ -2492,14 +2499,14 @@ all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) im
 #### @spec a-rule-drops-its-then-before-anything-else
 
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
 > when all of these hold:
-> - list_1 is a rule whose two sides are each one clause
-> - list_1 is not a rule whose first side begins with a time phrase
-> - list_1 is not a rule whose second side begins with a time phrase
+> - the list is a rule whose two sides are each one clause
+> - the list is not a rule whose first side begins with a time phrase
+> - the list is not a rule whose second side begins with a time phrase
 >
-> then [verbalizer](#term-verbalizer) says list_1 without "then".
+> then [verbalizer](#term-verbalizer) says the list without "then".
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:end -->
 
 This follows because a "then" after every "when" fills the one-line sentence with words that add nothing.
@@ -2511,9 +2518,9 @@ all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond
 #### @spec a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own
 
 <!-- statement-spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
+> when the list is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
 <!-- statement-spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own:end -->
 
 This follows because on one line, the reader would have to guess whether the time phrase covers the second side too.
@@ -2525,9 +2532,9 @@ all f: Series | f in TimeFirst implies f in ThenOwnLine
 #### @spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own
 
 <!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:begin — generated by `canon generate`; edits are overwritten -->
-> For every [list_1](#term-series):
+> For every [list](#term-series):
 >
-> when list_1 is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says list_1 with "then" at the start of the second side, on a line of its own.
+> when the list is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
 <!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:end -->
 
 This follows because a rule whose side is a list cannot fit on a line, and "then" tells the reader where the second side starts.
