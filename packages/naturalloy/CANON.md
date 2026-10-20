@@ -54,6 +54,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place`](#spec-a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place) — The verbalizer says a call of a predicate with no reading by its body also when an argument is an expression. The expression takes the place of the parameter.
   - [`@spec a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument`](#spec-a-call-with-one-value-is-said-through-a-member-in-the-place-of-the-argument) — The verbalizer says a call of a predicate with a reading and an argument of one value through a member of its type. That member is the one in the argument.
   - [`@spec a-call-with-an-argument-of-none-or-several-values-is-refused`](#spec-a-call-with-an-argument-of-none-or-several-values-is-refused) — The verbalizer refuses a call of a predicate with a reading, with an argument that can hold none or several values, and names the argument.
+  - [`@spec a-call-with-an-argument-of-another-type-is-refused`](#spec-a-call-with-an-argument-of-another-type-is-refused) — The verbalizer refuses a call whose argument is of a type that shares no member with the type of its parameter, and names both types.
   - [`@spec a-let-is-said-with-its-value-in-the-place-of-its-name`](#spec-a-let-is-said-with-its-value-in-the-place-of-its-name) — The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
   - [`@spec a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused`](#spec-a-let-whose-value-a-quantifier-of-its-body-would-capture-is-refused) — The verbalizer refuses a `let` whose body declares a variable with a name that its value uses, and names the variable.
   - [`@spec a-negation-is-said-with-the-negative-reading-of-what-it-negates`](#spec-a-negation-is-said-with-the-negative-reading-of-what-it-negates) — The verbalizer says the negation of a comparison or a call with the negative reading of what it negates.
@@ -135,23 +136,19 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
   - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The verbalizer says `eventually` as "now or at a later moment".
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The verbalizer says `after` as "at the next moment".
-  - [`@spec until-is-said-as-at-every-moment-before-the-first-moment-where`](#spec-until-is-said-as-at-every-moment-before-the-first-moment-where) — The verbalizer says `until` as "at every moment before the first moment where" the second side holds, which comes now or later.
   - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The verbalizer says `always` as "now and at every later moment".
   - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The verbalizer says `before` as `there is a moment before, and at it`.
   - [`@spec once-is-said-as-now-or-at-an-earlier-moment`](#spec-once-is-said-as-now-or-at-an-earlier-moment) — The verbalizer says `once` as "now or at an earlier moment".
   - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The verbalizer says `historically` as "now and at every earlier moment".
-  - [`@spec since-is-said-as-at-every-moment-after-the-last-moment-where`](#spec-since-is-said-as-at-every-moment-after-the-last-moment-where) — The verbalizer says `since` as "at every moment after the last moment where" the second side holds, which came now or earlier.
-  - [`@spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes`](#spec-releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes) — The verbalizer says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
-  - [`@spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one`](#spec-triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one) — The verbalizer says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
   - [`@spec a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart`](#spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart) — Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
   - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
   - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
-  - [`@spec a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart) — When a side of `until`, `since`, `releases`, `triggered` or `;` is more than one plain clause, the verbalizer sets each side apart. It puts them below the words that place them in time.
-    - [`@spec until-with-a-side-of-more-than-a-clause-is-said-as-two-parts`](#spec-until-with-a-side-of-more-than-a-clause-is-said-as-two-parts) — The verbalizer says `a until b` with a side that is more than one plain clause in two parts. They are `b` "now or at a later moment", and `a` "at every moment before the first such moment".
-    - [`@spec since-with-a-side-of-more-than-a-clause-is-said-as-two-parts`](#spec-since-with-a-side-of-more-than-a-clause-is-said-as-two-parts) — The verbalizer says `a since b` with a side that is more than one plain clause in two parts. They are `b` "now or at an earlier moment", and `a` "at every moment after the last such moment".
-    - [`@spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until`](#spec-releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until) — The verbalizer says `a releases b`, with a side that is more than one plain clause, as `always b or (b until (a and b))`.
-    - [`@spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since`](#spec-triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since) — The verbalizer says `a triggered b`, with a side that is more than one plain clause, as `historically b or (b since (a and b))`.
+  - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
+    - [`@spec until-is-said-as-two-parts`](#spec-until-is-said-as-two-parts) — The verbalizer says `a until b` in two parts. First comes `b` "now or at a later moment", then `a` "at every moment from now until the first such moment, not including it".
+    - [`@spec since-is-said-as-two-parts`](#spec-since-is-said-as-two-parts) — The verbalizer says `a since b` in two parts. First comes `b` "now or at an earlier moment", then `a` "at every moment after the last such moment, up to and including now".
+    - [`@spec releases-is-said-as-always-or-until`](#spec-releases-is-said-as-always-or-until) — The verbalizer says `a releases b` as `always b or (b until (a and b))`.
+    - [`@spec triggered-is-said-as-historically-or-since`](#spec-triggered-is-said-as-historically-or-since) — The verbalizer says `a triggered b` as `historically b or (b since (a and b))`.
     - [`@spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment`](#spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b`, with a side that is more than one plain clause, as `a and after b`.
     - [`@spec a-side-with-a-time-phrase-a-noun-phrase-or-a-where-is-more-than-a-plain-clause`](#spec-a-side-with-a-time-phrase-a-noun-phrase-or-a-where-is-more-than-a-plain-clause) — A side is one plain clause only when the verbalizer says it by one reading with a variable in each of its places. It holds no time phrase, no comma, no noun phrase, no relative clause, no "where" and no "it is not the case that".
   - [`@spec this-outside-a-definition-of-a-signature-is-refused`](#spec-this-outside-a-definition-of-a-signature-is-refused) — The verbalizer refuses `this` outside a predicate or a function of a signature, which Alloy does not read.
@@ -174,7 +171,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-shift-is-refused`](#spec-a-shift-is-refused) — The verbalizer refuses `<<`, `>>` and `>>>`, and says that the analyzer shifts by the lowest bits of the amount.
     - [`@spec a-set-compared-with-a-number-is-refused`](#spec-a-set-compared-with-a-number-is-refused) — The verbalizer refuses `=` and `!=` between a set and a number, such as `c.n = 2`, and names them.
     - [`@spec a-number-outside-an-integer-comparison-is-refused`](#spec-a-number-outside-an-integer-comparison-is-refused) — The verbalizer refuses a number or a count outside an integer comparison, and names it.
-  - [`@spec the-next-integer-is-said-as-the-integer-after`](#spec-the-next-integer-is-said-as-the-integer-after) — The verbalizer says `x->y in next` as `y` "is the integer after" `x`.
+  - [`@spec the-next-integer-is-said-as-the-integer-after`](#spec-the-next-integer-is-said-as-the-integer-after) — The verbalizer says `x->y in next` as `y` "is the integer after" `x` "without wrapping around".
   - [`@spec int-and-seq-int-have-nouns-of-their-own`](#spec-int-and-seq-int-have-nouns-of-their-own) — The verbalizer says `Int` with the noun "integer", and `seq/Int` with the noun "sequence index", unless the readings give another.
   - [`@spec a-name-with-no-reading-is-refused-and-named`](#spec-a-name-with-no-reading-is-refused-and-named) — The verbalizer refuses a formula with a name that has no reading, and names the word.
   - [`@spec a-reading-with-no-negative-form-is-refused-and-named`](#spec-a-reading-with-no-negative-form-is-refused-and-named) — The verbalizer refuses a formula that negates a word whose reading has no negative form, and names the word.
@@ -261,6 +258,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-first-side-that-holds-a-time-phrase-is-set-apart`](#spec-a-first-side-that-holds-a-time-phrase-is-set-apart) — The verbalizer sets the first side of a rule apart, below "when the following holds", when the side holds a time phrase.
   - [`@spec a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side`](#spec-a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side) — When a rule would stand on one line with no "then", the verbalizer sets apart a side of it that holds a comma. When both sides hold one, it sets the second side apart.
   - [`@spec a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart`](#spec-a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart) — In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase other than one it begins with.
+  - [`@spec a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart`](#spec-a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart) — The verbalizer sets apart a side of a rule after "then" or "otherwise" when that side is a series of clauses after a comma.
 <!-- toc:end -->
 
 ## Terms
@@ -848,6 +846,12 @@ This follows because an argument that holds exactly one value is that value, and
 
 This follows because the reading says something of one thing, and the predicate gets every value of the argument at once.
 
+#### @spec a-call-with-an-argument-of-another-type-is-refused
+
+> The verbalizer refuses a call whose argument is of a type that shares no member with the type of its parameter, and names both types.
+
+This follows because Alloy rejects such a call as a type error, so the formula claims nothing. Words for it would claim something.
+
 #### @spec a-let-is-said-with-its-value-in-the-place-of-its-name
 
 > The verbalizer says `let x = e | f` as `f` with `e` in the place of `x`. A `let` of several names puts each value in place, in order.
@@ -1374,12 +1378,6 @@ This follows because eventually includes the present moment, and "someday" would
 
 This follows because after looks one step ahead and no further.
 
-#### @spec until-is-said-as-at-every-moment-before-the-first-moment-where
-
-> The verbalizer says `until` as "at every moment before the first moment where" the second side holds, which comes now or later.
-
-This follows because until holds the first side up to the moment the second side holds, and requires that moment to come.
-
 #### @spec always-is-said-as-now-and-at-every-later-moment
 
 > The verbalizer says `always` as "now and at every later moment".
@@ -1403,24 +1401,6 @@ This follows because once is eventually turned to the past, and includes the pre
 > The verbalizer says `historically` as "now and at every earlier moment".
 
 This follows because historically is always turned to the past, and includes the present moment as always does.
-
-#### @spec since-is-said-as-at-every-moment-after-the-last-moment-where
-
-> The verbalizer says `since` as "at every moment after the last moment where" the second side holds, which came now or earlier.
-
-This follows because since is until turned to the past. It holds the first side from the moment the second side last held up to now, and requires that moment to have come.
-
-#### @spec releases-is-said-as-up-to-and-including-the-first-moment-where-if-one-comes
-
-> The verbalizer says `releases` as "up to and including the first moment where" the first side holds, "if one comes", the second side.
-
-This follows because releases holds the second side up to the moment the first side holds, that moment included. When that moment never comes, it holds the second side for ever.
-
-#### @spec triggered-is-said-as-back-to-and-including-the-last-moment-where-if-there-was-one
-
-> The verbalizer says `triggered` as "back to and including the last moment where" the first side held, "if there was one", the second side.
-
-This follows because triggered is releases turned to the past. It holds the second side back to the moment the first side last held, that moment included. When the first side never held, it holds the second side at every earlier moment.
 
 #### @spec a-sequence-is-said-as-and-at-the-next-moment
 
@@ -1446,33 +1426,33 @@ This follows because Alloy reads each spelling as the same comparison.
 
 This follows because a formula the analyzer cannot read claims nothing, so no words can say it.
 
-#### @spec a-binary-temporal-operator-with-a-side-of-more-than-a-clause-is-said-with-its-sides-set-apart
+#### @spec a-binary-temporal-operator-is-said-with-its-sides-set-apart
 
-> When a side of `until`, `since`, `releases`, `triggered` or `;` is more than one plain clause, the verbalizer sets each side apart. It puts them below the words that place them in time.
+> The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
 
-This follows because the words of each operator are a clause with commas. They put more words after a side with no comma between, such as "now or at a later moment". The end of a longer side would not show, and a reader could take the words after it as covering only its last part.
+This follows because each operator bounds a stretch of moments by a moment where a side holds. On one line, the words name that moment as "the first moment where" or "the last moment where". A reader can count such a moment from the start of the run, or past now. Set apart, the moment is "the first such moment" after one counted from now, and the stretch says where it starts and ends. A longer side set apart also shows where it ends.
 
-##### @spec until-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+##### @spec until-is-said-as-two-parts
 
-> The verbalizer says `a until b` with a side that is more than one plain clause in two parts. They are `b` "now or at a later moment", and `a` "at every moment before the first such moment".
+> The verbalizer says `a until b` in two parts. First comes `b` "now or at a later moment", then `a` "at every moment from now until the first such moment, not including it".
 
 This follows because until claims that `b` comes, now or later, and that `a` holds at every moment before it first does.
 
-##### @spec since-with-a-side-of-more-than-a-clause-is-said-as-two-parts
+##### @spec since-is-said-as-two-parts
 
-> The verbalizer says `a since b` with a side that is more than one plain clause in two parts. They are `b` "now or at an earlier moment", and `a` "at every moment after the last such moment".
+> The verbalizer says `a since b` in two parts. First comes `b` "now or at an earlier moment", then `a` "at every moment after the last such moment, up to and including now".
 
 This follows because since is until turned to the past.
 
-##### @spec releases-with-a-side-of-more-than-a-clause-is-said-as-always-or-until
+##### @spec releases-is-said-as-always-or-until
 
-> The verbalizer says `a releases b`, with a side that is more than one plain clause, as `always b or (b until (a and b))`.
+> The verbalizer says `a releases b` as `always b or (b until (a and b))`.
 
 This follows because releases holds `b` up to and including the first moment where `a` holds, and for ever when that moment never comes. The two alternatives say each case.
 
-##### @spec triggered-with-a-side-of-more-than-a-clause-is-said-as-historically-or-since
+##### @spec triggered-is-said-as-historically-or-since
 
-> The verbalizer says `a triggered b`, with a side that is more than one plain clause, as `historically b or (b since (a and b))`.
+> The verbalizer says `a triggered b` as `historically b or (b since (a and b))`.
 
 This follows because triggered is releases turned to the past.
 
@@ -1616,9 +1596,9 @@ This follows because outside a comparison, the number is an integer atom of the 
 
 #### @spec the-next-integer-is-said-as-the-integer-after
 
-> The verbalizer says `x->y in next` as `y` "is the integer after" `x`.
+> The verbalizer says `x->y in next` as `y` "is the integer after" `x` "without wrapping around".
 
-This follows because `next` pairs each integer with the one after it, and the greatest integer with none. The integer after the greatest is not in the range, so `y` cannot be it.
+This follows because `next` pairs each integer with the one after it, and the greatest integer with none. Integer arithmetic wraps, and the words of a comparison say so. Without the last words, the integer after the greatest would read as the least.
 
 #### @spec int-and-seq-int-have-nouns-of-their-own
 
@@ -2429,3 +2409,9 @@ This follows because the comma would read as where the second side starts. On on
 > In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase other than one it begins with.
 
 This follows because a reader could take the time phrase as covering the "otherwise" too.
+
+#### @spec a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart
+
+> The verbalizer sets apart a side of a rule after "then" or "otherwise" when that side is a series of clauses after a comma.
+
+This follows because a reader could take the last clause of the series as a claim of its own, outside the rule. An example is "a, and at the next moment, b".
