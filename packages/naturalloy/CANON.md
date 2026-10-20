@@ -157,6 +157,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec disj-of-expressions-is-said-as-no-two-sharing-a-member`](#spec-disj-of-expressions-is-said-as-no-two-sharing-a-member) — The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
   - [`@spec a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes) — The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
   - [`@spec an-expression-is-one-thing-where-its-declarations-make-it-so`](#spec-an-expression-is-one-thing-where-its-declarations-make-it-so) — The verbalizer takes an expression for one thing only where the declarations make it so. That covers a variable, a string and a number. It also covers a navigation of a `one` field from one thing, and such an expression primed.
+  - [`@spec a-variable-a-quantifier-declares-has-the-type-it-declares`](#spec-a-variable-a-quantifier-declares-has-the-type-it-declares) — In the types of the columns of an expression, the verbalizer takes a variable to be of the type its quantifier declares.
   - [`@spec a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it`](#spec-a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it) — The verbalizer says `x in p`, for a variable `p` that a quantifier declares, as `x = p` where `x` is one thing. Where `x` can hold several things, it says that each of them is `p`.
   - [`@spec some-or-no-of-a-signature-is-said-over-its-members`](#spec-some-or-no-of-a-signature-is-said-over-its-members) — The verbalizer says `some S`, `no S`, `one S` and `lone S` of a signature `S` with a noun and no reading by its noun alone, as `there is an owner`.
   - [`@spec a-count-of-one-thing-is-a-formula-that-always-or-never-holds`](#spec-a-count-of-one-thing-is-a-formula-that-always-or-never-holds) — The verbalizer takes `some`, `one` and `lone` of one thing as a formula that always holds, and `no` of one thing as one that never does.
@@ -1418,6 +1419,12 @@ This follows because a string is one thing, and its quotes show the reader where
 > The verbalizer takes an expression for one thing only where the declarations make it so. That covers a variable, a string and a number. It also covers a navigation of a `one` field from one thing, and such an expression primed.
 
 This follows because a rewrite that takes an expression for one thing is lossless only when it holds exactly one. The kind of syntax does not tell that: `c.name` is one thing when `name` is a `one` field, and `c.tags` is not when `tags` is a `set` field.
+
+#### @spec a-variable-a-quantifier-declares-has-the-type-it-declares
+
+> In the types of the columns of an expression, the verbalizer takes a variable to be of the type its quantifier declares.
+
+This follows because an expression such as `on ++ (c -> o)` has the types of `on` only if `c` and `o` have them too. Without them, the verbalizer would refuse an override that updates a state.
 
 #### @spec a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it
 
