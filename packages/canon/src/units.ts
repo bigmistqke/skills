@@ -75,8 +75,38 @@ function statementOf(own: string): string | undefined {
     if (!line.startsWith('>')) break;
     quote.push(line.replace(/^>[ \t]?/, ''));
   }
-  const text = quote.join(' ').replace(/\s+/g, ' ').trim();
+  const text = inline(quote).replace(/\s+/g, ' ').trim();
   return text === '' ? undefined : text;
+}
+
+/**
+ * The lines of a blockquote on one line. A list keeps its bounds there: its items are numbered and the list is in
+ * brackets, so "when all of these hold: - a - b then c" cannot read as if "then c" were part of "b". A line indented
+ * under an item belongs to it; a line that is not belongs to what holds the list.
+ */
+function inline(lines: string[]): string {
+  const open: { indent: number; count: number }[] = [];
+  let text = '';
+  for (const line of lines) {
+    if (line.trim() === '') continue;
+    const indent = line.length - line.trimStart().length;
+    const item = /^(\s*)[-*+] (.*)$/.exec(line);
+    // A list ends at a line that is not indented past its markers, unless that line is an item of it.
+    while (open.length > 0 && (open.at(-1) as { indent: number }).indent > indent) text += ']', open.pop();
+    if (item !== null) {
+      const top = open.at(-1);
+      if (top !== undefined && top.indent === indent) text += `; (${++top.count}) `;
+      else {
+        open.push({ indent, count: 1 });
+        text += ' [(1) ';
+      }
+      text += item[2];
+    } else {
+      while (open.length > 0 && (open.at(-1) as { indent: number }).indent >= indent) text += ']', open.pop();
+      text += ` ${line.trim()}`;
+    }
+  }
+  return text + ']'.repeat(open.length);
 }
 
 /** Every unit a canon document declares, in document order. */
