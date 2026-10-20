@@ -61,4 +61,4 @@ Whatever cannot be said without loss is refused with the reason, never skipped: 
 
 ## Canon
 
-naturalloy has its own [canon](CANON.md): the claims of how it reads and says a formula, each with a test that cites it.
+naturalloy has its own [canon](CANON.md): the claims of how it reads and says a formula, each with a test that cites it. Where it says a formula through another, a test asks the Alloy analyzer for a world in which the two differ, for each rewrite that a sweep of some 1700 formulas makes.

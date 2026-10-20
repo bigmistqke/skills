@@ -18,6 +18,21 @@ export class Refusal extends Error {
   }
 }
 
+/**
+ * Each rewrite of a formula into another that the verbalizer says in its place, which must mean the same: set `record`
+ * to hear of them, as the test that asks the analyzer whether each pair can differ does. A rewrite of a negation is
+ * recorded with the `not` in front.
+ */
+export const rewrites: { record?: (from: Node, to: Node) => void } = {};
+
+/** A rewrite, recorded, and given back. */
+function rewrote<T extends Node | undefined>(from: Node, to: T): T {
+  if (to !== undefined) rewrites.record?.(from, to);
+  return to;
+}
+
+const negated = (node: Node, negative: boolean): Node => (negative ? { t: 'not', f: node } : node);
+
 /** Whether an error is a refusal, also when it comes from another copy of naturalloy. */
 export const isRefusal = (error: unknown): error is Refusal => error instanceof Error && error.name === 'Refusal';
 
@@ -515,7 +530,7 @@ function substitute(node: Node, name: string, value: Node, of: string): Node {
 
 /** The body of a `let` with each value in the place of its name: `let a = e, b = f | g` is `let a = e | let b = f | g`. */
 function expanded(node: Extract<Node, { t: 'let' }>): Node {
-  return node.binds.reduceRight((body, bind) => substitute(body, bind.name, bind.value, `the "let" of "${bind.name}"`), node.body);
+  return rewrote(node, node.binds.reduceRight((body, bind) => substitute(body, bind.name, bind.value, `the "let" of "${bind.name}"`), node.body));
 }
 
 /**
@@ -525,6 +540,10 @@ function expanded(node: Extract<Node, { t: 'let' }>): Node {
  * whose negation has no such form: `one`, `lone`, `before` and the binary temporal operators.
  */
 function inward(node: Node): Node | undefined {
+  return rewrote({ t: 'not', f: node }, inwardOnce(node));
+}
+
+function inwardOnce(node: Node): Node | undefined {
   const not = (f: Node): Node => ({ t: 'not', f });
   switch (node.t) {
     case 'and':
@@ -760,7 +779,30 @@ class Verbalizer {
   }
 
   /** `disj[a, b, …]`, the predicate Alloy gives, as the formula it means: no two arguments share a member. Undefined for any other call. */
+  /** A rewrite, recorded with each variable named as the words name it, which is how the formula it becomes names it, and given back. */
+  private rewrote<T extends Node | undefined>(from: Node, to: T): T {
+    if (to !== undefined && rewrites.record !== undefined) {
+      // A variable tried as a noun phrase is a hole, named by nothing in the words: it keeps its own name.
+      const named = (e: Node): Node => {
+        const walk = (n: unknown): unknown => {
+          if (Array.isArray(n)) return n.map(walk);
+          if (n === null || typeof n !== 'object') return n;
+          const o = n as Node;
+          if (o.t === 'name') return this.bound.get(o.name) ? { t: 'name', name: this.bound.get(o.name) } : o;
+          return Object.fromEntries(Object.entries(o).map(([key, v]) => [key, key === 'span' ? v : walk(v)]));
+        };
+        return walk(e) as Node;
+      };
+      rewrites.record(named(from), named(to));
+    }
+    return to;
+  }
+
   private disjoint(node: Extract<Node, { t: 'call' }>): Node | undefined {
+    return this.rewrote(node, this.disjointOnce(node));
+  }
+
+  private disjointOnce(node: Extract<Node, { t: 'call' }>): Node | undefined {
     if (node.name !== 'disj' || this.readings.atoms.has('disj') || this.readings.definitions.has('disj')) return undefined;
     const pairs = node.args.flatMap((a, i) =>
       node.args.slice(i + 1).map((b): Node => (this.isValue(this.shape(a)) && this.isValue(this.shape(b)) ? { t: 'cmp', op: '!=', l: a, r: b } : { t: 'mult', q: 'no', e: { t: 'inter', l: a, r: b } }))
@@ -774,6 +816,10 @@ class Verbalizer {
    * to an owner that pulse disposes". Undefined when every argument is a variable.
    */
   private throughMember(node: Extract<Node, { t: 'call' }>, negative: boolean): Node | undefined {
+    return this.rewrote(negated(node, negative), this.throughMemberOnce(node, negative));
+  }
+
+  private throughMemberOnce(node: Extract<Node, { t: 'call' }>, negative: boolean): Node | undefined {
     const given = node.args.map(a => this.shape(a));
     const at = given.findIndex(a => !this.isValue(a));
     if (at === -1) return undefined;
@@ -1225,6 +1271,10 @@ class Verbalizer {
 
   /** `a = b` member by member: for every member of their type, it is in `a` exactly when it is in `b`. */
   private equalMembers(l: Node, r: Node): Node {
+    return this.rewrote({ t: 'cmp', op: '=', l, r }, this.equalMembersOnce(l, r));
+  }
+
+  private equalMembersOnce(l: Node, r: Node): Node {
     if (!this.ofVariable(l) && !this.ofVariable(r)) throw new Refusal(`"${shown(l)}" is a set or a field, where a variable must be`);
     const m = member();
     // A side that is a variable is the one member: `=` takes a name with no reading for a variable.
@@ -1238,6 +1288,10 @@ class Verbalizer {
    * when a reading says it. A negation is a `not` before the formula.
    */
   private lowered(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Node | undefined {
+    return this.rewrote(negated(node, negative), this.loweredOnce(node, negative));
+  }
+
+  private loweredOnce(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Node | undefined {
     const { op } = node;
     if (this.comparesIntegers(node)) return undefined;
     if ((op === 'in' || op === 'not in') && this.integer(node.l)) throw this.untyped(node.l);
@@ -1492,11 +1546,11 @@ class Verbalizer {
       case 'since':
         return { kind: 'list', intro: ALL, items: [part('now or at an earlier moment, the following holds:', b), part('at every moment after the last such moment, up to and including now, the following holds:', a)] };
       case 'releases':
-        return this.doc({ t: 'or', items: [{ t: 'unary', op: 'always', f: b }, { t: 'binary', op: 'until', l: b, r: { t: 'and', items: [a, b] } }] });
+        return this.doc(this.rewrote(node, { t: 'or', items: [{ t: 'unary', op: 'always', f: b }, { t: 'binary', op: 'until', l: b, r: { t: 'and', items: [a, b] } }] }));
       case 'triggered':
-        return this.doc({ t: 'or', items: [{ t: 'unary', op: 'historically', f: b }, { t: 'binary', op: 'since', l: b, r: { t: 'and', items: [a, b] } }] });
+        return this.doc(this.rewrote(node, { t: 'or', items: [{ t: 'unary', op: 'historically', f: b }, { t: 'binary', op: 'since', l: b, r: { t: 'and', items: [a, b] } }] }));
       case ';':
-        return this.doc({ t: 'and', items: [a, { t: 'unary', op: 'after', f: b }] });
+        return this.doc(this.rewrote(node, { t: 'and', items: [a, { t: 'unary', op: 'after', f: b }] }));
     }
   }
 
@@ -1559,6 +1613,10 @@ class Verbalizer {
    * over the members of the types of its columns. Undefined for a set or a navigation.
    */
   private counted(node: Extract<Node, { t: 'mult' }>, negative: boolean): Node | undefined {
+    return this.rewrote(negated(node, negative), this.countedOnce(node, negative));
+  }
+
+  private countedOnce(node: Extract<Node, { t: 'mult' }>, negative: boolean): Node | undefined {
     const given = this.shape(node.e);
     if (this.integer(given)) throw this.untyped(given);
     if (given.t === 'name' && given.name === 'none') {
