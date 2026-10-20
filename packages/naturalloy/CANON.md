@@ -29,6 +29,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
+  - [`@spec saying-a-formula-ends`](#spec-saying-a-formula-ends) — The verbalizer ends on every formula, with words or with a refusal.
+  - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
   - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — The verbalizer names each quantified variable after its noun and the number it has among the variables of that noun.
   - [`@spec a-variable-is-named-the-same-however-the-formula-names-it`](#spec-a-variable-is-named-the-same-however-the-formula-names-it) — The verbalizer names the variables the same way, whatever names the formula gives them.
@@ -676,6 +678,18 @@ This follows because a statement that leaves a part of its formula out says less
 > The verbalizer says a formula in the same words every time.
 
 This follows because a reader who sees the statement change between two runs cannot tell whether the logic changed.
+
+#### @spec saying-a-formula-ends
+
+> The verbalizer ends on every formula, with words or with a refusal.
+
+This follows because a formula the verbalizer never finishes is neither said nor refused. The reader learns neither its words nor why it has none. A rewrite that comes back to a formula the verbalizer is still saying would never end, so it is a fault of the verbalizer.
+
+#### @spec a-refusal-is-told-apart-from-a-fault
+
+> The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
+
+This follows because a refusal tells the author what to change in the formula or its readings. A fault that looked like one would send the author to mend a formula that has words, and would hide the fault.
 
 #### @spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable
 
