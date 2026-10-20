@@ -975,8 +975,38 @@ class Verbalizer {
 
   /** Whether the declarations make an expression one value: a variable, or a navigation of `one` fields from one. */
   private exact(e: Node): boolean {
-    if (e.t === 'name' || e.t === 'string') return this.isValue(e);
-    return e.t === 'join' && e.r.t === 'name' && this.readings.fields.get(e.r.name)?.exact === true && this.exact(e.l);
+    return this.howMany(e) === 'one';
+  }
+
+  /**
+   * How many things an expression holds, as its declarations make it: `one` for exactly one, `lone` for none or one,
+   * `any` where they do not bound it. A variable, a string and a number are one thing; a navigation from one thing is
+   * as many as its field says, and from at most one thing at most one where its field holds at most one.
+   */
+  private howMany(e: Node): 'one' | 'lone' | 'any' {
+    const shaped = this.shape(e);
+    switch (shaped.t) {
+      case 'string':
+      case 'number':
+        return 'one';
+      case 'name':
+        if (shaped.name === 'none') return 'lone';
+        return this.isVariable(shaped.name) ? 'one' : 'any';
+      case 'prime':
+        return this.howMany(shaped.e);
+      case 'join': {
+        const field = shaped.r.t === 'name' ? this.readings.fields.get(shaped.r.name) : undefined;
+        if (field === undefined) return 'any';
+        const from = this.howMany(shaped.l);
+        if (from === 'one' && field.exact) return 'one';
+        return from !== 'any' && !field.many ? 'lone' : 'any';
+      }
+      case 'inter':
+      case 'diff':
+        return this.howMany(shaped.l) === 'any' && (shaped.t === 'diff' || this.howMany(shaped.r) === 'any') ? 'any' : 'lone';
+      default:
+        return 'any';
+    }
   }
 
   /** Whether an expression names a variable. */
@@ -1306,9 +1336,9 @@ class Verbalizer {
     if (op === 'in' || op === 'not in') {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.lowered({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union' || r.t === 'diff') return undefined;
+      // x in "a", where x is one thing: a string is one atom, so to be in it is to be it.
+      if (r.t === 'string' && this.exact(l)) return not({ t: 'cmp', op: '=', l, r });
       if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
-      // x in "a": a string is one atom, so to be in it is to be it.
-      if (r.t === 'string' && this.isValue(l)) return not({ t: 'cmp', op: '=', l, r });
       if (this.direct(r) || this.signature(r)) return undefined;
       // With nothing to spell out, `inside` gives back `l in r`, which would lower to itself again: it is said as it stands, or refused.
       const spelled = this.inside(l.t === 'arrow' ? [l.l, l.r] : [l], r);

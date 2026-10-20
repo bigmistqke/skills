@@ -1537,6 +1537,20 @@ describe('relations and atoms', () => {
 
   /**
    * @canon spec-a-value-in-a-string-is-said-as-equal-to-it
+   * @canon spec-an-expression-is-one-thing-where-its-declarations-make-it-so
+   */
+  it('says an expression that the declarations make one thing in a string as equal to it', () => {
+    const named = withDefinitions(
+      parseReadings('noun Cleanup: cleanup\nnoun Owner: owner\nnoun String: text\nname: {1} is named {2} | {1} is not named {2}\nlabel: {1} is labelled {2} | {1} is not labelled {2}\nhome: {2} is the home of {1} | {2} is not the home of {1}'),
+      'sig Owner { label: one String } sig Cleanup { name: one String, home: one Owner }'
+    );
+    expect(say('c.name in "a"', named)).toBe('c is named "a".');
+    expect(say('c.name not in "a"', named)).toBe('c is not named "a".');
+    expect(say('c.home.label in "a"', named)).toBe(say('c.home.label = "a"', named));
+  });
+
+  /**
+   * @canon spec-a-value-in-a-string-is-said-as-equal-to-it
    */
   it('says a field of many values in a string member by member, and never as the field equal to it', () => {
     const texts = withDefinitions(
