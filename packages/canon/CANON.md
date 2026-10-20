@@ -83,6 +83,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term section`](#term-section) — A section is an element with an id that names no unit.
 - [`@term file`](#term-file) — A file is a file of the project.
 - [`@term used`](#term-used) — For every [unit_1](#term-unit): unit_1 is used exactly when another unit [cites](#term-cite) unit_1, a [pointer](#term-pointer) [names](#term-name) unit_1 or a [tag](#term-tag) names unit_1.
+- [`@term stem`](#term-stem) — A stem is the part of the heading of a unit after its kind: words of lowercase letters and digits, joined by single hyphens.
 - [`@term trailer`](#term-trailer) — A trailer is a word that follows the id in the heading of a unit.
 - [`@term repeat`](#term-repeat) — A unit repeats what spells the id of the unit in a heading of another unit.
 - [`@term follow`](#term-follow) — A trailer follows the unit whose heading holds the trailer.
@@ -516,6 +517,27 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-runner-marker-the-settings-do-not-list-is-refused`](#spec-a-runner-marker-the-settings-do-not-list-is-refused) — A runner marker in a project whose setting `runners` does not list `"@runner"` is one the checker cannot read. The checker says to add `"@runner"` to the setting.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
   - [`@spec a-check-with-no-runner-says-it-reads-no-test`](#spec-a-check-with-no-runner-says-it-reads-no-test) — When the project has no runner, the report of `check` says that it reads no tests.
+- [`@axiom renaming-a-unit-asks-only-for-its-new-stem`](#axiom-renaming-a-unit-asks-only-for-its-new-stem) — Renaming a unit costs the author the choice of its new stem, and nothing else.
+  - [`@spec rename-gives-a-unit-a-new-stem-and-keeps-its-kind`](#spec-rename-gives-a-unit-a-new-stem-and-keeps-its-kind) — `rename <id> <stem>` writes the heading of the unit with the id as its own kind and the new stem.
+  - [`@spec rename-moves-every-name-of-the-unit-to-the-new-id`](#spec-rename-moves-every-name-of-the-unit-to-the-new-id) — After `rename`, each tag, pointer, code span and generated region of the project that named the old id names the new id.
+    - [`@spec rename-moves-a-pointer-in-the-document-that-holds-the-unit`](#spec-rename-moves-a-pointer-in-the-document-that-holds-the-unit) — A pointer whose fragment is the old id, in the document that holds the unit, gets the new id as its fragment.
+    - [`@spec rename-moves-a-pointer-from-another-document`](#spec-rename-moves-a-pointer-from-another-document) — A pointer from another document to the document that holds the unit gets the new id in place of the old one. So does such a pointer in a reference.
+    - [`@spec rename-moves-a-tag-to-the-new-id`](#spec-rename-moves-a-tag-to-the-new-id) — A tag that names the old id, in a comment of a suite or a source, or in a reference, names the new id.
+    - [`@spec rename-moves-a-code-span-that-spells-the-old-id`](#spec-rename-moves-a-code-span-that-spells-the-old-id) — A [code span](#term-code-span) whose whole text is the old id, in a document or a reference, spells the new id.
+    - [`@spec rename-moves-a-generated-region-named-after-the-unit`](#spec-rename-moves-a-generated-region-named-after-the-unit) — The markers of a generated region that end with the old id end with the new id instead. The statement that a plugin writes for the unit is such a region.
+  - [`@spec rename-changes-no-name-of-another-unit`](#spec-rename-changes-no-name-of-another-unit) — `rename` changes only the names of the unit it renames.
+    - [`@spec rename-leaves-a-pointer-into-another-document-alone`](#spec-rename-leaves-a-pointer-into-another-document-alone) — A pointer whose fragment is the old id, but whose path leads to a document that does not hold the unit, keeps its fragment.
+    - [`@spec rename-leaves-a-longer-id-alone`](#spec-rename-leaves-a-longer-id-alone) — An id that starts with the old id and goes on, such as `spec-a-leaf-and-more` for `spec-a-leaf`, keeps its text.
+    - [`@spec rename-leaves-a-tag-in-a-string-alone`](#spec-rename-leaves-a-tag-in-a-string-alone) — Text in a string of a suite or a source that spells a tag with the old id keeps its text.
+  - [`@spec rename-rewrites-the-index`](#spec-rename-rewrites-the-index) — After `rename`, the index of each document matches the document.
+  - [`@spec a-rename-in-a-clean-project-leaves-it-clean`](#spec-a-rename-in-a-clean-project-leaves-it-clean) — When `check` reports no finding before `rename`, it reports no finding after it.
+  - [`@spec a-rename-that-cannot-hold-is-refused`](#spec-a-rename-that-cannot-hold-is-refused) — When `rename` cannot do what it is asked, the checker says why, changes no file, and the run exits with code 2.
+    - [`@spec a-rename-of-an-id-that-the-project-does-not-declare-is-refused`](#spec-a-rename-of-an-id-that-the-project-does-not-declare-is-refused) — `rename` refuses an old id that no document of the project declares, and one that only a document it extends declares.
+    - [`@spec a-rename-to-an-id-that-a-unit-holds-is-refused`](#spec-a-rename-to-an-id-that-a-unit-holds-is-refused) — `rename` refuses a new stem whose id, with the kind of the unit, a document of the project or a document it extends already declares.
+    - [`@spec a-rename-to-a-stem-that-is-not-a-stem-is-refused`](#spec-a-rename-to-a-stem-that-is-not-a-stem-is-refused) — `rename` refuses a new stem that is not a [stem](#term-stem).
+  - [`@spec a-dry-run-of-rename-lists-each-change-and-makes-none`](#spec-a-dry-run-of-rename-lists-each-change-and-makes-none) — `rename --dry-run` lists each line that `rename` would change, and changes no file.
+    - [`@spec a-dry-run-lists-each-line-it-would-change`](#spec-a-dry-run-lists-each-line-it-would-change) — `rename --dry-run` prints the file and the number of each line it would change, with the line as it is and the line as it would be.
+    - [`@spec a-dry-run-changes-no-file`](#spec-a-dry-run-changes-no-file) — After `rename --dry-run`, every file of the project is as it was.
 <!-- toc:end -->
 
 ## Terms
@@ -524,7 +546,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 
 > Checker is the program the canon describes.
 
-The program `canon`, with its commands `check`, `generate`, `tree` and `log`, and the commands that its [plugins](#term-plugin) add. A canon holds [units](#term-unit).
+The program `canon`, with its commands `check`, `generate`, `tree`, `log` and `rename`, and the commands that its [plugins](#term-plugin) add. A canon holds [units](#term-unit).
 
 ```alloy bounds
 for 6
@@ -1311,6 +1333,12 @@ pred used[u: Unit] {
 ```readings
 used: {1} is [used] | {1} is not [used]
 ```
+
+### @term stem
+
+> A stem is the part of the heading of a unit after its kind: words of lowercase letters and digits, joined by single hyphens.
+
+The id of a unit is its kind and its stem, joined by a hyphen: the heading `### @spec a-leaf` declares `spec-a-leaf`. The author writes the stem by hand, so it says what the unit claims.
 
 ### @term trailer
 
@@ -4015,3 +4043,139 @@ This follows because the checker reads the tests and the tags of a file from its
 > When the project has no runner, the report of `check` says that it reads no tests.
 
 This follows because a clean check means the canon holds, and in a project with no runner it holds without tests. The author acts on a clean check, so the report says how much it covers.
+
+## @axiom renaming-a-unit-asks-only-for-its-new-stem
+
+> Renaming a unit costs the author the choice of its new stem, and nothing else.
+
+A [stem](#term-stem) says what its unit claims, so when the claim changes, the stem changes with it. The canon changes often: its structure grows with the theory it states. But every [tag](#term-tag), [pointer](#term-pointer) and generated region names a unit by the id it has. A rename by hand is then a hunt through the documents, the suites and the sources.
+
+The checker reports each name the hunt missed as a [rotting](#term-rotting). It does not shorten the hunt. A hunt that costs this much gets put off, and the stem goes on saying what the unit no longer claims.
+
+So the author chooses the new stem, and the [checker](#term-checker) carries it to every place that names the unit.
+
+#### @spec rename-gives-a-unit-a-new-stem-and-keeps-its-kind
+
+> `rename <id> <stem>` writes the heading of the unit with the id as its own kind and the new stem.
+
+This follows because the stem is the one thing the author chooses. A kind is a claim of its own: a spec that turns into an axiom owes other parents, and a rename cannot choose them.
+
+#### @spec rename-moves-every-name-of-the-unit-to-the-new-id
+
+> After `rename`, each tag, pointer, code span and generated region of the project that named the old id names the new id.
+
+This follows because a name left on the old id is a rotting. The author would have to chase it, and the chase is what the rename spares.
+
+##### @spec rename-moves-a-pointer-in-the-document-that-holds-the-unit
+
+> A pointer whose fragment is the old id, in the document that holds the unit, gets the new id as its fragment.
+
+This follows because a link with no path names a unit of its own document, as the "Derives from:" line of a nested unit does.
+
+##### @spec rename-moves-a-pointer-from-another-document
+
+> A pointer from another document to the document that holds the unit gets the new id in place of the old one. So does such a pointer in a reference.
+
+This follows because a pointer names its unit by the path and the fragment together, and only the fragment changes.
+
+##### @spec rename-moves-a-tag-to-the-new-id
+
+> A tag that names the old id, in a comment of a suite or a source, or in a reference, names the new id.
+
+This follows because a test checks the units its tags name, and a rename changes no test.
+
+##### @spec rename-moves-a-code-span-that-spells-the-old-id
+
+> A [code span](#term-code-span) whose whole text is the old id, in a document or a reference, spells the new id.
+
+This follows because a code span that spells an id names the unit to the reader. The text of a link on a "Derives from:" line is such a span.
+
+##### @spec rename-moves-a-generated-region-named-after-the-unit
+
+> The markers of a generated region that end with the old id end with the new id instead. The statement that a plugin writes for the unit is such a region.
+
+This follows because `generate` finds the region of a unit by its markers. A region left on the old id is one that no unit owns, and the unit would get a second one.
+
+#### @spec rename-changes-no-name-of-another-unit
+
+> `rename` changes only the names of the unit it renames.
+
+This follows because a name that a rename moved by mistake points at the wrong unit, and the check cannot tell.
+
+##### @spec rename-leaves-a-pointer-into-another-document-alone
+
+> A pointer whose fragment is the old id, but whose path leads to a document that does not hold the unit, keeps its fragment.
+
+This follows because that pointer names a unit of the other document, which has its own ids.
+
+##### @spec rename-leaves-a-longer-id-alone
+
+> An id that starts with the old id and goes on, such as `spec-a-leaf-and-more` for `spec-a-leaf`, keeps its text.
+
+This follows because an id is one word: a rename matches it whole.
+
+##### @spec rename-leaves-a-tag-in-a-string-alone
+
+> Text in a string of a suite or a source that spells a tag with the old id keeps its text.
+
+Derives from: [`spec-a-tag-outside-a-test-tests-nothing`](#spec-a-tag-outside-a-test-tests-nothing)
+
+This follows because the checker reads no tag in a string, so that text names no unit.
+
+#### @spec rename-rewrites-the-index
+
+> After `rename`, the index of each document matches the document.
+
+Derives from: [`spec-an-index-matches-its-document`](#spec-an-index-matches-its-document)
+
+This follows because the index lists each unit by the id it has. An index left on the old id fails the check that the rename keeps clean.
+
+#### @spec a-rename-in-a-clean-project-leaves-it-clean
+
+> When `check` reports no finding before `rename`, it reports no finding after it.
+
+This follows because a rename changes no claim and no test, so it gives the check nothing new to find.
+
+#### @spec a-rename-that-cannot-hold-is-refused
+
+> When `rename` cannot do what it is asked, the checker says why, changes no file, and the run exits with code 2.
+
+This follows because a rename that runs part of the way leaves the canon in a state that nobody chose.
+
+##### @spec a-rename-of-an-id-that-the-project-does-not-declare-is-refused
+
+> `rename` refuses an old id that no document of the project declares, and one that only a document it extends declares.
+
+This follows because the project holds no such unit to rename. A unit of an extended document lives in another project, and that project renames it.
+
+##### @spec a-rename-to-an-id-that-a-unit-holds-is-refused
+
+> `rename` refuses a new stem whose id, with the kind of the unit, a document of the project or a document it extends already declares.
+
+Derives from: [`spec-a-unit-is-declared-once`](#spec-a-unit-is-declared-once)
+
+This follows because the rename would make two units with one id, and every name of either would then name both.
+
+##### @spec a-rename-to-a-stem-that-is-not-a-stem-is-refused
+
+> `rename` refuses a new stem that is not a [stem](#term-stem).
+
+This follows because a heading with such a stem gives an anchor that differs from its id, or none.
+
+#### @spec a-dry-run-of-rename-lists-each-change-and-makes-none
+
+> `rename --dry-run` lists each line that `rename` would change, and changes no file.
+
+This follows because a rename changes files the author has not opened. The author sees each change before it lands.
+
+##### @spec a-dry-run-lists-each-line-it-would-change
+
+> `rename --dry-run` prints the file and the number of each line it would change, with the line as it is and the line as it would be.
+
+This follows because the author judges a change by the line it lands in.
+
+##### @spec a-dry-run-changes-no-file
+
+> After `rename --dry-run`, every file of the project is as it was.
+
+This follows because a dry run that wrote would be a rename the author did not ask for.
