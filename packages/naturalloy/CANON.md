@@ -58,6 +58,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
   - [`@spec a-rewrite-means-what-the-formula-it-replaces-means`](#spec-a-rewrite-means-what-the-formula-it-replaces-means) — Where the verbalizer says a formula through another, the two hold at the same moments, for every value of their free variables.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
+  - [`@spec some-of-several-things-is-said-as-for-some`](#spec-some-of-several-things-is-said-as-for-some) — The verbalizer says `some` over several variables as "for some" each of them, followed by what holds of them, the way it says `all` as "for every".
   - [`@spec a-for-every-right-inside-a-for-every-is-one-for-every`](#spec-a-for-every-right-inside-a-for-every-is-one-for-every) — The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup and every owner".
   - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — Where a variable needs a number, the verbalizer names it after its noun and its number among the variables of that noun.
   - [`@spec a-variable-alone-of-its-noun-is-named-the-noun`](#spec-a-variable-alone-of-its-noun-is-named-the-noun) — The verbalizer names a variable "the" and its noun, with no number, when a quantifier says it first. No other variable may have its noun, and no other word of the statement may say that noun.
@@ -807,6 +808,12 @@ This follows because the words say the formula the verbalizer rewrote to, and no
 > The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
 
 This follows because the noun tells the reader what kind of thing the variable stands for, and each variable is a thing of its own.
+
+#### @spec some-of-several-things-is-said-as-for-some
+
+> The verbalizer says `some` over several variables as "for some" each of them, followed by what holds of them, the way it says `all` as "for every".
+
+This follows because the old form put a plural verb before a single noun, and "such that" is the language of logic. "For some" reads like "for every", which the reader already knows. Over one variable, the old sentence stays, since it reads as English.
 
 #### @spec a-for-every-right-inside-a-for-every-is-one-for-every
 

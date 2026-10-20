@@ -255,5 +255,7 @@ export const SWEEP: { what: string; formula: string }[] = [
     'always all disj o, p: Owner | o in Disposed implies p not in Disposed',
     'always all c: Registered | c in Ran implies c.on in Disposed',
     'always all c: Cleanup | c in Ran'
-  ].map(formula => ({ what: '`always` around "for every"', formula }))
+  ].map(formula => ({ what: '`always` around "for every"', formula })),
+  // `some` over several things, of one type and of two.
+  ...['some c: Cleanup, o: Owner | o in c.on and o in Disposed', 'some disj c, d: Cleanup | c in Ran and d not in Ran', 'some c: Cleanup, o, p: Owner | o in c.on and p not in c.on'].map(formula => ({ what: '`some` over several things', formula }))
 ];

@@ -63,6 +63,15 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-some-of-several-things-is-said-as-for-some
+   */
+  it('says some over several variables as for some each of them, and over one as there is', () => {
+    expect(say('some c: Cleanup, o: Owner | o in c.on')).toBe('For some cleanup and some owner:\n  the cleanup is on the owner.');
+    expect(say('some c, d: Cleanup | c != d and c in Ran')).toContain('For some cleanup_1 and some cleanup_2:');
+    expect(say('some c: Cleanup | c in Ran and c in Registered')).toMatch(/^There is a cleanup such that /);
+  });
+
+  /**
    * @canon spec-a-variable-is-named-after-its-noun-and-its-number
    */
   it('names a variable after its noun and the number it is, whatever the formula called it', () => {
@@ -134,7 +143,7 @@ describe('the words', () => {
       'For every cleanup_1 and every cleanup_2:\n  when all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n  then cleanup_2 has run.'
     );
     expect(say('all disj c, d: Cleanup | d in Ran')).toBe('For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different, cleanup_2 has run.');
-    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('There are cleanup_1 and cleanup_2 such that all of these hold:\n  - cleanup_1 and cleanup_2 are different\n  - cleanup_1 has run\n  - cleanup_2 has run');
+    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('For some cleanup_1 and some cleanup_2:\n  all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n    - cleanup_2 has run');
   });
 
   /**
@@ -1265,7 +1274,7 @@ describe('an expression said through the types of its columns', () => {
     expect(say('some Ran - Registered')).toBe('There is a cleanup such that the cleanup has run and code has not registered the cleanup.');
     expect(say('some c.on & Disposed')).toBe('c is on an owner that pulse has disposed.');
     expect(say('no on')).toBe('There is no combination of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.');
-    expect(say('some ~on')).toBe('There are owner_1 and cleanup_1 such that cleanup_1 is on owner_1.');
+    expect(say('some ~on')).toBe('For some owner and some cleanup:\n  the cleanup is on the owner.');
   });
 
   /**

@@ -1907,10 +1907,13 @@ class Verbalizer {
       if (typeof body !== 'string' && body.kind === 'block' && /^for every [^:]*:$/.test(body.intro)) return { kind: 'block', intro: `${intro} and ${body.intro.slice('for '.length)}`, body: body.body };
       return { kind: 'block', intro: `${intro}:`, body };
     }
+    // `some` of several things reads as "for some", the way `all` reads as "for every": the things it names, then what holds
+    // of them. One thing keeps the line "there is a … such that", which reads as a sentence.
+    if (node.q === 'some' && vars.length > 1) return { kind: 'block', intro: `for ${vars.map(v => `some ${v.shown}`).join(' and ')}:`, body };
     const each = vars.map(v => v.shown);
     const head =
       node.q === 'some'
-        ? `there ${vars.length === 1 ? 'is' : 'are'} ${vars.length === 1 ? (vars[0] as { article: string }).article : ''}${each.join(' and ')} such that`
+        ? `there is ${(vars[0] as { article: string }).article}${each.join(' and ')} such that`
         : node.q === 'no' || node.q === 'one' || node.q === 'lone'
           ? `there is ${{ no: 'no', one: 'exactly one', lone: 'at most one' }[node.q]} ${vars.length === 1 ? '' : 'combination of '}${each.join(' and ')} such that`
           : (() => {
@@ -2610,9 +2613,9 @@ function unnumbered(text: string): string {
     // Only a variable that a quantifier introduces, "every unit_1" or "a unit_1": one that "values of" or "a step from"
     // introduces stands for each of many, which "the unit" would say as one.
     const first = text.indexOf(variable);
-    if (!/\b(?:every|an?|no|exactly one|at most one) \[?$/.test(text.slice(0, first))) continue;
+    if (!/\b(?:every|some|an?|no|exactly one|at most one) \[?$/.test(text.slice(0, first))) continue;
     // After a word that already says how many, the noun alone; anywhere else, "the" and the noun.
-    const counted = '(\\b(?:every|an?|no|exactly one|at most one) )';
+    const counted = '(\\b(?:every|some|an?|no|exactly one|at most one) )';
     out = out
       .replace(new RegExp(`${counted}\\[${variable}\\]`, 'g'), `$1[${noun}]`)
       .replace(new RegExp(`\\[${variable}\\]`, 'g'), `the [${noun}]`)
