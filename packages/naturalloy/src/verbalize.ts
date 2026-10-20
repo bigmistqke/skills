@@ -315,6 +315,17 @@ const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_
 /** A time phrase anywhere in the words: "c has run, and at the next moment, d has run" holds one, and so does "c has run now or at a later moment". */
 const TIME_ANYWHERE = new RegExp(TIME_PHRASE.source.replace('^', '\\b'));
 
+/**
+ * Whether a rule says a time phrase that counts from "now" or reaches back before it: any temporal operator but `after`,
+ * which names the next moment and counts from there. Inside "from now on, whenever", such a phrase would read as counting
+ * from the start "from now on" names, not from the moment "whenever" picks.
+ */
+function anchored(node: Node): boolean {
+  if (node.t === 'unary' && node.op === 'after') return false;
+  if (node.t === 'unary' || node.t === 'binary') return true;
+  return Object.values(node).some(v => (Array.isArray(v) ? v.some(x => x !== null && typeof x === 'object' && 't' in x && anchored(x as Node)) : v !== null && typeof v === 'object' && 't' in (v as object) && anchored(v as Node)));
+}
+
 /** The time phrases a part begins with, each with the comma that ends it. */
 const LEADS = ['from now on, ', 'now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
 
@@ -2407,14 +2418,14 @@ class Verbalizer {
           }
           const constant = (decl: { type: Node; var?: boolean }): boolean => !decl.var && decl.type.t === 'name' && this.readings.holders.has(decl.type.name) && !this.readings.variables.has(decl.type.name);
           if (chain.length > 0 && inner.t === 'implies' && chain.every(q => q.decls.every(constant))) {
-            const moved = chain.reduceRight<Node>((body, q) => ({ ...q, body }), { t: 'unary', op: 'always', f: inner });
-            return this.doc(this.rewrote(node, moved));
+            // Moved only where the rule then reads "from now on, whenever"; otherwise the order stays as the formula has it.
+            if (!anchored(inner)) return this.doc(this.rewrote(node, chain.reduceRight<Node>((body, q) => ({ ...q, body }), { t: 'unary', op: 'always', f: inner })));
           }
         }
         // A rule at every moment from now is "from now on, whenever" its condition: the moments it covers start now, as "now and at every later moment" says.
         if (node.op === 'always' && node.f.t === 'implies') {
-          const rule = this.doc(node.f);
-          if (typeof rule !== 'string' && rule.kind === 'rule') return { ...rule, lead: 'from now on, whenever' };
+          const rule = anchored(node.f) ? undefined : this.doc(node.f);
+          if (rule !== undefined && typeof rule !== 'string' && rule.kind === 'rule') return { ...rule, lead: 'from now on, whenever' };
         }
         // Below a time phrase an "and" or an "or" is a list: on one line, the phrase could read as covering its first part alone.
         return prefix(words[node.op], node.f.t === 'and' || node.f.t === 'or' ? this.junction(node.f, false) : this.doc(node.f));
