@@ -2556,5 +2556,37 @@ function finish(doc: Doc, layout: 'text' | 'markdown', self: string | undefined)
   const last = out.length - 1;
   // A period closes a clause; a line that is an item of a list, or introduces one, is not the end of the sentence.
   if (!/(:|^\s*- .*)$/.test(out[last] as string)) out[last] = `${out[last]}.`;
-  return out.join('\n').replaceAll(VARIABLE, '');
+  return unnumbered(out.join('\n').replaceAll(VARIABLE, ''));
+}
+
+/**
+ * The words with the number left off a variable that is the only one of its noun, where the noun says nothing else in
+ * them: "for every unit: when the unit is circular". Where the noun appears elsewhere, "the unit" could mean that, so the
+ * number stays; so does a number of the words' own, `number_1`.
+ */
+function unnumbered(text: string): string {
+  const name = /\b([a-z][a-z_]*?)_(\d+)\b/g;
+  const byNoun = new Map<string, Set<string>>();
+  for (const [whole, stem] of text.matchAll(name)) if (stem !== 'number') byNoun.set(stem as string, (byNoun.get(stem as string) ?? new Set()).add(whole));
+  // A link's target, such as (#term-unit), is not a word the reader sees.
+  const elsewhere = text.replace(/\]\([^)]*\)/g, ']').replace(name, ' ');
+  let out = text;
+  for (const [stem, names] of byNoun) {
+    const noun = stem.replace(/_/g, ' ');
+    if (names.size !== 1 || new RegExp(`\\b${noun}(?:s|es)?\\b`, 'i').test(elsewhere)) continue;
+    const variable = [...names][0] as string;
+    // Only a variable that a quantifier introduces, "every unit_1" or "a unit_1": one that "values of" or "a step from"
+    // introduces stands for each of many, which "the unit" would say as one.
+    const first = text.indexOf(variable);
+    if (!/\b(?:every|an?|no|exactly one|at most one) \[?$/.test(text.slice(0, first))) continue;
+    // After a word that already says how many, the noun alone; anywhere else, "the" and the noun.
+    const counted = '(\\b(?:every|an?|no|exactly one|at most one) )';
+    out = out
+      .replace(new RegExp(`${counted}\\[${variable}\\]`, 'g'), `$1[${noun}]`)
+      .replace(new RegExp(`\\[${variable}\\]`, 'g'), `the [${noun}]`)
+      .replace(new RegExp(`${counted}${variable}\\b`, 'g'), `$1${noun}`)
+      .replace(new RegExp(`\\b${variable}\\b`, 'g'), `the ${noun}`);
+  }
+  // A statement that now opens with "the" opens with a capital, as any sentence does.
+  return out.replace(/^(> )?the /, (_, quote: string | undefined) => `${quote ?? ''}The `);
 }
