@@ -96,7 +96,7 @@ describe('the states of the statements', () => {
    */
   it('overwrites an edit made inside the markers', () => {
     const { src } = write(doc());
-    const edited = src.replace('> Now and at every later moment', '> Sometimes');
+    const edited = src.replace('> From now on', '> Sometimes');
     expect(edited).not.toBe(src);
     expect(states(edited)).toMatchObject([{ kind: 'stale' }]);
   });

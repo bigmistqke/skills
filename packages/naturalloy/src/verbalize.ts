@@ -307,7 +307,7 @@ const holeOf = (level: number): string => String.fromCharCode(3 + level);
 const slotOf = (level: number): string => `${VARIABLE}${holeOf(level)}${VARIABLE}`;
 
 /** What a consequent that starts with a time phrase needs "then" before: "when A, then now or at a later moment, B". */
-const TIME_PHRASE = /^(?:from now on|now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including|in integers that wrap)\b/;
+const TIME_PHRASE = /^(?:from now on|now or later|now or earlier|now or at|now and at|at every|at the next|right after|there is a moment before|up to and including|back to and including|in integers that wrap)\b/;
 
 /** Whether a clause begins with a time phrase, which covers what follows it in the sentence. */
 const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_MARK, (_, __, word: string) => word).replaceAll(VARIABLE, ''));
@@ -327,7 +327,7 @@ function anchored(node: Node): boolean {
 }
 
 /** The time phrases a part begins with, each with the comma that ends it. */
-const LEADS = ['from now on, ', 'now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
+const LEADS = ['from now on, ', 'now or later, ', 'now or earlier, ', 'now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
 
 /** The words of a part as a reader sees them, without the marks of variables and links. */
 const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
@@ -2402,11 +2402,11 @@ class Verbalizer {
         return this.quantified(node);
       case 'unary': {
         const words: Record<string, string> = {
-          always: 'now and at every later moment, ',
-          eventually: 'now or at a later moment, ',
+          always: 'from now on, ',
+          eventually: 'now or later, ',
           after: 'at the next moment, ',
           before: 'there is a moment before, and at it, ',
-          once: 'now or at an earlier moment, ',
+          once: 'now or earlier, ',
           historically: 'now and at every earlier moment, '
         };
         // `always` over "for every" of sets that never change is "for every" of `always`: the same things exist at every moment, so

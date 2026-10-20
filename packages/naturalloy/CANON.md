@@ -185,12 +185,12 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec an-else-is-said-as-otherwise`](#spec-an-else-is-said-as-otherwise) — The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
-  - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The verbalizer says `eventually` as "now or at a later moment".
+  - [`@spec eventually-is-said-as-now-or-later`](#spec-eventually-is-said-as-now-or-later) — The verbalizer says `eventually` as "now or later".
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The verbalizer says `after` as "at the next moment".
-  - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The verbalizer says `always` as "now and at every later moment", unless what it covers is a rule.
+  - [`@spec always-is-said-as-from-now-on`](#spec-always-is-said-as-from-now-on) — The verbalizer says `always` as "from now on", unless what it covers is a rule.
   - [`@spec a-rule-at-every-later-moment-is-said-from-now-on-whenever`](#spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever) — The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
   - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The verbalizer says `before` as `there is a moment before, and at it`.
-  - [`@spec once-is-said-as-now-or-at-an-earlier-moment`](#spec-once-is-said-as-now-or-at-an-earlier-moment) — The verbalizer says `once` as "now or at an earlier moment".
+  - [`@spec once-is-said-as-now-or-earlier`](#spec-once-is-said-as-now-or-earlier) — The verbalizer says `once` as "now or earlier".
   - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The verbalizer says `historically` as "now and at every earlier moment".
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
   - [`@spec a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart`](#spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart) — Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
@@ -1572,11 +1572,11 @@ This follows because a name from the formula, such as a variable, stays as it is
 
 This follows because the logic compares two things, and the reader should hear that they are two, or one.
 
-#### @spec eventually-is-said-as-now-or-at-a-later-moment
+#### @spec eventually-is-said-as-now-or-later
 
-> The verbalizer says `eventually` as "now or at a later moment".
+> The verbalizer says `eventually` as "now or later".
 
-This follows because eventually includes the present moment, and "someday" would leave it out.
+This follows because eventually includes the present moment, and "someday" or "sooner or later" would leave it out. "Now or later" names both, in the words people use.
 
 #### @spec after-is-said-as-at-the-next-moment
 
@@ -1584,17 +1584,17 @@ This follows because eventually includes the present moment, and "someday" would
 
 This follows because after looks one step ahead and no further.
 
-#### @spec always-is-said-as-now-and-at-every-later-moment
+#### @spec always-is-said-as-from-now-on
 
-> The verbalizer says `always` as "now and at every later moment", unless what it covers is a rule.
+> The verbalizer says `always` as "from now on", unless what it covers is a rule.
 
-This follows because always holds from the present on. "At every moment" would also reach back to the moments before it, which historically covers.
+This follows because always holds from the present on, the present included. "At every moment" would also reach back to the moments before it, which historically covers.
 
 #### @spec a-rule-at-every-later-moment-is-said-from-now-on-whenever
 
 > The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
 
-This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as "now and at every later moment" does. So the words still leave the moments before it out.
+This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as `always` alone does. So the words still leave the moments before it out.
 
 #### @spec before-is-said-as-there-is-a-moment-before-and-at-it
 
@@ -1602,9 +1602,9 @@ This follows because a rule that holds at every moment is what "whenever" means 
 
 This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out.
 
-#### @spec once-is-said-as-now-or-at-an-earlier-moment
+#### @spec once-is-said-as-now-or-earlier
 
-> The verbalizer says `once` as "now or at an earlier moment".
+> The verbalizer says `once` as "now or earlier".
 
 This follows because once is eventually turned to the past, and includes the present moment as eventually does.
 
@@ -1624,7 +1624,7 @@ This follows because the semicolon says that the first side holds now and the se
 
 > Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
 
-This follows because two time phrases in a row, such as "now and at every later moment, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
+This follows because two time phrases in a row, such as "from now on, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
 
 #### @spec an-and-or-an-or-below-a-time-phrase-is-a-list
 
@@ -1684,7 +1684,7 @@ This follows because `a ; b` claims `a` now and `b` at the next moment, which `a
 
 > A side is one plain clause only when the verbalizer says it by one reading with a variable in each of its places. It holds no time phrase, no comma, no noun phrase, no relative clause, no "where" and no "it is not the case that".
 
-This follows because the words cannot mark the reach of any of these inline. After "c is on no owner", "now or at a later moment" could cover the whole side. It could also cover only "is on", which says that c is on no owner at every later moment. After "c has run or pulse has disposed o", it could cover only the last alternative.
+This follows because the words cannot mark the reach of any of these inline. After "c is on no owner", "now or later" could cover the whole side. It could also cover only "is on", which says that c is on no owner at every later moment. After "c has run or pulse has disposed o", it could cover only the last alternative.
 
 #### @spec this-outside-a-definition-of-a-signature-is-refused
 
@@ -2517,7 +2517,7 @@ This follows because "unit_1 and unit_2 are different" is about both, and cannot
 > then [verbalizer](#term-verbalizer) says the list with "then" before the time phrase.
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
-A short rule can stumble on a time phrase. Without "then", it puts two commas in a row: "when this, now or at a later moment, that". With it, the rule reads cleanly. So the [verbalizer](#term-verbalizer) keeps the "then" when both sides are single clauses and only the second opens with a time phrase.
+A short rule can stumble on a time phrase. Without "then", it puts two commas in a row: "when this, now or later, that". With it, the rule reads cleanly. So the [verbalizer](#term-verbalizer) keeps the "then" when both sides are single clauses and only the second opens with a time phrase.
 
 ```alloy
 all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen
