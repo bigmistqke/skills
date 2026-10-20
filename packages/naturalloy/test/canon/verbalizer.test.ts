@@ -58,8 +58,17 @@ describe('the words', () => {
    */
   it('says a quantifier with the noun of its type, repeated for each variable', () => {
     expect(say('all o: Owner, k: Owner, c: Cleanup | c in Ran')).toBe(
-      'For every owner_1 and every owner_2 and every cleanup:\n  the cleanup has run.'
+      'For every owner_1, every owner_2 and every cleanup:\n  the cleanup has run.'
     );
+  });
+
+  /**
+   * @canon spec-three-things-a-for-every-names-are-a-list
+   */
+  it('writes three things a for every or a for some names as a list', () => {
+    expect(say('all c: Cleanup, o, p: Owner | c in Ran implies o in Disposed')).toMatch(/^For every cleanup, every owner_1 and every owner_2:/);
+    expect(say('some c: Cleanup, o, p: Owner | o in c.on and p not in c.on')).toMatch(/^For some cleanup, some owner_1 and some owner_2:/);
+    expect(say('all c: Cleanup, o: Owner | c in Ran implies o in Disposed')).toMatch(/^For every cleanup and every owner:/);
   });
 
   /**
@@ -76,7 +85,7 @@ describe('the words', () => {
    */
   it('names a variable after its noun and the number it is, whatever the formula called it', () => {
     const readings = parseReadings('noun Unit: unit\nnoun Spec: spec\nnoun ExpectedFailure: expected failure\nRan: {1} has run | {1} has not run');
-    expect(say('all x, y: Unit, z: Spec | x in Ran', readings)).toBe('For every unit_1 and every unit_2 and every spec:\n  unit_1 has run.');
+    expect(say('all x, y: Unit, z: Spec | x in Ran', readings)).toBe('For every unit_1, every unit_2 and every spec:\n  unit_1 has run.');
     expect(say('all u: Unit | all u2: Unit | u in Ran', readings)).toBe('For every unit_1 and every unit_2:\n  unit_1 has run.');
   });
 
@@ -2178,7 +2187,7 @@ describe('an override with a variable in it', () => {
    */
   it('says an override with a pair of variables, as a state is updated', () => {
     const sweep = withDefinitions(parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { var on: set Owner }');
-    expect(say("all c: Cleanup, o: Owner | on' = on ++ (c -> o)", sweep)).toMatch(/^For every cleanup_1 and every owner_1 and every cleanup_2 and every owner_2:\n  both or neither of these hold:\n    - at the next moment, cleanup_2 is on owner_2/);
+    expect(say("all c: Cleanup, o: Owner | on' = on ++ (c -> o)", sweep)).toMatch(/^For every cleanup_1, every owner_1, every cleanup_2 and every owner_2:\n  both or neither of these hold:\n    - at the next moment, cleanup_2 is on owner_2/);
   });
 });
 

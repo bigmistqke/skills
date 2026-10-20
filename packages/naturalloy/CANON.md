@@ -58,6 +58,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
   - [`@spec a-rewrite-means-what-the-formula-it-replaces-means`](#spec-a-rewrite-means-what-the-formula-it-replaces-means) — Where the verbalizer says a formula through another, the two hold at the same moments, for every value of their free variables.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
+  - [`@spec three-things-a-for-every-names-are-a-list`](#spec-three-things-a-for-every-names-are-a-list) — When "for every" or "for some" names three things or more, the verbalizer lists them: "for every cleanup, every owner_1 and every owner_2".
   - [`@spec some-of-several-things-is-said-as-for-some`](#spec-some-of-several-things-is-said-as-for-some) — The verbalizer says `some` over several variables as "for some" each of them, followed by what holds of them, the way it says `all` as "for every".
   - [`@spec a-for-every-right-inside-a-for-every-is-one-for-every`](#spec-a-for-every-right-inside-a-for-every-is-one-for-every) — The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup and every owner".
   - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — Where a variable needs a number, the verbalizer names it after its noun and its number among the variables of that noun.
@@ -808,6 +809,12 @@ This follows because the words say the formula the verbalizer rewrote to, and no
 > The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
 
 This follows because the noun tells the reader what kind of thing the variable stands for, and each variable is a thing of its own.
+
+#### @spec three-things-a-for-every-names-are-a-list
+
+> When "for every" or "for some" names three things or more, the verbalizer lists them: "for every cleanup, every owner_1 and every owner_2".
+
+This follows because English lists three things with commas and one "and". A run of "and … and …" reads as speech, and makes the reader count.
 
 #### @spec some-of-several-things-is-said-as-for-some
 

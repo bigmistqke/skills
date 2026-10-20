@@ -2586,7 +2586,13 @@ function typeName(type: Node, what: string): string {
 /** A doc as text: laid out, with a capital where the sentence starts with its own words and a period where it ends. */
 function finish(doc: Doc, layout: 'text' | 'markdown', self: string | undefined): string {
   const raw = layout === 'markdown' ? markdownLines(doc) : lines(doc);
-  const out = resolveLinks(raw.join('\n'), layout === 'markdown', self).split('\n');
+  const out = resolveLinks(raw.join('\n'), layout === 'markdown', self)
+    .split('\n')
+    // Three or more things a "for every" or a "for some" names are a list: "for every a, every b and every c".
+    .map(line => line.replace(/\bfor (every|some) ([^:]*? and (?:every|some) [^:]*):/g, (whole: string, word: string, rest: string) => {
+      const items = `${word} ${rest}`.split(/ and (?=(?:every|some) )/);
+      return items.length < 3 ? whole : `for ${coordinate(items, 'and')}:`;
+    }));
   if (!(out[0] as string).startsWith(VARIABLE)) out[0] = (out[0] as string).replace(/^(\[?)(.)/, (_, bracket: string, c: string) => bracket + c.toUpperCase());
   const last = out.length - 1;
   // A period closes a clause; a line that is an item of a list, or introduces one, is not the end of the sentence.
