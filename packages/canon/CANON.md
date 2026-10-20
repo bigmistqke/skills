@@ -96,7 +96,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
-- [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when run_1 asks for a [command](#term-command) that plugin_1 adds and plugin_1 [applies](#term-apply) to a [document](#term-document).
+- [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when all of these hold: - run_1 asks for a [command](#term-command) that plugin_1 adds - plugin_1 [applies](#term-apply) to a [document](#term-document)
 - [`@term availability`](#term-availability) — For every [command_1](#term-command): command_1 is available exactly when at least one of these holds: - command_1 is a command that the [checker](#term-checker) has of its own - there are [installed_plugin_1](#term-plugin) and [document_1](#term-document) such that installed_plugin_1 [applies](#term-apply) to document_1 and adds command_1
 - [`@term heading`](#term-heading) — A heading is a line of a document that starts with hashes and opens a part of it.
 - [`@term extent`](#term-extent) — The extent of a unit is the part of the document from its heading up to the next heading of its level or above.
@@ -117,7 +117,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec a-miscited-unit-is-misnested`](#spec-a-miscited-unit-is-misnested) — For every [unit_1](#term-unit): when unit_1 is [miscited](#term-miscited), [checker](#term-checker) reports a [misnesting](#term-misnesting) for unit_1.
     - [`@spec an-axiom-cites-only-axioms`](#spec-an-axiom-cites-only-axioms) — For every [axiom_1](#term-axiom): when axiom_1 [cites](#term-cite) a [unit](#term-unit) that is not an axiom, [checker](#term-checker) reports a [misnesting](#term-misnesting) for axiom_1.
     - [`@spec a-fact-cites-nothing`](#spec-a-fact-cites-nothing) — For every [fact_1](#term-fact): when fact_1 [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for fact_1.
-    - [`@spec a-spec-cites-only-axioms-specs-and-facts`](#spec-a-spec-cites-only-axioms-specs-and-facts) — For every [spec_1](#term-spec): when spec_1 [cites](#term-cite) a [unit](#term-unit) that is not an [axiom](#term-axiom), a spec or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for spec_1.
+    - [`@spec a-spec-cites-only-axioms-specs-and-facts`](#spec-a-spec-cites-only-axioms-specs-and-facts) — For every [spec_1](#term-spec): when the following holds: spec_1 [cites](#term-cite) a [unit](#term-unit) that is not an [axiom](#term-axiom), a spec or a [fact](#term-fact) then [checker](#term-checker) reports a [misnesting](#term-misnesting) for spec_1.
     - [`@spec an-exception-cites-only-specs-and-facts`](#spec-an-exception-cites-only-specs-and-facts) — For every [exception_1](#term-exception): when exception_1 [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec) or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for exception_1.
     - [`@spec a-bug-cites-only-specs`](#spec-a-bug-cites-only-specs) — For every [bug_1](#term-bug): when bug_1 [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for bug_1.
     - [`@spec a-conflict-cites-nothing`](#spec-a-conflict-cites-nothing) — For every [conflict_1](#term-conflict): when conflict_1 [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for conflict_1.
@@ -174,7 +174,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec an-id-that-an-extended-document-declares-too-is-repeated`](#spec-an-id-that-an-extended-document-declares-too-is-repeated) — A unit repeats a unit of a document that is context for its own document when the two have the same id.
     - [`@spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text`](#spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text) — A unit whose own text opens with a blockquote has that blockquote as its statement.
     - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space.
-    - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when fence_1 is a fence that names a language and fence_1 lies in the own text of unit_1, [checker](#term-checker) reads fence_1 as a block of unit_1.
+    - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when all of these hold: - fence_1 is a fence that names a language - fence_1 lies in the own text of unit_1 then [checker](#term-checker) reads fence_1 as a block of unit_1.
     - [`@spec a-fence-with-no-language-is-prose`](#spec-a-fence-with-no-language-is-prose) — For every [fence_1](#term-fence): when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
     - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — For every [fence_1](#term-fence): when the second word of fence_1 is vocabulary, fence_1 has the role of vocabulary.
     - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — For every [fence_1](#term-fence): when the second word of fence_1 is bounds, fence_1 has the role of bounds.
@@ -236,17 +236,17 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document`](#spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document) — The checker reads a path that a setting names from the folder of the entry document.
     - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — The checker does not refuse a key that a plugin in the list of the frontmatter defines.
     - [`@spec a-package-field-serves-a-run-that-enters-no-document`](#spec-a-package-field-serves-a-run-that-enters-no-document) — A [run](#term-run) that [enters](#term-enter) no document takes its settings from the package field.
-    - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
+    - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, then all of these hold: - [checker](#term-checker) reports that document_1 has a frontmatter it cannot read - run_1 exits with code 2
       - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
       - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run_1](#term-run): when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
-    - [`@spec a-plugin-the-project-lacks-fails-the-run`](#spec-a-plugin-the-project-lacks-fails-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1 and run_1 exits with code 2.
+    - [`@spec a-plugin-the-project-lacks-fails-the-run`](#spec-a-plugin-the-project-lacks-fails-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, then all of these hold: - [checker](#term-checker) reports that the project lacks missing_plugin_1 - run_1 exits with code 2
       - [`@spec a-missing-plugin-is-reported`](#spec-a-missing-plugin-is-reported) — For every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1.
       - [`@spec a-missing-plugin-stops-the-run`](#spec-a-missing-plugin-stops-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, run_1 exits with code 2.
     - [`@spec an-unknown-command-fails-the-run`](#spec-an-unknown-command-fails-the-run) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command and run_1 exits with code 2.
       - [`@spec a-command-that-is-not-available-is-reported-as-unknown`](#spec-a-command-that-is-not-available-is-reported-as-unknown) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command.
       - [`@spec a-command-that-is-not-available-stops-the-run`](#spec-a-command-that-is-not-available-stops-the-run) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), run_1 exits with code 2.
       - [`@spec an-available-command-is-not-reported-as-unknown`](#spec-an-available-command-is-not-reported-as-unknown) — For every [command_1](#term-command): when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
-    - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): when run_1 [calls](#term-call) plugin_1, run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
+    - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): when run_1 [calls](#term-call) plugin_1, then the following holds: run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
     - [`@spec a-run-exits-with-the-worst-code-of-its-plugins`](#spec-a-run-exits-with-the-worst-code-of-its-plugins) — For every [run_1](#term-run): all of these hold: - when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2 - when run_1 gets code 1 from a plugin and gets code 2 from no plugin, run_1 exits with code 1
       - [`@spec a-plugin-that-could-not-run-stops-the-run`](#spec-a-plugin-that-could-not-run-stops-the-run) — For every [run_1](#term-run): when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2.
       - [`@spec a-finding-fails-the-run`](#spec-a-finding-fails-the-run) — For every [run_1](#term-run): when run_1 gets code 1 from a [plugin](#term-plugin) and gets code 2 from no plugin, run_1 exits with code 1.
@@ -1670,7 +1670,9 @@ Over.rel: [checker](#term-checker) runs {1} over {2} | [checker](#term-checker) 
 <!-- statement-term-call:begin — generated by `canon generate`; edits are overwritten -->
 > For every [run_1](#term-run) and every [plugin_1](#term-plugin):
 >
-> run_1 calls plugin_1 exactly when run_1 asks for a [command](#term-command) that plugin_1 adds and plugin_1 [applies](#term-apply) to a [document](#term-document).
+> run_1 calls plugin_1 exactly when all of these hold:
+> - run_1 asks for a [command](#term-command) that plugin_1 adds
+> - plugin_1 [applies](#term-apply) to a [document](#term-document)
 <!-- statement-term-call:end -->
 
 ```alloy
@@ -1944,7 +1946,11 @@ all f: Fact | (some u: Unit | cites[f, u]) implies f in Misnesting
 <!-- statement-spec-a-spec-cites-only-axioms-specs-and-facts:begin — generated by `canon generate`; edits are overwritten -->
 > For every [spec_1](#term-spec):
 >
-> when spec_1 [cites](#term-cite) a [unit](#term-unit) that is not an [axiom](#term-axiom), a spec or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for spec_1.
+> when the following holds:
+>
+> spec_1 [cites](#term-cite) a [unit](#term-unit) that is not an [axiom](#term-axiom), a spec or a [fact](#term-fact)
+>
+> then [checker](#term-checker) reports a [misnesting](#term-misnesting) for spec_1.
 <!-- statement-spec-a-spec-cites-only-axioms-specs-and-facts:end -->
 
 ```alloy
@@ -2608,7 +2614,11 @@ This follows because a claim that runs over several lines is still one claim, an
 <!-- statement-spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it:begin — generated by `canon generate`; edits are overwritten -->
 > For every [fence_1](#term-fence) and every [unit_1](#term-unit):
 >
-> when fence_1 is a fence that names a language and fence_1 lies in the own text of unit_1, [checker](#term-checker) reads fence_1 as a block of unit_1.
+> when all of these hold:
+> - fence_1 is a fence that names a language
+> - fence_1 lies in the own text of unit_1
+>
+> then [checker](#term-checker) reads fence_1 as a block of unit_1.
 <!-- statement-spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it:end -->
 
 This follows because the logic of a unit is what its own text holds. The statement of the unit says that logic and no other.
@@ -3291,7 +3301,11 @@ This follows because a project that keeps its settings in the canon field of its
 <!-- statement-spec-a-refused-frontmatter-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
 > For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter):
 >
-> when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read and run_1 exits with code 2.
+> when document_1 starts with refused_frontmatter_1,
+>
+> then all of these hold:
+> - [checker](#term-checker) reports that document_1 has a frontmatter it cannot read
+> - run_1 exits with code 2
 <!-- statement-spec-a-refused-frontmatter-fails-the-run:end -->
 
 This follows because a refused frontmatter asks for checks that the checker cannot name, so the run must say it could not run them.
@@ -3333,7 +3347,11 @@ all r: Run | (some d: Document | d in Unreadable) implies r in Exits2
 <!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
 > For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin):
 >
-> when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1 and run_1 exits with code 2.
+> when frontmatter_1 [lists](#term-list) missing_plugin_1,
+>
+> then all of these hold:
+> - [checker](#term-checker) reports that the project lacks missing_plugin_1
+> - run_1 exits with code 2
 <!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:end -->
 
 This follows because a name that stands for no package is a check that cannot run. A document may name only what the project already has, because the checker fetches and runs nothing new.
@@ -3431,7 +3449,11 @@ all c: Command | available[c] implies c not in Unknown
 <!-- statement-spec-every-plugin-a-run-calls-runs:begin — generated by `canon generate`; edits are overwritten -->
 > For every [run_1](#term-run) and every [plugin_1](#term-plugin):
 >
-> when run_1 [calls](#term-call) plugin_1, run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
+> when run_1 [calls](#term-call) plugin_1,
+>
+> then the following holds:
+>
+> run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
 <!-- statement-spec-every-plugin-a-run-calls-runs:end -->
 
 This follows because a check that the project asks for and that does not run is dropped. All the plugins that add one command run, and none stands in for another.

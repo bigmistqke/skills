@@ -269,6 +269,25 @@ const TIME_PHRASE = /^(?:now or at|now and at|at every|at the next|right after|t
 /** Whether a clause begins with a time phrase, which covers what follows it in the sentence. */
 const timed = (clause: string): boolean => TIME_PHRASE.test(clause.replace(LINK_MARK, (_, __, word: string) => word).replaceAll(VARIABLE, ''));
 
+/** A time phrase anywhere in the words: "c has run, and at the next moment, d has run" holds one, and so does "c has run now or at a later moment". */
+const TIME_ANYWHERE = new RegExp(TIME_PHRASE.source.replace('^', '\\b'));
+
+/** The time phrases a part begins with, each with the comma that ends it. */
+const LEADS = ['now and at every later moment, ', 'now or at a later moment, ', 'at the next moment, ', 'there is a moment before, and at it, ', 'now or at an earlier moment, ', 'now and at every earlier moment, ', 'right after, '];
+
+/** The words of a part as a reader sees them, without the marks of variables and links. */
+const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
+
+/** Whether words hold a time phrase, which covers what follows it; with `lead`, one the words begin with, with its comma, is not counted. */
+function holdsTime(words: string, lead = false): boolean {
+  const said = seen(words);
+  const start = lead ? LEADS.find(phrase => said.startsWith(phrase)) : undefined;
+  return TIME_ANYWHERE.test(start === undefined ? said : said.slice(start.length));
+}
+
+/** Whether words hold a relative clause or a "where", which would run over words that follow them. */
+const holdsRelative = (words: string): boolean => /\b(?:that|where)\b/.test(plain(words));
+
 /** The most that is said in a sentence, and not in a list, and how long it may be. */
 const INLINE_ITEMS = 3;
 const INLINE_LENGTH = 110;
@@ -281,6 +300,8 @@ const ANY = 'at least one of these holds:';
 const BOTH = 'both or neither of these hold:';
 const ONE = 'exactly one of these holds:';
 const UNTRUE = 'it is not the case that:';
+/** What a part set apart below the words around it is introduced with. */
+const APART = 'the following holds:';
 const ALWAYS = 'this formula says nothing: it always holds, so it claims nothing';
 const NEVER = 'this formula says nothing: it never holds, so it claims what cannot be';
 /** A formula that never holds, as `x in none` is: the negation of the empty block. */
@@ -332,11 +353,15 @@ function holdsBinary(node: Node): boolean {
   }
 }
 
-/** Put words in front of a doc, on its first line. */
+/**
+ * Put a time phrase in front of a doc, on its first line. A rule, or words that
+ * hold a time phrase of their own, are set apart below it: two time phrases in
+ * a row would read as one moment.
+ */
 function prefix(words: string, doc: Doc): Doc {
-  if (typeof doc === 'string') return words + doc;
-  if (doc.kind === 'rule') return { kind: 'block', intro: words.replace(/,\s*$/, ':'), body: doc };
-  return { ...doc, intro: words + doc.intro };
+  if (typeof doc === 'string' && !holdsTime(doc)) return words + doc;
+  if (typeof doc !== 'string' && doc.kind !== 'rule' && !holdsTime(doc.intro)) return { ...doc, intro: words + doc.intro };
+  return { kind: 'block', intro: words.replace(/,\s*$/, ':'), body: doc };
 }
 
 /** What a reader calls each construct of an expression or a formula, for a refusal to name it. */
@@ -371,9 +396,13 @@ function differsFrom(part: Node, x: string): Node | undefined {
   return undefined;
 }
 
-/** A doc said as untrue. Only a clause, or a list of them, can be. */
-function untrue(doc: Doc): Doc {
-  if (typeof doc === 'string') return `it is not the case that ${doc}`;
+/**
+ * A doc said as untrue. Words that are more than one plain clause are set
+ * apart below "it is not the case that", so that the words show where the
+ * negation ends. Only a clause, or a list of them, can be.
+ */
+function untrue(doc: Doc, single: boolean): Doc {
+  if (typeof doc === 'string') return single ? `it is not the case that ${doc}` : { kind: 'block', intro: UNTRUE, body: doc };
   if (doc.kind === 'list') return { ...doc, intro: `it is not the case that ${doc.intro}` };
   throw new Refusal('a definition that is a rule or has a "for every" cannot be said as untrue; give it a reading');
 }
@@ -646,7 +675,7 @@ class Verbalizer {
     } catch (error) {
       throw new Refusal(`no reading for "${node.name}", and its body cannot be said: ${asRefusal(error).message}`);
     }
-    return negative ? untrue(doc) : doc;
+    return negative ? untrue(doc, inside.single(body)) : doc;
   }
 
   private say(key: string, slots: string[], negative: boolean): string {
@@ -1310,6 +1339,92 @@ class Verbalizer {
   }
 
   /**
+   * Whether a formula is said as one plain clause: one reading with a variable
+   * in each of its places, and with no time phrase, no noun phrase, no relative
+   * clause, no "where", no comma and no "it is not the case that". Words that
+   * follow it with no comma between cannot be read as part of it, nor it as
+   * part of them.
+   */
+  private single(node: Node): boolean {
+    const before = [...this.used];
+    try {
+      const said = this.doc(node);
+      return typeof said === 'string' && !holdsTime(said) && !seen(said).includes(',') && !holdsRelative(said) && this.reading(node, false, new Set());
+    } catch {
+      return false;
+    } finally {
+      this.used.clear();
+      for (const name of before) this.used.add(name);
+    }
+  }
+
+  /** Whether a formula is said by one reading as it stands, with a variable in each of its places: no member is said through a noun phrase, and no list or "not" stands around it. */
+  private reading(node: Node, negative: boolean, calls: Set<string>): boolean {
+    switch (node.t) {
+      case 'let':
+        return this.reading(expanded(node), negative, calls);
+      case 'not':
+        return this.reading(node.f, !negative, calls);
+      case 'name':
+        return this.reading({ t: 'call', name: node.name, args: [] }, negative, calls);
+      case 'join':
+      case 'box': {
+        const call = this.asCall(node);
+        return call !== undefined && this.reading(call, negative, calls);
+      }
+      case 'call': {
+        const apart = this.disjoint(node);
+        if (apart !== undefined) return this.reading(apart, negative, calls);
+        if (this.readings.atoms.has(node.name)) return node.args.every(a => this.isValue(this.shape(a)));
+        // A call said by its body is one reading where its body is; negated, it is "it is not the case that".
+        const definition = this.readings.definitions.get(node.name) ?? this.readings.macros.get(node.name);
+        if (negative || definition === undefined || calls.has(node.name) || definition.params.length !== node.args.length) return false;
+        const body = definition.params.reduce((f, param, i) => substitute(f, param, node.args[i] as Node, `"${node.name}"`), definition.body);
+        return this.reading(body, false, new Set([...calls, node.name]));
+      }
+      case 'cmp': {
+        if (this.comparesIntegers(node)) return false;
+        const formula = this.lowered(node, negative);
+        return formula === undefined || this.reading(formula, false, calls);
+      }
+      case 'mult': {
+        if (node.q !== 'some' && node.q !== 'no') return false;
+        const given = this.shape(node.e);
+        if (this.readPrimed(given)) return true;
+        // `some S` of a set whose reading takes no variable; any other is said through a member, as a noun phrase.
+        return given.t === 'name' && !this.readings.fields.has(given.name) && !this.isVariable(given.name) && this.readings.atoms.get(given.name)?.positive.includes('{1}') === false;
+      }
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * A rule, "when" its first side, its second side, "otherwise" a third. A
+   * side whose end the words cannot mark is set apart below "the following
+   * holds": a side that is a rule, a first side that holds a time phrase, and
+   * a side that holds a comma where no "then" shows where the second side
+   * starts. "then" stands before a second side that begins with a time phrase,
+   * and before any second side of a rule that is not on one line.
+   */
+  private rule(condition: Node, consequence: Node, alternative?: Node): Doc {
+    const sides = [this.side(condition), this.side(consequence), alternative === undefined ? undefined : this.side(alternative)];
+    const apart = (doc: Doc): Doc => ({ kind: 'block', intro: APART, body: doc });
+    const [first, second, third] = sides.map(doc => (doc !== undefined && typeof doc !== 'string' && doc.kind === 'rule' ? apart(doc) : doc)) as [Doc, Doc, Doc | undefined];
+    // A time phrase in the first side would reach over the second.
+    let when = typeof first === 'string' && holdsTime(first) ? apart(first) : first;
+    let then = second;
+    // On one line, a comma in either side with no "then" between them would read as where the second side starts.
+    if (typeof when === 'string' && typeof then === 'string' && (third === undefined || typeof third === 'string') && !timed(then)) {
+      if (seen(then).includes(',')) then = apart(then);
+      else if (seen(when).includes(',')) when = apart(when);
+    }
+    // A time phrase inside the second side, after the one it begins with, would reach over the "otherwise".
+    if (typeof then === 'string' && third !== undefined && holdsTime(then, true)) then = apart(then);
+    return { kind: 'rule', when, then, ...(third === undefined ? {} : { otherwise: third }) };
+  }
+
+  /**
    * A formula that is a side of a rule, of a binary temporal operator or of a
    * definition. An equivalence there is said as both or neither, so that its
    * "exactly when" cannot take the whole sentence for a side.
@@ -1637,8 +1752,8 @@ class Verbalizer {
       if (clause === undefined || (clause.includes(',') && items.length > 2)) return undefined;
       said.push(clause);
     }
-    // A time phrase at the start of a clause would read as covering the clauses after it.
-    if (said.slice(0, -1).some(timed)) return undefined;
+    // A time phrase at the start of a clause would read as covering the clauses after it, and a relative clause as running over them.
+    if (said.slice(0, -1).some(clause => timed(clause) || holdsRelative(clause))) return undefined;
     const clauses = shareSubject(said);
     const text = clauses.length === 2 ? `${clauses[0]} ${word} ${clauses[1]}` : `${clauses.slice(0, -1).join(', ')} ${word} ${clauses[clauses.length - 1]}`;
     return plain(text).replaceAll(VARIABLE, '').length <= INLINE_LENGTH ? text : undefined;
@@ -1938,12 +2053,14 @@ class Verbalizer {
         return { kind: 'list', intro: ANY, items: this.items(node.items, () => true).flatMap(item => this.spliced(item, ANY)) };
       }
       case 'implies':
-        return { kind: 'rule', when: this.side(node.l), then: this.side(node.r) };
+        return this.rule(node.l, node.r);
       case 'ite':
-        return { kind: 'rule', when: this.side(node.c), then: this.side(node.a), otherwise: this.side(node.b) };
+        return this.rule(node.c, node.a, node.b);
       case 'iff': {
+        // "exactly when" follows the first side with no comma between, so only a plain clause there keeps its end: a noun phrase or a time phrase could take it in.
+        const plainFirst = this.single(node.l);
         const [l, r] = [this.clause(node.l), this.clause(node.r)];
-        if (l !== undefined && r !== undefined && !timed(l)) return `${l} exactly when ${r}`;
+        if (l !== undefined && r !== undefined && plainFirst) return `${l} exactly when ${r}`;
         return { kind: 'list', intro: BOTH, items: [this.doc(node.l), this.doc(node.r)] };
       }
       case 'let':
@@ -1971,8 +2088,9 @@ class Verbalizer {
         // A chain of `;` reads in order; any other nesting of these clauses with commas reads in more than one way.
         const sides = node.op === ';' && node.r.t === 'binary' && node.r.op === ';' ? [node.l] : [node.l, node.r];
         if (sides.some(holdsBinary)) throw new Refusal(`"${node.op}" with a side that holds "until", "since", "releases", "triggered" or ";" reads in more than one way`);
-        const [l, r] = [this.side(node.l), this.side(node.r)];
-        if (typeof l !== 'string' || typeof r !== 'string') return this.setApart(node);
+        // The words of each operator put more words after a side, "now or at a later moment", with no comma between: only a plain clause keeps its end.
+        if (!this.single(node.l) || !this.single(node.r)) return this.setApart(node);
+        const [l, r] = [this.doc(node.l), this.doc(node.r)];
         switch (node.op) {
           case 'until':
             return `at every moment before the first moment where ${r}, ${l}, and ${r} now or at a later moment`;

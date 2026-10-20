@@ -49,7 +49,7 @@ An override, a restriction, `iden`, `none` and a set comprehension each read as 
 
 `iff` reads "exactly when", or "both or neither of these hold". `implies … else …` reads "when …, …; otherwise, …". `one` and `lone` read "exactly one" and "at most one". A `not` before a compound moves inward where an equal formula has it on clauses. Elsewhere it reads "it is not the case that:", with the formula set apart. A `let` reads with its values in place. 
 
-A time phrase at the start of a sentence covers the whole sentence. Where it covers one part, the parts are bullets.
+A time phrase at the start of a sentence covers the whole sentence. Where it covers one part, the parts are bullets. A part whose end the words cannot mark is set apart on lines of its own, below "the following holds": a time phrase before another, a rule inside a rule, and a side of `until` that is more than one plain clause.
 
 The analyzer keeps integers in a fixed bit width and wraps a number that leaves it. So a comparison of integers opens with "in integers that wrap around at the analyzer's bit width". A count, a sum or a division gets a name, `number_1`. The words after "where" say what it is: "the number of values of owner_1 such that c is on owner_1". A division says how it rounds and what dividing by zero gives.
 
