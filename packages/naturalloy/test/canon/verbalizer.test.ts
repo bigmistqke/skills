@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { isDefinition, parseDefinitions, parseReadings, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
+import { isDefinition, parseDefinitions, parseReadings, Refusal, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures', 'lifetimes');
 const read = (name: string): string => readFileSync(join(FIXTURE, name), 'utf8');
@@ -1794,6 +1794,17 @@ describe('connectives, quantifiers and let', () => {
   it('says the spellings of not in and not equal alike', () => {
     for (const formula of ['c !in Ran', 'c ! in Ran', 'c not in Ran']) expect(say(formula)).toBe('c has not run.');
     for (const formula of ['c not = d', 'c ! = d', 'c != d']) expect(say(formula)).toBe('c and d are different.');
+  });
+
+  /**
+   * @canon spec-a-refusal-is-told-apart-from-a-fault
+   */
+  it('refuses with a Refusal: for a name with no reading, a construct with no words, text Alloy does not read and a definition', () => {
+    expect(() => say('c in Mystery')).toThrow(Refusal);
+    expect(() => say('c in Ran << 1')).toThrow(Refusal);
+    expect(() => say('c == d')).toThrow(Refusal);
+    expect(() => verbalizeDefinition('let m[x] = x in Ran', READINGS)).toThrow(Refusal);
+    expect(() => say('some c: Cleanup | c in Mystery')).toThrow(Refusal);
   });
 
   /**
