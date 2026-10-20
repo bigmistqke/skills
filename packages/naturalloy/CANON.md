@@ -468,7 +468,7 @@ some f: Quantifier | f in VariableWithCondition and f in NothingToAttach
 > - quantifier_1 is not a quantifier with several conditions, one of which begins with a time phrase
 <!-- statement-term-fit:end -->
 
-A noun phrase such as "sits in no unit" is the short way to say a quantifier, and it fits unless it would mislead. A variable said twice would look like two things. A variable with nothing beside it leaves the phrase no place to sit. It also misleads when the condition is about something else, when "no" meets "another", or when a time phrase leads one of several conditions.
+A noun phrase such as "sits in no unit" is the short way to say a quantifier, and it fits unless it would mislead. It misleads when the variable appears twice, which looks like two things, or when nothing sits beside it to hold the phrase. It misleads too when a condition is about something else, which would read as about the variable. So does "no" with "another", which can mean what the logic does not. So does a time phrase leading one of several conditions, which seems to cover them all.
 
 ```alloy
 pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside and f not in TimedCondition }
@@ -562,7 +562,7 @@ some f: Definition | f in OrInsideKind and f in NoKindFirst
 > - definition_1 is not a definition with an alternative that says something about another unit
 <!-- statement-term-by-kind:end -->
 
-The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. That needs the kind at the front of every alternative, and every alternative about the subject itself. It also needs no run of "and" that could join either of two alternatives of the same kind.
+The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. And no run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins.
 
 ```alloy
 pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject }
@@ -1497,7 +1497,7 @@ This follows because the analyzer does not read either as a formula, so neither 
 > then [verbalizer](#term-verbalizer) says the list on one line, as "when" the first side, the second side.
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:end -->
 
-A short rule is clearest as one sentence: "when this, that". So a rule whose two sides are each a single clause goes on one line. A rule that opens with a time phrase stays off it, since one line would blur how far that phrase reaches.
+A short rule is clearest as one sentence: "when this, that". So a rule whose two sides are each a single clause goes on one line. This unit leaves out a rule that opens with a time phrase, which another unit lays out.
 
 ```alloy
 all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine
