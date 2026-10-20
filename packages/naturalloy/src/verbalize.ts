@@ -663,6 +663,16 @@ class Verbalizer {
   }
 
   /**
+   * The columns of a union or an override of two sides: the types of either, where they agree. A variable's column, '',
+   * fits the type of the other side, as a variable fits wherever the formula uses it.
+   */
+  private merged(a: string[] | undefined, b: string[] | undefined): string[] | undefined {
+    if (a === undefined || b === undefined || a.length !== b.length) return undefined;
+    const types = a.map((type, i) => (type === '' ? (b[i] as string) : b[i] === '' || b[i] === type ? type : undefined));
+    return types.every(type => type !== undefined) ? (types as string[]) : undefined;
+  }
+
+  /**
    * The type a quantifier declares a variable of, found through the name the words give it, which is its noun and a
    * number: `integer_1` is of `Int`. Undefined for a variable no quantifier declares.
    */
@@ -986,7 +996,8 @@ class Verbalizer {
         if (e.name === 'iden') return ['univ', 'univ'];
         if (e.name === 'next') return ['Int', 'Int'];
         if (e.name === 'univ') return ['univ'];
-        if (this.isVariable(e.name)) return [''];
+        // A variable a quantifier declares has the type it declares; any other has a type the words do not need.
+        if (this.isVariable(e.name)) return [this.boundType(e.name) ?? ''];
         const field = this.readings.fields.get(e.name);
         if (field !== undefined) return field.owner === undefined ? undefined : [field.owner, field.type];
         const relation = this.readings.relations?.get(e.name);
@@ -999,13 +1010,9 @@ class Verbalizer {
         const c = this.columns(e.e);
         return c?.length === 2 ? [c[1] as string, c[0] as string] : undefined;
       }
-      case 'union': {
-        const [a, b] = [this.columns(e.l), this.columns(e.r)];
-        if (a === undefined || b === undefined || a.length !== b.length) return undefined;
-        // A variable's column, '', fits the type of the other side, as a variable fits wherever the formula uses it.
-        const merged = a.map((type, i) => (type === '' ? (b[i] as string) : b[i] === '' || b[i] === type ? type : undefined));
-        return merged.every(type => type !== undefined) ? (merged as string[]) : undefined;
-      }
+      case 'union':
+      case 'override':
+        return this.merged(this.columns(e.l), this.columns(e.r));
       case 'inter':
         return this.columns(e.l) ?? this.columns(e.r);
       case 'diff':
@@ -1025,10 +1032,6 @@ class Verbalizer {
         if (e.lm !== undefined || e.rm !== undefined) throw new Refusal(`"${shown(e)}" ${MULTIPLIED}`);
         const [a, b] = [this.columns(e.l), this.columns(e.r)];
         return a === undefined || b === undefined ? undefined : [...a, ...b];
-      }
-      case 'override': {
-        const [a, b] = [this.columns(e.l), this.columns(e.r)];
-        return a !== undefined && b !== undefined && a.join() === b.join() ? a : undefined;
       }
       case 'domain':
         return this.columns(e.r);
@@ -1417,7 +1420,9 @@ class Verbalizer {
     const m = member();
     // A side that is a variable is the one member: `=` takes a name with no reading for a variable.
     const of = (side: Node): Node => (side.t === 'name' && this.isVariable(side.name) ? { t: 'cmp', op: '=', l: m, r: side } : this.inside([m], side));
-    return { t: 'quant', q: 'all', decls: [{ names: [nameOf(m, '')], type: { t: 'name', name: this.typeOf(l, r) } }], body: { t: 'iff', l: of(l), r: of(r) } };
+    // The members range over a type that holds both sides: univ, where either side is of it.
+    const wide = [l, r].some(side => this.columns(side)?.[0] === 'univ') ? 'univ' : this.typeOf(l, r);
+    return { t: 'quant', q: 'all', decls: [{ names: [nameOf(m, '')], type: { t: 'name', name: wide } }], body: { t: 'iff', l: of(l), r: of(r) } };
   }
 
   /**

@@ -2149,6 +2149,16 @@ describe('rare constructs', () => {
   });
 });
 
+describe('an override with a variable in it', () => {
+  /**
+   * @canon spec-a-variable-a-quantifier-declares-has-the-type-it-declares
+   */
+  it('says an override with a pair of variables, as a state is updated', () => {
+    const sweep = withDefinitions(parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { var on: set Owner }');
+    expect(say("all c: Cleanup, o: Owner | on' = on ++ (c -> o)", sweep)).toMatch(/^For every cleanup_1 and every owner_1 and every cleanup_2 and every owner_2:\n  both or neither of these hold:\n    - at the next moment, cleanup_2 is on owner_2/);
+  });
+});
+
 describe('what it refuses', () => {
   /**
    * @canon spec-until-is-said-as-two-parts
