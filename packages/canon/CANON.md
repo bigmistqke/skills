@@ -1177,7 +1177,7 @@ unguarded: {1} is [unguarded] | {1} is not [unguarded]
 > - the test checks a claim that is [refined](#term-refined)
 <!-- statement-term-adrift:end -->
 
-A test's tags say which leaf it checks, and an adrift test's tags fail at that. A declared test with no tag aims at nothing. A tag that names an axiom, fact, conflict or term aims at something no test can hold the code to. And a test of a refined claim checks what belongs to the leaves below it.
+A test's tags say which leaf it checks, and an adrift test's tags fail at that. A declared test with no tag aims at nothing. A declared test whose tag names an axiom, fact, conflict or term aims at something no test can hold the code to. And any test of a refined claim checks what belongs to the leaves below it.
 
 ```alloy
 pred adrift[t: Test] {
@@ -2594,7 +2594,7 @@ and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)
 > when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
 <!-- statement-spec-an-unguarded-claim-is-untested:end -->
 
-Every claim needs a guard, so that a code change that breaks it gets noticed. A claim counts as guarded when a spec or an exception refines it, or when a test checks it. A spec also counts as tested when a test checks a bug that sits in it or derives from it. When the project has a runner, a claim with no guard earns an [untesting](#term-untesting).
+Every claim needs a guard, so that a code change that breaks it gets noticed. Narrower claims guard a claim by carrying its tests for it, and a test guards a claim by checking it. A test of a bug guards the spec the bug sits in or derives from, since it asserts what that spec claims. When the project has a runner, a claim with no guard earns an [untesting](#term-untesting).
 
 ```alloy
 all c: Claim | (some Runner and unguarded[c]) implies c in Untesting
@@ -2634,7 +2634,7 @@ This follows because only a test can fail when a claim stops holding. A comment 
 > when the test is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-an-adrift-test-is-reported:end -->
 
-A test earns its place by holding the code to a [claim](#term-claim) of the canon, so the checker reports every test that drifts from one. A declared test with no tag aims at nothing, and a test of a unit that is no claim aims where no code answers. A test of a [refined](#term-refined) claim checks what the claims beneath it should carry. The specs below name the three findings: an [uncitation](#term-uncitation), a [misaiming](#term-misaiming) and an [overreach](#term-overreach).
+A test earns its place by holding the code to a [claim](#term-claim) of the canon, so the checker reports every test that drifts from one. A declared test with no tag aims at nothing, and a declared test of a unit that is no claim aims where no code answers. Any test of a [refined](#term-refined) claim checks what the claims beneath it should carry. The specs below name the three findings: an [uncitation](#term-uncitation), a [misaiming](#term-misaiming) and an [overreach](#term-overreach).
 
 ```alloy
 all t: Test | adrift[t] implies t in Finding
@@ -3018,7 +3018,7 @@ all f: Fence | f in ScenarioWord implies f in ScenarioBlock
 > then fence_1 has the role of the formula of its unit.
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:end -->
 
-Most blocks are the formula of their unit, so the common case needs no word. A block that names a language and no role is the unit's formula. A fence with no language is prose, and no formula at all.
+Most blocks are the formula of their unit, so the common case needs no word. A block that names a language and no role is the unit's formula.
 
 ```alloy
 all f: Fence | (f in Languaged and f in NoSecondWord) implies f in UnitBlock
