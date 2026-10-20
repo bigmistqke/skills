@@ -118,10 +118,10 @@ describe('the words', () => {
    */
   it('says a "disj" quantifier with the condition that its variables are different', () => {
     expect(say('all disj c, d: Cleanup | c in Ran implies d in Ran')).toBe(
-      'For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different and cleanup_1 has run, cleanup_2 has run.'
+      'For every cleanup_1 and every cleanup_2:\n  when all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n  then cleanup_2 has run.'
     );
     expect(say('all disj c, d: Cleanup | d in Ran')).toBe('For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different, cleanup_2 has run.');
-    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('There are cleanup_1 and cleanup_2 such that cleanup_1 and cleanup_2 are different, cleanup_1 has run and cleanup_2 has run.');
+    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('There are cleanup_1 and cleanup_2 such that all of these hold:\n  - cleanup_1 and cleanup_2 are different\n  - cleanup_1 has run\n  - cleanup_2 has run');
   });
 
   /**
@@ -514,9 +514,9 @@ describe('a definition', () => {
     const vocabulary = 'sig Cleanup {} var sig Ran in Cleanup {} pred pair[disj c, d: Cleanup] { c in Ran } pred both[disj c, d: Cleanup] { c in Ran }';
     const readings = withDefinitions(parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\npair: {1} pairs with {2} | {1} does not pair with {2}'), vocabulary);
     expect(verbalizeDefinition('pred pair[disj c, d: Cleanup] { c in Ran }', readings)).toBe(
-      'For every cleanup_1 and every cleanup_2:\n  cleanup_1 pairs with cleanup_2 exactly when cleanup_1 and cleanup_2 are different and cleanup_1 has run.'
+      'For every cleanup_1 and every cleanup_2:\n  cleanup_1 pairs with cleanup_2 exactly when all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run'
     );
-    expect(say('both[a, b]', readings)).toBe('a and b are different and a has run.');
+    expect(say('both[a, b]', readings)).toBe('All of these hold:\n  - a and b are different\n  - a has run');
   });
 
   /**
@@ -900,7 +900,7 @@ describe('a quantifier said as a noun phrase', () => {
   it('says "other than" for a variable that must differ from one value, and in full when it must differ from more', () => {
     expect(said('some v: Unit | u->v in Sit.rel and v != w')).toBe('unit_1 sits in a unit other than w.');
     expect(said('some v: Unit | u->v in Sit.rel and not v = w')).toBe('unit_1 sits in a unit other than w.');
-    expect(said('some v: Unit | u->v in Sit.rel and v != w and v != x')).toBe('there is a unit_2 such that unit_1 sits in unit_2, unit_2 and w are different and unit_2 and x are different.');
+    expect(said('some v: Unit | u->v in Sit.rel and v != w and v != x')).toBe('there is a unit_2 such that all of these hold:\n    - unit_1 sits in unit_2\n    - unit_2 and w are different\n    - unit_2 and x are different');
   });
 
   /**
@@ -931,7 +931,7 @@ describe('a quantifier said as a noun phrase', () => {
     // a reading that says the variable twice
     expect(said('some v: Unit | u->v in Twice.rel')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and in unit_2.');
     // "no" with "another" says something else than "another"
-    expect(said('no v: Unit | v != u and v->u in Sit.rel')).toBe('there is no unit_2 such that unit_2 and unit_1 are different and unit_2 sits in unit_1.');
+    expect(said('no v: Unit | v != u and v->u in Sit.rel')).toBe('there is no unit_2 such that all of these hold:\n    - unit_2 and unit_1 are different\n    - unit_2 sits in unit_1');
     // a condition that is not about the variable
     expect(said('some v: Unit | u->v in Sit.rel and u in Spec')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and is a spec.');
   });
@@ -989,6 +989,15 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
+   * @canon spec-a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets
+   */
+  it('are a list when a clause holds an "and" or an "or" of its own', () => {
+    expect(say('c in Ran and o = p')).toBe('All of these hold:\n  - c has run\n  - o and p are the same');
+    expect(say('c in Ran or o != p')).toBe('At least one of these holds:\n  - c has run\n  - o and p are different');
+    expect(say('c in Ran and o in Disposed')).toBe('c has run and pulse has disposed o.');
+  });
+
+  /**
    * @canon spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets
    */
   it('are a list when an item is more than one clause', () => {
@@ -1043,6 +1052,9 @@ describe('the items of a list said in a sentence', () => {
    * @canon spec-a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart
    */
   it('set apart the second side of a rule when it holds a time phrase that an "otherwise" follows', () => {
+    expect(say('c in Registered implies (after c in Ran) else o in Stopped')).toBe(
+      ['When code has registered c', 'then the following holds:', '       at the next moment, c has run', 'otherwise the dispose of o has been stopped.'].join('\n')
+    );
     expect(say('(c in Ran and d in Ran and c in Registered and d in Registered) implies (d in Ran ; c in Registered) else o in Disposed')).toBe(
       [
         'When all of these hold:',
@@ -1101,7 +1113,7 @@ describe('the items of a list said in a sentence', () => {
    * @canon spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
    */
   it('say a pair of variables as it is, and not as a subject', () => {
-    expect(said('all v: Unit | (u != v and u in Spec) implies v in Spec')).toContain('when unit_1 and unit_2 are different and unit_1 is a spec, unit_2 is a spec');
+    expect(said('all v: Unit | (u != v and u in Spec) implies v in Spec')).toContain('when all of these hold:\n      - unit_1 and unit_2 are different\n      - unit_1 is a spec\n    then unit_2 is a spec');
   });
 
   /**
@@ -1512,7 +1524,7 @@ describe('relations and atoms', () => {
   it('says disj as no two sharing a member', () => {
     expect(say('disj[c, d]')).toBe('c and d are different.');
     expect(say('disj[c.on, d.on]')).toBe('c is on no owner that d is on.');
-    expect(say('disj[c, d, e]')).toBe('c and d are different, c and e are different and d and e are different.');
+    expect(say('disj[c, d, e]')).toBe('All of these hold:\n  - c and d are different\n  - c and e are different\n  - d and e are different');
   });
 
   /**
@@ -1533,6 +1545,34 @@ describe('relations and atoms', () => {
     expect(say('not c in "a"', named)).toBe('c and "a" are different.');
     expect(say('"a" in "b"', named)).toBe('"a" and "b" are the same.');
     expect(() => say('Ran in "a"', named)).toThrow('"Ran" is a set or a field, where a variable must be');
+  });
+
+  /**
+   * @canon spec-a-variable-on-the-right-of-in-is-said-as-equal-to-what-is-in-it
+   */
+  it('says membership in a variable as equality with it, member by member for an expression of several things', () => {
+    const owners = withDefinitions(
+      parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\non: {1} is on {2} | {1} is not on {2}\nhome: {2} is the home of {1} | {2} is not the home of {1}'),
+      'sig Owner {} sig Cleanup { on: set Owner, home: one Owner }'
+    );
+    expect(say('all o, p: Owner | o in p', owners)).toBe('For every owner_1 and every owner_2:\n  owner_1 and owner_2 are the same.');
+    expect(say('all o, p: Owner | o not in p', owners)).toBe('For every owner_1 and every owner_2:\n  owner_1 and owner_2 are different.');
+    expect(say('all p: Owner | c.home in p', owners)).toBe(say('all p: Owner | c.home = p', owners));
+    expect(say('all p: Owner | c.on in p', owners)).toBe('For every owner_1:\n  for every owner_2:\n    when c is on owner_2, owner_2 and owner_1 are the same.');
+    expect(() => say('c in Mystery', owners)).toThrow('no reading for "Mystery"');
+  });
+
+  /**
+   * @canon spec-some-or-no-of-a-signature-is-said-over-its-members
+   * @canon spec-a-count-of-one-thing-is-a-formula-that-always-or-never-holds
+   */
+  it('says some or no of a signature over its members, and a count of one thing as what always or never holds', () => {
+    const owners = withDefinitions(parseReadings('noun Owner: owner\nRan: {1} has run | {1} has not run'), 'sig Owner {} var sig Ran in Owner {}');
+    expect(say('some Owner', owners)).toBe('There is an owner_1 such that owner_1 is an owner.');
+    expect(say('no Owner', owners)).toBe('There is no owner_1 such that owner_1 is an owner.');
+    expect(() => say('all p: Owner | some p', owners)).toThrow('this formula says nothing: it always holds');
+    expect(() => say('all p: Owner | no p', owners)).toThrow('this formula says nothing: it never holds');
+    expect(say('all p: Owner | some p and p in Ran', owners)).toBe('For every owner_1:\n  owner_1 has run.');
   });
 
   /**
