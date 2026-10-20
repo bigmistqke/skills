@@ -31,6 +31,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
   - [`@spec saying-a-formula-ends`](#spec-saying-a-formula-ends) — The verbalizer ends on every formula, with words or with a refusal.
   - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
+  - [`@spec a-rewrite-means-what-the-formula-it-replaces-means`](#spec-a-rewrite-means-what-the-formula-it-replaces-means) — Where the verbalizer says a formula through another, the two hold at the same moments, for every value of their free variables.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
   - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — The verbalizer names each quantified variable after its noun and the number it has among the variables of that noun.
   - [`@spec a-variable-is-named-the-same-however-the-formula-names-it`](#spec-a-variable-is-named-the-same-however-the-formula-names-it) — The verbalizer names the variables the same way, whatever names the formula gives them.
@@ -705,6 +706,12 @@ This follows because a formula the verbalizer never finishes is neither said nor
 > The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
 
 This follows because a refusal tells the author what to change in the formula or its readings. A fault that looked like one would send the author to mend a formula that has words, and would hide the fault.
+
+#### @spec a-rewrite-means-what-the-formula-it-replaces-means
+
+> Where the verbalizer says a formula through another, the two hold at the same moments, for every value of their free variables.
+
+This follows because the words say the formula the verbalizer rewrote to, and not the one the author wrote. A rewrite that changed the meaning would change the claim, even where the words say the rewrite well. The analyzer can look for a world where the two differ, so this claim is checked and not only read.
 
 #### @spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable
 
