@@ -90,7 +90,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-set-whose-reading-says-its-variable-twice-is-said-in-full`](#spec-a-set-whose-reading-says-its-variable-twice-is-said-in-full) — When the reading of `S` says its variable more than once, the verbalizer says `some S` and `no S` in full: a quantifier over the signature, with a numbered name.
     - [`@spec a-set-with-no-one-signature-that-holds-it-is-refused`](#spec-a-set-with-no-one-signature-that-holds-it-is-refused) — The verbalizer refuses `some S` and `no S`, for a set `S` whose reading takes a variable, when the vocabulary declares no one signature that holds `S`, and names `S`.
   - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The verbalizer says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
-  - [`@spec a-set-where-a-variable-belongs-is-refused`](#spec-a-set-where-a-variable-belongs-is-refused) — The verbalizer refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+  - [`@spec two-sets-compared-are-said-member-by-member`](#spec-two-sets-compared-are-said-member-by-member) — The verbalizer says two sets or two relations compared with `in`, `=` or `!=` member by member, over the types of their columns.
+  - [`@spec sides-that-alloy-does-not-compare-are-refused`](#spec-sides-that-alloy-does-not-compare-are-refused) — The verbalizer refuses a comparison of sides that hold tuples of different sizes, or things of types that share no member.
+  - [`@spec an-equality-with-a-side-of-unknown-type-is-refused`](#spec-an-equality-with-a-side-of-unknown-type-is-refused) — The verbalizer refuses `=` or `!=` between two sets when the vocabulary does not tell the type of a side that is not a variable.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
   - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
   - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
@@ -147,6 +149,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The verbalizer says `historically` as "now and at every earlier moment".
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
   - [`@spec a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart`](#spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart) — Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
+  - [`@spec an-and-or-an-or-below-a-time-phrase-is-a-list`](#spec-an-and-or-an-or-below-a-time-phrase-is-a-list) — The verbalizer says an "and" or an "or" that a time phrase covers as a list below it, and never as one sentence after it.
   - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
   - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
   - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
@@ -1082,11 +1085,23 @@ This follows because without the signature the verbalizer has no noun for the me
 
 This follows because a variable is the same thing at every moment. The primed name is then the only part of the clause that the next moment changes.
 
-#### @spec a-set-where-a-variable-belongs-is-refused
+#### @spec two-sets-compared-are-said-member-by-member
 
-> The verbalizer refuses a formula that puts a set or a field where a reading takes a variable, and names it.
+> The verbalizer says two sets or two relations compared with `in`, `=` or `!=` member by member, over the types of their columns.
 
-This follows because a reading says something of one thing in each slot. A set in a slot would read as if it were one thing.
+This follows because `Ran in Registered` holds exactly when every member of `Ran` is in `Registered`, and a reading says that of one member at a time. A frame condition such as `Registered' = Registered + c` reads this way too.
+
+#### @spec sides-that-alloy-does-not-compare-are-refused
+
+> The verbalizer refuses a comparison of sides that hold tuples of different sizes, or things of types that share no member.
+
+This follows because Alloy rejects such a comparison as a type error, so it claims nothing. Words for it would claim something.
+
+#### @spec an-equality-with-a-side-of-unknown-type-is-refused
+
+> The verbalizer refuses `=` or `!=` between two sets when the vocabulary does not tell the type of a side that is not a variable.
+
+This follows because the words say the equality over the type of a side. Members of the other side outside that type would go unsaid.
 
 #### @spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading
 
@@ -1449,6 +1464,12 @@ This follows because the semicolon says that the first side holds now and the se
 > Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
 
 This follows because two time phrases in a row, such as "now and at every later moment, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
+
+#### @spec an-and-or-an-or-below-a-time-phrase-is-a-list
+
+> The verbalizer says an "and" or an "or" that a time phrase covers as a list below it, and never as one sentence after it.
+
+This follows because in "at the next moment, a or b" a reader can take the time phrase as covering `a` alone, with `b` read as now. As a heading over a list, the phrase covers every item.
 
 #### @spec the-spellings-of-not-in-and-not-equal-are-said-alike
 

@@ -228,11 +228,28 @@ describe('the words', () => {
   });
 
   /**
-   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   * @canon spec-an-and-or-an-or-below-a-time-phrase-is-a-list
    */
-  it('refuses a set or a field where a reading takes a variable', () => {
-    expect(() => say("Ran in Ran'")).toThrow('"Ran" is a set or a field, where a variable must be');
-    expect(() => say('on in Registered')).toThrow('"on" is a set or a field, where a variable must be');
+  it('says an and or an or below a time phrase as a list', () => {
+    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, at least one of these holds:\n  - c has run\n  - code has registered c');
+    expect(say('eventually (c in Ran and c in Registered)')).toBe('Now or at a later moment, all of these hold:\n  - c has run\n  - code has registered c');
+  });
+
+  /**
+   * @canon spec-an-equality-with-a-side-of-unknown-type-is-refused
+   */
+  it('refuses an equality with a side whose type the vocabulary does not tell', () => {
+    const other = withDefinitions(parseReadings(`${read('readings.txt')}\nm/Gone: {1} is gone in m | {1} is not gone in m`), read('vocabulary.als'));
+    expect(() => say('m/Gone = Disposed', other)).toThrow('the vocabulary does not tell what kind of thing "m/Gone" holds');
+    expect(say('all p: Owner | p.*parent = Disposed')).toContain('for every owner_2:');
+  });
+
+  /**
+   * @canon spec-sides-that-alloy-does-not-compare-are-refused
+   */
+  it('refuses sides that Alloy does not compare', () => {
+    expect(() => say('on in Registered')).toThrow('"on" and "Registered" hold tuples of 2 and 1 things, which Alloy does not compare');
+    expect(() => say('Ran = c.on')).toThrow('"Ran" and "c.on" hold things of types that share no member');
   });
 
   /**
@@ -321,8 +338,8 @@ describe('the words', () => {
     expect(say('eventually (c in Registered until c in Ran)')).toBe(
       ['Now or at a later moment, all of these hold:', '  - now or at a later moment, the following holds:', '      c has run', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
     );
-    expect(say("always (c in Ran and d in Ran')")).toBe('Now and at every later moment:\n  c has run and at the next moment, d has run.');
-    expect(say('always (c in Ran and d in Ran)')).toBe('Now and at every later moment, c has run and d has run.');
+    expect(say("always (c in Ran and d in Ran')")).toBe('Now and at every later moment, all of these hold:\n  - c has run\n  - at the next moment, d has run');
+    expect(say('always (c in Ran and d in Ran)')).toBe('Now and at every later moment, all of these hold:\n  - c has run\n  - d has run');
   });
 
   /**
@@ -1195,7 +1212,7 @@ describe('an expression said through the types of its columns', () => {
    * @canon spec-a-primed-expression-is-said-at-the-next-moment
    */
   it('says a primed expression at the next moment', () => {
-    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, c has run or code has registered c.');
+    expect(say("c in (Ran + Registered)'")).toBe('At the next moment, at least one of these holds:\n  - c has run\n  - code has registered c');
   });
 
   /**
@@ -1207,12 +1224,16 @@ describe('an expression said through the types of its columns', () => {
   });
 
   /**
-   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   * @canon spec-two-sets-compared-are-said-member-by-member
    */
-  it('refuses two sets compared, primed or not', () => {
-    expect(() => say("Throwing' in Throwing")).toThrow('"Throwing\'" is a set or a field, where a variable must be');
-    expect(() => say('Ran + Registered in Disposed')).toThrow('is a set or a field, where a variable must be');
-    expect(() => say('Ran = Registered')).toThrow('is a set or a field, where a variable must be');
+  it('says two sets compared member by member, primed or not', () => {
+    expect(say('Ran in Registered')).toBe('For every cleanup_1:\n  when cleanup_1 has run, code has registered cleanup_1.');
+    expect(say('Ran = Registered')).toBe('For every cleanup_1:\n  cleanup_1 has run exactly when code has registered cleanup_1.');
+    expect(say("Ran in Ran'")).toBe('For every cleanup_1:\n  when cleanup_1 has run, then at the next moment, cleanup_1 has run.');
+    expect(say("all c: Cleanup | Registered' = Registered + c")).toBe(
+      ['For every cleanup_1:', '  for every cleanup_2:', '    both or neither of these hold:', '      - at the next moment, code has registered cleanup_2', '      - at least one of these holds:', '          - code has registered cleanup_2', '          - cleanup_2 and cleanup_1 are the same'].join('\n')
+    );
+    expect(say("on' = on")).toBe('For every cleanup_1 and every owner_1:\n  both or neither of these hold:\n    - at the next moment, cleanup_1 is on owner_1\n    - cleanup_1 is on owner_1');
   });
 
   /**
@@ -1544,7 +1565,7 @@ describe('relations and atoms', () => {
     expect(say('c not in "a"', named)).toBe('c and "a" are different.');
     expect(say('not c in "a"', named)).toBe('c and "a" are different.');
     expect(say('"a" in "b"', named)).toBe('"a" and "b" are the same.');
-    expect(() => say('Ran in "a"', named)).toThrow('"Ran" is a set or a field, where a variable must be');
+    expect(() => say('Ran in "a"', named)).toThrow('hold things of types that share no member');
   });
 
   /**

@@ -933,13 +933,21 @@ class Verbalizer {
       }
       case 'union': {
         const [a, b] = [this.columns(e.l), this.columns(e.r)];
-        return a !== undefined && b !== undefined && a.join() === b.join() ? a : undefined;
+        if (a === undefined || b === undefined || a.length !== b.length) return undefined;
+        // A variable's column, '', fits the type of the other side, as a variable fits wherever the formula uses it.
+        const merged = a.map((type, i) => (type === '' ? (b[i] as string) : b[i] === '' || b[i] === type ? type : undefined));
+        return merged.every(type => type !== undefined) ? (merged as string[]) : undefined;
       }
       case 'inter':
         return this.columns(e.l) ?? this.columns(e.r);
       case 'diff':
         return this.columns(e.l);
       case 'join': {
+        // y.*r, for r from a type to itself: y and what r reaches from it, both of the type when y is.
+        if (e.r.t === 'rclosure') {
+          const [from, step] = [this.columns(e.l), this.columns(e.r.e)];
+          if (from?.length === 1 && step?.length === 2 && step[0] === step[1] && (from[0] === '' || from[0] === step[0])) return [step[0] as string];
+        }
         const [a, b] = [this.columns(e.l), this.columns(e.r)];
         if (a === undefined || b === undefined) return undefined;
         const c = [...a.slice(0, -1), ...b.slice(1)];
@@ -1273,9 +1281,26 @@ class Verbalizer {
     return said;
   }
 
-  /** `e in s` for an expression `e` of a variable, member by member: for every member of `e`, it is in `s`. */
+  /**
+   * Refuses two sides that Alloy would not compare: sides of a different number of columns, or columns of types that
+   * share no member, such as a set of cleanups and a string. Where the vocabulary does not tell a type, nothing is refused here.
+   */
+  private comparable(l: Node, r: Node): void {
+    const of = (side: Node): string[] | undefined => (side.t === 'string' ? ['String'] : this.columns(side));
+    const [a, b] = [of(l), of(r)];
+    if (a === undefined || b === undefined) return;
+    if (a.length !== b.length) throw new Refusal(`"${shown(l)}" and "${shown(r)}" hold tuples of ${a.length} and ${b.length} things, which Alloy does not compare`);
+    a.forEach((type, i) => {
+      const other = b[i] as string;
+      if (type === '' || other === '') return;
+      const [x, y] = [this.top(type), this.top(other)];
+      if (x !== undefined && y !== undefined && x !== y && x !== 'univ' && y !== 'univ') throw new Refusal(`"${shown(l)}" and "${shown(r)}" hold things of types that share no member, which Alloy does not compare`);
+    });
+  }
+
+  /** `e in s` member by member: for every member of `e`, it is in `s`. */
   private subset(l: Node, r: Node): Node {
-    if (!this.ofVariable(l)) throw new Refusal(`"${shown(l)}" is a set or a field, where a variable must be`);
+    this.comparable(l, r);
     const types = this.columns(l);
     if (types === undefined || types.includes('')) throw this.untyped(l);
     const ms = types.map(() => member());
@@ -1305,7 +1330,15 @@ class Verbalizer {
   }
 
   private equalMembersOnce(l: Node, r: Node): Node {
-    if (!this.ofVariable(l) && !this.ofVariable(r)) throw new Refusal(`"${shown(l)}" is a set or a field, where a variable must be`);
+    this.comparable(l, r);
+    // Said over the type of one side, the members of the other must be of it too: a side whose type the vocabulary does not tell could hold others.
+    for (const side of [l, r]) if (!this.isValue(side) && this.columns(side) === undefined) throw this.untyped(side);
+    // Two relations are equal when each tuple of members is in both or in neither.
+    const columns = [this.columns(l), this.columns(r)].find(c => c !== undefined && c.length > 1 && !c.includes(''));
+    if (columns !== undefined) {
+      const ms = columns.map(() => member());
+      return { t: 'quant', q: 'all', decls: ms.map((m, i) => ({ names: [nameOf(m, '')], type: { t: 'name', name: columns[i] as string } })), body: { t: 'iff', l: this.inside(ms, l), r: this.inside(ms, r) } };
+    }
     const m = member();
     // A side that is a variable is the one member: `=` takes a name with no reading for a variable.
     const of = (side: Node): Node => (side.t === 'name' && this.isVariable(side.name) ? { t: 'cmp', op: '=', l: m, r: side } : this.inside([m], side));
@@ -1340,13 +1373,14 @@ class Verbalizer {
       if (r.t === 'string' && this.exact(l)) return not({ t: 'cmp', op: '=', l, r });
       // x in p, for a variable p that a quantifier declares: p is one thing, so x is it; an expression of several things is p in each of its members.
       if (r.t === 'name' && this.bound.has(r.name) && l.t !== 'arrow') return not(this.exact(l) ? { t: 'cmp', op: '=', l, r } : this.subset(l, r));
-      if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
+      // A set or a field on the left is said member by member, as an expression is: a reading takes one thing in a slot.
+      if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'name' && !this.isValue(l)) || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
       if (this.direct(r) || this.signature(r)) return undefined;
       // With nothing to spell out, `inside` gives back `l in r`, which would lower to itself again: it is said as it stands, or refused.
       const spelled = this.inside(l.t === 'arrow' ? [l.l, l.r] : [l], r);
       return spelled.t === 'cmp' && spelled.op === 'in' && JSON.stringify(spelled.r) === JSON.stringify(r) ? undefined : not(spelled);
     }
-    if ((l.t === 'name' || l.t === 'string') && (r.t === 'name' || r.t === 'string')) return undefined;
+    if (this.isValue(l) && this.isValue(r)) return undefined;
     const [left, right] = [this.unprimed(l), this.unprimed(r)];
     const isVariable = (n: Node): boolean => this.isValue(n);
     if (this.forward(left) && this.forward(right)) return flip ? not(this.equalMembers(l, r)) : undefined;
@@ -2158,6 +2192,20 @@ class Verbalizer {
     }
   }
 
+  /** An "and" or an "or": one sentence where it fits and `inline` allows it, else a list. */
+  private junction(node: Extract<Node, { t: 'and' | 'or' }>, inline: boolean): Doc {
+    const and = node.t === 'and';
+    if (node.items.some(item => (and ? this.holdsNever(item) : this.holdsAlways(item)))) throw new Refusal(and ? NEVER : ALWAYS);
+    const items = node.items.filter(item => !(and ? this.holdsAlways(item) : this.holdsNever(item)));
+    if (items.length === 0) throw new Refusal(and ? ALWAYS : NEVER);
+    if (items.length === 1) return this.doc(items[0] as Node);
+    const said = inline ? this.inline(items, node.t) : undefined;
+    if (said !== undefined) return said;
+    return and
+      ? { kind: 'list', intro: ALL, items: this.items(items, item => item.t === 'quant' && item.q === 'all').flatMap(item => this.spliced(item, ALL)) }
+      : { kind: 'list', intro: ANY, items: this.items(items, () => true).flatMap(item => this.spliced(item, ANY)) };
+  }
+
   private said(node: Node): Doc {
     switch (node.t) {
       case 'name':
@@ -2173,26 +2221,9 @@ class Verbalizer {
         return this.negation(node.f);
       case 'true':
         throw new Refusal(ALWAYS);
-      case 'and': {
-        if (node.items.some(item => this.holdsNever(item))) throw new Refusal(NEVER);
-        const items = node.items.filter(item => !this.holdsAlways(item));
-        if (items.length === 0) throw new Refusal(ALWAYS);
-        if (items.length === 1) return this.doc(items[0] as Node);
-        node = { ...node, items };
-        const inline = this.inline(node.items, 'and');
-        if (inline !== undefined) return inline;
-        return { kind: 'list', intro: ALL, items: this.items(node.items, item => item.t === 'quant' && item.q === 'all').flatMap(item => this.spliced(item, ALL)) };
-      }
-      case 'or': {
-        if (node.items.some(item => this.holdsAlways(item))) throw new Refusal(ALWAYS);
-        const items = node.items.filter(item => !this.holdsNever(item));
-        if (items.length === 0) throw new Refusal(NEVER);
-        if (items.length === 1) return this.doc(items[0] as Node);
-        node = { ...node, items };
-        const inline = this.inline(node.items, 'or');
-        if (inline !== undefined) return inline;
-        return { kind: 'list', intro: ANY, items: this.items(node.items, () => true).flatMap(item => this.spliced(item, ANY)) };
-      }
+      case 'and':
+      case 'or':
+        return this.junction(node, true);
       case 'implies':
         return this.rule(node.l, node.r);
       case 'ite':
@@ -2223,7 +2254,8 @@ class Verbalizer {
           once: 'now or at an earlier moment, ',
           historically: 'now and at every earlier moment, '
         };
-        return prefix(words[node.op], this.doc(node.f));
+        // Below a time phrase an "and" or an "or" is a list: on one line, the phrase could read as covering its first part alone.
+        return prefix(words[node.op], node.f.t === 'and' || node.f.t === 'or' ? this.junction(node.f, false) : this.doc(node.f));
       }
       case 'binary': {
         // A chain of `;` reads in order; any other nesting of these clauses with commas reads in more than one way.
