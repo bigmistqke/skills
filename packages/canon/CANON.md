@@ -1177,7 +1177,7 @@ unguarded: {1} is [unguarded] | {1} is not [unguarded]
 > - the test checks a claim that is [refined](#term-refined)
 <!-- statement-term-adrift:end -->
 
-A test's tags say which leaf it checks, and an adrift test's tags fail at that. A test the project declares must carry a tag, and each tag must name a claim, not an axiom, fact, conflict or term. No test may check a refined claim, because what it asserts belongs to the leaves below.
+A test's tags say which leaf it checks, and an adrift test's tags fail at that. A declared test with no tag aims at nothing. A tag that names an axiom, fact, conflict or term aims at something no test can hold the code to. And a test of a refined claim checks what belongs to the leaves below it.
 
 ```alloy
 pred adrift[t: Test] {
@@ -2349,7 +2349,7 @@ and (all t: Test | misleading[t] implies t in Finding)
 > when the bug is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug.
 <!-- statement-spec-a-hidden-bug-is-reported:end -->
 
-A known bug must stay in sight until someone fixes it. A bug that [names](#term-name) no [issue](#term-issue) has an [untracking](#term-untracking), and one whose issue the [tracker](#term-tracker) does not know has a [mistracking](#term-mistracking). One whose issue the tracker has closed has an [outdated tracking](#term-outdated-tracking), and one that is not [tested](#term-tested) has an [untesting](#term-untesting). The project owes an issue only when it has a tracker, and a test only when it has a runner.
+A known bug must stay in sight until someone fixes it, so the checker reports every bug that hides. A bug hides when its [issue](#term-issue) is missing, unknown to the [tracker](#term-tracker) or closed, or when it is not [tested](#term-tested). The specs below give each way its own finding: an [untracking](#term-untracking), a [mistracking](#term-mistracking), an [outdated tracking](#term-outdated-tracking) and an [untesting](#term-untesting). The project owes an issue only when it has a tracker, and a test only when it has a runner.
 
 ```alloy
 all b: Bug | hidden[b] implies b in Finding
@@ -2419,7 +2419,7 @@ all b: Bug | (some Runner and not tested[b]) implies b in Untesting
 > when the conflict is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the conflict.
 <!-- statement-spec-a-hidden-conflict-is-reported:end -->
 
-A known conflict must stay in sight until someone resolves it. It gets the same three findings as a bug for an issue that is missing, unknown or closed. It must also name the two units that disagree, or nobody can tell what to resolve: a conflict that is not [paired](#term-paired) has an [unpairing](#term-unpairing). The project owes an issue only when it has a tracker.
+A known conflict must stay in sight until someone resolves it, so the checker reports every conflict that hides. A conflict hides the way a bug does when its issue is missing, unknown or closed. It hides too when it does not name the two units that disagree, since then nobody can tell what to resolve. The specs below give that case its own finding, an [unpairing](#term-unpairing), beside the three a bug's issue gets.
 
 ```alloy
 all c: Conflict | hidden[c] implies c in Finding
@@ -2489,7 +2489,7 @@ all c: Conflict | not paired[c] implies c in Unpairing
 > when the test is [misleading](#term-misleading), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-a-misleading-test-is-reported:end -->
 
-A test should tell the truth about the code. An [expected failure](#term-expected-failure) must check the bug or exception that explains it, and one that [checks](#term-check) neither has an [unexplained failure](#term-unexplained-failure). A bug's test should expect to fail while the bug lasts, so a [plain test](#term-plain-test) that checks a bug has an [unpinning](#term-unpinning).
+A test should tell the truth about the code, so the checker reports every test that misleads. An [expected failure](#term-expected-failure) misleads when it [checks](#term-check) no bug or exception that explains the failure. A bug's test should expect to fail while the bug lasts, so a [plain test](#term-plain-test) that checks a bug misleads too. The specs below name the two findings: an [unexplained failure](#term-unexplained-failure) and an [unpinning](#term-unpinning).
 
 ```alloy
 all t: Test | misleading[t] implies t in Finding
@@ -2594,7 +2594,7 @@ and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)
 > when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
 <!-- statement-spec-an-unguarded-claim-is-untested:end -->
 
-Every claim needs a guard, so that a code change that breaks it gets noticed. A claim counts as guarded when narrower claims refine it or a test checks it. A spec also counts as tested when a test checks a bug that sits under it. When the project has a runner, a claim with no guard earns an [untesting](#term-untesting).
+Every claim needs a guard, so that a code change that breaks it gets noticed. A claim counts as guarded when a spec or an exception refines it, or when a test checks it. A spec also counts as tested when a test checks a bug that sits in it or derives from it. When the project has a runner, a claim with no guard earns an [untesting](#term-untesting).
 
 ```alloy
 all c: Claim | (some Runner and unguarded[c]) implies c in Untesting
@@ -2634,7 +2634,7 @@ This follows because only a test can fail when a claim stops holding. A comment 
 > when the test is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-an-adrift-test-is-reported:end -->
 
-A test earns its place by holding the code to a [claim](#term-claim) of the canon. A test that the [project](#term-project) [declares](#term-declare) has an [uncitation](#term-uncitation) when it [carries](#term-carry) no tag, because it then aims at nothing. It has a [misaiming](#term-misaiming) when it checks a unit other than a claim, since only claims say what the code does. Any test that checks a [refined](#term-refined) claim has an [overreach](#term-overreach), because the claims beneath it should carry the tests.
+A test earns its place by holding the code to a [claim](#term-claim) of the canon, so the checker reports every test that drifts from one. A declared test with no tag aims at nothing, and a test of a unit that is no claim aims where no code answers. A test of a [refined](#term-refined) claim checks what the claims beneath it should carry. The specs below name the three findings: an [uncitation](#term-uncitation), a [misaiming](#term-misaiming) and an [overreach](#term-overreach).
 
 ```alloy
 all t: Test | adrift[t] implies t in Finding
@@ -2944,7 +2944,7 @@ This follows because the indentation of a list says where each item ends, and wh
 > then [checker](#term-checker) reads fence_1 as a block of the unit.
 <!-- statement-spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it:end -->
 
-A unit's logic is whatever its own text holds. So a fenced block that names a language and sits in a unit's own text counts as a block of that unit. The unit's statement then says that logic and no other.
+A unit's logic is whatever its own text holds. So a fenced block that names a language and sits in a unit's own text counts as a block of that unit.
 
 ```alloy
 all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in Blocks.rel
@@ -3018,7 +3018,7 @@ all f: Fence | f in ScenarioWord implies f in ScenarioBlock
 > then fence_1 has the role of the formula of its unit.
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:end -->
 
-Most blocks are the formula of their unit, so the common case needs no word. A block whose fence names no role is the unit's formula.
+Most blocks are the formula of their unit, so the common case needs no word. A block that names a language and no role is the unit's formula. A fence with no language is prose, and no formula at all.
 
 ```alloy
 all f: Fence | (f in Languaged and f in NoSecondWord) implies f in UnitBlock
@@ -3834,7 +3834,7 @@ all c: Command | available[c] implies c not in Unknown
 > - the run gets code 2 from the installed plugin
 <!-- statement-spec-every-plugin-a-run-calls-runs:end -->
 
-A check the project asks for and that does not run is a dropped check. So every plugin a run calls actually runs and returns an exit code. When several plugins add the same command, each of them runs, and none stands in for another.
+A check the project asks for and that does not run is a dropped check. So every installed plugin a run calls actually runs and returns an exit code. When several plugins add the same command, each of them runs, and none stands in for another.
 
 ```alloy
 all r: Run, p: Installed | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)
@@ -3855,7 +3855,7 @@ all r: Run, p: Installed | calls[r, p] implies (r->p in Return.code0 or r->p in 
 >   then the run exits with code 1.
 <!-- statement-spec-a-run-exits-with-the-worst-code-of-its-plugins:end -->
 
-The exit code is how a script learns what happened, so a worse result must never hide behind a milder one. When any plugin returns code 2, a check that could not run, the run exits with that code as well. When a plugin returns code 1, a finding, and none returns code 2, the run exits with code 1 as well. That second rule waits when the checker stops the run itself. It stops a run over a listed plugin the project lacks, an unreadable document or a command nothing adds.
+The exit code is how a script learns what happened, so a worse result must never hide behind a milder one. A check that could not run is worse than a finding, so a plugin that returns the code for it wins. A finding is worse than nothing, so it wins over a clean result. A finding only counts that way when the checker has not stopped the run itself, since a stop is worse still.
 
 ```alloy
 all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1)
