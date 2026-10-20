@@ -2108,6 +2108,18 @@ describe('lighter words', () => {
   });
 });
 
+describe('fields that relate more than two things', () => {
+  /**
+   * @canon spec-a-field-of-pairs-has-the-types-of-its-columns
+   */
+  it('says a field of pairs through its columns, so a frame condition of it reads', () => {
+    expect(say("Clock.older' = Clock.older")).toBe(
+      'For every cleanup_1 and every cleanup_2:\n  code registered cleanup_1 before cleanup_2 at the next moment exactly when code registered cleanup_1 before cleanup_2 now.'
+    );
+    expect(() => say("all c: Cleanup | Clock.older' = Clock.older + (Registered -> c)")).not.toThrow();
+  });
+});
+
 describe('what it refuses', () => {
   /**
    * @canon spec-until-is-said-as-two-parts
