@@ -761,8 +761,9 @@ class Verbalizer {
     if (definition === undefined) throw new Refusal(`no reading for "${node.name}"`);
     if (this.chain.includes(node.name)) throw new Refusal(`"${node.name}" is defined in terms of itself; give it a reading`);
     if (definition.params.length !== given.length) throw new Refusal(`"${node.name}" takes ${definition.params.length} arguments, not ${given.length}`);
-    // A variable stands in for its parameter; an expression is put in its place, with the names of this scope.
-    const bound = new Map<string, string>();
+    // A variable stands in for its parameter; an expression is put in its place, with the names of this scope, which the
+    // body then knows as variables too.
+    const bound = new Map<string, string>([...this.bound.values()].map((name): [string, string] => [name, name]));
     let body = definition.body;
     definition.params.forEach((param, i) => {
       const arg = given[i] as Node;

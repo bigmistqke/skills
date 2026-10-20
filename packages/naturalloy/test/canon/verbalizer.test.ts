@@ -2195,6 +2195,19 @@ describe('none, a variable as a type, and builtin types', () => {
   });
 });
 
+describe('a call with an expression of a variable', () => {
+  /**
+   * @canon spec-a-call-with-an-expression-is-said-by-the-body-with-the-expression-in-place
+   */
+  it('knows the variables of the expression in the body it is put in', () => {
+    const R = withDefinitions(
+      parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\nDisposed: pulse has disposed {1} | pulse has not disposed {1}\non: {1} is on {2} | {1} is not on {2}'),
+      'sig Owner {} sig Cleanup { on: set Owner } var sig Disposed in Owner {} pred gone2[o: Owner] { o in Disposed }'
+    );
+    expect(() => say('all c: Cleanup, p: Owner | gone2[c.(on ++ (Cleanup -> p))]', R)).not.toThrow();
+  });
+});
+
 describe('what it refuses', () => {
   /**
    * @canon spec-until-is-said-as-two-parts
