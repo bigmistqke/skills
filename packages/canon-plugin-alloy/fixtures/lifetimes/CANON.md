@@ -184,7 +184,13 @@ and
 >   - cleanup_2 is on owner_1
 >   - code registered cleanup_1 before cleanup_2
 >
->   then at every moment before the first moment where cleanup_2 runs, cleanup_1 does not run, and cleanup_2 runs now or at a later moment
+>   then all of these hold:
+>   - now or at a later moment, the following holds:
+>
+>     cleanup_2 runs
+>   - at every moment from now until the first such moment, not including it, the following holds:
+>
+>     cleanup_1 does not run
 > - now and at every later moment, for every owner_2 and every failing_cleanup_1:
 >
 >   when failing_cleanup_1 runs, is on owner_2 and pulse has disposed owner_2, then now and at every later moment, the dispose of owner_2 has not been stopped.
@@ -226,7 +232,13 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >   - cleanup_1 has not run
 >   - cleanup_1 is on owner_1
 >
->   then at every moment before the first moment where pulse disposes owner_2, cleanup_1 does not run, and pulse disposes owner_2 now or at a later moment
+>   then all of these hold:
+>   - now or at a later moment, the following holds:
+>
+>     pulse disposes owner_2
+>   - at every moment from now until the first such moment, not including it, the following holds:
+>
+>     cleanup_1 does not run
 > - now and at every later moment, for every owner_3 and every owner_4 and every owner_5:
 >
 >   when all of these hold:
@@ -237,7 +249,13 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >   - pulse has not disposed owner_4
 >   - pulse has not disposed owner_5
 >
->   then at every moment before the first moment where pulse disposes owner_5, pulse does not dispose owner_4, and pulse disposes owner_5 now or at a later moment.
+>   then all of these hold:
+>   - now or at a later moment, the following holds:
+>
+>     pulse disposes owner_5
+>   - at every moment from now until the first such moment, not including it, the following holds:
+>
+>     pulse does not dispose owner_4.
 <!-- statement-spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups:end -->
 
 

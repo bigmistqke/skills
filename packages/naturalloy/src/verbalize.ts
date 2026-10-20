@@ -38,6 +38,8 @@ interface Reading {
 /** A predicate of the vocabulary: its parameters and its body, which says that the parameters marked `disj` are different. */
 export interface Definition {
   params: string[];
+  /** The signature each parameter is declared of, where its type is one: `o: Owner` and `o: one Owner` are of `Owner`. */
+  types?: (string | undefined)[];
   body: Node;
 }
 
@@ -90,7 +92,11 @@ export function parseDefinitions(vocabulary: string): Map<string, Definition> {
   for (const p of parseModule(vocabulary).paragraphs) {
     if (p.t !== 'pred') continue;
     const params = paramsOf(p);
-    definitions.set(p.name, { params: params.flatMap(d => d.names), body: unqualified(withDifferences(params, p.body)) });
+    const typed = (type: Node): string | undefined => {
+      const base = type.t === 'mult' && type.q === 'one' ? type.e : type;
+      return base.t === 'name' ? base.name : undefined;
+    };
+    definitions.set(p.name, { params: params.flatMap(d => d.names), types: params.flatMap(d => d.names.map(() => typed(d.type))), body: unqualified(withDifferences(params, p.body)) });
   }
   return definitions;
 }
@@ -650,6 +656,7 @@ class Verbalizer {
     const apart = this.disjoint(node);
     if (apart !== undefined) return negative ? this.negation(apart) : this.doc(apart);
     const given = node.args.map(a => this.shape(a));
+    this.typed(node.name, given);
     const isVariable = (a: Node): boolean => this.isValue(a);
     if (this.readings.atoms.has(node.name)) {
       const through = this.throughMember(node, negative);
@@ -676,6 +683,39 @@ class Verbalizer {
       throw new Refusal(`no reading for "${node.name}", and its body cannot be said: ${asRefusal(error).message}`);
     }
     return negative ? untrue(doc, inside.single(body)) : doc;
+  }
+
+  /**
+   * Refuses a call with an argument whose type shares no member with the type of its parameter, as Alloy does: two
+   * signatures that stand on their own are apart, and so are strings and integers. Where a type is not known, nothing is refused.
+   */
+  private typed(name: string, given: Node[]): void {
+    const definition = this.readings.definitions.get(name);
+    given.forEach((arg, i) => {
+      const param = definition?.types?.[i];
+      const columns = arg.t === 'string' ? ['String'] : this.columns(arg);
+      if (param === undefined || columns?.length !== 1 || columns[0] === '') return;
+      const [a, b] = [this.top(columns[0] as string), this.top(param)];
+      if (a === undefined || b === undefined || a === b || a === 'univ' || b === 'univ') return;
+      const noun = (type: string): string => {
+        const words = this.readings.nouns.get(type);
+        return words === undefined ? `"${type}"` : `${this.written({ t: 'name', name: type }) ?? articleFor(unbracketed(words))}${unbracketed(words)}`;
+      };
+      const shown_ = arg.t === 'string' ? shown(arg) : `"${shown(arg)}"`;
+      throw new Refusal(`"${name}" takes ${noun(b)} for "${definition?.params[i]}", and ${shown_} is ${noun(a)}`);
+    });
+  }
+
+  /** The signature that stands on its own above a type, or the type itself for `String`, `Int` and `univ`; undefined for a signature declared in several. */
+  private top(type: string): string | undefined {
+    if (type === 'String' || type === 'Int' || type === 'univ') return type;
+    if (type === 'seq/Int') return 'Int';
+    for (let at = type; ; ) {
+      const holder = this.readings.holders.get(at);
+      if (holder === undefined) return undefined;
+      if (holder === at) return at;
+      at = holder;
+    }
   }
 
   private say(key: string, slots: string[], negative: boolean): string {
@@ -1267,7 +1307,7 @@ class Verbalizer {
       }
       if (this.signature(r) && l.t === 'name') return this.isA(l, r as Extract<Node, { t: 'name' }>, flip);
       if ((r.t === 'closure' || r.t === 'rclosure') && l.t === 'arrow') return this.reach(l, r, flip);
-      if (r.t === 'name' && r.name === 'next' && l.t === 'arrow') return `${VARIABLE}${this.variable(l.r, 'a side of "->"')}${VARIABLE} is ${flip ? 'not ' : ''}the integer after ${VARIABLE}${this.variable(l.l, 'a side of "->"')}${VARIABLE}`;
+      if (r.t === 'name' && r.name === 'next' && l.t === 'arrow') return `${VARIABLE}${this.variable(l.r, 'a side of "->"')}${VARIABLE} is ${flip ? 'not ' : ''}the integer after ${VARIABLE}${this.variable(l.l, 'a side of "->"')}${VARIABLE} without wrapping around`;
       // y in f[x]: the reading of the function, with its arguments and then the member.
       if (r.t === 'call' && this.readFunction(r)) return this.say(r.name, [...r.args.map(a => this.variable(a, 'an argument')), this.variable(l, 'the left of "in"')], flip);
       const slots = l.t === 'arrow' ? [this.variable(l.l, 'a side of "->"'), this.variable(l.r, 'a side of "->"')] : [this.variable(l, 'the left of "in"')];
@@ -1421,7 +1461,11 @@ class Verbalizer {
     }
     // A time phrase inside the second side, after the one it begins with, would reach over the "otherwise".
     if (typeof then === 'string' && third !== undefined && holdsTime(then, true)) then = apart(then);
-    return { kind: 'rule', when, then, ...(third === undefined ? {} : { otherwise: third }) };
+    // A series in the second or the last side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
+    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll('there is a moment before, and at it, ', ''));
+    if (series(then)) then = apart(then as string);
+    const otherwise = series(third) ? apart(third as string) : third;
+    return { kind: 'rule', when, then, ...(otherwise === undefined ? {} : { otherwise }) };
   }
 
   /**
@@ -1444,9 +1488,9 @@ class Verbalizer {
     const part = (intro: string, side: Node): Doc => ({ kind: 'block', intro, body: this.side(side) });
     switch (node.op) {
       case 'until':
-        return { kind: 'list', intro: ALL, items: [part('now or at a later moment, the following holds:', b), part('at every moment before the first such moment, the following holds:', a)] };
+        return { kind: 'list', intro: ALL, items: [part('now or at a later moment, the following holds:', b), part('at every moment from now until the first such moment, not including it, the following holds:', a)] };
       case 'since':
-        return { kind: 'list', intro: ALL, items: [part('now or at an earlier moment, the following holds:', b), part('at every moment after the last such moment, the following holds:', a)] };
+        return { kind: 'list', intro: ALL, items: [part('now or at an earlier moment, the following holds:', b), part('at every moment after the last such moment, up to and including now, the following holds:', a)] };
       case 'releases':
         return this.doc({ t: 'or', items: [{ t: 'unary', op: 'always', f: b }, { t: 'binary', op: 'until', l: b, r: { t: 'and', items: [a, b] } }] });
       case 'triggered':
@@ -2088,21 +2132,12 @@ class Verbalizer {
         // A chain of `;` reads in order; any other nesting of these clauses with commas reads in more than one way.
         const sides = node.op === ';' && node.r.t === 'binary' && node.r.op === ';' ? [node.l] : [node.l, node.r];
         if (sides.some(holdsBinary)) throw new Refusal(`"${node.op}" with a side that holds "until", "since", "releases", "triggered" or ";" reads in more than one way`);
-        // The words of each operator put more words after a side, "now or at a later moment", with no comma between: only a plain clause keeps its end.
-        if (!this.single(node.l) || !this.single(node.r)) return this.setApart(node);
+        // Until, since, releases and triggered are always said in parts set apart: written on one line, "the first moment where"
+        // could count from before now, and "if one comes" could read as a condition on the whole claim. A sequence is one line
+        // where both its sides are plain clauses.
+        if (node.op !== ';' || !this.single(node.l) || !this.single(node.r)) return this.setApart(node);
         const [l, r] = [this.doc(node.l), this.doc(node.r)];
-        switch (node.op) {
-          case 'until':
-            return `at every moment before the first moment where ${r}, ${l}, and ${r} now or at a later moment`;
-          case 'since':
-            return `at every moment after the last moment where ${r}, ${l}, and ${r} now or at an earlier moment`;
-          case 'releases':
-            return `up to and including the first moment where ${l}, if one comes, ${r}`;
-          case 'triggered':
-            return `back to and including the last moment where ${l}, if there was one, ${r}`;
-          case ';':
-            return `${l}, and at the next moment, ${r}`;
-        }
+        return `${l}, and at the next moment, ${r}`;
       }
       default:
         throw new Refusal(`a ${node.t} cannot stand as a statement`);
