@@ -662,6 +662,17 @@ class Verbalizer {
     return this.bound.has(name) || !(BUILTIN.has(name) || this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name) || this.readings.relations?.has(name) === true || this.readings.holders.has(name));
   }
 
+  /**
+   * The type a quantifier declares a variable of, found through the name the words give it, which is its noun and a
+   * number: `integer_1` is of `Int`. Undefined for a variable no quantifier declares.
+   */
+  private boundType(name: string): string | undefined {
+    const shown = this.bound.get(name)?.replace(/_\d+$/, '');
+    if (shown === undefined) return undefined;
+    for (const [type, words] of this.readings.nouns) if (unbracketed(words).trim().replace(/\s+/g, '_') === shown) return type;
+    return undefined;
+  }
+
   /** Whether a node is one thing a reading can take in a slot: a variable or a string. */
   private isValue(node: Node): boolean {
     return (node.t === 'name' && this.isVariable(node.name)) || node.t === 'string';
@@ -1024,6 +1035,10 @@ class Verbalizer {
       case 'range':
       case 'closure':
         return this.columns(e.t === 'range' ? e.l : e.e);
+      case 'ite': {
+        const [a, b] = [this.columns(e.a), this.columns(e.b)];
+        return a !== undefined && b !== undefined && a.join() === b.join() ? a : undefined;
+      }
       case 'comprehension': {
         const types = e.decls.flatMap(d => d.names.map(() => this.columns(d.type)));
         return types.every(t => t?.length === 1 && t[0] !== '') ? types.map(t => (t as string[])[0] as string) : undefined;
@@ -1107,6 +1122,9 @@ class Verbalizer {
     switch (e.t) {
       case 'union':
         return { t: 'or', items: [this.inside(xs, e.l), this.inside(xs, e.r)] };
+      // x in (c implies a else b): when c, x is in a; otherwise, in b.
+      case 'ite':
+        return { t: 'ite', c: e.c, a: this.inside(xs, e.a), b: this.inside(xs, e.b) };
       case 'inter':
         return { t: 'and', items: [this.inside(xs, e.l), this.inside(xs, e.r)] };
       case 'diff':
@@ -1426,6 +1444,8 @@ class Verbalizer {
     if (op === 'in' || op === 'not in') {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.lowered({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union' || r.t === 'diff') return undefined;
+      // y in n, for an integer y and a number n: a number is one integer, so to be in it is to equal it.
+      if (this.integer(r) && l.t === 'name' && this.boundType(l.name) === 'Int') return not({ t: 'cmp', op: '=', l, r });
       // x in "a", where x is one thing: a string is one atom, so to be in it is to be it.
       if (r.t === 'string' && this.exact(l)) return not({ t: 'cmp', op: '=', l, r });
       // x in p, for a variable p that a quantifier declares: p is one thing, so x is it; an expression of several things is p in each of its members.
@@ -1844,6 +1864,8 @@ class Verbalizer {
   }
 
   private quantified(quant: Extract<Node, { t: 'quant' }>): Doc {
+    const split = this.overEach(quant);
+    if (split !== undefined) return this.doc(this.rewrote(quant, split));
     const node = this.plain(quant);
     const absorbed = this.absorbed(node);
     if (absorbed !== undefined) return absorbed;
@@ -1874,6 +1896,21 @@ class Verbalizer {
     if (typeof body === 'string') return `${head} ${body}`;
     if (isList(body)) return { ...body, intro: `${head} ${body.intro}` };
     return { kind: 'block', intro: `${head}:`, body };
+  }
+
+  /**
+   * `all`, `some` or `no` of one variable over a union of signatures that no one type holds, `all x: A + B | f`, as the
+   * same quantifier over each: `(all x: A | f) and (all x: B | f)`. Undefined for any other quantifier: one and lone over
+   * a union are not said through each part.
+   */
+  private overEach(node: Extract<Node, { t: 'quant' }>): Node | undefined {
+    if (node.q !== 'all' && node.q !== 'some' && node.q !== 'no') return undefined;
+    const at = node.decls.findIndex(d => d.names.length === 1 && this.shape(d.type).t === 'union' && this.columns(d.type) === undefined);
+    if (at === -1) return undefined;
+    const decl = node.decls[at] as Extract<Node, { t: 'quant' }>['decls'][number];
+    const union = this.shape(decl.type) as Extract<Node, { t: 'union' }>;
+    const over = (type: Node): Node => ({ ...node, decls: node.decls.map((d, i) => (i === at ? { ...d, type } : d)) });
+    return { t: node.q === 'some' ? 'or' : 'and', items: [over(union.l), over(union.r)] };
   }
 
   /**
