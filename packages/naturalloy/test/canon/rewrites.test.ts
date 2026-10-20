@@ -17,6 +17,8 @@ const JAR = process.env.CANON_ALLOY_JAR;
 const JAVA = process.env.CANON_JAVA ?? 'java';
 const JOBS = Number(process.env.CANON_ALLOY_JOBS) || Math.max(1, Math.floor(availableParallelism() / 2));
 const SCOPE = 'for 3 but 3 Int, 1..3 steps';
+/** Three strings, named in each check so that String holds them. */
+const STRINGS = '("a" + "b" + "c")';
 
 /** The type of a variable of the sweep that a formula leaves free, by its name. */
 const FREE: Record<string, string> = { c: 'Cleanup', d: 'Cleanup', o: 'Owner', p: 'Owner', s: 'String', t: 'String', x: 'Int', y: 'Int' };
@@ -136,7 +138,9 @@ function analyze(dir: string, name: string, module: string): Promise<string> {
 async function verdicts(all: Pair[]): Promise<{ pair: Pair; verdict: string }[]> {
   const dir = mkdtempSync(join(tmpdir(), 'naturalloy-rewrites-'));
   try {
-    const module = (batch: Pair[]): string => [VOCABULARY, ...batch.map((pair, i) => `check rewrite_${i} { ${pair.check} } ${SCOPE}`)].join('\n');
+    // String holds only the string literals a command or a fact names, and a cleanup must have a name: without literals
+    // in the check, no world would have a cleanup, and every check about cleanups would hold for want of one.
+    const module = (batch: Pair[]): string => [VOCABULARY, ...batch.map((pair, i) => `check rewrite_${i} { some ${STRINGS} implies (${pair.check}) } ${SCOPE}`)].join('\n');
     const results: { pair: Pair; verdict: string }[] = [];
     // A batch that does not compile is asked again one pair at a time, so that one pair the analyzer rejects names itself.
     const run = async (batch: Pair[], name: string): Promise<void> => {
@@ -168,6 +172,16 @@ describe.skipIf(JAR === undefined)('the rewrites of the sweep, asked of the anal
   it('finds no world in which a rewrite and the formula it replaces differ', async () => {
     const all = pairs();
     expect(all.length).toBeGreaterThan(0);
+    // A canary: in the scope of the checks, a world has a member of each signature. Were one always empty, every check
+    // about it would hold for want of a member, and the test would prove nothing of it.
+    const dir = mkdtempSync(join(tmpdir(), 'naturalloy-canary-'));
+    try {
+      const canary = await analyze(dir, 'canary', [VOCABULARY, `check canary { some ${STRINGS} implies (no Cleanup or no Owner) } ${SCOPE}`].join('\n'));
+      expect(canary).toMatch(/check canary.*\bSAT\b/);
+      expect(canary).not.toMatch(/check canary.*\bUNSAT\b/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
     const results = await verdicts(all);
     expect(results).toHaveLength(all.length);
     expect(results.filter(r => r.verdict !== 'UNSAT').map(r => ({ what: r.pair.what, verdict: r.verdict }))).toEqual([]);
