@@ -228,11 +228,11 @@ describe('the words', () => {
   });
 
   /**
-   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   * @canon spec-sides-that-alloy-does-not-compare-are-refused
    */
-  it('refuses a set or a field where a reading takes a variable', () => {
-    expect(() => say("Ran in Ran'")).toThrow('"Ran" is a set or a field, where a variable must be');
-    expect(() => say('on in Registered')).toThrow('"on" is a set or a field, where a variable must be');
+  it('refuses sides that Alloy does not compare', () => {
+    expect(() => say('on in Registered')).toThrow('"on" and "Registered" hold tuples of 2 and 1 things, which Alloy does not compare');
+    expect(() => say('Ran = c.on')).toThrow('"Ran" and "c.on" hold things of types that share no member');
   });
 
   /**
@@ -1207,12 +1207,16 @@ describe('an expression said through the types of its columns', () => {
   });
 
   /**
-   * @canon spec-a-set-where-a-variable-belongs-is-refused
+   * @canon spec-two-sets-compared-are-said-member-by-member
    */
-  it('refuses two sets compared, primed or not', () => {
-    expect(() => say("Throwing' in Throwing")).toThrow('"Throwing\'" is a set or a field, where a variable must be');
-    expect(() => say('Ran + Registered in Disposed')).toThrow('is a set or a field, where a variable must be');
-    expect(() => say('Ran = Registered')).toThrow('is a set or a field, where a variable must be');
+  it('says two sets compared member by member, primed or not', () => {
+    expect(say('Ran in Registered')).toBe('For every cleanup_1:\n  when cleanup_1 has run, code has registered cleanup_1.');
+    expect(say('Ran = Registered')).toBe('For every cleanup_1:\n  cleanup_1 has run exactly when code has registered cleanup_1.');
+    expect(say("Ran in Ran'")).toBe('For every cleanup_1:\n  when cleanup_1 has run, then at the next moment, cleanup_1 has run.');
+    expect(say("all c: Cleanup | Registered' = Registered + c")).toBe(
+      ['For every cleanup_1:', '  for every cleanup_2:', '    both or neither of these hold:', '      - at the next moment, code has registered cleanup_2', '      - at least one of these holds:', '          - code has registered cleanup_2', '          - cleanup_2 and cleanup_1 are the same'].join('\n')
+    );
+    expect(say("on' = on")).toBe('For every cleanup_1 and every owner_1:\n  both or neither of these hold:\n    - at the next moment, cleanup_1 is on owner_1\n    - cleanup_1 is on owner_1');
   });
 
   /**
@@ -1544,7 +1548,7 @@ describe('relations and atoms', () => {
     expect(say('c not in "a"', named)).toBe('c and "a" are different.');
     expect(say('not c in "a"', named)).toBe('c and "a" are different.');
     expect(say('"a" in "b"', named)).toBe('"a" and "b" are the same.');
-    expect(() => say('Ran in "a"', named)).toThrow('"Ran" is a set or a field, where a variable must be');
+    expect(() => say('Ran in "a"', named)).toThrow('hold things of types that share no member');
   });
 
   /**
