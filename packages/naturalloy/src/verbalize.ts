@@ -81,6 +81,8 @@ export interface Readings {
   definitions: Map<string, Definition>;
   /** The fields the vocabulary declares, each with the signature that declares it and the type it points at: `on` is from `Cleanup` to `Owner`. */
   fields: Map<string, Field>;
+  /** The fields that relate more than two things, `older: Cleanup -> Cleanup` of `Clock`: the signature that declares each and the types of its other columns. */
+  relations?: Map<string, { owner: string; columns: string[] }>;
   /** The signatures the vocabulary declares `var`, whose members change from one moment to the next. */
   variables: Set<string>;
   /** The signature that holds each signature of the vocabulary: the one it is declared `in` or `extends`, or itself when it stands on its own. One declared in several has none. */
@@ -165,6 +167,25 @@ export function parseFields(vocabulary: string): Map<string, Field> {
   return fields;
 }
 
+/** The fields of a module whose type is an arrow of names, `older: Cleanup -> Cleanup`, with the signature that declares each and the types of the arrow. */
+export function parseRelations(vocabulary: string): Map<string, { owner: string; columns: string[] }> {
+  const relations = new Map<string, { owner: string; columns: string[] }>();
+  const names = (type: Node): string[] | undefined => {
+    if (type.t === 'name') return [type.name];
+    if (type.t !== 'arrow') return undefined;
+    const [l, r] = [names(type.l), names(type.r)];
+    return l === undefined || r === undefined ? undefined : [...l, ...r];
+  };
+  for (const sig of parseModule(vocabulary).paragraphs) {
+    if (sig.t !== 'sig' || sig.names.length !== 1) continue;
+    for (const decl of sig.fields) {
+      const columns = decl.defined || decl.type.t !== 'arrow' ? undefined : names(decl.type);
+      if (columns !== undefined) for (const name of decl.names) relations.set(name, { owner: sig.names[0] as string, columns });
+    }
+  }
+  return relations;
+}
+
 /** The signatures a module declares `var`. */
 export function parseVariables(vocabulary: string): Set<string> {
   return new Set(parseModule(vocabulary).paragraphs.flatMap(p => (p.t === 'sig' && p.var ? p.names : [])));
@@ -191,6 +212,7 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
   ...readings,
   definitions: parseDefinitions(vocabulary),
   fields: parseFields(vocabulary),
+  relations: parseRelations(vocabulary),
   variables: parseVariables(vocabulary),
   holders: parseHolders(vocabulary),
   functions: parseFunctions(vocabulary),
@@ -637,7 +659,7 @@ class Verbalizer {
 
   /** Whether a name stands for one thing: a variable, and not a set, a signature or a field of the vocabulary. */
   private isVariable(name: string): boolean {
-    return this.bound.has(name) || !(BUILTIN.has(name) || this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name) || this.readings.holders.has(name));
+    return this.bound.has(name) || !(BUILTIN.has(name) || this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name) || this.readings.relations?.has(name) === true || this.readings.holders.has(name));
   }
 
   /** Whether a node is one thing a reading can take in a slot: a variable or a string. */
@@ -956,6 +978,8 @@ class Verbalizer {
         if (this.isVariable(e.name)) return [''];
         const field = this.readings.fields.get(e.name);
         if (field !== undefined) return field.owner === undefined ? undefined : [field.owner, field.type];
+        const relation = this.readings.relations?.get(e.name);
+        if (relation !== undefined) return [relation.owner, ...relation.columns];
         return this.readings.holders.has(e.name) ? [this.kind(e.name)] : undefined;
       }
       case 'prime':
