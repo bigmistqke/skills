@@ -107,7 +107,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   >
   > the unit is tested exactly when at least one of these holds:
   > - a [test](#term-test) [checks](#term-check) the unit
-  > - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) the unit
+  > - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [cites](#term-cite) the unit
 - [`@term paired`](#term-paired) — For every [conflict](#term-conflict): the conflict is paired exactly when the conflict [names](#term-name) a [unit](#term-unit) and names another unit.
 - [`@term hidden`](#term-hidden) —
   > For every [unit](#term-unit):
@@ -317,7 +317,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-tested-claim-is-not-untested`](#spec-a-tested-claim-is-not-untested) — For every [claim](#term-claim): when the claim is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
       - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — For every [claim](#term-claim): when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
       - [`@spec a-claim-an-undeclared-test-checks-is-not-untested`](#spec-a-claim-an-undeclared-test-checks-is-not-untested) — For every [claim](#term-claim): when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
-      - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — For every [spec](#term-spec): when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [sits in](#term-sit) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
+      - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — For every [spec](#term-spec): when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
     - [`@spec a-project-with-no-runner-reports-no-untesting`](#spec-a-project-with-no-runner-reports-no-untesting) — For every [unit](#term-unit): when [project](#term-project) has no [runner](#term-runner), [checker](#term-checker) reports no [untesting](#term-untesting) for the unit.
     - [`@spec a-project-with-no-tracker-reports-no-untracking`](#spec-a-project-with-no-tracker-reports-no-untracking) — For every [unit](#term-unit): when [project](#term-project) has no [tracker](#term-tracker), [checker](#term-checker) reports no [untracking](#term-untracking) for the unit.
     - [`@spec only-a-call-that-declares-a-test-is-a-test`](#spec-only-a-call-that-declares-a-test-is-a-test) — The checker reads a call as a test only when a [runner](#term-runner) of the project declares a test with it.
@@ -439,10 +439,30 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       >
       > all of these hold:
       > - when the run gets code 2 from a [plugin](#term-plugin), the run exits with code 2
-      > - when the run gets code 1 from a plugin and gets code 2 from no plugin, the run exits with code 1
+      > - when all of these hold:
+      >   - the run gets code 1 from a plugin
+      >   - the run gets code 2 from no plugin
+      >   - [checker](#term-checker) does not stop the run itself
+      >
+      >   then the run exits with code 1.
       - [`@spec a-plugin-that-could-not-run-stops-the-run`](#spec-a-plugin-that-could-not-run-stops-the-run) — For every [run](#term-run): when the run gets code 2 from a [plugin](#term-plugin), the run exits with code 2.
-      - [`@spec a-finding-fails-the-run`](#spec-a-finding-fails-the-run) — For every [run](#term-run): when the run gets code 1 from a [plugin](#term-plugin) and gets code 2 from no plugin, the run exits with code 1.
-      - [`@spec a-run-with-no-finding-succeeds`](#spec-a-run-with-no-finding-succeeds) — For every [run](#term-run): when there is no [plugin](#term-plugin) such that the run gets code 1 from the plugin or gets code 2 from the plugin, the run exits with code 0.
+      - [`@spec a-finding-fails-the-run`](#spec-a-finding-fails-the-run) —
+        > For every [run](#term-run):
+        >
+        > when all of these hold:
+        > - the run gets code 1 from a [plugin](#term-plugin)
+        > - the run gets code 2 from no plugin
+        > - [checker](#term-checker) does not stop the run itself
+        >
+        > then the run exits with code 1.
+      - [`@spec a-run-with-no-finding-succeeds`](#spec-a-run-with-no-finding-succeeds) —
+        > For every [run](#term-run):
+        >
+        > when all of these hold:
+        > - there is no [plugin](#term-plugin) such that the run gets code 1 from the plugin or gets code 2 from the plugin
+        > - [checker](#term-checker) does not stop the run itself
+        >
+        > then the run exits with code 0.
     - [`@spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document`](#spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document) —
       > For every [document_1](#term-document) and every document_2:
       >
@@ -1549,7 +1569,7 @@ Name.site: {1} [names] {2} | {1} does not [name] {2}
 >
 > the unit is tested exactly when at least one of these holds:
 > - a [test](#term-test) [checks](#term-check) the unit
-> - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) the unit
+> - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [cites](#term-cite) the unit
 <!-- statement-term-tested:end -->
 
 A test of a bug asserts what the spec the bug breaks claims, so it tests that spec too. A plain test that checks a bug still makes the bug tested: the checker reports the test instead, as [misleading](#term-misleading).
@@ -1557,7 +1577,7 @@ A test of a bug asserts what the spec the bug breaks claims, so it tests that sp
 ```alloy
 pred tested[u: Unit] {
   (some t: Test | checks[t, u])
-  or (u in Spec and (some t: Test, b: Bug | checks[t, b] and b->u in Sit.rel))
+  or (u in Spec and (some t: Test, b: Bug | checks[t, b] and cites[b, u]))
 }
 ```
 
@@ -1869,7 +1889,10 @@ sig Exits0, Exits1, Exits2 in Run {}
 fact one_code { Run = Exits0 + Exits1 + Exits2 and no Exits0 & Exits1 and no Exits0 & Exits2 and no Exits1 & Exits2 }
 sig Given in Document {}
 one sig Ask { rel: Run -> Command }
+fact one_command { all r: Run | one r.(Ask.rel) }
 one sig Return { code0: Run -> Plugin, code1: Run -> Plugin, code2: Run -> Plugin }
+fact one_code_per_plugin { no Return.code0 & Return.code1 and no Return.code0 & Return.code2 and no Return.code1 & Return.code2 }
+pred stopped[r: Run] { (some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) }
 one sig Over { rel: Plugin -> Document }
 ```
 
@@ -1881,6 +1904,7 @@ Exits2: {1} exits with code 2 | {1} does not exit with code 2
 noun Given: [given document]
 Given: the command line of a [run](#term-run) names {1} | the command line of no [run](#term-run) names {1}
 Ask.rel: {1} asks for {2} | {1} does not ask for {2}
+stopped: [checker](#term-checker) stops {1} itself | [checker](#term-checker) does not stop {1} itself
 Return.code0: {1} gets code 0 from {2} | {1} does not get code 0 from {2}
 Return.code1: {1} gets code 1 from {2} | {1} does not get code 1 from {2}
 Return.code2: {1} gets code 2 from {2} | {1} does not get code 2 from {2}
@@ -3008,13 +3032,13 @@ all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not
 <!-- statement-spec-a-spec-whose-bug-a-test-checks-is-not-untested:begin — generated by `canon generate`; edits are overwritten -->
 > For every [spec](#term-spec):
 >
-> when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [sits in](#term-sit) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
+> when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
 <!-- statement-spec-a-spec-whose-bug-a-test-checks-is-not-untested:end -->
 
 This follows because a test of a [bug](#term-bug) asserts what the spec the bug sits in claims.
 
 ```alloy
-all s: Spec | (some t: Test, b: Bug | checks[t, b] and b->s in Sit.rel) implies s not in Untesting
+all s: Spec | (some t: Test, b: Bug | checks[t, b] and cites[b, s]) implies s not in Untesting
 ```
 
 #### @spec a-project-with-no-runner-reports-no-untesting
@@ -3181,7 +3205,36 @@ So a [run](#term-run) that asks for what the checker cannot deliver exits with c
 all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2
 ```
 
+A run the checker stops may still have plugins that ran, or none at all. Each of these must stay possible:
+
+```alloy scenario
+some r: Run, c: Command, p: Plugin | r->c in Ask.rel and not available[c] and r->p in Return.code1
+```
+
+```alloy scenario
+some r: Run, c: Command | r->c in Ask.rel and not available[c] and no r.(Return.code0 + Return.code1 + Return.code2)
+```
+
+<!-- statement-scenario-3-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [run_1](#term-run) and [document_1](#term-document) such that all of these hold:
+> - [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read
+> - run_1 gets code 0 from a [plugin](#term-plugin)
+> - there is no plugin_1 such that run_1 gets code 1 from plugin_1 or gets code 2 from plugin_1
+<!-- statement-scenario-3-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+
+```alloy scenario
+some r: Run, d: Document | d in Unreadable and some r.(Return.code0) and no r.(Return.code1 + Return.code2)
+```
+
 <!-- statement-scenario-1-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There are [run_1](#term-run) and [command_1](#term-command) and [plugin_1](#term-plugin) such that run_1 asks for command_1, command_1 is not [available](#term-availability) and run_1 gets code 1 from plugin_1.
+<!-- statement-scenario-1-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+
+<!-- statement-scenario-4-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
 > There are [run_1](#term-run) and [installed_plugin_1](#term-plugin) and [document_1](#term-document) and [listing_frontmatter_1](#term-frontmatter) such that all of these hold:
@@ -3191,7 +3244,7 @@ all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Docume
 > - run_1 [calls](#term-call) installed_plugin_1
 > - run_1 gets code 1 from installed_plugin_1
 > - run_1 exits with code 1
-<!-- statement-scenario-1-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+<!-- statement-scenario-4-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
 
 ```alloy scenario
 some r: Run, p: Installed, d: Document, f: Listing | d->f in Head.rel and lists[f, p] and p->d in Over.rel and calls[r, p] and r->p in Return.code1 and r in Exits1
@@ -3200,11 +3253,22 @@ some r: Run, p: Installed, d: Document, f: Listing | d->f in Head.rel and lists[
 <!-- statement-scenario-2-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
+> There are [run_1](#term-run) and [command_1](#term-command) such that all of these hold:
+> - run_1 asks for command_1
+> - command_1 is not [available](#term-availability)
+> - there is no [plugin](#term-plugin) such that at least one of these holds:
+>   - run_1 gets code 0 from the plugin or gets code 1 from the plugin
+>   - run_1 gets code 2 from the plugin
+<!-- statement-scenario-2-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+
+<!-- statement-scenario-5-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
 > There are [run_1](#term-run) and [document_1](#term-document) and [refused_frontmatter_1](#term-frontmatter) such that all of these hold:
 > - document_1 starts with refused_frontmatter_1
 > - [checker](#term-checker) reports that document_1 has a frontmatter it cannot read
 > - run_1 exits with code 2
-<!-- statement-scenario-2-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
+<!-- statement-scenario-5-axiom-a-check-the-project-asked-for-is-never-dropped-silently:end -->
 
 ```alloy scenario
 some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and r in Exits2
@@ -3703,13 +3767,18 @@ all r: Run, p: Plugin | calls[r, p] implies (r->p in Return.code0 or r->p in Ret
 >
 > all of these hold:
 > - when the run gets code 2 from a [plugin](#term-plugin), the run exits with code 2
-> - when the run gets code 1 from a plugin and gets code 2 from no plugin, the run exits with code 1
+> - when all of these hold:
+>   - the run gets code 1 from a plugin
+>   - the run gets code 2 from no plugin
+>   - [checker](#term-checker) does not stop the run itself
+>
+>   then the run exits with code 1.
 <!-- statement-spec-a-run-exits-with-the-worst-code-of-its-plugins:end -->
 
 This follows because the exit code is how a script learns what happened. A success must not hide a finding, and a finding must not hide a check that could not run.
 
 ```alloy
-all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1)
+all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1)
 ```
 
 ##### @spec a-plugin-that-could-not-run-stops-the-run
@@ -3731,13 +3800,18 @@ all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2
 <!-- statement-spec-a-finding-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
 > For every [run](#term-run):
 >
-> when the run gets code 1 from a [plugin](#term-plugin) and gets code 2 from no plugin, the run exits with code 1.
+> when all of these hold:
+> - the run gets code 1 from a [plugin](#term-plugin)
+> - the run gets code 2 from no plugin
+> - [checker](#term-checker) does not stop the run itself
+>
+> then the run exits with code 1.
 <!-- statement-spec-a-finding-fails-the-run:end -->
 
 This follows because code 1 stands above success.
 
 ```alloy
-all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2)) implies r in Exits1
+all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1
 ```
 
 ##### @spec a-run-with-no-finding-succeeds
@@ -3745,13 +3819,17 @@ all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p i
 <!-- statement-spec-a-run-with-no-finding-succeeds:begin — generated by `canon generate`; edits are overwritten -->
 > For every [run](#term-run):
 >
-> when there is no [plugin](#term-plugin) such that the run gets code 1 from the plugin or gets code 2 from the plugin, the run exits with code 0.
+> when all of these hold:
+> - there is no [plugin](#term-plugin) such that the run gets code 1 from the plugin or gets code 2 from the plugin
+> - [checker](#term-checker) does not stop the run itself
+>
+> then the run exits with code 0.
 <!-- statement-spec-a-run-with-no-finding-succeeds:end -->
 
 This follows because a run that finds nothing wrong and could not fail to run has nothing to report.
 
 ```alloy
-all r: Run | (no p: Plugin | r->p in Return.code1 or r->p in Return.code2) implies r in Exits0
+all r: Run | ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) and not stopped[r]) implies r in Exits0
 ```
 
 #### @spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document
