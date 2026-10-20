@@ -29,6 +29,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
+  - [`@spec saying-a-formula-ends`](#spec-saying-a-formula-ends) — The verbalizer ends on every formula, with words or with a refusal.
+  - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
   - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — The verbalizer names each quantified variable after its noun and the number it has among the variables of that noun.
   - [`@spec a-variable-is-named-the-same-however-the-formula-names-it`](#spec-a-variable-is-named-the-same-however-the-formula-names-it) — The verbalizer names the variables the same way, whatever names the formula gives them.
@@ -67,7 +69,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated`](#spec-not-before-historically-or-once-is-said-as-the-other-with-the-formula-negated) — The verbalizer says `not historically f` as `once not f`, and `not once f` as `historically not f`.
     - [`@spec not-before-after-is-said-as-after-with-the-formula-negated`](#spec-not-before-after-is-said-as-after-with-the-formula-negated) — The verbalizer says `not after f` as `after not f`.
     - [`@spec a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that`](#spec-a-not-with-no-formula-to-move-into-is-said-as-it-is-not-the-case-that) — The verbalizer says `not` before `one`, `lone`, `before` or a binary temporal operator as "it is not the case that", with the formula it negates set apart below it.
-  - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — The verbalizer says a comparison with a union on its left as one statement for each member of the union.
+  - [`@spec a-union-on-the-left-is-spelled-out`](#spec-a-union-on-the-left-is-spelled-out) — The verbalizer says a comparison with a union on its left as one statement for each member of the union. For `in` each statement holds, and for `not in` at least one fails.
   - [`@spec a-difference-on-the-right-is-spelled-out`](#spec-a-difference-on-the-right-is-spelled-out) — The verbalizer says a comparison with a difference on its right as: the left side is in the first part and not in the second.
   - [`@spec a-disj-quantifier-is-said-with-its-variables-different`](#spec-a-disj-quantifier-is-said-with-its-variables-different) — The verbalizer says a quantifier with `disj` as the same quantifier with the condition that its variables are different.
   - [`@spec a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition`](#spec-a-difference-as-the-type-of-a-quantifier-is-said-as-a-condition) — The verbalizer says a quantifier over `A - B` as a quantifier over `A`, with the condition that the variable is not in `B`. When `B` is a variable, the condition is that the two are different.
@@ -167,6 +169,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-division-is-said-with-its-rounding-and-its-rule-for-zero`](#spec-a-division-is-said-with-its-rounding-and-its-rule-for-zero) — The verbalizer says `div[a, b]` as `a` "divided by" `b`, rounded toward zero, with its value when `b` is zero. It says `rem[a, b]` as `"the remainder of"` `a` divided by `b`, with its sign and its value when `b` is zero.
     - [`@spec a-number-is-said-as-itself`](#spec-a-number-is-said-as-itself) — The verbalizer says a number in decimal, whether the formula writes it in decimal, in hexadecimal or in binary.
     - [`@spec min-and-max-are-said-as-the-least-and-the-greatest-integer`](#spec-min-and-max-are-said-as-the-least-and-the-greatest-integer) — The verbalizer says `min` and `max` as "the least integer" and "the greatest integer".
+    - [`@spec the-spellings-fun-min-fun-max-and-fun-next-are-said-as-min-max-and-next`](#spec-the-spellings-fun-min-fun-max-and-fun-next-are-said-as-min-max-and-next) — The verbalizer says `fun/min`, `fun/max` and `fun/next` as it says `min`, `max` and `next`.
     - [`@spec a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it`](#spec-a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it) — The verbalizer names a count, a sum or a division in an integer comparison as `number_1`, `number_2` and so on, and says after "where" what each is.
     - [`@spec a-shift-is-refused`](#spec-a-shift-is-refused) — The verbalizer refuses `<<`, `>>` and `>>>`, and says that the analyzer shifts by the lowest bits of the amount.
     - [`@spec a-set-compared-with-a-number-is-refused`](#spec-a-set-compared-with-a-number-is-refused) — The verbalizer refuses `=` and `!=` between a set and a number, such as `c.n = 2`, and names them.
@@ -693,6 +696,18 @@ This follows because a statement that leaves a part of its formula out says less
 
 This follows because a reader who sees the statement change between two runs cannot tell whether the logic changed.
 
+#### @spec saying-a-formula-ends
+
+> The verbalizer ends on every formula, with words or with a refusal.
+
+This follows because a formula the verbalizer never finishes is neither said nor refused. The reader learns neither its words nor why it has none. A rewrite that comes back to a formula the verbalizer is still saying would never end, so it is a fault of the verbalizer.
+
+#### @spec a-refusal-is-told-apart-from-a-fault
+
+> The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
+
+This follows because a refusal tells the author what to change in the formula or its readings. A fault that looked like one would send the author to mend a formula that has words, and would hide the fault.
+
 #### @spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable
 
 > The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
@@ -929,9 +944,11 @@ This follows because none of these has a negation the words say more simply. Set
 
 #### @spec a-union-on-the-left-is-spelled-out
 
-> The verbalizer says a comparison with a union on its left as one statement for each member of the union.
+> The verbalizer says a comparison with a union on its left as one statement for each member of the union. For `in` each statement holds, and for `not in` at least one fails.
 
 This follows because a comparison with a union says it of each member, and the reader should not have to unfold it.
+
+With `not in`, the formula denies that every member is in the set, so one member outside it is enough.
 
 #### @spec a-difference-on-the-right-is-spelled-out
 
@@ -1564,6 +1581,12 @@ This follows because the value is what the formula claims, and the comparison sa
 > The verbalizer says `min` and `max` as "the least integer" and "the greatest integer".
 
 This follows because they are the ends of the range that the bit width gives.
+
+##### @spec the-spellings-fun-min-fun-max-and-fun-next-are-said-as-min-max-and-next
+
+> The verbalizer says `fun/min`, `fun/max` and `fun/next` as it says `min`, `max` and `next`.
+
+This follows because the analyzer reads each spelling as the same integer or relation. A spelling said as its name would leave the reader without its meaning.
 
 ##### @spec a-part-of-an-integer-comparison-that-is-more-than-a-number-is-named-below-it
 
