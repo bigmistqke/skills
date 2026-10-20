@@ -2159,6 +2159,42 @@ describe('an override with a variable in it', () => {
   });
 });
 
+describe('none, a variable as a type, and builtin types', () => {
+  const R = withDefinitions(
+    parseReadings('noun Owner: owner\nnoun String: text\nDisposed: pulse has disposed {1} | pulse has not disposed {1}\nStopped: the dispose of {1} has been stopped | the dispose of {1} has not been stopped'),
+    'sig Owner {} var sig Disposed, Stopped in Owner {}'
+  );
+
+  /**
+   * @canon spec-none-is-said-as-nothing
+   */
+  it('takes none on the left of in as what always holds, and its count as 0', () => {
+    expect(() => say('none in Disposed', R)).toThrow('this formula says nothing: it always holds');
+    expect(say('all o: Owner | none in Disposed and o in Stopped', R)).toBe('For every owner_1:\n  the dispose of owner_1 has been stopped.');
+    expect(say('#none < 1', R)).toBe("In integers that wrap around at the analyzer's bit width, 0 is less than 1.");
+    expect(() => say('all x: none | x in Stopped', R)).toThrow('this formula says nothing: it always holds');
+    expect(() => say('some x: none | x in Stopped', R)).toThrow('this formula says nothing: it never holds');
+  });
+
+  /**
+   * @canon spec-a-quantifier-over-a-variable-is-said-of-the-variable
+   */
+  it('says a quantifier over a variable of the variable', () => {
+    expect(say('all p: Owner | all x: p | x in Stopped', R)).toBe(say('all p: Owner | p in Stopped', R));
+    expect(say('all p: Owner | some x: p | x in Stopped', R)).toBe(say('all p: Owner | p in Stopped', R));
+    expect(say('all p: Owner | no x: p | x in Stopped', R)).toBe(say('all p: Owner | p not in Stopped', R));
+  });
+
+  /**
+   * @canon spec-a-value-in-its-own-builtin-type-always-holds
+   */
+  it('takes a value in its own builtin type as what always holds', () => {
+    expect(() => say('"a" in String', R)).toThrow('this formula says nothing: it always holds');
+    expect(() => say('all y: Int | y in Int', R)).toThrow('this formula says nothing: it always holds');
+    expect(() => say('some min', R)).toThrow('is a number outside an integer comparison');
+  });
+});
+
 describe('what it refuses', () => {
   /**
    * @canon spec-until-is-said-as-two-parts

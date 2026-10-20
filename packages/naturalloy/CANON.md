@@ -148,7 +148,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-closure-is-said-as-reaching-in-one-or-more-steps`](#spec-a-closure-is-said-as-reaching-in-one-or-more-steps) — The verbalizer says `x->y in ^r` as `x` "reaches" `y` "in one or more steps", and says what a step is with the reading of `r`.
   - [`@spec a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps`](#spec-a-reflexive-closure-is-said-as-reaching-in-zero-or-more-steps) — The verbalizer says `x->y in *r` as `x` "reaches" `y` "in zero or more steps", and says what a step is with the reading of `r`.
   - [`@spec some-or-no-of-a-reflexive-closure-is-refused`](#spec-some-or-no-of-a-reflexive-closure-is-refused) — The verbalizer refuses `some`, `no`, `one` or `lone` of a reflexive closure, and says that it holds every member of every type.
-  - [`@spec none-is-said-as-nothing`](#spec-none-is-said-as-nothing) — The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding.
+  - [`@spec none-is-said-as-nothing`](#spec-none-is-said-as-nothing) — The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding. It takes `none in e`, and a quantifier over `none` but `some` and `one`, as always holding, and says `#none` as 0.
+  - [`@spec a-quantifier-over-a-variable-is-said-of-the-variable`](#spec-a-quantifier-over-a-variable-is-said-of-the-variable) — The verbalizer says `all x: p | f` and `some x: p | f`, for a variable `p`, as `f` with `p` in the place of `x`, and `no x: p | f` as its negation.
+  - [`@spec a-value-in-its-own-builtin-type-always-holds`](#spec-a-value-in-its-own-builtin-type-always-holds) — The verbalizer takes a string in `String`, and an integer variable in `Int`, as a formula that always holds.
   - [`@spec a-formula-that-never-holds-is-refused`](#spec-a-formula-that-never-holds-is-refused) — The verbalizer refuses a formula that never holds, such as `some none`, and says that it claims what cannot be.
   - [`@spec a-formula-that-never-holds-is-left-out-of-an-or`](#spec-a-formula-that-never-holds-is-left-out-of-an-or) — The verbalizer leaves a formula that never holds, such as `x in none`, out of an `or`.
   - [`@spec a-pair-in-iden-is-said-as-the-same`](#spec-a-pair-in-iden-is-said-as-the-same) — The verbalizer says `x->y in iden` as `x` and `y` being the same.
@@ -1366,9 +1368,21 @@ This follows because `*r` pairs every atom with itself, Int atoms included, and 
 
 #### @spec none-is-said-as-nothing
 
-> The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding.
+> The verbalizer says `e = none`, `none = e` and `e in none` as `no e`, and `e != none` as `some e`. It leaves `none` out of a union or a difference, and says `x in none` alone as never holding. It takes `none in e`, and a quantifier over `none` but `some` and `one`, as always holding, and says `#none` as 0.
 
 This follows because `none` holds nothing.
+
+#### @spec a-quantifier-over-a-variable-is-said-of-the-variable
+
+> The verbalizer says `all x: p | f` and `some x: p | f`, for a variable `p`, as `f` with `p` in the place of `x`, and `no x: p | f` as its negation.
+
+This follows because a variable holds one thing, so a quantifier over it ranges over that thing alone. `lone x: p | f` always holds.
+
+#### @spec a-value-in-its-own-builtin-type-always-holds
+
+> The verbalizer takes a string in `String`, and an integer variable in `Int`, as a formula that always holds.
+
+This follows because a value is always in its own type. Alone such a formula claims nothing, and in an `and` it changes nothing.
 
 #### @spec a-formula-that-never-holds-is-refused
 
