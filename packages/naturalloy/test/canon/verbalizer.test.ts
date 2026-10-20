@@ -2120,6 +2120,35 @@ describe('fields that relate more than two things', () => {
   });
 });
 
+describe('rare constructs', () => {
+  /**
+   * @canon spec-membership-in-an-else-of-sets-is-said-through-each-branch
+   */
+  it('says membership in an else of sets through each branch', () => {
+    expect(say('all o, p: Owner | o in (p in Disposed implies Disposed else Stopped)')).toBe(
+      'For every owner_1 and every owner_2:\n  when pulse has disposed owner_2, pulse has disposed owner_1; otherwise, the dispose of owner_1 has been stopped.'
+    );
+  });
+
+  /**
+   * @canon spec-an-integer-in-a-number-is-said-as-equal-to-it
+   */
+  it('says an integer in a number as the integer equal to it', () => {
+    const counts = withDefinitions(parseReadings('noun Cleanup: cleanup\nnoun Owner: owner\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { on: set Owner }');
+    expect(say('all y: Int | y in #c.on', counts)).toBe(say('all y: Int | y = #c.on', counts));
+    expect(say('all y: Int | y in 3', counts)).toBe(say('all y: Int | y = 3', counts));
+  });
+
+  /**
+   * @canon spec-all-or-some-over-a-union-of-signatures-is-said-over-each
+   */
+  it('says all or some over a union of signatures over each signature', () => {
+    expect(say('all x: Owner + Cleanup | x in Ran')).toBe(say('(all x: Owner | x in Ran) and (all x: Cleanup | x in Ran)'));
+    expect(say('some x: Owner + Cleanup | x in Ran')).toBe(say('(some x: Owner | x in Ran) or (some x: Cleanup | x in Ran)'));
+    expect(() => say('one x: Owner + Cleanup | x in Ran')).toThrow();
+  });
+});
+
 describe('what it refuses', () => {
   /**
    * @canon spec-until-is-said-as-two-parts

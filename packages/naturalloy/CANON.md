@@ -118,6 +118,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment`](#spec-a-primed-name-with-no-reading-of-its-own-is-said-at-the-next-moment) — The verbalizer says a clause that primes one set or field as "at the next moment" and the clause without the prime. A reading of the primed name wins.
   - [`@spec two-sets-compared-are-said-member-by-member`](#spec-two-sets-compared-are-said-member-by-member) — The verbalizer says two sets or two relations compared with `in`, `=` or `!=` member by member, over the types of their columns.
   - [`@spec a-field-of-pairs-has-the-types-of-its-columns`](#spec-a-field-of-pairs-has-the-types-of-its-columns) — The verbalizer takes the types of the columns of a field declared with an arrow from its declaration, as `older: Cleanup -> Cleanup` of `Clock`.
+  - [`@spec membership-in-an-else-of-sets-is-said-through-each-branch`](#spec-membership-in-an-else-of-sets-is-said-through-each-branch) — The verbalizer says `x in (c implies a else b)` as a rule with an "otherwise": when `c`, `x` is in `a`, and otherwise `x` is in `b`.
+  - [`@spec an-integer-in-a-number-is-said-as-equal-to-it`](#spec-an-integer-in-a-number-is-said-as-equal-to-it) — The verbalizer says `y in n`, for a variable `y` that a quantifier declares an integer and a number `n`, as `y = n`.
+  - [`@spec all-or-some-over-a-union-of-signatures-is-said-over-each`](#spec-all-or-some-over-a-union-of-signatures-is-said-over-each) — The verbalizer says `all`, `some` or `no` of one variable over a union of signatures that no one type holds as the same quantifier over each signature.
   - [`@spec sides-that-alloy-does-not-compare-are-refused`](#spec-sides-that-alloy-does-not-compare-are-refused) — The verbalizer refuses a comparison of sides that hold tuples of different sizes, or things of types that share no member.
   - [`@spec an-equality-with-a-side-of-unknown-type-is-refused`](#spec-an-equality-with-a-side-of-unknown-type-is-refused) — The verbalizer refuses `=` or `!=` between two sets when the vocabulary does not tell the type of a side that is not a variable.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
@@ -1169,6 +1172,24 @@ This follows because `Ran in Registered` holds exactly when every member of `Ran
 > The verbalizer takes the types of the columns of a field declared with an arrow from its declaration, as `older: Cleanup -> Cleanup` of `Clock`.
 
 This follows because the verbalizer says a comparison of such a field, such as `Clock.older' = Clock.older`, over its tuples. Without the types of its columns, the verbalizer would refuse it, and every predicate that keeps it unchanged.
+
+#### @spec membership-in-an-else-of-sets-is-said-through-each-branch
+
+> The verbalizer says `x in (c implies a else b)` as a rule with an "otherwise": when `c`, `x` is in `a`, and otherwise `x` is in `b`.
+
+This follows because an else of sets is `a` where `c` holds and `b` where it does not.
+
+#### @spec an-integer-in-a-number-is-said-as-equal-to-it
+
+> The verbalizer says `y in n`, for a variable `y` that a quantifier declares an integer and a number `n`, as `y = n`.
+
+This follows because a number is one integer, so to be in it is to equal it. Of a variable whose type it does not know, the verbalizer still refuses it.
+
+#### @spec all-or-some-over-a-union-of-signatures-is-said-over-each
+
+> The verbalizer says `all`, `some` or `no` of one variable over a union of signatures that no one type holds as the same quantifier over each signature.
+
+This follows because a formula holds for every member of `A + B` exactly when it holds for every member of each. `some` is the same with "or". The verbalizer refuses `one` and `lone` over such a union, because they do not split that way.
 
 #### @spec sides-that-alloy-does-not-compare-are-refused
 
