@@ -26,6 +26,7 @@ size: {1} has size {2} | {1} does not have size {2}
 gone: {1} is gone | {1} is not gone
 owners: {2} owns {1} | {2} does not own {1}
 m/Gone: {1} is gone in m | {1} is not gone in m
+q: {1} is quiet for {2} | {1} is not quiet for {2}
 `;
 const VOCABULARY = `
 sig Owner { parent: lone Owner }
