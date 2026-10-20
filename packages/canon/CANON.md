@@ -744,7 +744,7 @@ A link elsewhere than the "Derives from:" line is a reference: it cites nothing.
 > unit_1 cites unit_2 exactly when unit_1 [sits in](#term-sit) unit_2 or [derives from](#term-derive) unit_2.
 <!-- statement-term-cite:end -->
 
-Nesting and the "Derives from:" line are the two ways a unit says what it follows from. A unit [sits in](#term-sit) or [derives from](#term-derive) what it cites. A [link](#term-link) in the body is neither.
+A unit cites what it follows from, and it has two ways to say so. It [sits in](#term-sit) that unit by nesting under it, or [derives from](#term-derive) it on its "Derives from:" line. A [link](#term-link) in the body does neither, so it cites nothing.
 
 ```alloy
 pred cites[u, v: Unit] { u->v in Sit.rel or u->v in Derive.rel }
@@ -810,7 +810,7 @@ Misnesting: [checker](#term-checker) reports a [misnesting] for {1} | [checker](
 > - a [bug](#term-bug) that cites no spec
 <!-- statement-term-unfounded:end -->
 
-A unit that lacks a citation its kind owes: what it follows from.
+A unit is unfounded when it lacks a citation its kind owes: what it follows from. A spec follows from an axiom or a spec, so it owes a citation of one of them. An exception departs from a spec because of a fact, so it owes both. A bug breaks a spec, so it owes that spec. Axioms, facts, conflicts and terms owe no citation.
 
 ```alloy
 pred unfounded[u: Unit] {
@@ -840,7 +840,7 @@ unfounded: {1} is [unfounded] | {1} is not [unfounded]
 > - a [term](#term-term) that cites a unit
 <!-- statement-term-miscited:end -->
 
-A unit that cites a kind of unit it may not cite. A conflict names the units it sets against each other on a line of its own, which is no citation.
+A citation says what a unit rests on, so a unit that cites a kind it cannot rest on is miscited. Axioms and facts are the ground: an axiom rests only on other axioms, and a fact rests on nothing. A spec rests on axioms, facts and other specs, and an exception, which narrows a spec, rests on specs and facts. A bug breaks a spec, so it cites only specs. A conflict and a term rest on nothing and cite nothing; a conflict names its two units on a line that is no citation.
 
 ```alloy
 pred miscited[u: Unit] {
@@ -881,7 +881,7 @@ Depend.rel: {1} [depends on] {2} | {1} does not [depend on] {2}
 > unit_1 is circular exactly when unit_1 [cites](#term-cite) a unit that [depends on](#term-depend) unit_1.
 <!-- statement-term-circular:end -->
 
-A unit that follows from itself: it cites a unit that [depends](#term-depend) on it, and that unit may be the unit itself. A unit that cites itself is a loop of one, and a unit whose citations lead back to it is a longer loop.
+A unit is circular when it follows from itself. It cites a unit that [depends](#term-depend) on it, and that unit may be the unit itself. A unit that cites itself makes a loop of one, and a unit whose citations lead back to it makes a longer loop.
 
 ```alloy
 pred circular[u: Unit] { some v: Unit | cites[u, v] and v->u in Depend.rel }
@@ -1138,7 +1138,7 @@ Claim: {1} is a [claim] | {1} is not a [claim]
 > the claim is refined exactly when a [spec](#term-spec) [sits in](#term-sit) the claim or an [exception](#term-exception) sits in the claim.
 <!-- statement-term-refined:end -->
 
-A bug that sits in a spec marks where the code breaks the spec. It refines nothing, so a spec that holds only bugs is a leaf.
+A claim is refined when a spec or an exception sits in it and works it out further. A bug that sits in a spec only marks where the code breaks the spec. It refines nothing, so a spec that holds only bugs is still a leaf. Only nesting refines: a unit that merely derives from a claim leaves it a leaf.
 
 ```alloy
 pred refined[c: Claim] { (some s: Spec | s->c in Sit.rel) or (some e: Exception | e->c in Sit.rel) }
@@ -1156,7 +1156,7 @@ refined: {1} is [refined] | {1} is not [refined]
 > the claim is unguarded exactly when the claim is not [refined](#term-refined) and is not [tested](#term-tested).
 <!-- statement-term-unguarded:end -->
 
-A leaf that no test checks: the code can stop doing what it says, and no test fails.
+A leaf states what the code does, and only a test holds the code to that. A leaf is unguarded when no test checks it, directly or, for a spec, through a bug that cites it. Then the code can stop doing what the leaf says, and no test fails. A refined claim is never unguarded, because the claims beneath it carry its tests.
 
 ```alloy
 pred unguarded[c: Claim] { not refined[c] and not tested[c] }
@@ -1177,7 +1177,7 @@ unguarded: {1} is [unguarded] | {1} is not [unguarded]
 > - the test checks a claim that is [refined](#term-refined)
 <!-- statement-term-adrift:end -->
 
-A test whose tags do not say which leaf it checks.
+A test's tags say which leaf it checks, and an adrift test's tags fail at that. A test the project declares must carry a tag, and each tag must name a claim, not an axiom, fact, conflict or term. No test may check a refined claim, because what it asserts belongs to the leaves below.
 
 ```alloy
 pred adrift[t: Test] {
@@ -1298,7 +1298,7 @@ File: {1} is a [file] | {1} is not a [file]
 > unit_1 is used exactly when another unit [cites](#term-cite) unit_1, a [pointer](#term-pointer) [names](#term-name) unit_1 or a [tag](#term-tag) names unit_1.
 <!-- statement-term-used:end -->
 
-A unit that nothing uses can stop being true, and nothing that relies on it notices, because nothing does.
+A unit is in use as long as something leans on it. A child nested in it leans on it, and so does a unit that names it on its "Derives from:" line. So does a pointer or a tag that names it. That matters because a unit nothing uses can stop being true without anyone noticing. A unit cannot keep itself alive.
 
 ```alloy
 pred used[u: Unit] {
@@ -1509,7 +1509,7 @@ ExpectedFailure: {1} is an [expected failure] | {1} is not an [expected failure]
 > the test checks the unit exactly when the test [carries](#term-carry) a [tag](#term-tag) that [names](#term-name) the unit.
 <!-- statement-term-check:end -->
 
-A test checks the units its tags name. That is no citation: [citing](#term-cite) is what one unit does to another.
+A test checks the units its tags name. That is no citation: [citing](#term-cite) is what one unit does to another, and a test is no unit.
 
 ```alloy
 pred checks[t: Test, u: Unit] { some g: Tag | t->g in Carry.rel and g->u in Name.tag }
@@ -1587,7 +1587,7 @@ Name.site: {1} [names] {2} | {1} does not [name] {2}
 > - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [cites](#term-cite) the unit
 <!-- statement-term-tested:end -->
 
-A test of a bug asserts what the spec the bug breaks claims, so it tests that spec too. A plain test that checks a bug still makes the bug tested: the checker reports the test instead, as [misleading](#term-misleading).
+A unit is tested when some test checks it. A test of a bug asserts what the specs behind the bug claim, so it tests every spec the bug cites. That holds whether the bug sits in the spec or only derives from it. A plain test that checks a bug still makes the bug tested; the checker reports that test as [misleading](#term-misleading) instead.
 
 ```alloy
 pred tested[u: Unit] {
@@ -1608,7 +1608,7 @@ tested: {1} is [tested] | {1} is not [tested]
 > the conflict is paired exactly when the conflict [names](#term-name) a [unit](#term-unit) and names another unit.
 <!-- statement-term-paired:end -->
 
-A conflict needs two sides.
+A conflict sets units against each other, so it needs two sides. It must name at least two different units, and naming one unit twice does not count.
 
 ```alloy
 pred paired[c: Conflict] { some a, b: Unit | a != b and c->a in Name.between and c->b in Name.between }
@@ -1640,7 +1640,7 @@ paired: {1} is [paired] | {1} is not [paired]
 >     - the unit is not [paired](#term-paired)
 <!-- statement-term-hidden:end -->
 
-A known defect out of sight: no open issue tracks it, no test checks it, or a conflict that does not say which units it sets against each other. A project with no [tracker](#term-tracker) owes no issue, and a project with no [runner](#term-runner) owes no test.
+A bug or a conflict is a known defect, and it hides when nobody can follow it to a fix. Its issue is how the team tracks it, so it hides when that issue is missing, closed or unknown to the [tracker](#term-tracker). A bug also hides without a test to show it fails, and a conflict hides unless it names the two units at odds. A project with no tracker owes no issue, and a project with no [runner](#term-runner) owes no test.
 
 ```alloy
 pred hidden[x: Unit] {
@@ -1663,7 +1663,7 @@ hidden: {1} is [hidden] | {1} is not [hidden]
 > - a [plain test](#term-plain-test) that checks a bug
 <!-- statement-term-misleading:end -->
 
-A test whose outcome says nothing true about a defect: an expected failure that names no defect, or a test that passes while the bug it checks is there.
+A test is misleading when its outcome says nothing true about a defect. An expected failure fails on purpose, so it must check the bug or exception that explains the failure. A plain test that checks a bug passes while the bug it checks is there, so its pass misleads.
 
 ```alloy
 pred misleading[t: Test] {
@@ -1769,6 +1769,8 @@ Spell.rel: {1} spells {2} | {1} does not spell {2}
 >
 > the frontmatter lists the plugin exactly when the frontmatter holds an [entry](#term-entry) that spells the plugin.
 <!-- statement-term-list:end -->
+
+A frontmatter lists a plugin when one of its entries spells the plugin's name. One entry is enough, wherever it stands among the others.
 
 ```alloy
 pred lists[f: Frontmatter, p: Plugin] { some e: Entry | f->e in Item.rel and e->p in Spell.rel }
@@ -1884,6 +1886,8 @@ A runner marker is a line `@runner` in the JSDoc of a declaration in a suite or 
 > the plugin applies to the document exactly when the document starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) the plugin.
 <!-- statement-term-apply:end -->
 
+Plugins are opt-in, one document at a time. A plugin applies to a document when the frontmatter the document starts with has a plugins key that lists it. A frontmatter without a plugins key asks for no plugin.
+
 ```alloy
 pred applies[p: Plugin, d: Document] { some f: Listing | d->f in Head.rel and lists[f, p] }
 ```
@@ -1936,6 +1940,8 @@ Over.rel: [checker](#term-checker) runs {1} over {2} | [checker](#term-checker) 
 > - the plugin [applies](#term-apply) to a [document](#term-document)
 <!-- statement-term-call:end -->
 
+A run calls a plugin only when the plugin has work to do. The run asks for a command the plugin adds, and some document asks for the plugin in its frontmatter. A plugin that no document lists stays silent, even when someone asks for its command.
+
 ```alloy
 pred calls[r: Run, p: Plugin] {
   (some c: Command | r->c in Ask.rel and p->c in Add.rel)
@@ -1956,6 +1962,8 @@ calls: {1} [calls] {2} | {1} does not [call] {2}
 > - command_1 is a command that the [checker](#term-checker) has of its own
 > - there are [installed_plugin_1](#term-plugin) and [document_1](#term-document) such that installed_plugin_1 [applies](#term-apply) to document_1 and adds command_1
 <!-- statement-term-availability:end -->
+
+A command is available when something can carry it out. The checker's own commands always are. A plugin's command is available only when the project has installed the plugin and some document lists it.
 
 ```alloy
 pred available[c: Command] {
@@ -2102,7 +2110,7 @@ and (all u: Unit | circular[u] implies u in Finding)
 > when the unit is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the unit.
 <!-- statement-spec-an-unfounded-unit-is-freelancing:end -->
 
-This follows because a [freelancing](#term-freelancing) is the finding for a claim that cites nothing it follows from.
+Every claim says what it follows from. A unit that lacks a citation its kind owes floats free of the theory, so the checker reports it as a [freelancing](#term-freelancing).
 
 ```alloy
 all u: Unit | unfounded[u] implies u in Freelancing
@@ -2116,6 +2124,8 @@ all u: Unit | unfounded[u] implies u in Freelancing
 > when spec_1 [cites](#term-cite) no [axiom](#term-axiom) and cites no spec, [checker](#term-checker) reports a [freelancing](#term-freelancing) for spec_1.
 <!-- statement-spec-a-spec-cites-an-axiom-or-a-spec:end -->
 
+A spec holds because something more basic holds: an axiom, or a broader spec it works out. A spec that cites neither stands on nothing, so the checker reports a freelancing. Citing a fact alone does not ground it.
+
 ```alloy
 all s: Spec | ((no a: Axiom | cites[s, a]) and (no t: Spec | cites[s, t])) implies s in Freelancing
 ```
@@ -2127,6 +2137,8 @@ all s: Spec | ((no a: Axiom | cites[s, a]) and (no t: Spec | cites[s, t])) impli
 >
 > when the exception [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
 <!-- statement-spec-an-exception-cites-a-spec:end -->
+
+An exception departs from a spec, so it says which spec it departs from. Without that, nobody can tell which rule it bends, and the checker reports a freelancing.
 
 ```alloy
 all e: Exception | (no s: Spec | cites[e, s]) implies e in Freelancing
@@ -2140,6 +2152,8 @@ all e: Exception | (no s: Spec | cites[e, s]) implies e in Freelancing
 > when the exception [cites](#term-cite) no [fact](#term-fact), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
 <!-- statement-spec-an-exception-cites-a-fact:end -->
 
+An exception exists because some fact about the world makes the rule give way. An exception that cites no fact gives no reason for bending the rule, so the checker reports a freelancing.
+
 ```alloy
 all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing
 ```
@@ -2151,6 +2165,8 @@ all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing
 >
 > when the bug [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the bug.
 <!-- statement-spec-a-bug-cites-a-spec:end -->
+
+A bug marks where the code breaks a spec, so it names the spec it breaks. A bug that cites no spec says nothing about what goes wrong, so the checker reports a freelancing.
 
 ```alloy
 all b: Bug | (no s: Spec | cites[b, s]) implies b in Freelancing
@@ -2172,7 +2188,7 @@ Issue: #1
 > when the unit is [miscited](#term-miscited), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the unit.
 <!-- statement-spec-a-miscited-unit-is-misnested:end -->
 
-This follows because a [misnesting](#term-misnesting) is the finding for a unit that cites a kind it may not cite.
+Each kind of unit may follow only from certain kinds. A unit that cites a kind it may not cite stands in the wrong place in the derivation graph, so the checker reports a [misnesting](#term-misnesting).
 
 ```alloy
 all u: Unit | miscited[u] implies u in Misnesting
@@ -2186,6 +2202,8 @@ all u: Unit | miscited[u] implies u in Misnesting
 > when axiom_1 [cites](#term-cite) a [unit](#term-unit) that is not an axiom, [checker](#term-checker) reports a [misnesting](#term-misnesting) for axiom_1.
 <!-- statement-spec-an-axiom-cites-only-axioms:end -->
 
+Axioms are where the theory starts. An axiom may build on other axioms, but an axiom that cites any other kind of unit no longer starts anything. The checker reports a misnesting for it.
+
 ```alloy
 all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) implies a in Misnesting
 ```
@@ -2197,6 +2215,8 @@ all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) implies a in Misn
 >
 > when the fact [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the fact.
 <!-- statement-spec-a-fact-cites-nothing:end -->
+
+A fact states how the world is, so it follows from nothing in the theory. The checker reports a misnesting for a fact that cites any unit, even another fact.
 
 ```alloy
 all f: Fact | (some u: Unit | cites[f, u]) implies f in Misnesting
@@ -2214,6 +2234,8 @@ all f: Fact | (some u: Unit | cites[f, u]) implies f in Misnesting
 > then [checker](#term-checker) reports a [misnesting](#term-misnesting) for spec_1.
 <!-- statement-spec-a-spec-cites-only-axioms-specs-and-facts:end -->
 
+A spec follows from axioms, from broader specs and from facts about the world. Exceptions and bugs hang beneath specs, and conflicts and terms ground nothing. So a spec that cites one of those gets a misnesting from the checker.
+
 ```alloy
 all s: Spec | (some u: Unit | cites[s, u] and u not in Axiom and u not in Spec and u not in Fact) implies s in Misnesting
 ```
@@ -2225,6 +2247,8 @@ all s: Spec | (some u: Unit | cites[s, u] and u not in Axiom and u not in Spec a
 >
 > when the exception [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec) or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the exception.
 <!-- statement-spec-an-exception-cites-only-specs-and-facts:end -->
+
+An exception rests on the specs and facts behind it, so those are the only units it may cite. Citing anything else, such as an axiom, a bug or a term, puts it in the wrong place in the graph. The checker flags that as a misnesting.
 
 ```alloy
 all e: Exception | (some u: Unit | cites[e, u] and u not in Spec and u not in Fact) implies e in Misnesting
@@ -2238,6 +2262,8 @@ all e: Exception | (some u: Unit | cites[e, u] and u not in Spec and u not in Fa
 > when the bug [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the bug.
 <!-- statement-spec-a-bug-cites-only-specs:end -->
 
+A bug records where the code breaks a spec, so it hangs under the spec it breaks. A spec is the only unit a bug may cite. A bug that cites an axiom, a fact or another bug sits in the wrong place, and the checker flags a misnesting.
+
 ```alloy
 all b: Bug | (some u: Unit | cites[b, u] and u not in Spec) implies b in Misnesting
 ```
@@ -2250,6 +2276,8 @@ all b: Bug | (some u: Unit | cites[b, u] and u not in Spec) implies b in Misnest
 > when the conflict [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the conflict.
 <!-- statement-spec-a-conflict-cites-nothing:end -->
 
+A conflict records that two units disagree. It names the pair, but it neither follows from them nor refines them. So a conflict cites no unit at all, and any citation earns it a misnesting.
+
 ```alloy
 all c: Conflict | (some u: Unit | cites[c, u]) implies c in Misnesting
 ```
@@ -2261,6 +2289,8 @@ all c: Conflict | (some u: Unit | cites[c, u]) implies c in Misnesting
 >
 > when the term [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the term.
 <!-- statement-spec-a-term-cites-nothing:end -->
+
+A term defines a word the canon uses. It makes no claim, so it stands on nothing and refines nothing. Any unit a term cites earns it a misnesting.
 
 ```alloy
 all t: Term | (some u: Unit | cites[t, u]) implies t in Misnesting
@@ -2282,7 +2312,7 @@ Issue: #2
 > when the unit is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for the unit.
 <!-- statement-spec-a-unit-does-not-depend-on-itself:end -->
 
-This follows because a unit that [depends](#term-depend) on itself names no ground it stands on, and a [cycle](#term-cycle) is its finding.
+A unit should rest on ground outside itself. A unit that [depends](#term-depend) on itself, through a chain of citations or by citing itself, proves nothing. The checker reports that loop as a [cycle](#term-cycle).
 
 ```alloy
 all u: Unit | circular[u] implies u in Cycle
@@ -2319,7 +2349,7 @@ and (all t: Test | misleading[t] implies t in Finding)
 > when the bug is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug.
 <!-- statement-spec-a-hidden-bug-is-reported:end -->
 
-This follows because each way a bug is hidden has a finding of its own. A bug that [names](#term-name) no [issue](#term-issue) has an [untracking](#term-untracking), and one that names an issue the [tracker](#term-tracker) does not know has a [mistracking](#term-mistracking). One that names an issue the tracker has closed has an [outdated tracking](#term-outdated-tracking), and one that is not [tested](#term-tested) has an [untesting](#term-untesting).
+A known bug must stay in sight until someone fixes it. A bug that [names](#term-name) no [issue](#term-issue) has an [untracking](#term-untracking), and one whose issue the [tracker](#term-tracker) does not know has a [mistracking](#term-mistracking). One whose issue the tracker has closed has an [outdated tracking](#term-outdated-tracking), and one that is not [tested](#term-tested) has an [untesting](#term-untesting). The project owes an issue only when it has a tracker, and a test only when it has a runner.
 
 ```alloy
 all b: Bug | hidden[b] implies b in Finding
@@ -2333,6 +2363,8 @@ all b: Bug | hidden[b] implies b in Finding
 > when [project](#term-project) has a [tracker](#term-tracker) and the bug [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the bug.
 <!-- statement-spec-a-bug-names-an-issue:end -->
 
+A bug stays in sight through its issue in the tracker, where people see and plan the work. So when the project has a tracker, a bug without an issue earns an untracking. A project without a tracker has nowhere to file one, so its bugs need none.
+
 ```alloy
 all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in Untracking
 ```
@@ -2344,6 +2376,8 @@ all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in 
 >
 > when the bug [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the bug.
 <!-- statement-spec-a-bug-names-an-issue-the-tracker-knows:end -->
+
+An issue reference only helps if it leads somewhere. A bug that names an issue the tracker has never heard of points at nothing, often through a typo or a deleted issue. The checker reports a mistracking for it.
 
 ```alloy
 all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b in Mistracking
@@ -2357,6 +2391,8 @@ all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b i
 > when the bug [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the bug.
 <!-- statement-spec-a-bug-names-an-open-issue:end -->
 
+A closed issue says the work is over. A bug that still names a closed issue either got fixed and should leave the canon, or got closed by mistake. Either way its tracking has gone out of date, and the checker reports an outdated tracking.
+
 ```alloy
 all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in OutdatedTracking
 ```
@@ -2368,6 +2404,8 @@ all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in O
 >
 > when [project](#term-project) has a [runner](#term-runner) and the bug is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for the bug.
 <!-- statement-spec-a-bug-is-tested:end -->
+
+A bug needs a test that shows it, so that someone notices the day it gets fixed. When the project has a runner, a bug that no test checks earns an untesting. Without a runner the project has no tests to ask for.
 
 ```alloy
 all b: Bug | (some Runner and not tested[b]) implies b in Untesting
@@ -2381,7 +2419,7 @@ all b: Bug | (some Runner and not tested[b]) implies b in Untesting
 > when the conflict is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the conflict.
 <!-- statement-spec-a-hidden-conflict-is-reported:end -->
 
-This follows because each way a conflict is hidden has a finding of its own: the same three as a bug's for its issue, and an [unpairing](#term-unpairing) when it is not [paired](#term-paired).
+A known conflict must stay in sight until someone resolves it. It gets the same three findings as a bug for an issue that is missing, unknown or closed. It must also name the two units that disagree, or nobody can tell what to resolve: a conflict that is not [paired](#term-paired) has an [unpairing](#term-unpairing). The project owes an issue only when it has a tracker.
 
 ```alloy
 all c: Conflict | hidden[c] implies c in Finding
@@ -2395,6 +2433,8 @@ all c: Conflict | hidden[c] implies c in Finding
 > when [project](#term-project) has a [tracker](#term-tracker) and the conflict [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the conflict.
 <!-- statement-spec-a-conflict-names-an-issue:end -->
 
+A conflict stays in sight through its issue in the tracker, where people see and plan the work. So when the project has a tracker, a conflict without an issue earns an untracking. A project without a tracker has nowhere to file one, so its conflicts need none.
+
 ```alloy
 all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies c in Untracking
 ```
@@ -2406,6 +2446,8 @@ all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies 
 >
 > when the conflict [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the conflict.
 <!-- statement-spec-a-conflict-names-an-issue-the-tracker-knows:end -->
+
+An issue reference only helps if it leads somewhere. A conflict that names an issue the tracker has never heard of points at nothing, often through a typo or a deleted issue. The checker reports a mistracking for it.
 
 ```alloy
 all c: Conflict | (some i: Issue | c->i in Name.issue and i not in Known) implies c in Mistracking
@@ -2419,6 +2461,8 @@ all c: Conflict | (some i: Issue | c->i in Name.issue and i not in Known) implie
 > when the conflict [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the conflict.
 <!-- statement-spec-a-conflict-names-an-open-issue:end -->
 
+A closed issue says the work is over. A conflict that still names a closed issue either got resolved and should leave the canon, or got closed by mistake. Either way its tracking has gone out of date, and the checker reports an outdated tracking.
+
 ```alloy
 all c: Conflict | (some i: Issue | c->i in Name.issue and i in Closed) implies c in OutdatedTracking
 ```
@@ -2430,6 +2474,8 @@ all c: Conflict | (some i: Issue | c->i in Name.issue and i in Closed) implies c
 >
 > when the conflict is not [paired](#term-paired), [checker](#term-checker) reports an [unpairing](#term-unpairing) for the conflict.
 <!-- statement-spec-a-conflict-names-two-units:end -->
+
+A conflict says that two units disagree, so it must name both of them. A conflict that names no unit, or only one, leaves the reader unable to see what clashes. The checker reports an unpairing for it.
 
 ```alloy
 all c: Conflict | not paired[c] implies c in Unpairing
@@ -2443,7 +2489,7 @@ all c: Conflict | not paired[c] implies c in Unpairing
 > when the test is [misleading](#term-misleading), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-a-misleading-test-is-reported:end -->
 
-This follows because each way a test is misleading has a finding of its own. An [expected failure](#term-expected-failure) that [checks](#term-check) no bug and no exception has an [unexplained failure](#term-unexplained-failure), and a [plain test](#term-plain-test) that checks a bug has an [unpinning](#term-unpinning).
+A test should tell the truth about the code. An [expected failure](#term-expected-failure) must check the bug or exception that explains it, and one that [checks](#term-check) neither has an [unexplained failure](#term-unexplained-failure). A bug's test should expect to fail while the bug lasts, so a [plain test](#term-plain-test) that checks a bug has an [unpinning](#term-unpinning).
 
 ```alloy
 all t: Test | misleading[t] implies t in Finding
@@ -2457,6 +2503,8 @@ all t: Test | misleading[t] implies t in Finding
 > when the expected failure [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for the expected failure.
 <!-- statement-spec-an-expected-failure-checks-a-bug-or-an-exception:end -->
 
+A test that expects to fail needs a reason. The reason is a known bug, or an exception the canon states. An expected failure that checks neither has no stated cause, and the checker reports an unexplained failure.
+
 ```alloy
 all x: ExpectedFailure | ((no b: Bug | checks[x, b]) and (no e: Exception | checks[x, e])) implies x in UnexplainedFailure
 ```
@@ -2468,6 +2516,8 @@ all x: ExpectedFailure | ((no b: Bug | checks[x, b]) and (no e: Exception | chec
 >
 > when the plain test [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for the plain test.
 <!-- statement-spec-a-plain-test-does-not-check-a-bug:end -->
+
+A bug's test expects to fail while the bug lasts, which pins the bug in place. A plain test that checks a bug claims the code works, so it misleads. The checker reports an unpinning for it.
 
 ```alloy
 all t: PlainTest | (some b: Bug | checks[t, b]) implies t in Unpinning
@@ -2544,7 +2594,7 @@ and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)
 > when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
 <!-- statement-spec-an-unguarded-claim-is-untested:end -->
 
-This follows because an [untesting](#term-untesting) is the finding for a leaf that no test checks.
+Every claim needs a guard, so that a code change that breaks it gets noticed. A claim counts as guarded when narrower claims refine it or a test checks it. A spec also counts as tested when a test checks a bug that sits under it. When the project has a runner, a claim with no guard earns an [untesting](#term-untesting).
 
 ```alloy
 all c: Claim | (some Runner and unguarded[c]) implies c in Untesting
@@ -2558,7 +2608,7 @@ all c: Claim | (some Runner and unguarded[c]) implies c in Untesting
 > when the tag [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for the tag.
 <!-- statement-spec-a-tag-names-a-unit:end -->
 
-This follows because a tag that names no unit checks nothing, and a [rotting](#term-rotting) is its finding. A tag rots when the unit it names is renamed or removed.
+A tag ties a test to the unit it checks. A tag that names no unit checks nothing, which usually means someone renamed or removed the unit. The checker reports a [rotting](#term-rotting), so the broken link gets fixed instead of lost.
 
 ```alloy
 all g: Tag | (no u: Unit | g->u in Name.tag) implies g in Rotting
@@ -2584,7 +2634,7 @@ This follows because only a test can fail when a claim stops holding. A comment 
 > when the test is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-an-adrift-test-is-reported:end -->
 
-This follows because each way a test is adrift has a finding of its own. A test that [project](#term-project) [declares](#term-declare) has an [uncitation](#term-uncitation) when it [carries](#term-carry) no tag. It has a [misaiming](#term-misaiming) when it checks a unit that is no [claim](#term-claim). A test that checks a [refined](#term-refined) claim has an [overreach](#term-overreach).
+A test earns its place by holding the code to a [claim](#term-claim) of the canon. A test that the [project](#term-project) [declares](#term-declare) has an [uncitation](#term-uncitation) when it [carries](#term-carry) no tag, because it then aims at nothing. It has a [misaiming](#term-misaiming) when it checks a unit other than a claim, since only claims say what the code does. Any test that checks a [refined](#term-refined) claim has an [overreach](#term-overreach), because the claims beneath it should carry the tests.
 
 ```alloy
 all t: Test | adrift[t] implies t in Finding
@@ -2598,6 +2648,8 @@ all t: Test | adrift[t] implies t in Finding
 > when [project](#term-project) [declares](#term-declare) the test and the test [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for the test.
 <!-- statement-spec-a-declared-test-carries-a-tag:end -->
 
+A test links to the canon through the tags it carries. A test the project declares but that carries no tag cites nothing, so nobody can tell what it guards. The checker reports an uncitation for it. Tests the project does not declare need no tag.
+
 ```alloy
 all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) implies t in Uncitation
 ```
@@ -2609,6 +2661,8 @@ all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) implies t in U
 >
 > when [project](#term-project) [declares](#term-declare) the test and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for the test.
 <!-- statement-spec-a-declared-test-checks-only-claims:end -->
+
+Tests guard claims: specs, exceptions and bugs. Axioms, facts, terms and conflicts say nothing that code can pass or fail. So a declared test that checks one of them misses its aim, and the checker reports a misaiming.
 
 ```alloy
 all t: Test | (t in Declared and (some u: Unit | checks[t, u] and u not in Claim)) implies t in Misaiming
@@ -2622,6 +2676,8 @@ all t: Test | (t in Declared and (some u: Unit | checks[t, u] and u not in Claim
 > when the test [checks](#term-check) a [claim](#term-claim) that is [refined](#term-refined), [checker](#term-checker) reports an [overreach](#term-overreach) for the test.
 <!-- statement-spec-a-test-checks-only-leaves:end -->
 
+A refined claim gets its guard from the narrower claims beneath it. Tests belong on those leaves, where each states exactly what it checks. A test that checks a refined claim reaches too high, and the checker reports an overreach. This holds for every test, declared or not.
+
 ```alloy
 all t: Test | (some c: Claim | checks[t, c] and refined[c]) implies t in Overreach
 ```
@@ -2634,7 +2690,7 @@ all t: Test | (some c: Claim | checks[t, c] and refined[c]) implies t in Overrea
 > when the pointer [names](#term-name) no [target](#term-target), [checker](#term-checker) reports a [rotting](#term-rotting) for the pointer.
 <!-- statement-spec-a-pointer-names-a-target:end -->
 
-This follows because a pointer that names no [target](#term-target) leads nowhere, and a [rotting](#term-rotting) is its finding. A pointer rots when the file or the unit it names is renamed or removed.
+A pointer in the prose leads the reader to a unit, a section or a file. When nothing goes by the name it gives, the pointer leads nowhere, usually because someone renamed or removed its [target](#term-target). The checker reports a [rotting](#term-rotting) for it.
 
 ```alloy
 all p: Pointer | (no x: Target | p->x in Name.pointer) implies p in Rotting
@@ -2656,7 +2712,7 @@ Issue: #3
 > when unit_1 [repeats](#term-repeat) a unit, [checker](#term-checker) reports a [rotting](#term-rotting) for unit_1.
 <!-- statement-spec-a-unit-is-declared-once:end -->
 
-This follows because a unit that [repeats](#term-repeat) another shares its id, so no pointer or tag can say which of the two it names.
+Each unit has one place in the canon. A unit that [repeats](#term-repeat) another shares its id, so no pointer or tag can tell which of the two it means. The checker flags the repeat as a rotting, so the author keeps one and drops the other.
 
 ```alloy
 all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Rotting
@@ -2678,7 +2734,7 @@ Issue: #7
 > when the unit is not [used](#term-used) and is not a [conflict](#term-conflict), [checker](#term-checker) reports an [orphaning](#term-orphaning) for the unit.
 <!-- statement-spec-a-unit-is-used:end -->
 
-This follows because a unit nothing [uses](#term-used) can go out of date, and nothing that relies on it notices. An [orphaning](#term-orphaning) is its finding. A conflict is no part of the theory, only a record of where it fails, so nothing uses it.
+Every unit should earn its place. A unit that nothing [uses](#term-used) can go stale unnoticed: no unit sits in it or derives from it, and no pointer or tag names it. The checker flags such a unit as an [orphaning](#term-orphaning). Conflicts never count: a conflict only records where the theory fails, so nothing builds on it.
 
 ```alloy
 all u: Unit | (not used[u] and u not in Conflict) implies u in Orphaning
@@ -2700,7 +2756,7 @@ Issue: #5
 > when a [trailer](#term-trailer) [follows](#term-follow) the unit, [checker](#term-checker) reports a [misanchoring](#term-misanchoring) for the unit.
 <!-- statement-spec-a-heading-ends-with-its-id:end -->
 
-This follows because a [trailer](#term-trailer) changes the anchor the page renders, so a pointer to the unit's id leads nowhere on the page. A [misanchoring](#term-misanchoring) is its finding.
+A unit's heading must end with its id. Any text after the id, a [trailer](#term-trailer), changes the anchor the page renders. A link to the unit's id then lands nowhere, so the checker flags the unit as a [misanchoring](#term-misanchoring).
 
 ```alloy
 all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Misanchoring
@@ -2714,7 +2770,7 @@ all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Misanchoring
 > when the document [holds](#term-hold) a [unit](#term-unit) and holds no [index](#term-index), [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
 <!-- statement-spec-a-document-holds-an-index:end -->
 
-This follows because a [document](#term-document) with units and no [index](#term-index) has no generated list to check, and a [misindexing](#term-misindexing) is its finding.
+A [document](#term-document) with units needs an [index](#term-index), the generated list of what it holds. Without one the checker has nothing to compare against, so it flags the document as a [misindexing](#term-misindexing). A document with no units needs no index.
 
 ```alloy
 all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i in Hold.indexes)) implies d in Misindexing
@@ -2728,7 +2784,7 @@ all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i i
 > when the document [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) the document, [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
 <!-- statement-spec-an-index-matches-its-document:end -->
 
-This follows because an index that does not [match](#term-match) its document lists units or statements that are no longer there.
+An index must agree with the document that holds it. An index that does not [match](#term-match) its document lists units or statements that the document no longer holds, or misses new ones. The checker flags such a document as a [misindexing](#term-misindexing), so the author regenerates the list.
 
 ```alloy
 all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.rel) implies d in Misindexing
@@ -2742,7 +2798,7 @@ all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.re
 > when the claim [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for the claim.
 <!-- statement-spec-a-site-is-held-by-a-source:end -->
 
-This follows because a [site](#term-site) that no [source](#term-source) [holds](#term-hold) was renamed or removed, and a [mislocation](#term-mislocation) is its finding.
+A claim can point at a [site](#term-site), a symbol in the code. When no [source](#term-source) [holds](#term-hold) that symbol any more, someone renamed or removed it, and the pointer misleads. The checker flags the claim as a [mislocation](#term-mislocation).
 
 ```alloy
 all c: Claim | (some s: Site | c->s in Name.site and (no r: Source | r->s in Hold.symbols)) implies c in Mislocation
@@ -2826,7 +2882,7 @@ This follows because a link in a document leads from where the document is, and 
 > - when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1
 <!-- statement-spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs:end -->
 
-This follows because a document that extends another takes in what that one takes in, and the author does not list it again.
+Extending a document takes in all that it takes in. So a document is context for each document that extends it, and the chain carries on down. The author lists only the direct parent, never the grandparents.
 
 ```alloy
 all d: Document, e: Document, g: Document | (d->e in Extend.rel implies d->e in Context.rel) and ((d->e in Extend.rel and e->g in Context.rel) implies d->g in Context.rel)
@@ -2888,7 +2944,7 @@ This follows because the indentation of a list says where each item ends, and wh
 > then [checker](#term-checker) reads fence_1 as a block of the unit.
 <!-- statement-spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it:end -->
 
-This follows because the logic of a unit is what its own text holds. The statement of the unit says that logic and no other.
+A unit's logic is whatever its own text holds. So a fenced block that names a language and sits in a unit's own text counts as a block of that unit. The unit's statement then says that logic and no other.
 
 ```alloy
 all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in Blocks.rel
@@ -2902,7 +2958,7 @@ all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in 
 > when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
 <!-- statement-spec-a-fence-with-no-language-is-prose:end -->
 
-This follows because a fence with no language shows text, and no backend can check it.
+A fence with no language just shows text, like an example output. No backend can check it, so it belongs to no unit as a block. The checker reads it as prose.
 
 ```alloy
 all f: Fence | f not in Languaged implies (no u: Unit | u->f in Blocks.rel)
@@ -2916,7 +2972,7 @@ all f: Fence | f not in Languaged implies (no u: Unit | u->f in Blocks.rel)
 > when the second word of the fence is vocabulary, the fence has the role of vocabulary.
 <!-- statement-spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary:end -->
 
-This follows because the author states what a block is for in the second word, and the checker reads no other sign.
+The author says what a block is for in the second word of its fence. A reader then knows the block's job before reading a line of it. When that word is vocabulary, the block holds vocabulary.
 
 ```alloy
 all f: Fence | f in VocabularyWord implies f in VocabularyBlock
@@ -2930,7 +2986,7 @@ all f: Fence | f in VocabularyWord implies f in VocabularyBlock
 > when the second word of the fence is bounds, the fence has the role of bounds.
 <!-- statement-spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds:end -->
 
-This follows because the second word is the one sign of the role.
+The author says what a block is for in the second word of its fence. A reader then knows the block's job before reading a line of it. When that word is bounds, the block gives the bounds.
 
 ```alloy
 all f: Fence | f in BoundsWord implies f in BoundsBlock
@@ -2944,7 +3000,7 @@ all f: Fence | f in BoundsWord implies f in BoundsBlock
 > when the second word of the fence is scenario, the fence has the role of scenario.
 <!-- statement-spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario:end -->
 
-This follows because the second word is the one sign of the role.
+The author says what a block is for in the second word of its fence. A reader then knows the block's job before reading a line of it. When that word is scenario, the block gives a scenario.
 
 ```alloy
 all f: Fence | f in ScenarioWord implies f in ScenarioBlock
@@ -2962,7 +3018,7 @@ all f: Fence | f in ScenarioWord implies f in ScenarioBlock
 > then fence_1 has the role of the formula of its unit.
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:end -->
 
-This follows because most blocks are the formula of the unit, and the author need not write a word for the common case.
+Most blocks are the formula of their unit, so the common case needs no word. A block whose fence names no role is the unit's formula.
 
 ```alloy
 all f: Fence | (f in Languaged and f in NoSecondWord) implies f in UnitBlock
@@ -2992,7 +3048,7 @@ This follows because a tool that rewrites a block needs to know where its body s
 > - [checker](#term-checker) reads the fence as a block of unit_2
 <!-- statement-spec-a-nested-units-block-is-its-own:end -->
 
-This follows because a unit nested in another says its own logic. The unit above does not say it.
+A code fence is part of the unit whose text holds it. Units nest, but each says its own logic: a parent does not inherit its children's fences, and a child does not borrow its parent's.
 
 ```alloy
 all f: Fence, u: Unit | f->u in Within.rel implies (no v: Unit | v != u and v->f in Blocks.rel)
@@ -3012,7 +3068,7 @@ This narrows taking the check at its word to a finding: each finding names somet
 > when the claim is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
 <!-- statement-spec-a-tested-claim-is-not-untested:end -->
 
-This follows because an [untesting](#term-untesting) says that no test checks a claim, and for a [tested](#term-tested) claim that is false.
+An [untesting](#term-untesting) says that no test checks a claim. For a [tested](#term-tested) claim that would be false, so the checker never reports one there.
 
 ```alloy
 all c: Claim | tested[c] implies c not in Untesting
@@ -3026,7 +3082,7 @@ all c: Claim | tested[c] implies c not in Untesting
 > when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
 <!-- statement-spec-a-claim-a-declared-test-checks-is-not-untested:end -->
 
-This follows because a test that the project [declares](#term-declare) checks the units its tags name.
+A test in a suite the project [declares](#term-declare) checks the units its tags name. So a claim such a test checks never gets an untesting.
 
 ```alloy
 all c: Claim | (some t: Test | t in Declared and checks[t, c]) implies c not in Untesting
@@ -3040,7 +3096,7 @@ all c: Claim | (some t: Test | t in Declared and checks[t, c]) implies c not in 
 > when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
 <!-- statement-spec-a-claim-an-undeclared-test-checks-is-not-untested:end -->
 
-This follows because a test checks the units its tags name, in whatever file of the sources it sits. That file can be a suite the project does not declare. It can also be a module that builds tests from a table of cases, which a suite then runs. The tags of such a test are as true as the tags of a test in a declared suite.
+A test checks the units its tags name, wherever it sits in the sources. It may live in a suite the project does not declare, or in a module that builds tests from a table of cases. Its tags are just as true, so a claim it checks never gets an untesting.
 
 ```alloy
 all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not in Untesting
@@ -3054,7 +3110,7 @@ all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not
 > when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
 <!-- statement-spec-a-spec-whose-bug-a-test-checks-is-not-untested:end -->
 
-This follows because a test of a [bug](#term-bug) asserts what the spec the bug sits in claims.
+A [bug](#term-bug) cites the specs it breaks, by sitting in them or by deriving from them. A test of the bug asserts what those specs claim. So a spec that a checked bug cites counts as tested, and the checker reports no untesting for it.
 
 ```alloy
 all s: Spec | (some t: Test, b: Bug | checks[t, b] and cites[b, s]) implies s not in Untesting
@@ -3067,6 +3123,8 @@ all s: Spec | (some t: Test, b: Bug | checks[t, b] and cites[b, s]) implies s no
 >
 > when [project](#term-project) has no [runner](#term-runner), [checker](#term-checker) reports no [untesting](#term-untesting) for the unit.
 <!-- statement-spec-a-project-with-no-runner-reports-no-untesting:end -->
+
+Tests come from a [runner](#term-runner), so a project with no runner has none. An [untesting](#term-untesting) there would ask for a test the project chose not to have. So such a project never gets one, on any unit.
 
 ```alloy
 all u: Unit | no Runner implies u not in Untesting
@@ -3081,6 +3139,8 @@ This follows because a test is a call that a [runner](#term-runner) declares, so
 >
 > when [project](#term-project) has no [tracker](#term-tracker), [checker](#term-checker) reports no [untracking](#term-untracking) for the unit.
 <!-- statement-spec-a-project-with-no-tracker-reports-no-untracking:end -->
+
+An [issue](#term-issue) is an entry in the [tracker](#term-tracker), so a project with no tracker has no issue to name. An [untracking](#term-untracking) there would ask for an issue line that points nowhere. The author could only meet it with a number that tracks no work, so such a project never gets one.
 
 ```alloy
 all u: Unit | no Tracker implies u not in Untracking
@@ -3303,7 +3363,7 @@ some r: Run, d: Document, f: Refused | d->f in Head.rel and d in Unreadable and 
 > - when the command line of no [run](#term-run) names the document and checker runs the plugin over the document, the plugin applies to the document
 <!-- statement-spec-a-document-gets-the-plugins-it-asks-for:end -->
 
-This follows because the plugins a document names are the checks it asks for. It gets those and no others. A plugin it did not ask for adds no finding, and one it asked for is not left out. A document that names none asks for none.
+A document's plugins list names the checks it asks for, and it gets exactly those. A listed plugin always runs, and an unlisted one adds no finding. A document that lists none gets none. The one exception: naming a document on the command line can run more over it.
 
 ```alloy
 all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d not in Given and p->d in Over.rel) implies applies[p, d])
@@ -3323,7 +3383,7 @@ all p: Plugin, d: Document | (applies[p, d] implies p->d in Over.rel) and ((d no
 > when the document starts with no [listing frontmatter](#term-frontmatter) and the command line of no [run](#term-run) names the document, [checker](#term-checker) does not run the plugin over the document.
 <!-- statement-spec-a-document-with-no-plugins-list-asks-for-no-plugin:end -->
 
-This follows because such a document names no plugin, so it asks for no check.
+Plugins are opt-in. A document gets the checks its plugins list names, so a document without a list asks for none. Naming it on the command line is the other way to ask, so an unlisted document is only checked when you name it.
 
 ```alloy
 all p: Plugin, d: Document | ((no f: Listing | d->f in Head.rel) and d not in Given) implies p->d not in Over.rel
@@ -3337,7 +3397,7 @@ all p: Plugin, d: Document | ((no f: Listing | d->f in Head.rel) and d not in Gi
 > when the document starts with the listing frontmatter and the listing frontmatter [lists](#term-list) the plugin, [checker](#term-checker) runs the plugin over the document.
 <!-- statement-spec-a-plugin-a-document-lists-runs-over-it:end -->
 
-This follows because a plugin that is listed is asked for.
+Listing a plugin in a document's frontmatter asks for it. So that plugin always runs over the document.
 
 ```alloy
 all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel
@@ -3356,7 +3416,7 @@ all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) impl
 > then [checker](#term-checker) does not run the plugin over the document.
 <!-- statement-spec-a-plugin-a-document-does-not-list-does-not-run-over-it:end -->
 
-This follows because a list is the whole of what the document asks for.
+A document's plugins list is the whole of what it asks for. So a plugin missing from the list never runs over it. Naming the document on the command line is the only other way to ask.
 
 ```alloy
 all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel
@@ -3375,7 +3435,7 @@ all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] a
 > then [checker](#term-checker) does not run the plugin over the document.
 <!-- statement-spec-an-empty-list-asks-for-no-plugin:end -->
 
-This follows because an empty list is an answer: the document asks for no plugin, and the commands of the checker are still there.
+An empty plugins list is an answer, not an oversight: the document asks for no plugin. So no plugin runs over it, unless the command line names it. The checker's own commands still apply.
 
 ```alloy
 all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel
@@ -3389,7 +3449,7 @@ all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f-
 > when run_1 [calls](#term-call) the plugin, [checker](#term-checker) runs the plugin over the given document.
 <!-- statement-spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says:end -->
 
-This follows because naming a file on the command line asks for the check of that file.
+Naming a file on the command line asks the checker to check it. So every plugin the run calls runs over that document, whatever its frontmatter lists or leaves out.
 
 ```alloy
 all r: Run, p: Plugin, d: Given | calls[r, p] implies p->d in Over.rel
@@ -3427,7 +3487,7 @@ This follows because a name in quotes is one string, whatever it holds.
 > when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
 <!-- statement-spec-a-frontmatter-with-no-plugins-key-holds-no-entry:end -->
 
-This follows because a block with no key asks for nothing, and so the document names no plugin.
+A frontmatter with no plugins key asks for nothing. So it holds no entry, and the document lists no plugin.
 
 ```alloy
 all f: Frontmatter | f not in Listing implies (no e: Entry | f->e in Item.rel)
@@ -3457,7 +3517,7 @@ This follows because a block lower in a document is part of its text, and a docu
 > then frontmatter_1 is a frontmatter that the checker cannot read.
 <!-- statement-spec-a-flawed-frontmatter-is-refused:end -->
 
-This follows because the checker reads a small part of YAML and nothing else. A block it misreads would drop a check without a word, so it refuses a block with a flaw.
+The checker reads only a small part of YAML, and a block it misread would drop a check without a word. So it never guesses: each flaw it knows makes it refuse the block. Some flaws break the syntax, like a bad quote, an open list or string, or a doubled key. Others break the meaning, like an unknown key, a dead path, a looping extension or a setting outside the entry document.
 
 ```alloy
 all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused
@@ -3471,7 +3531,7 @@ all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Un
 > the misquoted frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-misquoted-entry-is-refused:end -->
 
-This follows because YAML does not read an unquoted entry with an at sign as a package name, and the author meant the package.
+A plugin name that starts with an at sign, like @scope/plugin, must sit in quotes. YAML does not read the bare form as the package the author meant. So the checker refuses it rather than guess.
 
 ```alloy
 all f: Misquoted | f in Refused
@@ -3491,7 +3551,7 @@ This follows because the author needs only the quotes, and the checker knows it.
 > the foreign frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-key-the-checker-does-not-know-is-refused:end -->
 
-This follows because a misspelled key would otherwise drop a setting or a list of plugins without a word. The checker accepts a key that a plugin defines once the document lists that plugin.
+A misspelled key, such as plugin for plugins, would otherwise drop a setting or a list of plugins without a word. So the checker refuses a key it does not know. A key that a plugin defines counts as known once the document lists that plugin.
 
 ```alloy
 all f: Foreign | f in Refused
@@ -3505,7 +3565,7 @@ all f: Foreign | f in Refused
 > the unclosed frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-list-that-is-not-closed-is-refused:end -->
 
-This follows because the end of the list is unknown, and so is what it names.
+A list that never closes has no known end. The checker cannot tell which plugins it names, so it refuses the block rather than guess.
 
 ```alloy
 all f: Unclosed | f in Refused
@@ -3519,7 +3579,7 @@ all f: Unclosed | f in Refused
 > the unterminated frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-string-that-is-not-closed-is-refused:end -->
 
-This follows because the end of the string is unknown, and so is the plugin it names.
+A string that never closes has no known end, so the plugin it names is unknown too. The checker refuses the block rather than guess.
 
 ```alloy
 all f: Unterminated | f in Refused
@@ -3533,7 +3593,7 @@ all f: Unterminated | f in Refused
 > the doubled frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-key-written-twice-is-refused:end -->
 
-This follows because the two lists may differ, and the checker cannot tell which one the author meant.
+A key written twice gives two values that may differ, such as two plugins lists. The checker cannot tell which one the author meant, so it refuses the block.
 
 ```alloy
 all f: Doubled | f in Refused
@@ -3553,7 +3613,7 @@ This follows because a misspelled runner, such as `vitset`, would change which c
 > the dangling frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-path-that-names-no-document-is-refused:end -->
 
-This follows because a document that is not there cannot be context, and the author would read a canon that has less than it names.
+A path in the block must lead to a document. A document that is not there cannot serve as context, and the author would read a canon with less than it names. So the checker refuses the block.
 
 ```alloy
 all f: Dangling | f in Refused
@@ -3567,7 +3627,7 @@ all f: Dangling | f in Refused
 > the circular frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-an-extension-that-leads-back-is-refused:end -->
 
-This follows because a document that is its own context has no first reading, and the checker would have to choose where to start.
+A document whose extensions lead back to itself becomes its own context. Such a chain has no first reading, and the checker would have to choose where to start. So it refuses the block instead.
 
 ```alloy
 all f: Looping | f in Refused
@@ -3581,7 +3641,7 @@ all f: Looping | f in Refused
 > the stray frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
 <!-- statement-spec-a-setting-outside-the-entry-document-is-refused:end -->
 
-This follows because the settings of a project come from its entry document alone. Another document that the project checks would ignore the setting without a word. The author would then trust a check that the project never asked for.
+A project takes its settings from its entry document alone. A setting in any other document would do nothing, without a word. The author would then trust a check the project never asked for. So the checker refuses the block that holds it.
 
 ```alloy
 all f: Stray | f in Refused
@@ -3623,7 +3683,7 @@ This follows because a project that keeps its settings in the canon field of its
 >   when the document starts with the refused frontmatter, the run exits with code 2.
 <!-- statement-spec-a-refused-frontmatter-fails-the-run:end -->
 
-This follows because a refused frontmatter asks for checks that the checker cannot name, so the run must say it could not run them.
+A frontmatter the checker cannot read asks for checks it cannot name. So the checker says so, every time, and any run that meets one fails with code 2 rather than pass checks it never ran.
 
 ```alloy
 (all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable)
@@ -3638,7 +3698,7 @@ and (all r: Run, d: Document, f: Refused | d->f in Head.rel implies r in Exits2)
 > when the document starts with the refused frontmatter, [checker](#term-checker) reports that the document has a frontmatter it cannot read.
 <!-- statement-spec-a-document-with-a-refused-frontmatter-is-reported:end -->
 
-This follows because the author must find the document that holds the flaw.
+The author must find where the flaw sits. So whenever the checker refuses a frontmatter, it reports the document that starts with it.
 
 ```alloy
 all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable
@@ -3652,7 +3712,7 @@ all d: Document, f: Refused | d->f in Head.rel implies d in Unreadable
 > when there is a [document](#term-document) such that [checker](#term-checker) reports that the document has a [frontmatter](#term-frontmatter) it cannot read, the run exits with code 2.
 <!-- statement-spec-a-report-of-an-unreadable-frontmatter-stops-the-run:end -->
 
-This follows because a check the author asked for cannot run when the checker cannot tell which one it is.
+A check the author asked for cannot run when the checker cannot tell which one it is. So one unreadable frontmatter makes the run exit with code 2, never with a success.
 
 ```alloy
 all r: Run | (some d: Document | d in Unreadable) implies r in Exits2
@@ -3670,7 +3730,7 @@ all r: Run | (some d: Document | d in Unreadable) implies r in Exits2
 >   when the frontmatter lists the missing plugin, the run exits with code 2.
 <!-- statement-spec-a-plugin-the-project-lacks-fails-the-run:end -->
 
-This follows because a name that stands for no package is a check that cannot run. A document may name only what the project already has, because the checker fetches and runs nothing new.
+A document that names a plugin the project does not have asks for a check that nobody can run. The checker says which plugin is missing, every time, and any run that meets one fails with code 2.
 
 ```alloy
 (all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound)
@@ -3685,7 +3745,7 @@ and (all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2)
 > when the frontmatter [lists](#term-list) the missing plugin, [checker](#term-checker) reports that the project lacks the missing plugin.
 <!-- statement-spec-a-missing-plugin-is-reported:end -->
 
-This follows because the author must see which name stands for no package.
+A frontmatter may list a plugin the project has not installed, perhaps through a typo. The checker reports that plugin, so the author sees which name stands for no package.
 
 ```alloy
 all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound
@@ -3699,7 +3759,7 @@ all f: Frontmatter, p: Missing | lists[f, p] implies p in Unfound
 > when the frontmatter [lists](#term-list) the missing plugin, the run exits with code 2.
 <!-- statement-spec-a-missing-plugin-stops-the-run:end -->
 
-This follows because a check the author asked for did not run.
+A listed plugin that the project lacks is a check the author asked for that did not run. So the run exits with code 2, never with a success.
 
 ```alloy
 all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2
@@ -3713,7 +3773,7 @@ all r: Run, f: Frontmatter, p: Missing | lists[f, p] implies r in Exits2
 > when the run asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command and the run exits with code 2.
 <!-- statement-spec-an-unknown-command-fails-the-run:end -->
 
-This follows because a command that nothing adds is a job that cannot run. The author must hear so, and not get a success.
+A run may ask for a command that nothing in the project offers to run. That job cannot run, and the author must hear so instead of getting a success. So the checker reports the command as unknown, and the run exits with code 2.
 
 ```alloy
 all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies (c in Unknown and r in Exits2)
@@ -3727,7 +3787,7 @@ all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies (c in Un
 > when the run asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command.
 <!-- statement-spec-a-command-that-is-not-available-is-reported-as-unknown:end -->
 
-This follows because the author must see that the word was not understood.
+The checker understands its own commands and those of installed plugins that some document lists. It reports any other command a run asks for as unknown. That way the author sees that the word was not understood.
 
 ```alloy
 all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unknown
@@ -3741,7 +3801,7 @@ all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unk
 > when the run asks for the command and the command is not [available](#term-availability), the run exits with code 2.
 <!-- statement-spec-a-command-that-is-not-available-stops-the-run:end -->
 
-This follows because the job the author asked for did not run.
+A command that nothing offers is a job the author asked for that did not run. So asking for one makes the run exit with code 2, never with a success.
 
 ```alloy
 all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Exits2
@@ -3755,7 +3815,7 @@ all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies r in Exi
 > when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
 <!-- statement-spec-an-available-command-is-not-reported-as-unknown:end -->
 
-This follows because a command of the package is there for a document that asks for no plugin too.
+The checker never calls a command unknown when it has a way to run it. Its own commands always work, since they need no plugin. A plugin's commands work once the project installs the plugin and some document lists it, because the checker can then call it.
 
 ```alloy
 all c: Command | available[c] implies c not in Unknown
@@ -3774,7 +3834,7 @@ all c: Command | available[c] implies c not in Unknown
 > - the run gets code 2 from the installed plugin
 <!-- statement-spec-every-plugin-a-run-calls-runs:end -->
 
-This follows because a check that the project asks for and that does not run is dropped. All the plugins that add one command run, and none stands in for another.
+A check the project asks for and that does not run is a dropped check. So every plugin a run calls actually runs and returns an exit code. When several plugins add the same command, each of them runs, and none stands in for another.
 
 ```alloy
 all r: Run, p: Installed | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)
@@ -3795,7 +3855,7 @@ all r: Run, p: Installed | calls[r, p] implies (r->p in Return.code0 or r->p in 
 >   then the run exits with code 1.
 <!-- statement-spec-a-run-exits-with-the-worst-code-of-its-plugins:end -->
 
-This follows because the exit code is how a script learns what happened. A success must not hide a finding, and a finding must not hide a check that could not run.
+The exit code is how a script learns what happened, so a worse result must never hide behind a milder one. When any plugin returns code 2, a check that could not run, the run exits with that code as well. When a plugin returns code 1, a finding, and none returns code 2, the run exits with code 1 as well. That second rule waits when the checker stops the run itself. It stops a run over a listed plugin the project lacks, an unreadable document or a command nothing adds.
 
 ```alloy
 all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1)
@@ -3809,7 +3869,7 @@ all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (
 > when the run gets code 2 from a [plugin](#term-plugin), the run exits with code 2.
 <!-- statement-spec-a-plugin-that-could-not-run-stops-the-run:end -->
 
-This follows because code 2 stands above every other code.
+Code 2 means a check could not run, and that outranks every other outcome. So one plugin that returns code 2 makes the whole run exit with code 2, whatever the others found.
 
 ```alloy
 all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2
@@ -3828,7 +3888,7 @@ all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2
 > then the run exits with code 1.
 <!-- statement-spec-a-finding-fails-the-run:end -->
 
-This follows because code 1 stands above success.
+Code 1 means a plugin found something wrong, and that outranks success. So one plugin that returns code 1 makes the run exit with that code as well. Two things outrank it: another plugin that returns code 2, or the checker stopping the run itself. Both mean a check could not run, which matters more than a finding. The checker stops a run over a missing plugin, an unreadable document or an unknown command.
 
 ```alloy
 all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1
@@ -3846,7 +3906,7 @@ all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p i
 > then the run exits with code 0.
 <!-- statement-spec-a-run-with-no-finding-succeeds:end -->
 
-This follows because a run that finds nothing wrong and could not fail to run has nothing to report.
+A run in which every plugin ran and found nothing wrong has nothing to report. So it exits with code 0, even when it calls no plugin at all. This needs a run the checker did not stop over a listed plugin the project lacks, an unreadable document or a command nothing adds.
 
 ```alloy
 all r: Run | ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) and not stopped[r]) implies r in Exits0
@@ -3869,7 +3929,7 @@ all r: Run | ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) and 
 > - when checker reports a finding for document_1, checker reports a finding for document_2
 <!-- statement-spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document:end -->
 
-This follows because the block at the top asks for plugins and for nothing else: the document is what it was without it.
+The block at the top of a document asks for plugins and for nothing else. Take it away and the document is what it was. It holds the same units, and it draws a finding with the block exactly when it draws one without.
 
 ```alloy
 all d, e: Document | d->e in Bare.rel implies ((all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units)) and (e in Finding implies d in Finding) and (d in Finding implies e in Finding))
@@ -3889,7 +3949,7 @@ all d, e: Document | d->e in Bare.rel implies ((all u: Unit | (e->u in Hold.unit
 > - when document_1 holds the unit, document_2 holds the unit
 <!-- statement-spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were:end -->
 
-This follows because a comment in the block is no heading, and the text after it stays where it was.
+A comment inside the block is no heading, and the text below the block stays where it was. So a document holds the same units with its frontmatter as without it.
 
 ```alloy
 all d, e: Document | d->e in Bare.rel implies (all u: Unit | (e->u in Hold.units implies d->u in Hold.units) and (d->u in Hold.units implies e->u in Hold.units))
@@ -3907,7 +3967,7 @@ all d, e: Document | d->e in Bare.rel implies (all u: Unit | (e->u in Hold.units
 > - when checker reports a finding for document_1, checker reports a finding for document_2
 <!-- statement-spec-a-frontmatter-changes-no-finding:end -->
 
-This follows because the checks read the document and not its block.
+The checks read the document and not its block. So a document draws a finding with its frontmatter exactly when it draws one without it.
 
 ```alloy
 all d, e: Document | d->e in Bare.rel implies ((e in Finding implies d in Finding) and (d in Finding implies e in Finding))
