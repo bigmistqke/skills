@@ -299,6 +299,39 @@ const LEADS = ['now and at every later moment, ', 'now or at a later moment, ', 
 /** The words of a part as a reader sees them, without the marks of variables and links. */
 const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
 
+/**
+ * "a at the next moment exactly when b now", for a side that is a clause at the next moment and a side that is a clause
+ * now, each with no other time phrase, comma, "and", "or" or relative clause: with the phrase at the end of its own
+ * clause and the other marked "now", neither can reach the other. Undefined for any other two sides.
+ */
+function nextAndNow(l: string, r: string): string | undefined {
+  const lead = 'at the next moment, ';
+  const bare = (words: string): boolean => !holdsTime(words) && !/,|\band\b|\bor\b/.test(seen(words)) && !holdsRelative(words);
+  if (l.startsWith(lead) && bare(l.slice(lead.length)) && bare(r)) return `${l.slice(lead.length)} at the next moment exactly when ${r} now`;
+  if (r.startsWith(lead) && bare(r.slice(lead.length)) && bare(l)) return `${l} now exactly when ${r.slice(lead.length)} at the next moment`;
+  return undefined;
+}
+
+/** The words of each reading that hold a comma, as a pattern that finds them in a clause with whatever fills their slots. */
+const COMMA_READINGS = new WeakMap<Readings, RegExp[]>();
+
+/**
+ * Whether a clause holds a comma of its own, outside the words of its readings. A comma inside a reading is the author's,
+ * as in ", such as …" or ", with …", and ends where the reading ends.
+ */
+function holdsOwnComma(words: string, readings: Readings): boolean {
+  let patterns = COMMA_READINGS.get(readings);
+  if (patterns === undefined) {
+    const escape = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    patterns = [...readings.atoms.values()]
+      .flatMap(reading => [reading.positive, reading.negative])
+      .filter((text): text is string => text !== undefined && unbracketed(text).includes(','))
+      .map(text => new RegExp(escape(unbracketed(text)).replace(/\\\{\d\\\}/g, '.+?'), 'g'));
+    COMMA_READINGS.set(readings, patterns);
+  }
+  return patterns.reduce((text, pattern) => text.replace(pattern, '…'), seen(words)).includes(',');
+}
+
 /** Whether words hold a time phrase, which covers what follows it; with `lead`, one the words begin with, with its comma, is not counted. */
 function holdsTime(words: string, lead = false): boolean {
   const said = seen(words);
@@ -1576,8 +1609,9 @@ class Verbalizer {
     let then = second;
     // On one line, a comma in either side with no "then" between them would read as where the second side starts.
     if (typeof when === 'string' && typeof then === 'string' && (third === undefined || typeof third === 'string') && !timed(then)) {
-      if (seen(then).includes(',')) then = apart(then);
-      else if (seen(when).includes(',')) when = apart(when);
+      if (holdsOwnComma(then, this.readings)) then = apart(then);
+      // A condition that is a series is its items, one to a line; any other condition with a comma is set apart.
+      else if (seen(when).includes(',')) when = condition.t === 'and' || condition.t === 'or' ? this.junction(condition, false) : apart(when);
     }
     // A time phrase in the second side, the one it begins with included, would reach over the "otherwise".
     if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
@@ -1656,6 +1690,15 @@ class Verbalizer {
     if (node.q === 'set' || node.q === 'seq') throw new Refusal(`"${node.q}" before an expression is not a formula; Alloy reads it only in a declaration`);
     const given = this.shape(node.e);
     if ((given.t === 'name' && given.name === 'none') || given.t === 'rclosure') return this.doc(this.counted(node, negative) as Node);
+    // some, no, one and lone of a signature with a noun and no reading: "there is an owner", which the noun says in full.
+    if (given.t === 'name' && this.readings.nouns.has(given.name) && !this.readings.atoms.has(given.name)) {
+      const written = this.readings.nouns.get(given.name) as string;
+      const noun = mark(written, this.readings.nounTargets.get(given.name));
+      const article = this.written(given) ?? articleFor(unbracketed(written).trim());
+      const q = node.q === 'some' || node.q === 'no' ? ((node.q === 'no') !== negative ? 'no' : 'some') : node.q;
+      const said = q === 'some' ? `there is ${article}${noun}` : `there is ${{ no: 'no', one: 'exactly one', lone: 'at most one' }[q as 'no' | 'one' | 'lone']} ${noun}`;
+      return negative && (q === 'one' || q === 'lone') ? untrue(said, true) : said;
+    }
     if (node.q === 'some' || node.q === 'no') {
       const none = (node.q === 'no') !== negative;
       if (this.readPrimed(given)) return this.say(`${nameOf((given as Extract<Node, { t: 'prime' }>).e, 'a primed set')}'`, [], none);
@@ -1790,7 +1833,10 @@ class Verbalizer {
     );
     const body = new Verbalizer(this.readings, scope, this.chain, this.used).doc(node.body);
     if (node.q === 'all') {
-      return { kind: 'block', intro: `for ${vars.map(v => `every ${v.shown}`).join(' and ')}:`, body };
+      const intro = `for ${vars.map(v => `every ${v.shown}`).join(' and ')}`;
+      // A "for every" right inside this one is one "for every" with it: for every x, for every y, is for every x and every y.
+      if (typeof body !== 'string' && body.kind === 'block' && /^for every [^:]*:$/.test(body.intro)) return { kind: 'block', intro: `${intro} and ${body.intro.slice('for '.length)}`, body: body.body };
+      return { kind: 'block', intro: `${intro}:`, body };
     }
     const each = vars.map(v => v.shown);
     const head =
@@ -2233,6 +2279,10 @@ class Verbalizer {
         const plainFirst = this.single(node.l);
         const [l, r] = [this.clause(node.l), this.clause(node.r)];
         if (l !== undefined && r !== undefined && plainFirst) return `${l} exactly when ${r}`;
+        if (l !== undefined && r !== undefined) {
+          const moved = nextAndNow(l, r);
+          if (moved !== undefined) return moved;
+        }
         return { kind: 'list', intro: BOTH, items: [this.doc(node.l), this.doc(node.r)] };
       }
       case 'let':
