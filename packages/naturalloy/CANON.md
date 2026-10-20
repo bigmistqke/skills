@@ -120,6 +120,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-set-comprehension-is-said-through-its-variables`](#spec-a-set-comprehension-is-said-through-its-variables) — The verbalizer says `x in { y: T | f }` as `x in T` and `f` with `x` in the place of `y`, and `{ y: T }` as `T`.
   - [`@spec disj-of-expressions-is-said-as-no-two-sharing-a-member`](#spec-disj-of-expressions-is-said-as-no-two-sharing-a-member) — The verbalizer says `disj[a, b]` as `a` and `b` being different when both are variables, and as `no a & b` otherwise. Over more arguments, it says it of each pair.
   - [`@spec a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes) — The verbalizer says a string in the place of a variable as itself, in quotes: "c is named "abc"".
+  - [`@spec a-value-in-a-string-is-said-as-equal-to-it`](#spec-a-value-in-a-string-is-said-as-equal-to-it) — The verbalizer says `x in "a"`, for a variable or a string `x`, as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
   - [`@spec set-or-seq-before-an-expression-is-refused`](#spec-set-or-seq-before-an-expression-is-refused) — The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
   - [`@spec a-rule-of-two-clauses-is-said-on-one-line`](#spec-a-rule-of-two-clauses-is-said-on-one-line) — For every [list_1](#term-series): when all of these hold: - list_1 is a rule whose two sides are each one clause - list_1 is not a rule whose first side begins with a time phrase then [verbalizer](#term-verbalizer) says list_1 on one line, as "when" the first side, the second side.
   - [`@spec an-equivalence-of-two-clauses-is-said-with-exactly-when`](#spec-an-equivalence-of-two-clauses-is-said-with-exactly-when) — The verbalizer says `a iff b`, when each side is one clause, as `a` "exactly when" `b`.
@@ -228,6 +229,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec what-else-is-true-of-the-variable-is-a-relative-clause`](#spec-what-else-is-true-of-the-variable-is-a-relative-clause) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has a further condition and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 with a relative clause, such as "a unit that is a spec".
   - [`@spec several-negations-of-a-variable-are-one-negation`](#spec-several-negations-of-a-variable-are-one-negation) — The verbalizer says several negations of a variable as one negation that lists the kinds, when the quantifier fits a noun phrase.
   - [`@spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another`](#spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another) — The verbalizer says a variable that must differ from another of its kind as "another" before the noun, when the [quantifier](#term-quantifier) fits a noun phrase.
+  - [`@spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it`](#spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it) — When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
   - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — The verbalizer says variables of different kinds as nested phrases, when the quantifier fits a noun phrase.
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
@@ -1246,6 +1248,14 @@ This follows because `disj` holds when no two of its arguments share a member.
 
 This follows because a string is one thing, and its quotes show the reader where it starts and ends.
 
+#### @spec a-value-in-a-string-is-said-as-equal-to-it
+
+> The verbalizer says `x in "a"`, for a variable or a string `x`, as `x = "a"`: "c and "a" are the same". It says `x not in "a"` as `x != "a"`.
+
+Derives from: [`spec-a-string-is-said-as-itself-in-quotes`](#spec-a-string-is-said-as-itself-in-quotes)
+
+This follows because `x` is one thing and a string is one thing, so `x` is in the string exactly when the two are the same. A left side that can hold none or several things is not one thing: `c.tags in "a"` holds when `c.tags` is empty, and `c.tags = "a"` does not. The verbalizer says such a side member by member, as [`spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member`](#spec-an-expression-of-a-variable-on-the-left-is-said-member-by-member) says.
+
 #### @spec set-or-seq-before-an-expression-is-refused
 
 > The verbalizer refuses `set e` and `seq e` as a formula, and says that Alloy reads them only in a declaration.
@@ -2003,6 +2013,12 @@ This follows because "that is not an axiom, a spec or a fact" is shorter and eas
 > The verbalizer says a variable that must differ from another of its kind as "another" before the noun, when the [quantifier](#term-quantifier) fits a noun phrase.
 
 This follows because "another unit" says what the logic compares, without a name to follow.
+
+#### @spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it
+
+> When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
+
+This follows because "other than" names the one value the variable is not. A phrase has room for one such value, so it would leave out a second.
 
 #### @spec variables-of-different-kinds-nest-as-phrases
 
