@@ -375,13 +375,13 @@ function balancedParens(text: string): boolean {
   return depth === 0;
 }
 
-/** A formula with the names of this module as plain names: `this/Ran` and `@Ran` are `Ran`. */
+/** A formula with the names of this module as plain names: `this/Ran` and `@Ran` are `Ran`, and `fun/min`, `fun/max` and `fun/next` are `min`, `max` and `next`. */
 function unqualified(node: Node): Node {
   const walk = (n: unknown): unknown => {
     if (Array.isArray(n)) return n.map(walk);
     if (n === null || typeof n !== 'object') return n;
     const o = { ...(n as Record<string, unknown>) };
-    if ((o.t === 'name' || o.t === 'call') && typeof o.name === 'string') o.name = o.name.replace(/^@/, '').replace(/^this\//, '');
+    if ((o.t === 'name' || o.t === 'call') && typeof o.name === 'string') o.name = o.name.replace(/^@/, '').replace(/^this\//, '').replace(/^fun\/(min|max|next)$/, '$1');
     for (const [key, value] of Object.entries(o)) if (key !== 'span' && key !== 'name') o[key] = walk(value);
     return o;
   };
@@ -1184,6 +1184,8 @@ class Verbalizer {
       // x->y in ~r: y->x in r
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.comparison({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union') {
+        // a + b not in s: not every member is in s, so at least one is not.
+        if (op !== 'in') return this.comparison({ ...node, op: 'in' }, !negative);
         const parts = [l.l, l.r].map(side => this.comparison({ ...node, l: side }, negative));
         return { kind: 'list', intro: negative ? ANY : ALL, items: parts.flatMap(p => this.spliced(p, negative ? ANY : ALL)) };
       }

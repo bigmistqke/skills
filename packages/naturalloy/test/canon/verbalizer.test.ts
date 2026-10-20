@@ -109,6 +109,8 @@ describe('the words', () => {
       'All of these hold:\n  - code has registered c\n  - c has not run\n  - code has registered d\n  - d has not run'
     );
     expect(say('not (c + d in Ran)')).toBe('At least one of these holds:\n  - c has not run\n  - d has not run');
+    expect(say('c + d not in Ran')).toBe('At least one of these holds:\n  - c has not run\n  - d has not run');
+    expect(say('not c + d not in Ran')).toBe('All of these hold:\n  - c has run\n  - d has run');
   });
 
   /**
@@ -1574,6 +1576,17 @@ describe('integers', () => {
   it('says min and max as the least and the greatest integer', () => {
     expect(said('x =< max')).toBe(`${WRAP}x is at most the greatest integer.`);
     expect(said('min < x')).toBe(`${WRAP}the least integer is less than x.`);
+  });
+
+  /**
+   * @canon spec-the-spellings-fun-min-fun-max-and-fun-next-are-said-as-min-max-and-next
+   */
+  it('says fun/min, fun/max and fun/next as min, max and next', () => {
+    expect(said('x =< fun/max')).toBe(said('x =< max'));
+    expect(said('fun/min < x')).toBe(said('min < x'));
+    expect(said('fun/max = x')).toBe(`${WRAP}the greatest integer is equal to x.`);
+    expect(said('y in x.fun/next')).toBe('y is the integer after x.');
+    expect(said('x->y in fun/next')).toBe('y is the integer after x.');
   });
 
   /**
