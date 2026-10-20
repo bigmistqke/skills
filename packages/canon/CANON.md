@@ -82,7 +82,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term target`](#term-target) — A target is a unit, a section or a file.
 - [`@term section`](#term-section) — A section is an element with an id that names no unit.
 - [`@term file`](#term-file) — A file is a file of the project.
-- [`@term used`](#term-used) — For every [unit_1](#term-unit): unit_1 is used exactly when another unit [sits in](#term-sit) unit_1, a [pointer](#term-pointer) [names](#term-name) unit_1 or a [tag](#term-tag) names unit_1.
+- [`@term used`](#term-used) — For every [unit_1](#term-unit): unit_1 is used exactly when another unit [cites](#term-cite) unit_1, a [pointer](#term-pointer) [names](#term-name) unit_1 or a [tag](#term-tag) names unit_1.
 - [`@term trailer`](#term-trailer) — A trailer is a word that follows the id in the heading of a unit.
 - [`@term repeat`](#term-repeat) — A unit repeats what spells the id of the unit in a heading of another unit.
 - [`@term follow`](#term-follow) — A trailer follows the unit whose heading holds the trailer.
@@ -302,7 +302,14 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — For every [fence](#term-fence): when the second word of the fence is vocabulary, the fence has the role of vocabulary.
     - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — For every [fence](#term-fence): when the second word of the fence is bounds, the fence has the role of bounds.
     - [`@spec a-block-whose-second-word-is-scenario-has-the-role-of-scenario`](#spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario) — For every [fence](#term-fence): when the second word of the fence is scenario, the fence has the role of scenario.
-    - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) — For every [fence](#term-fence): when the fence has no second word that names a role, the fence has the role of the formula of its unit.
+    - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) —
+      > For every [fence_1](#term-fence):
+      >
+      > when all of these hold:
+      > - fence_1 is a fence that names a language
+      > - fence_1 has no second word that names a role
+      >
+      > then fence_1 has the role of the formula of its unit.
     - [`@spec the-body-of-a-block-is-the-lines-between-its-fences`](#spec-the-body-of-a-block-is-the-lines-between-its-fences) — The checker reads the body of a fence that names a language as the lines between its fences.
     - [`@spec the-offset-of-a-block-is-where-its-body-starts-in-the-document`](#spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document) — The checker says where the body of a fence that names a language starts in the document.
     - [`@spec a-nested-units-block-is-its-own`](#spec-a-nested-units-block-is-its-own) —
@@ -433,7 +440,15 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-command-that-is-not-available-is-reported-as-unknown`](#spec-a-command-that-is-not-available-is-reported-as-unknown) — For every [run](#term-run) and every [command_1](#term-command): when the run asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command.
       - [`@spec a-command-that-is-not-available-stops-the-run`](#spec-a-command-that-is-not-available-stops-the-run) — For every [run](#term-run) and every [command](#term-command): when the run asks for the command and the command is not [available](#term-availability), the run exits with code 2.
       - [`@spec an-available-command-is-not-reported-as-unknown`](#spec-an-available-command-is-not-reported-as-unknown) — For every [command_1](#term-command): when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
-    - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) — For every [run](#term-run) and every [plugin](#term-plugin): when the run [calls](#term-call) the plugin, then the following holds: the run gets code 0 from the plugin, gets code 1 from the plugin or gets code 2 from the plugin.
+    - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) —
+      > For every [run](#term-run) and every [installed plugin](#term-plugin):
+      >
+      > when the run [calls](#term-call) the installed plugin,
+      >
+      > then at least one of these holds:
+      > - the run gets code 0 from the installed plugin
+      > - the run gets code 1 from the installed plugin
+      > - the run gets code 2 from the installed plugin
     - [`@spec a-run-exits-with-the-worst-code-of-its-plugins`](#spec-a-run-exits-with-the-worst-code-of-its-plugins) —
       > For every [run](#term-run):
       >
@@ -1280,14 +1295,14 @@ File: {1} is a [file] | {1} is not a [file]
 <!-- statement-term-used:begin — generated by `canon generate`; edits are overwritten -->
 > For every [unit_1](#term-unit):
 >
-> unit_1 is used exactly when another unit [sits in](#term-sit) unit_1, a [pointer](#term-pointer) [names](#term-name) unit_1 or a [tag](#term-tag) names unit_1.
+> unit_1 is used exactly when another unit [cites](#term-cite) unit_1, a [pointer](#term-pointer) [names](#term-name) unit_1 or a [tag](#term-tag) names unit_1.
 <!-- statement-term-used:end -->
 
 A unit that nothing uses can stop being true, and nothing that relies on it notices, because nothing does.
 
 ```alloy
 pred used[u: Unit] {
-  (some v: Unit | v != u and v->u in Sit.rel)
+  (some v: Unit | v != u and cites[v, u])
   or (some p: Pointer | p->u in Name.pointer)
   or (some g: Tag | g->u in Name.tag)
 }
@@ -2938,15 +2953,19 @@ all f: Fence | f in ScenarioWord implies f in ScenarioBlock
 #### @spec a-block-with-no-role-word-is-the-formula-of-its-unit
 
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence](#term-fence):
+> For every [fence_1](#term-fence):
 >
-> when the fence has no second word that names a role, the fence has the role of the formula of its unit.
+> when all of these hold:
+> - fence_1 is a fence that names a language
+> - fence_1 has no second word that names a role
+>
+> then fence_1 has the role of the formula of its unit.
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:end -->
 
 This follows because most blocks are the formula of the unit, and the author need not write a word for the common case.
 
 ```alloy
-all f: Fence | f in NoSecondWord implies f in UnitBlock
+all f: Fence | (f in Languaged and f in NoSecondWord) implies f in UnitBlock
 ```
 
 #### @spec the-body-of-a-block-is-the-lines-between-its-fences
@@ -3745,19 +3764,20 @@ all c: Command | available[c] implies c not in Unknown
 #### @spec every-plugin-a-run-calls-runs
 
 <!-- statement-spec-every-plugin-a-run-calls-runs:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run) and every [plugin](#term-plugin):
+> For every [run](#term-run) and every [installed plugin](#term-plugin):
 >
-> when the run [calls](#term-call) the plugin,
+> when the run [calls](#term-call) the installed plugin,
 >
-> then the following holds:
->
-> the run gets code 0 from the plugin, gets code 1 from the plugin or gets code 2 from the plugin.
+> then at least one of these holds:
+> - the run gets code 0 from the installed plugin
+> - the run gets code 1 from the installed plugin
+> - the run gets code 2 from the installed plugin
 <!-- statement-spec-every-plugin-a-run-calls-runs:end -->
 
 This follows because a check that the project asks for and that does not run is dropped. All the plugins that add one command run, and none stands in for another.
 
 ```alloy
-all r: Run, p: Plugin | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)
+all r: Run, p: Installed | calls[r, p] implies (r->p in Return.code0 or r->p in Return.code1 or r->p in Return.code2)
 ```
 
 #### @spec a-run-exits-with-the-worst-code-of-its-plugins
