@@ -2441,11 +2441,12 @@ class Verbalizer {
         // could count from before now, and "if one comes" could read as a condition on the whole claim. A sequence is one line
         // where both its sides are plain clauses.
         // Until and since of two plain clauses are one sentence: each side is a clause with no time phrase, comma or relative
-        // clause, so the time phrase after the first can only cover it, and "the first such moment" can only mean its moments.
+        // clause, so the time phrase after the first can only cover it, and "then" can only mean a moment of it. "Until then" stops
+        // before that moment, which readers took as meant.
         if ((node.op === 'until' || node.op === 'since') && this.single(node.l) && this.single(node.r)) {
           const [a, b] = [this.doc(node.l), this.doc(node.r)] as [string, string];
           return node.op === 'until'
-            ? `${b} now or later, and up to the first such moment, but not necessarily at it, ${a}`
+            ? `${b} now or later, and until then, ${a}`
             : `${b} now or earlier, and at every moment after the last such moment, up to and including now, ${a}`;
         }
         if (node.op !== ';' || !this.single(node.l) || !this.single(node.r)) return this.setApart(node);

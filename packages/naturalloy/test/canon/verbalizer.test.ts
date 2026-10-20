@@ -342,7 +342,7 @@ describe('the words', () => {
     expect(say('eventually c in Ran')).toBe('Now or later, c has run.');
     expect(say('after c in Ran')).toBe('At the next moment, c has run.');
     expect(say('(not runNow[c]) until runNow[d]')).toBe(
-      ['d runs now or later, and up to the first such moment, but not necessarily at it, c does not run.'].join('\n')
+      ['d runs now or later, and until then, c does not run.'].join('\n')
     );
   });
 
@@ -367,7 +367,7 @@ describe('the words', () => {
     expect(say("o in (Disposed')'")).toBe('At the next moment:\n  at the next moment, pulse has disposed o.');
     expect(say('after (c in Ran ; o in Disposed)')).toBe('At the next moment:\n  c has run, and at the next moment, pulse has disposed o.');
     expect(say('eventually (c in Registered until c in Ran)')).toBe(
-      ['Now or later:', '  c has run now or later, and up to the first such moment, but not necessarily at it, code has registered c.'].join('\n')
+      ['Now or later:', '  c has run now or later, and until then, code has registered c.'].join('\n')
     );
     expect(say("always (c in Ran and d in Ran')")).toBe('From now on, all of these hold:\n  - c has run\n  - at the next moment, d has run');
     expect(say('always (c in Ran and d in Ran)')).toBe('From now on, all of these hold:\n  - c has run\n  - d has run');
@@ -2256,7 +2256,7 @@ describe('what it refuses', () => {
    * @canon spec-since-of-two-plain-clauses-is-one-sentence
    */
   it('says until and since of two plain clauses as one sentence', () => {
-    expect(say('c in Registered until o in Disposed')).toBe('Pulse has disposed o now or later, and up to the first such moment, but not necessarily at it, code has registered c.');
+    expect(say('c in Registered until o in Disposed')).toBe('Pulse has disposed o now or later, and until then, code has registered c.');
     expect(say('c in Ran since o in Disposed')).toBe('Pulse has disposed o now or earlier, and at every moment after the last such moment, up to and including now, c has run.');
     expect(say('c in Registered until (c in Ran or o in Disposed)')).toMatch(/^All of these hold:/);
   });
@@ -2326,7 +2326,7 @@ describe('what it refuses', () => {
     expect(say('#c.on > 1 until c in Registered')).toBe(
       until('code has registered c', "in integers that wrap around at the analyzer's bit width, number_1 is greater than 1, where number_1 is the number of values of owner_1 such that c is on owner_1")
     );
-    expect(say('c in Registered until c in Ran')).toBe('c has run now or later, and up to the first such moment, but not necessarily at it, code has registered c.');
+    expect(say('c in Registered until c in Ran')).toBe('c has run now or later, and until then, code has registered c.');
   });
 
   /**
@@ -2342,7 +2342,7 @@ describe('what it refuses', () => {
       ['All of these hold:', '  - now or later, the following holds:', '      pulse has disposed o and the dispose of o has not been stopped', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
     );
     expect(say('c in Registered until gone[o]', readings)).toBe(
-      ['Pulse has disposed o now or later, and up to the first such moment, but not necessarily at it, code has registered c.'].join('\n')
+      ['Pulse has disposed o now or later, and until then, code has registered c.'].join('\n')
     );
   });
 

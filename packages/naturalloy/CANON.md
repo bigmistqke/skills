@@ -200,7 +200,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart when either side is more than one plain clause, and each side of `;` that is. It puts them below the words that place them in time.
     - [`@spec until-is-said-as-two-parts`](#spec-until-is-said-as-two-parts) — When a side is more than one plain clause, the verbalizer says `a until b` in two parts. First comes `b` "now or later", then `a` "at every moment from now until the first such moment, not including it".
     - [`@spec since-is-said-as-two-parts`](#spec-since-is-said-as-two-parts) — When a side is more than one plain clause, the verbalizer says `a since b` in two parts. First comes `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
-    - [`@spec until-of-two-plain-clauses-is-one-sentence`](#spec-until-of-two-plain-clauses-is-one-sentence) — The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and up to the first such moment, but not necessarily at it," `a`.
+    - [`@spec until-of-two-plain-clauses-is-one-sentence`](#spec-until-of-two-plain-clauses-is-one-sentence) — The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and until then," `a`.
     - [`@spec since-of-two-plain-clauses-is-one-sentence`](#spec-since-of-two-plain-clauses-is-one-sentence) — Of two plain clauses, the verbalizer says `a since b` as one sentence. It says `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
     - [`@spec releases-is-said-as-always-or-until`](#spec-releases-is-said-as-always-or-until) — The verbalizer says `a releases b` as `always b or (b until (a and b))`.
     - [`@spec triggered-is-said-as-historically-or-since`](#spec-triggered-is-said-as-historically-or-since) — The verbalizer says `a triggered b` as `historically b or (b since (a and b))`.
@@ -1666,9 +1666,9 @@ This follows because since is until turned to the past.
 
 ##### @spec until-of-two-plain-clauses-is-one-sentence
 
-> The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and up to the first such moment, but not necessarily at it," `a`.
+> The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and until then," `a`.
 
-This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "the first such moment" can only be a moment of `b` counted from now. "Not necessarily at it" keeps the moment itself out, as until does.
+This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "then" can only be a moment of `b` counted from now. "Until then" stops before that moment, as until does, and readers of every size took it that way.
 
 ##### @spec since-of-two-plain-clauses-is-one-sentence
 

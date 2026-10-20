@@ -192,7 +192,7 @@ and
 >
 >   then the following holds:
 >
->   cleanup_2 runs now or later, and up to the first such moment, but not necessarily at it, cleanup_1 does not run
+>   cleanup_2 runs now or later, and until then, cleanup_1 does not run
 > - from now on, for every owner_2 and every failing cleanup:
 >
 >   when the failing cleanup runs, is on owner_2 and pulse has disposed owner_2, then from now on, the dispose of owner_2 has not been stopped.
@@ -239,7 +239,7 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >
 >   then the following holds:
 >
->   pulse disposes owner_2 now or later, and up to the first such moment, but not necessarily at it, the cleanup does not run
+>   pulse disposes owner_2 now or later, and until then, the cleanup does not run
 > - from now on, for every owner_3, every owner_4 and every owner_5:
 >
 >   when all of these hold:
@@ -252,7 +252,7 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >
 >   then the following holds:
 >
->   pulse disposes owner_5 now or later, and up to the first such moment, but not necessarily at it, pulse does not dispose owner_4.
+>   pulse disposes owner_5 now or later, and until then, pulse does not dispose owner_4.
 <!-- statement-spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups:end -->
 
 An owner tears down from the inside out. Pulse disposes each of its children before it runs any cleanup registered on the owner, so a cleanup never finds a child still alive. The children go newest first, like the cleanups.
