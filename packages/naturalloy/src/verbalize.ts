@@ -1287,6 +1287,8 @@ class Verbalizer {
         if (this.isValue(e)) return { words: `${VARIABLE}${this.variable(e, 'a number')}${VARIABLE}`, open: false };
         return named(this.summed(e), true);
       case 'card':
+        // none has no members.
+        if (this.shape(e.e).t === 'name' && (this.shape(e.e) as { name: string }).name === 'none') return { words: '0', open: false };
         return named(this.countOf(e.e), true);
       case 'cast':
         if (this.isValue(e.e)) return { words: `${VARIABLE}${this.variable(e.e, 'a number')}${VARIABLE}`, open: false };
@@ -1446,6 +1448,9 @@ class Verbalizer {
     if (op !== 'in' && op !== 'not in' && (none(l) || none(r))) return { t: 'mult', q: flip ? 'some' : 'no', e: none(l) ? r : l };
     if ((op === 'in' || op === 'not in') && none(r) && !(l.t === 'name' && this.isVariable(l.name)) && l.t !== 'arrow') return { t: 'mult', q: flip ? 'some' : 'no', e: l };
     if ((op === 'in' || op === 'not in') && none(r)) return not(FALSE);
+    // none is in every set, and a value is in its own builtin type: either always holds.
+    const builtin = (n: Node): string | undefined => (n.t === 'string' ? 'String' : n.t === 'name' && this.bound.has(n.name) ? this.boundType(n.name) : undefined);
+    if ((op === 'in' || op === 'not in') && (none(l) || (r.t === 'name' && (r.name === 'String' || r.name === 'Int') && builtin(l) === r.name))) return not({ t: 'true' });
     if (op === 'in' || op === 'not in') {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.lowered({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union' || r.t === 'diff') return undefined;
@@ -1738,6 +1743,7 @@ class Verbalizer {
   private mult(node: Extract<Node, { t: 'mult' }>, negative: boolean): Doc {
     if (node.q === 'set' || node.q === 'seq') throw new Refusal(`"${node.q}" before an expression is not a formula; Alloy reads it only in a declaration`);
     const given = this.shape(node.e);
+    if (this.integer(given)) throw this.untyped(given);
     if ((given.t === 'name' && given.name === 'none') || given.t === 'rclosure') return this.doc(this.counted(node, negative) as Node);
     // some, no, one and lone of a signature with a noun and no reading: "there is an owner", which the noun says in full.
     if (given.t === 'name' && this.readings.nouns.has(given.name) && !this.readings.atoms.has(given.name)) {
@@ -1869,7 +1875,7 @@ class Verbalizer {
   }
 
   private quantified(quant: Extract<Node, { t: 'quant' }>): Doc {
-    const split = this.overEach(quant);
+    const split = this.overEach(quant) ?? this.overOne(quant);
     if (split !== undefined) return this.doc(this.rewrote(quant, split));
     const node = this.plain(quant);
     const absorbed = this.absorbed(node);
@@ -1901,6 +1907,24 @@ class Verbalizer {
     if (typeof body === 'string') return `${head} ${body}`;
     if (isList(body)) return { ...body, intro: `${head} ${body.intro}` };
     return { kind: 'block', intro: `${head}:`, body };
+  }
+
+  /**
+   * A quantifier over `none` or over a variable, as the formula it comes to: over none, `all`, `no` and `lone` always hold
+   * and `some` and `one` never do; over a variable, which holds one thing, it is said of that thing, `all x: p | f` as
+   * `f` of `p`. Undefined for any other quantifier.
+   */
+  private overOne(node: Extract<Node, { t: 'quant' }>): Node | undefined {
+    const [decl, ...rest] = node.decls;
+    if (decl === undefined || decl.names.length !== 1) return undefined;
+    const type = this.shape(decl.type);
+    if (type.t !== 'name') return undefined;
+    if (type.name === 'none') return ['all', 'no', 'lone'].includes(node.q) ? { t: 'true' } : FALSE;
+    if (!this.bound.has(type.name)) return undefined;
+    const body = substitute(node.body, decl.names[0] as string, type, `the variable "${decl.names[0]}" of a quantifier`);
+    if (node.q === 'lone') return { t: 'true' };
+    if (rest.length > 0) return node.q === 'all' || node.q === 'some' ? { ...node, decls: rest, body } : undefined;
+    return node.q === 'no' ? { t: 'not', f: body } : body;
   }
 
   /**
