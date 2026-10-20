@@ -27,8 +27,24 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term finding`](#term-finding) — A finding is a freelancing, a misnesting, an untracking, a mistracking, an outdated tracking, an unpairing, an unpinning, an unexplained failure, an untesting, a rotting, an uncitation, a misaiming, an overreach, an orphaning, a misanchoring, a misindexing, a mislocation or a cycle.
 - [`@term freelancing`](#term-freelancing) — A freelancing is a finding for a unit that makes a claim and cites nothing it derives from.
 - [`@term misnesting`](#term-misnesting) — A misnesting is a finding for a unit that cites a kind of unit it may not cite.
-- [`@term unfounded`](#term-unfounded) — For every [unit_1](#term-unit): unit_1 is unfounded exactly when unit_1 is one of these: [(1) a [spec](#term-spec) that [cites](#term-cite) no [axiom](#term-axiom) and cites no spec; (2) an [exception](#term-exception) that cites no spec or cites no [fact](#term-fact); (3) a [bug](#term-bug) that cites no spec]
-- [`@term miscited`](#term-miscited) — For every [unit_1](#term-unit): unit_1 is miscited exactly when unit_1 is one of these: [(1) an [axiom](#term-axiom) that [cites](#term-cite) a unit that is not an axiom; (2) a [fact](#term-fact) that cites a unit; (3) a [spec](#term-spec) that cites a unit that is not an axiom, a spec or a fact; (4) an [exception](#term-exception) that cites a unit that is not a spec or a fact; (5) a [bug](#term-bug) that cites a unit that is not a spec; (6) a [conflict](#term-conflict) that cites a unit; (7) a [term](#term-term) that cites a unit]
+- [`@term unfounded`](#term-unfounded) —
+  > For every [unit_1](#term-unit):
+  >
+  > unit_1 is unfounded exactly when unit_1 is one of these:
+  > - a [spec](#term-spec) that [cites](#term-cite) no [axiom](#term-axiom) and cites no spec
+  > - an [exception](#term-exception) that cites no spec or cites no [fact](#term-fact)
+  > - a [bug](#term-bug) that cites no spec
+- [`@term miscited`](#term-miscited) —
+  > For every [unit_1](#term-unit):
+  >
+  > unit_1 is miscited exactly when unit_1 is one of these:
+  > - an [axiom](#term-axiom) that [cites](#term-cite) a unit that is not an axiom
+  > - a [fact](#term-fact) that cites a unit
+  > - a [spec](#term-spec) that cites a unit that is not an axiom, a spec or a fact
+  > - an [exception](#term-exception) that cites a unit that is not a spec or a fact
+  > - a [bug](#term-bug) that cites a unit that is not a spec
+  > - a [conflict](#term-conflict) that cites a unit
+  > - a [term](#term-term) that cites a unit
 - [`@term depend`](#term-depend) — A unit depends on a unit when the unit cites the unit. A unit depends on a unit when the unit cites a unit that depends on the unit.
 - [`@term circular`](#term-circular) — For every [unit_1](#term-unit): unit_1 is circular exactly when unit_1 [cites](#term-cite) a unit that [depends on](#term-depend) unit_1.
 - [`@term cycle`](#term-cycle) — A cycle is a finding for a unit that depends on itself.
@@ -50,7 +66,13 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term claim`](#term-claim) — A claim is a spec, an exception or a bug.
 - [`@term refined`](#term-refined) — For every [claim_1](#term-claim): claim_1 is refined exactly when a [spec](#term-spec) [sits in](#term-sit) claim_1 or an [exception](#term-exception) sits in claim_1.
 - [`@term unguarded`](#term-unguarded) — For every [claim_1](#term-claim): claim_1 is unguarded exactly when claim_1 is not [refined](#term-refined) and is not [tested](#term-tested).
-- [`@term adrift`](#term-adrift) — For every [test_1](#term-test): test_1 is adrift exactly when at least one of these holds: [(1) [project](#term-project) [declares](#term-declare) test_1 and test_1 [carries](#term-carry) no [tag](#term-tag); (2) project declares test_1 and test_1 [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim); (3) test_1 checks a claim that is [refined](#term-refined)]
+- [`@term adrift`](#term-adrift) —
+  > For every [test_1](#term-test):
+  >
+  > test_1 is adrift exactly when at least one of these holds:
+  > - [project](#term-project) [declares](#term-declare) test_1 and test_1 [carries](#term-carry) no [tag](#term-tag)
+  > - project declares test_1 and test_1 [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim)
+  > - test_1 checks a claim that is [refined](#term-refined)
 - [`@term test`](#term-test) — A test is a plain test or an expected failure.
 - [`@term project`](#term-project) — Project is the package whose canon field names the canon.
 - [`@term declare`](#term-declare) — Project declares each test in each file of the directory of suites that the canon field of the project names: a suite, or a helper module that a suite runs.
@@ -80,10 +102,37 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term issue`](#term-issue) — An issue is an entry of the tracker of the project.
 - [`@term tracker`](#term-tracker) — Tracker is the issue tracker the scope of the project names.
 - [`@term name`](#term-name) — A bug names each issue that the issue line of the bug names.
-- [`@term tested`](#term-tested) — For every [unit_1](#term-unit): unit_1 is tested exactly when at least one of these holds: [(1) a [test](#term-test) [checks](#term-check) unit_1; (2) unit_1 is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) unit_1]
+- [`@term tested`](#term-tested) —
+  > For every [unit_1](#term-unit):
+  >
+  > unit_1 is tested exactly when at least one of these holds:
+  > - a [test](#term-test) [checks](#term-check) unit_1
+  > - unit_1 is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [sits in](#term-sit) unit_1
 - [`@term paired`](#term-paired) — For every [conflict_1](#term-conflict): conflict_1 is paired exactly when conflict_1 [names](#term-name) a [unit](#term-unit) and names another unit.
-- [`@term hidden`](#term-hidden) — For every [unit_1](#term-unit): unit_1 is hidden exactly when at least one of these holds: [(1) all of these hold: [(1) unit_1 is a [bug](#term-bug); (2) at least one of these holds: [(1) [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue); (2) unit_1 names an issue that tracker does not know; (3) unit_1 names an issue that tracker has closed; (4) project has a [runner](#term-runner) and unit_1 is not [tested](#term-tested)]]; (2) all of these hold: [(1) unit_1 is a [conflict](#term-conflict); (2) at least one of these holds: [(1) project has a tracker and unit_1 names no issue; (2) unit_1 names an issue that tracker does not know; (3) unit_1 names an issue that tracker has closed; (4) unit_1 is not [paired](#term-paired)]]]
-- [`@term misleading`](#term-misleading) — For every [test_1](#term-test): test_1 is misleading exactly when test_1 is one of these: [(1) an [expected failure](#term-expected-failure) that [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception); (2) a [plain test](#term-plain-test) that checks a bug]
+- [`@term hidden`](#term-hidden) —
+  > For every [unit_1](#term-unit):
+  >
+  > unit_1 is hidden exactly when at least one of these holds:
+  > - all of these hold:
+  >   - unit_1 is a [bug](#term-bug)
+  >   - at least one of these holds:
+  >     - [project](#term-project) has a [tracker](#term-tracker) and unit_1 [names](#term-name) no [issue](#term-issue)
+  >     - unit_1 names an issue that tracker does not know
+  >     - unit_1 names an issue that tracker has closed
+  >     - project has a [runner](#term-runner) and unit_1 is not [tested](#term-tested)
+  > - all of these hold:
+  >   - unit_1 is a [conflict](#term-conflict)
+  >   - at least one of these holds:
+  >     - project has a tracker and unit_1 names no issue
+  >     - unit_1 names an issue that tracker does not know
+  >     - unit_1 names an issue that tracker has closed
+  >     - unit_1 is not [paired](#term-paired)
+- [`@term misleading`](#term-misleading) —
+  > For every [test_1](#term-test):
+  >
+  > test_1 is misleading exactly when test_1 is one of these:
+  > - an [expected failure](#term-expected-failure) that [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception)
+  > - a [plain test](#term-plain-test) that checks a bug
 - [`@term plugin`](#term-plugin) — A plugin is a package that adds commands to the checker, and that a document asks for by the name of the package.
 - [`@term command`](#term-command) — A command is a word after `canon` on the command line, and asks the checker for one job.
 - [`@term frontmatter`](#term-frontmatter) — A frontmatter is the block between two lines of three dashes at the top of a document, which names the plugins the document asks for.
@@ -96,8 +145,18 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term enter`](#term-enter) — A run enters the closest document named CANON.md, in the folder it runs in or a folder above it, whose frontmatter holds a setting.
 - [`@term apply`](#term-apply) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): plugin_1 applies to document_1 exactly when document_1 starts with a [listing frontmatter](#term-frontmatter) that [lists](#term-list) plugin_1.
 - [`@term run`](#term-run) — A run is one call of the checker on the command line, with a command and the documents it names.
-- [`@term call`](#term-call) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): run_1 calls plugin_1 exactly when all of these hold: [(1) run_1 asks for a [command](#term-command) that plugin_1 adds; (2) plugin_1 [applies](#term-apply) to a [document](#term-document)]
-- [`@term availability`](#term-availability) — For every [command_1](#term-command): command_1 is available exactly when at least one of these holds: [(1) command_1 is a command that the [checker](#term-checker) has of its own; (2) there are [installed_plugin_1](#term-plugin) and [document_1](#term-document) such that installed_plugin_1 [applies](#term-apply) to document_1 and adds command_1]
+- [`@term call`](#term-call) —
+  > For every [run_1](#term-run) and every [plugin_1](#term-plugin):
+  >
+  > run_1 calls plugin_1 exactly when all of these hold:
+  > - run_1 asks for a [command](#term-command) that plugin_1 adds
+  > - plugin_1 [applies](#term-apply) to a [document](#term-document)
+- [`@term availability`](#term-availability) —
+  > For every [command_1](#term-command):
+  >
+  > command_1 is available exactly when at least one of these holds:
+  > - command_1 is a command that the [checker](#term-checker) has of its own
+  > - there are [installed_plugin_1](#term-plugin) and [document_1](#term-document) such that installed_plugin_1 [applies](#term-apply) to document_1 and adds command_1
 - [`@term heading`](#term-heading) — A heading is a line of a document that starts with hashes and opens a part of it.
 - [`@term extent`](#term-extent) — The extent of a unit is the part of the document from its heading up to the next heading of its level or above.
 - [`@term own-text`](#term-own-text) — The own text of a unit is the text between its heading and its first nested heading.
@@ -107,7 +166,17 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@fact playwright-declares-a-test-with-test`](#fact-playwright-declares-a-test-with-test) — Playwright 1.64 declares a test with a call of `test`, with any of the modifiers `only`, `skip` and `fixme` between, and marks an expected failure with `fail`. A call of `test.skip`, `test.fixme` or `test.fail` with no body after its first argument declares no test: it marks the tests around it. Playwright refuses a test declared after its file has loaded, so a test inside the body of another test.
 - [`@fact node-declares-a-test-with-it-or-test`](#fact-node-declares-a-test-with-it-or-test) — Node's test runner declares a test with a call of `it` or `test` from `node:test`, with any of the modifiers `only`, `skip` and `todo` between. It has no modifier that marks an expected failure.
 - [`@fact a-runner-takes-the-body-of-a-test-after-its-title`](#fact-a-runner-takes-the-body-of-a-test-after-its-title) — Vitest, Jest, Playwright and Node's test runner take the body of a test as a function after its title.
-- [`@axiom every-claim-says-what-it-follows-from`](#axiom-every-claim-says-what-it-follows-from) — All of these hold: [(1) for every [unit_1](#term-unit): when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for unit_1; (2) for every unit_1: when unit_1 is [miscited](#term-miscited), checker reports a finding for unit_1; (3) for every unit_1: when unit_1 is [circular](#term-circular), checker reports a finding for unit_1.]
+- [`@axiom every-claim-says-what-it-follows-from`](#axiom-every-claim-says-what-it-follows-from) —
+  > All of these hold:
+  > - for every [unit_1](#term-unit):
+  >
+  >   when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for unit_1
+  > - for every unit_1:
+  >
+  >   when unit_1 is [miscited](#term-miscited), checker reports a finding for unit_1
+  > - for every unit_1:
+  >
+  >   when unit_1 is [circular](#term-circular), checker reports a finding for unit_1.
   - [`@spec an-unfounded-unit-is-freelancing`](#spec-an-unfounded-unit-is-freelancing) — For every [unit_1](#term-unit): when unit_1 is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for unit_1.
     - [`@spec a-spec-cites-an-axiom-or-a-spec`](#spec-a-spec-cites-an-axiom-or-a-spec) — For every [spec_1](#term-spec): when spec_1 [cites](#term-cite) no [axiom](#term-axiom) and cites no spec, [checker](#term-checker) reports a [freelancing](#term-freelancing) for spec_1.
     - [`@spec an-exception-cites-a-spec`](#spec-an-exception-cites-a-spec) — For every [exception_1](#term-exception): when exception_1 [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for exception_1.
@@ -124,7 +193,17 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-term-cites-nothing`](#spec-a-term-cites-nothing) — For every [term_1](#term-term): when term_1 [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for term_1.
     - [`@bug a-derives-from-line-is-not-checked-for-its-kind`](#bug-a-derives-from-line-is-not-checked-for-its-kind) — When a fact derives from a unit, and the fact sits in no unit, checker reports no misnesting for the fact.
   - [`@spec a-unit-does-not-depend-on-itself`](#spec-a-unit-does-not-depend-on-itself) — For every [unit_1](#term-unit): when unit_1 is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for unit_1.
-- [`@axiom a-known-defect-stays-in-sight`](#axiom-a-known-defect-stays-in-sight) — All of these hold: [(1) for every [bug_1](#term-bug): when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1; (2) for every [conflict_1](#term-conflict): when conflict_1 is hidden, checker reports a finding for conflict_1; (3) for every [test_1](#term-test): when test_1 is [misleading](#term-misleading), checker reports a finding for test_1.]
+- [`@axiom a-known-defect-stays-in-sight`](#axiom-a-known-defect-stays-in-sight) —
+  > All of these hold:
+  > - for every [bug_1](#term-bug):
+  >
+  >   when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1
+  > - for every [conflict_1](#term-conflict):
+  >
+  >   when conflict_1 is hidden, checker reports a finding for conflict_1
+  > - for every [test_1](#term-test):
+  >
+  >   when test_1 is [misleading](#term-misleading), checker reports a finding for test_1.
   - [`@spec a-hidden-bug-is-reported`](#spec-a-hidden-bug-is-reported) — For every [bug_1](#term-bug): when bug_1 is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for bug_1.
     - [`@spec a-bug-names-an-issue`](#spec-a-bug-names-an-issue) — For every [bug_1](#term-bug): when [project](#term-project) has a [tracker](#term-tracker) and bug_1 [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for bug_1.
     - [`@spec a-bug-names-an-issue-the-tracker-knows`](#spec-a-bug-names-an-issue-the-tracker-knows) — For every [bug_1](#term-bug): when bug_1 [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for bug_1.
@@ -139,7 +218,38 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec an-expected-failure-checks-a-bug-or-an-exception`](#spec-an-expected-failure-checks-a-bug-or-an-exception) — For every [expected_failure_1](#term-expected-failure): when expected_failure_1 [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for expected_failure_1.
     - [`@spec a-plain-test-does-not-check-a-bug`](#spec-a-plain-test-does-not-check-a-bug) — For every [plain_test_1](#term-plain-test): when plain_test_1 [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for plain_test_1.
 - [`@axiom the-check-can-be-taken-at-its-word`](#axiom-the-check-can-be-taken-at-its-word) — The author can act on what the checker reports: a clean check means the canon holds, and a finding means it does not.
-  - [`@axiom a-canon-cannot-go-out-of-date-unnoticed`](#axiom-a-canon-cannot-go-out-of-date-unnoticed) — All of these hold: [(1) for every [claim_1](#term-claim): when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1; (2) for every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), checker reports a finding for tag_1; (3) for every [test_1](#term-test): when test_1 is [adrift](#term-adrift), checker reports a finding for test_1; (4) for every [pointer_1](#term-pointer): when pointer_1 names no [target](#term-target), checker reports a finding for pointer_1; (5) for every unit_1: when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1; (6) for every unit_1: when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1; (7) for every [document_1](#term-document): when document_1 [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for document_1; (8) for every document_1: when document_1 holds an index that does not [match](#term-match) document_1, checker reports a finding for document_1; (9) for every claim_1: when claim_1 names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for claim_1; (10) for every unit_1: when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.]
+  - [`@axiom a-canon-cannot-go-out-of-date-unnoticed`](#axiom-a-canon-cannot-go-out-of-date-unnoticed) —
+    > All of these hold:
+    > - for every [claim_1](#term-claim):
+    >
+    >   when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for claim_1
+    > - for every [tag_1](#term-tag):
+    >
+    >   when tag_1 [names](#term-name) no [unit](#term-unit), checker reports a finding for tag_1
+    > - for every [test_1](#term-test):
+    >
+    >   when test_1 is [adrift](#term-adrift), checker reports a finding for test_1
+    > - for every [pointer_1](#term-pointer):
+    >
+    >   when pointer_1 names no [target](#term-target), checker reports a finding for pointer_1
+    > - for every unit_1:
+    >
+    >   when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1
+    > - for every unit_1:
+    >
+    >   when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1
+    > - for every [document_1](#term-document):
+    >
+    >   when document_1 [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for document_1
+    > - for every document_1:
+    >
+    >   when document_1 holds an index that does not [match](#term-match) document_1, checker reports a finding for document_1
+    > - for every claim_1:
+    >
+    >   when claim_1 names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for claim_1
+    > - for every unit_1:
+    >
+    >   when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.
     - [`@spec an-unguarded-claim-is-untested`](#spec-an-unguarded-claim-is-untested) — For every [claim_1](#term-claim): when [project](#term-project) has a [runner](#term-runner) and claim_1 is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for claim_1.
     - [`@spec a-tag-names-a-unit`](#spec-a-tag-names-a-unit) — For every [tag_1](#term-tag): when tag_1 [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for tag_1.
     - [`@spec a-tag-in-any-comment-names-a-unit`](#spec-a-tag-in-any-comment-names-a-unit) — When a `@canon` tag in any comment of a suite or a source names no unit, the checker reports a [rotting](#term-rotting) for it.
@@ -169,13 +279,25 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above`](#spec-a-site-line-of-a-nested-unit-names-no-site-of-the-unit-above) — A site line in a nested unit names no site of the unit above, unless the own text of that unit has the same line.
     - [`@spec an-extends-key-lists-the-documents-a-document-extends`](#spec-an-extends-key-lists-the-documents-a-document-extends) — A document extends each document that a path in the extends key of its frontmatter leads to.
     - [`@spec a-path-is-read-from-the-folder-of-the-document-that-lists-it`](#spec-a-path-is-read-from-the-folder-of-the-document-that-lists-it) — The checker reads a path that a frontmatter lists from the folder of the document that lists it.
-    - [`@spec a-document-is-context-for-the-documents-that-extend-it-and-for-theirs`](#spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs) — For every [document_1](#term-document) and every document_2 and every document_3: all of these hold: [(1) when document_1 [extends](#term-extension) document_2, document_2 is context for document_1; (2) when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1]
+    - [`@spec a-document-is-context-for-the-documents-that-extend-it-and-for-theirs`](#spec-a-document-is-context-for-the-documents-that-extend-it-and-for-theirs) —
+      > For every [document_1](#term-document) and every document_2 and every document_3:
+      >
+      > all of these hold:
+      > - when document_1 [extends](#term-extension) document_2, document_2 is context for document_1
+      > - when document_1 extends document_2 and document_3 is context for document_2, document_3 is context for document_1
     - [`@spec a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it`](#spec-a-unit-of-an-extended-document-is-not-reported-for-the-document-that-extends-it) — The checker reports no finding for a unit of an extended document that the project does not check.
     - [`@spec an-id-that-an-extended-document-declares-too-is-repeated`](#spec-an-id-that-an-extended-document-declares-too-is-repeated) — A unit repeats a unit of a document that is context for its own document when the two have the same id.
     - [`@spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text`](#spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text) — A unit whose own text opens with a blockquote has that blockquote as its statement.
-    - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space.
-    - [`@spec a-list-in-the-blockquote-keeps-its-bounds-on-one-line`](#spec-a-list-in-the-blockquote-keeps-its-bounds-on-one-line) — When the checker joins the lines of a blockquote, it puts each list in it in brackets and numbers its items.
-    - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) — For every [fence_1](#term-fence) and every [unit_1](#term-unit): when all of these hold: [(1) fence_1 is a fence that names a language; (2) fence_1 lies in the own text of unit_1] then [checker](#term-checker) reads fence_1 as a block of unit_1.
+    - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space unless the blockquote holds a list.
+    - [`@spec a-statement-with-a-list-keeps-its-lines`](#spec-a-statement-with-a-list-keeps-its-lines) — A statement whose blockquote holds a list keeps the lines of the blockquote, and the index shows them under its entry.
+    - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) —
+      > For every [fence_1](#term-fence) and every [unit_1](#term-unit):
+      >
+      > when all of these hold:
+      > - fence_1 is a fence that names a language
+      > - fence_1 lies in the own text of unit_1
+      >
+      > then [checker](#term-checker) reads fence_1 as a block of unit_1.
     - [`@spec a-fence-with-no-language-is-prose`](#spec-a-fence-with-no-language-is-prose) — For every [fence_1](#term-fence): when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
     - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — For every [fence_1](#term-fence): when the second word of fence_1 is vocabulary, fence_1 has the role of vocabulary.
     - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — For every [fence_1](#term-fence): when the second word of fence_1 is bounds, fence_1 has the role of bounds.
@@ -209,12 +331,42 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-marker-in-an-example-is-no-marker`](#spec-a-marker-in-an-example-is-no-marker) — A line `@runner` in an `@example` section or a fenced block of a JSDoc marks nothing.
       - [`@spec a-call-of-a-function-marked-fails-is-an-expected-failure`](#spec-a-call-of-a-function-marked-fails-is-an-expected-failure) — A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
       - [`@spec a-call-inside-a-marked-function-is-no-test`](#spec-a-call-inside-a-marked-function-is-no-test) — A call inside the body of a function that a runner marker marks is no test.
-  - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) — For every [run_1](#term-run): when at least one of these holds: [(1) there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1; (2) there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read; (3) run_1 asks for a [command](#term-command) that is not [available](#term-availability); (4) run_1 gets code 2 from a plugin] then run_1 exits with code 2.
-    - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): all of these hold: [(1) when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1; (2) when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1]
+  - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) —
+    > For every [run_1](#term-run):
+    >
+    > when at least one of these holds:
+    > - there are [frontmatter_1](#term-frontmatter) and [missing_plugin_1](#term-plugin) such that frontmatter_1 [lists](#term-list) missing_plugin_1
+    > - there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a frontmatter it cannot read
+    > - run_1 asks for a [command](#term-command) that is not [available](#term-availability)
+    > - run_1 gets code 2 from a plugin
+    >
+    > then run_1 exits with code 2.
+    - [`@spec a-document-gets-the-plugins-it-asks-for`](#spec-a-document-gets-the-plugins-it-asks-for) —
+      > For every [plugin_1](#term-plugin) and every [document_1](#term-document):
+      >
+      > all of these hold:
+      > - when plugin_1 [applies](#term-apply) to document_1, [checker](#term-checker) runs plugin_1 over document_1
+      > - when the command line of a [run](#term-run) does not name document_1 and checker runs plugin_1 over document_1, plugin_1 applies to document_1
       - [`@spec a-document-with-no-plugins-list-asks-for-no-plugin`](#spec-a-document-with-no-plugins-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document): when document_1 starts with no [listing frontmatter](#term-frontmatter) and the command line of a [run](#term-run) does not name document_1, [checker](#term-checker) does not run plugin_1 over document_1.
       - [`@spec a-plugin-a-document-lists-runs-over-it`](#spec-a-plugin-a-document-lists-runs-over-it) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when document_1 starts with listing_frontmatter_1 and listing_frontmatter_1 [lists](#term-list) plugin_1, [checker](#term-checker) runs plugin_1 over document_1.
-      - [`@spec a-plugin-a-document-does-not-list-does-not-run-over-it`](#spec-a-plugin-a-document-does-not-list-does-not-run-over-it) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when all of these hold: [(1) document_1 starts with listing_frontmatter_1; (2) listing_frontmatter_1 does not [list](#term-list) plugin_1; (3) the command line of a [run](#term-run) does not name document_1] then [checker](#term-checker) does not run plugin_1 over document_1.
-      - [`@spec an-empty-list-asks-for-no-plugin`](#spec-an-empty-list-asks-for-no-plugin) — For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter): when all of these hold: [(1) document_1 starts with listing_frontmatter_1; (2) listing_frontmatter_1 holds no [entry](#term-entry); (3) the command line of a [run](#term-run) does not name document_1] then [checker](#term-checker) does not run plugin_1 over document_1.
+      - [`@spec a-plugin-a-document-does-not-list-does-not-run-over-it`](#spec-a-plugin-a-document-does-not-list-does-not-run-over-it) —
+        > For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter):
+        >
+        > when all of these hold:
+        > - document_1 starts with listing_frontmatter_1
+        > - listing_frontmatter_1 does not [list](#term-list) plugin_1
+        > - the command line of a [run](#term-run) does not name document_1
+        >
+        > then [checker](#term-checker) does not run plugin_1 over document_1.
+      - [`@spec an-empty-list-asks-for-no-plugin`](#spec-an-empty-list-asks-for-no-plugin) —
+        > For every [plugin_1](#term-plugin) and every [document_1](#term-document) and every [listing_frontmatter_1](#term-frontmatter):
+        >
+        > when all of these hold:
+        > - document_1 starts with listing_frontmatter_1
+        > - listing_frontmatter_1 holds no [entry](#term-entry)
+        > - the command line of a [run](#term-run) does not name document_1
+        >
+        > then [checker](#term-checker) does not run plugin_1 over document_1.
       - [`@spec a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says`](#spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says) — For every [run_1](#term-run) and every [plugin_1](#term-plugin) and every given_document_1: when run_1 [calls](#term-call) plugin_1, [checker](#term-checker) runs plugin_1 over given_document_1.
     - [`@spec a-frontmatter-lists-what-is-written-in-it`](#spec-a-frontmatter-lists-what-is-written-in-it) — A frontmatter holds an entry only when it has a plugins key and writes the entry between its brackets or after a dash.
       - [`@spec an-inline-list-holds-the-entries-between-its-brackets`](#spec-an-inline-list-holds-the-entries-between-its-brackets) — A list written between brackets holds each entry between its brackets.
@@ -222,7 +374,20 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — A comma inside quotes does not end an entry.
       - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — For every [frontmatter_1](#term-frontmatter): when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
     - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — Only a block that starts its document is a frontmatter.
-    - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) — For every [frontmatter_1](#term-frontmatter): when at least one of these holds: [(1) frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes; (2) frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines; (3) frontmatter_1 has the flaw of a list that is not closed; (4) frontmatter_1 has the flaw of a string that is not closed; (5) frontmatter_1 has the flaw of a key that appears twice; (6) frontmatter_1 has the flaw of a path that names no document; (7) frontmatter_1 has the flaw of an extension that leads back to its own document; (8) frontmatter_1 has the flaw of a setting in a document that is not the entry document] then frontmatter_1 is a frontmatter that the checker cannot read.
+    - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) —
+      > For every [frontmatter_1](#term-frontmatter):
+      >
+      > when at least one of these holds:
+      > - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
+      > - frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines
+      > - frontmatter_1 has the flaw of a list that is not closed
+      > - frontmatter_1 has the flaw of a string that is not closed
+      > - frontmatter_1 has the flaw of a key that appears twice
+      > - frontmatter_1 has the flaw of a path that names no document
+      > - frontmatter_1 has the flaw of an extension that leads back to its own document
+      > - frontmatter_1 has the flaw of a setting in a document that is not the entry document
+      >
+      > then frontmatter_1 is a frontmatter that the checker cannot read.
       - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted_frontmatter_1](#term-flaw): misquoted_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
       - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — When the checker refuses a misquoted entry, it tells the author to write the name in quotes.
       - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign_frontmatter_1](#term-flaw): foreign_frontmatter_1 is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
@@ -237,10 +402,24 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document`](#spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document) — The checker reads a path that a setting names from the folder of the entry document.
     - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — The checker does not refuse a key that a plugin in the list of the frontmatter defines.
     - [`@spec a-package-field-serves-a-run-that-enters-no-document`](#spec-a-package-field-serves-a-run-that-enters-no-document) — A [run](#term-run) that [enters](#term-enter) no document takes its settings from the package field.
-    - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) — For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, then all of these hold: [(1) [checker](#term-checker) reports that document_1 has a frontmatter it cannot read; (2) run_1 exits with code 2]
+    - [`@spec a-refused-frontmatter-fails-the-run`](#spec-a-refused-frontmatter-fails-the-run) —
+      > For every [run_1](#term-run) and every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter):
+      >
+      > when document_1 starts with refused_frontmatter_1,
+      >
+      > then all of these hold:
+      > - [checker](#term-checker) reports that document_1 has a frontmatter it cannot read
+      > - run_1 exits with code 2
       - [`@spec a-document-with-a-refused-frontmatter-is-reported`](#spec-a-document-with-a-refused-frontmatter-is-reported) — For every [document_1](#term-document) and every [refused_frontmatter_1](#term-frontmatter): when document_1 starts with refused_frontmatter_1, [checker](#term-checker) reports that document_1 has a frontmatter it cannot read.
       - [`@spec a-report-of-an-unreadable-frontmatter-stops-the-run`](#spec-a-report-of-an-unreadable-frontmatter-stops-the-run) — For every [run_1](#term-run): when there is a [document_1](#term-document) such that [checker](#term-checker) reports that document_1 has a [frontmatter](#term-frontmatter) it cannot read, run_1 exits with code 2.
-    - [`@spec a-plugin-the-project-lacks-fails-the-run`](#spec-a-plugin-the-project-lacks-fails-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, then all of these hold: [(1) [checker](#term-checker) reports that the project lacks missing_plugin_1; (2) run_1 exits with code 2]
+    - [`@spec a-plugin-the-project-lacks-fails-the-run`](#spec-a-plugin-the-project-lacks-fails-the-run) —
+      > For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin):
+      >
+      > when frontmatter_1 [lists](#term-list) missing_plugin_1,
+      >
+      > then all of these hold:
+      > - [checker](#term-checker) reports that the project lacks missing_plugin_1
+      > - run_1 exits with code 2
       - [`@spec a-missing-plugin-is-reported`](#spec-a-missing-plugin-is-reported) — For every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, [checker](#term-checker) reports that the project lacks missing_plugin_1.
       - [`@spec a-missing-plugin-stops-the-run`](#spec-a-missing-plugin-stops-the-run) — For every [run_1](#term-run) and every [frontmatter_1](#term-frontmatter) and every [missing_plugin_1](#term-plugin): when frontmatter_1 [lists](#term-list) missing_plugin_1, run_1 exits with code 2.
     - [`@spec an-unknown-command-fails-the-run`](#spec-an-unknown-command-fails-the-run) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command and run_1 exits with code 2.
@@ -248,13 +427,46 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-command-that-is-not-available-stops-the-run`](#spec-a-command-that-is-not-available-stops-the-run) — For every [run_1](#term-run) and every [command_1](#term-command): when run_1 asks for command_1 and command_1 is not [available](#term-availability), run_1 exits with code 2.
       - [`@spec an-available-command-is-not-reported-as-unknown`](#spec-an-available-command-is-not-reported-as-unknown) — For every [command_1](#term-command): when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
     - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) — For every [run_1](#term-run) and every [plugin_1](#term-plugin): when run_1 [calls](#term-call) plugin_1, then the following holds: run_1 gets code 0 from plugin_1, gets code 1 from plugin_1 or gets code 2 from plugin_1.
-    - [`@spec a-run-exits-with-the-worst-code-of-its-plugins`](#spec-a-run-exits-with-the-worst-code-of-its-plugins) — For every [run_1](#term-run): all of these hold: [(1) when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2; (2) when run_1 gets code 1 from a plugin and gets code 2 from no plugin, run_1 exits with code 1]
+    - [`@spec a-run-exits-with-the-worst-code-of-its-plugins`](#spec-a-run-exits-with-the-worst-code-of-its-plugins) —
+      > For every [run_1](#term-run):
+      >
+      > all of these hold:
+      > - when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2
+      > - when run_1 gets code 1 from a plugin and gets code 2 from no plugin, run_1 exits with code 1
       - [`@spec a-plugin-that-could-not-run-stops-the-run`](#spec-a-plugin-that-could-not-run-stops-the-run) — For every [run_1](#term-run): when run_1 gets code 2 from a [plugin](#term-plugin), run_1 exits with code 2.
       - [`@spec a-finding-fails-the-run`](#spec-a-finding-fails-the-run) — For every [run_1](#term-run): when run_1 gets code 1 from a [plugin](#term-plugin) and gets code 2 from no plugin, run_1 exits with code 1.
       - [`@spec a-run-with-no-finding-succeeds`](#spec-a-run-with-no-finding-succeeds) — For every [run_1](#term-run): when there is no [plugin_1](#term-plugin) such that run_1 gets code 1 from plugin_1 or gets code 2 from plugin_1, run_1 exits with code 0.
-    - [`@spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document`](#spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: [(1) for every [unit_1](#term-unit): all of these hold: [(1) when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1; (2) when document_1 holds unit_1, document_2 holds unit_1]; (2) when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1; (3) when checker reports a finding for document_1, checker reports a finding for document_2]
-      - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then for every [unit_1](#term-unit): all of these hold: [(1) when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1; (2) when document_1 holds unit_1, document_2 holds unit_1]
-      - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) — For every [document_1](#term-document) and every document_2: when document_1 is document_2 without its [frontmatter](#term-frontmatter), then all of these hold: [(1) when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1; (2) when checker reports a finding for document_1, checker reports a finding for document_2]
+    - [`@spec a-frontmatter-changes-nothing-but-the-plugins-of-its-document`](#spec-a-frontmatter-changes-nothing-but-the-plugins-of-its-document) —
+      > For every [document_1](#term-document) and every document_2:
+      >
+      > when document_1 is document_2 without its [frontmatter](#term-frontmatter),
+      >
+      > then all of these hold:
+      > - for every [unit_1](#term-unit):
+      >
+      >   all of these hold:
+      >   - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1
+      >   - when document_1 holds unit_1, document_2 holds unit_1
+      > - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1
+      > - when checker reports a finding for document_1, checker reports a finding for document_2
+      - [`@spec a-frontmatter-leaves-the-units-of-its-document-as-they-were`](#spec-a-frontmatter-leaves-the-units-of-its-document-as-they-were) —
+        > For every [document_1](#term-document) and every document_2:
+        >
+        > when document_1 is document_2 without its [frontmatter](#term-frontmatter),
+        >
+        > then for every [unit_1](#term-unit):
+        >
+        > all of these hold:
+        > - when document_2 [holds](#term-hold) unit_1, document_1 holds unit_1
+        > - when document_1 holds unit_1, document_2 holds unit_1
+      - [`@spec a-frontmatter-changes-no-finding`](#spec-a-frontmatter-changes-no-finding) —
+        > For every [document_1](#term-document) and every document_2:
+        >
+        > when document_1 is document_2 without its [frontmatter](#term-frontmatter),
+        >
+        > then all of these hold:
+        > - when [checker](#term-checker) reports a [finding](#term-finding) for document_2, checker reports a finding for document_1
+        > - when checker reports a finding for document_1, checker reports a finding for document_2
       - [`@spec generate-keeps-the-frontmatter-of-a-document`](#spec-generate-keeps-the-frontmatter-of-a-document) — Generate leaves the frontmatter of a document as it was.
     - [`@spec a-runner-marker-the-checker-cannot-read-stops-the-run`](#spec-a-runner-marker-the-checker-cannot-read-stops-the-run) — When a runner marker is one the checker cannot read, the checker names it, and the run exits with code 2.
       - [`@spec a-runner-marker-with-a-word-other-than-fails-is-refused`](#spec-a-runner-marker-with-a-word-other-than-fails-is-refused) — A runner marker with a word after `@runner` other than `fails` is one the checker cannot read.
@@ -2606,15 +2818,15 @@ This follows because a reader looks for the claim of a unit right under its head
 
 #### @spec every-line-of-the-blockquote-is-part-of-the-statement
 
-> The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space.
+> The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space unless the blockquote holds a list.
 
 This follows because a claim that runs over several lines is still one claim, and a reader would miss what the first line leaves out.
 
-#### @spec a-list-in-the-blockquote-keeps-its-bounds-on-one-line
+#### @spec a-statement-with-a-list-keeps-its-lines
 
-> When the checker joins the lines of a blockquote, it puts each list in it in brackets and numbers its items.
+> A statement whose blockquote holds a list keeps the lines of the blockquote, and the index shows them under its entry.
 
-This follows because on one line the end of a list no longer shows. In "when these hold: - a - b then c", a reader could take "then c" as part of "b". In brackets it reads "when these hold: [(1) a; (2) b] then c".
+This follows because the indentation of a list says where each item ends, and what follows the list. Joined on one line, "when these hold: - a - b then c" could read with "then c" as part of "b". The tree shows the first line of such a statement, with an ellipsis.
 
 #### @spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it
 

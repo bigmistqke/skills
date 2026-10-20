@@ -62,14 +62,12 @@ describe('the units of a document', () => {
   });
 
   /**
-   * @canon spec-a-list-in-the-blockquote-keeps-its-bounds-on-one-line
+   * @canon spec-a-statement-with-a-list-keeps-its-lines
    */
-  it('keeps the bounds of a list in the blockquote when it joins the lines', () => {
+  it('keeps the lines of a blockquote that holds a list', () => {
     const statementOf = (quote: string): string | undefined => readUnits(`# Canon\n\n## ${AXIOM} a-root\n\n${quote}\n`)[0]?.statement;
-    expect(statementOf('> when all of these hold:\n> - a holds\n> - b holds\n>\n> then c holds.')).toBe('when all of these hold: [(1) a holds; (2) b holds] then c holds.');
-    expect(
-      statementOf('> All of these hold:\n> - for every x: when x is in s, x is in t\n> - for every y: when all of these hold:\n>   - y is in s\n>   - y is in u\n>\n>   then y is in t')
-    ).toBe('All of these hold: [(1) for every x: when x is in s, x is in t; (2) for every y: when all of these hold: [(1) y is in s; (2) y is in u] then y is in t]');
+    expect(statementOf('> when these hold:\n> - a holds\n> - b holds\n>\n> then c holds.')).toBe('when these hold:\n- a holds\n- b holds\n\nthen c holds.');
+    expect(statementOf('> A program means one thing.\n> It means it on every target.')).toBe('A program means one thing. It means it on every target.');
   });
 
   /**

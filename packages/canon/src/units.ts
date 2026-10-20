@@ -55,7 +55,7 @@ export interface Unit {
   parent?: string;
   /**
    * The unit's statement: the blockquote opening its own text, its lines
-   * joined by a space. Declared by the line prefix rather than inferred from
+   * joined by a space, or kept as lines where it holds a list. Declared by the line prefix rather than inferred from
    * emphasis, so marking a term inside it changes nothing about what is read.
    */
   statement?: string;
@@ -75,38 +75,14 @@ function statementOf(own: string): string | undefined {
     if (!line.startsWith('>')) break;
     quote.push(line.replace(/^>[ \t]?/, ''));
   }
-  const text = inline(quote).replace(/\s+/g, ' ').trim();
-  return text === '' ? undefined : text;
-}
-
-/**
- * The lines of a blockquote on one line. A list keeps its bounds there: its items are numbered and the list is in
- * brackets, so "when all of these hold: - a - b then c" cannot read as if "then c" were part of "b". A line indented
- * under an item belongs to it; a line that is not belongs to what holds the list.
- */
-function inline(lines: string[]): string {
-  const open: { indent: number; count: number }[] = [];
-  let text = '';
-  for (const line of lines) {
-    if (line.trim() === '') continue;
-    const indent = line.length - line.trimStart().length;
-    const item = /^(\s*)[-*+] (.*)$/.exec(line);
-    // A list ends at a line that is not indented past its markers, unless that line is an item of it.
-    while (open.length > 0 && (open.at(-1) as { indent: number }).indent > indent) text += ']', open.pop();
-    if (item !== null) {
-      const top = open.at(-1);
-      if (top !== undefined && top.indent === indent) text += `; (${++top.count}) `;
-      else {
-        open.push({ indent, count: 1 });
-        text += ' [(1) ';
-      }
-      text += item[2];
-    } else {
-      while (open.length > 0 && (open.at(-1) as { indent: number }).indent >= indent) text += ']', open.pop();
-      text += ` ${line.trim()}`;
-    }
+  // A list keeps its lines, so its items and what follows it keep the indentation that says where each one ends.
+  if (quote.some(line => /^\s*[-*+] /.test(line))) {
+    const kept = quote.map(line => line.trimEnd());
+    while (kept.at(-1) === '') kept.pop();
+    return kept.join('\n');
   }
-  return text + ']'.repeat(open.length);
+  const text = quote.join(' ').replace(/\s+/g, ' ').trim();
+  return text === '' ? undefined : text;
 }
 
 /** Every unit a canon document declares, in document order. */
