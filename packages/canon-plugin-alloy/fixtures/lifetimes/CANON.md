@@ -149,6 +149,8 @@ some o, h: Owner, c: Failing | o.handler = h and eventually (dispose[o] and c.on
 > then now or at a later moment, the cleanup has run.
 <!-- statement-spec-disposing-an-owner-runs-its-cleanups:end -->
 
+Disposing an owner is how its cleanups get their turn. Every cleanup registered on the owner that has not run yet runs at some point after pulse disposes the owner. Pulse leaves none behind.
+
 ```alloy
 always all o: Owner, c: Cleanup |
   (dispose[o] and c in Registered and c.on = o and c not in Ran) implies eventually c in Ran
@@ -161,6 +163,8 @@ always all o: Owner, c: Cleanup |
 > - now and at every later moment, there is no combination of cleanup_1 and owner_1 such that code disposes owner_1 after pulse disposed it, and that call runs cleanup_1, a cleanup that code has registered on owner_1 and that has not run
 > - now and at every later moment, there is no owner_2 such that code disposes owner_2 after pulse disposed it, and that call throws
 <!-- statement-spec-dispose-runs-once:end -->
+
+Pulse disposes an owner once. When code disposes it again afterwards, that call does nothing: it runs no cleanup, and it does not throw.
 
 ```alloy
 (always no c: Cleanup, o: Owner | runByCall[c, o])
@@ -196,6 +200,7 @@ and
 >   when the failing cleanup runs, is on owner_2 and pulse has disposed owner_2, then now and at every later moment, the dispose of owner_2 has not been stopped.
 <!-- statement-spec-owner-cleanups-run-newest-first-and-in-isolation:end -->
 
+An owner's cleanups unwind like a stack: the one registered last runs first. Each runs in isolation, so a cleanup that fails does not stop the dispose.
 
 ```alloy
 (always all o: Owner, c, d: Cleanup |
@@ -213,6 +218,8 @@ and
 >
 > when a call enters the owner and pulse has disposed the owner, then right after, a call is throwing.
 <!-- statement-spec-a-disposed-owner-cannot-be-entered:end -->
+
+A disposed owner is finished. A call that tries to enter it throws at once.
 
 ```alloy
 always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
@@ -258,6 +265,7 @@ always all o: Owner | (enter[o] and o in Disposed) implies some Throwing'
 >     pulse does not dispose owner_4.
 <!-- statement-spec-an-owner-disposes-its-sub-owners-before-its-own-cleanups:end -->
 
+An owner tears down from the inside out. Its children are disposed before any cleanup it holds runs, so a cleanup never finds a child still alive. The children go newest first, like the cleanups.
 
 ```alloy
 (always all o, k: Owner, c: Cleanup |
@@ -286,6 +294,8 @@ and
 >
 >   then now or at a later moment, the error of failing_cleanup_2 has reached owner_3.
 <!-- statement-spec-a-throwing-owner-cleanup-is-reported:end -->
+
+A cleanup that throws while its owner is disposed does not make the dispose throw. Its error goes where errors go in pulse: to the nearest error handler or boundary above the owner.
 
 ```alloy
 (always all o: Owner, c: Failing |
