@@ -418,7 +418,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-comma-of-a-reading-after-then-is-left-on-its-line`](#spec-a-comma-of-a-reading-after-then-is-left-on-its-line) — The verbalizer leaves on its line a second side whose only comma is inside the words of a reading, such as ", such as …" or ", with …".
   - [`@spec a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart`](#spec-a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart) — In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase, the one it begins with included.
   - [`@spec a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart`](#spec-a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart) — The verbalizer sets apart a side of a rule after "then" or "otherwise" when that side is a series of clauses after a comma.
-- [`@axiom a-reader-needs-few-rules-to-read-the-words`](#axiom-a-reader-needs-few-rules-to-read-the-words) — A reader who holds a few rules of reading takes each statement of the verbalizer in the one way its formula means.
+- [`@axiom a-short-list-of-rules-settles-what-english-leaves-open`](#axiom-a-short-list-of-rules-settles-what-english-leaves-open) — A short list of rules settles what English leaves open, so that each statement means only what its formula means.
   - [`@spec a-noun-phrase-covers-the-clause-it-stands-in`](#spec-a-noun-phrase-covers-the-clause-it-stands-in) — A noun phrase says its quantifier over the clause it stands in, and over nothing beyond it. "The cleanup is on no owner" says that no owner has the cleanup on it.
   - [`@spec the-first-noun-phrase-of-a-clause-covers-the-next`](#spec-the-first-noun-phrase-of-a-clause-covers-the-next) — Of two noun phrases in one clause, the first covers the second. "No cleanup is on an owner" says that no cleanup is on any owner.
   - [`@spec a-relative-clause-says-more-of-the-noun-it-follows`](#spec-a-relative-clause-says-more-of-the-noun-it-follows) — A relative clause, "that …", says what else holds of the noun right before it. An "and" inside it joins only its own conditions.
@@ -3294,11 +3294,11 @@ This follows because a reader could take the time phrase as covering the "otherw
 
 This follows because a reader could take the last clause of the series as a claim of its own, outside the rule. An example is "a, and at the next moment, b".
 
-## @axiom a-reader-needs-few-rules-to-read-the-words
+## @axiom a-short-list-of-rules-settles-what-english-leaves-open
 
-> A reader who holds a few rules of reading takes each statement of the verbalizer in the one way its formula means.
+> A short list of rules settles what English leaves open, so that each statement means only what its formula means.
 
-Words that translate a formula without loss still need a reader who reads them as the formula means. English leaves open where a phrase stops, which noun a "that" follows and from when "now" counts. The verbalizer settles each of these one way, and the rules below say which. A reader learns them once, and a probe can ask whether readers hold them. Attempto Controlled English keeps such rules for the same reason.
+English leaves some things open that a formula fixes: where a phrase stops, which noun a "that" follows, and from when "now" counts. The verbalizer settles each of these one way, and the rules below say which. A reader learns them once. A probe can then ask whether readers really read that way. Attempto Controlled English keeps such rules for the same reason.
 
 #### @spec a-noun-phrase-covers-the-clause-it-stands-in
 
