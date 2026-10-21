@@ -47,11 +47,43 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   > - the list has no clause before its last that begins with a time phrase
   > - the list has no clause before its last with a relative clause in it
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
+- [`@term pass`](#term-pass) — A pass is one named change to how the verbalizer says a statement. A pass of the IR changes the sentence a formula was lowered to. A pass of the printer changes the words the printer lays it out in.
+- [`@term pipeline`](#term-pipeline) — The pipeline is the passes in the order they run: each sees the IR the one before it left.
 - [`@fact every-moment-has-a-next-moment`](#fact-every-moment-has-a-next-moment) — In Alloy 6, a trace is infinite: every moment has exactly one next moment.
 - [`@fact the-analyzer-wraps-integers-at-their-bit-width`](#fact-the-analyzer-wraps-integers-at-their-bit-width) — With its default options, the analyzer keeps every integer in a fixed bit width. A number that leaves that range wraps around into it.
 - [`@fact the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero`](#fact-the-analyzer-divides-toward-zero-and-gives-the-sign-for-zero) — The analyzer rounds `div[a, b]` toward zero, and gives -1, 0 or 1 for `div[a, 0]` as `a` is positive, zero or negative. `rem[a, b]` has the sign of `a`, and `rem[a, 0]` is `a`.
 - [`@fact the-analyzer-shifts-by-the-lowest-bits-of-the-amount`](#fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount) — The analyzer shifts by the number in the lowest bits of the amount: as many bits as it takes to count to the bit width.
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
+  - [`@spec a-statement-is-said-through-passes-that-each-keep-its-meaning`](#spec-a-statement-is-said-through-passes-that-each-keep-its-meaning) — The verbalizer lowers a formula to the IR in the plainest words its readings give. It makes each choice of words in a [pass](#term-pass) of the [pipeline](#term-pipeline). A pass of the IR changes no meaning. The analyzer asks that of every change it makes to the sweep.
+    - [`@spec a-pass-runs-after-the-passes-whose-shapes-it-reads`](#spec-a-pass-runs-after-the-passes-whose-shapes-it-reads) — Where one pass makes or removes a shape that another reads, the [pipeline](#term-pipeline) runs them in the order the shape needs.
+      - [`@spec a-negation-moves-inward-before-noun-phrases-are-said`](#spec-a-negation-moves-inward-before-noun-phrases-are-said) — For every [pass_1](#term-pass) and every pass_2: when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
+      - [`@spec two-things-of-a-kind-are-paired-before-noun-phrases-are-said`](#spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says two things of a kind as one and another and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
+      - [`@spec noun-phrases-are-said-before-there-is-a-that`](#spec-noun-phrases-are-said-before-there-is-a-that) —
+        > For every [pass_1](#term-pass) and every pass_2:
+        >
+        > when all of these hold:
+        > - pass_1 says a quantifier as a noun phrase
+        > - pass_2 says a quantifier of its variable alone as "there is a … that"
+        >
+        > then pass_1 runs before pass_2.
+      - [`@spec a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one`](#spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one) —
+        > For every [pass_1](#term-pass) and every pass_2:
+        >
+        > when all of these hold:
+        > - pass_1 says a set equal to a variable as that variable and no other
+        > - pass_2 makes nested quantifiers of "for every" one
+        >
+        > then pass_1 runs before pass_2.
+      - [`@spec until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front`](#spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front) —
+        > For every [pass_1](#term-pass) and every pass_2:
+        >
+        > when all of these hold:
+        > - pass_1 says until and since of two clauses as one sentence
+        > - pass_2 puts a time phrase in front of the words it covers
+        >
+        > then pass_1 runs before pass_2.
+      - [`@spec a-time-phrase-goes-in-front-before-clauses-become-a-sentence`](#spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence) — For every [pass_1](#term-pass) and every pass_2: when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.
+      - [`@spec clauses-become-a-sentence-before-a-rule-goes-on-one-line`](#spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says a few clauses as one sentence and pass_2 says a rule on one line, pass_1 runs before pass_2.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
   - [`@spec saying-a-formula-ends`](#spec-saying-a-formula-ends) — The verbalizer ends on every formula, with words or with a refusal.
@@ -798,6 +830,41 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 ```readings
 ```
 
+### @term pass
+
+> A pass is one named change to how the verbalizer says a statement. A pass of the IR changes the sentence a formula was lowered to. A pass of the printer changes the words the printer lays it out in.
+
+```alloy vocabulary
+sig Pass { ahead: set Pass }
+sig OfIR, OfPrinter in Pass {}
+sig NegationInward, AnotherOfAKind, NounPhrases, ThereIsAThat, XAndNoOther, ForEveryTogether, UntilInASentence, TimePhraseInFront, ClausesInASentence, RuleOnOneLine in Pass {}
+fact passes {
+  Pass = OfIR + OfPrinter and no OfIR & OfPrinter
+  NegationInward + AnotherOfAKind + NounPhrases + ThereIsAThat + XAndNoOther + ForEveryTogether + UntilInASentence + TimePhraseInFront + ClausesInASentence + RuleOnOneLine in OfIR
+}
+```
+
+```readings
+noun Pass: [pass]
+ahead: {1} runs before {2} | {1} does not run before {2}
+OfIR: {1} changes the IR | {1} does not change the IR
+OfPrinter: {1} changes the options of the printer | {1} does not change the options of the printer
+NegationInward: {1} moves a negation inward | {1} does not move a negation inward
+AnotherOfAKind: {1} says two things of a kind as one and another | {1} does not say two things of a kind as one and another
+NounPhrases: {1} says a quantifier as a noun phrase | {1} does not say a quantifier as a noun phrase
+ThereIsAThat: {1} says a quantifier of its variable alone as "there is a … that" | {1} does not say a quantifier of its variable alone as "there is a … that"
+XAndNoOther: {1} says a set equal to a variable as that variable and no other | {1} does not say a set equal to a variable as that variable and no other
+ForEveryTogether: {1} makes nested quantifiers of "for every" one | {1} does not make nested quantifiers of "for every" one
+UntilInASentence: {1} says until and since of two clauses as one sentence | {1} does not say until and since of two clauses as one sentence
+TimePhraseInFront: {1} puts a time phrase in front of the words it covers | {1} does not put a time phrase in front of the words it covers
+ClausesInASentence: {1} says a few clauses as one sentence | {1} does not say a few clauses as one sentence
+RuleOnOneLine: {1} says a rule on one line | {1} does not say a rule on one line
+```
+
+### @term pipeline
+
+> The pipeline is the passes in the order they run: each sees the IR the one before it left.
+
 ## @fact every-moment-has-a-next-moment
 
 > In Alloy 6, a trace is infinite: every moment has exactly one next moment.
@@ -833,6 +900,128 @@ With 5 bits, `1 << 9` is `1 << 1`, and `1 << 7` and `1 << -1` are 0. Checked wit
 > The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
 
 This follows because a reader learns from the words what the formula claims. Words that say more or less than the formula mislead that reader, so a refusal is better than a loss. How natural the words sound comes after.
+
+#### @spec a-statement-is-said-through-passes-that-each-keep-its-meaning
+
+> The verbalizer lowers a formula to the IR in the plainest words its readings give. It makes each choice of words in a [pass](#term-pass) of the [pipeline](#term-pipeline). A pass of the IR changes no meaning. The analyzer asks that of every change it makes to the sweep.
+
+This follows because a choice of words made in one place can be checked in one place. The literal reading is lossless by construction, and each pass after it keeps what the reading means. So the words keep it too.
+
+##### @spec a-pass-runs-after-the-passes-whose-shapes-it-reads
+
+> Where one pass makes or removes a shape that another reads, the [pipeline](#term-pipeline) runs them in the order the shape needs.
+
+This follows because a pass sees only the IR the passes before it left. Run in the other order, a pass would miss the shape it changes, or change a shape another pass needed first.
+
+###### @spec a-negation-moves-inward-before-noun-phrases-are-said
+
+<!-- statement-spec-a-negation-moves-inward-before-noun-phrases-are-said:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
+<!-- statement-spec-a-negation-moves-inward-before-noun-phrases-are-said:end -->
+
+A noun phrase with "no" comes from a quantifier "no". A negated quantifier "some" becomes one only once its negation moves inward. So a reader gets "no cleanup has run", and not a negation set apart above the quantifier.
+
+```alloy
+all a: NegationInward, b: NounPhrases | a->b in ahead
+```
+
+###### @spec two-things-of-a-kind-are-paired-before-noun-phrases-are-said
+
+<!-- statement-spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when pass_1 says two things of a kind as one and another and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
+<!-- statement-spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said:end -->
+
+"A unit and another unit" says two things of one kind that differ, each with what holds of it. Said first as noun phrases one inside the other, they would lose the pair. The difference between them would stay a clause of its own.
+
+```alloy
+all a: AnotherOfAKind, b: NounPhrases | a->b in ahead
+```
+
+###### @spec noun-phrases-are-said-before-there-is-a-that
+
+<!-- statement-spec-noun-phrases-are-said-before-there-is-a-that:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when all of these hold:
+> - pass_1 says a quantifier as a noun phrase
+> - pass_2 says a quantifier of its variable alone as "there is a … that"
+>
+> then pass_1 runs before pass_2.
+<!-- statement-spec-noun-phrases-are-said-before-there-is-a-that:end -->
+
+A noun phrase hangs the variable from something the sentence already names, and reads better than a sentence of its own. The form with "that" is for a variable with nothing to hang from, so it takes what the noun phrases leave.
+
+```alloy
+all a: NounPhrases, b: ThereIsAThat | a->b in ahead
+```
+
+###### @spec a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one
+
+<!-- statement-spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when all of these hold:
+> - pass_1 says a set equal to a variable as that variable and no other
+> - pass_2 makes nested quantifiers of "for every" one
+>
+> then pass_1 runs before pass_2.
+<!-- statement-spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one:end -->
+
+"The cleanup is on owner_1 and is on no other owner" comes from a "for every" over the members of the set. It sits right inside the "for every" that names the cleanup, and once the two become one, the pass cannot find it.
+
+```alloy
+all a: XAndNoOther, b: ForEveryTogether | a->b in ahead
+```
+
+###### @spec until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front
+
+<!-- statement-spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when all of these hold:
+> - pass_1 says until and since of two clauses as one sentence
+> - pass_2 puts a time phrase in front of the words it covers
+>
+> then pass_1 runs before pass_2.
+<!-- statement-spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front:end -->
+
+"b now or later, and until then, a" holds a time phrase of its own. A time phrase in front of it would read as one moment with it. So the pass that puts one there must see the sentence the `until` became.
+
+```alloy
+all a: UntilInASentence, b: TimePhraseInFront | a->b in ahead
+```
+
+###### @spec a-time-phrase-goes-in-front-before-clauses-become-a-sentence
+
+<!-- statement-spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.
+<!-- statement-spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence:end -->
+
+"c has run and at the next moment, pulse has disposed o" puts a clause at the next moment beside another. That clause is one line only once its time phrase stands in front of it, so the clauses can become one sentence only after.
+
+```alloy
+all a: TimePhraseInFront, b: ClausesInASentence | a->b in ahead
+```
+
+###### @spec clauses-become-a-sentence-before-a-rule-goes-on-one-line
+
+<!-- statement-spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when pass_1 says a few clauses as one sentence and pass_2 says a rule on one line, pass_1 runs before pass_2.
+<!-- statement-spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line:end -->
+
+A rule goes on one line only when each side is one line. A side of several clauses is one line only once those clauses are a sentence.
+
+```alloy
+all a: ClausesInASentence, b: RuleOnOneLine | a->b in ahead
+```
 
 #### @spec a-formula-is-said-in-full
 
