@@ -13,7 +13,9 @@ export const INTRO = {
   untrue: 'it is not the case that',
   apart: 'the following holds',
   /** After "is", before the kinds of a definition said kind by kind: "unit_1 is one of these". */
-  oneOf: 'one of these'
+  oneOf: 'one of these',
+  /** After the subject and the verb a list of negative clauses share: "the definition has none of these". */
+  noneOf: 'none of these'
 } as const;
 
 /** The time phrase of each temporal operator of one formula. */

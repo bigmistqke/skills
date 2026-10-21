@@ -12,7 +12,7 @@ import type { PrintOptions } from './pass.ts';
 
 import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import { type Doc, type Every, isList, lines, markdownLines } from './layout.ts';
-import { articleFor } from './vocabulary.ts';
+import { articleFor, Vocabulary } from './vocabulary.ts';
 import { freeNames, holdsPhrase } from './walk.ts';
 import { coordinate, fixed, holdsComma, holdsOwnComma, holdsTime, marked, own, series, shareSubject, timed, unmarked, VARIABLE } from './words.ts';
 
@@ -154,7 +154,26 @@ export class Printer {
     if (!reading) throw new Refusal(`no reading for "${key}"`);
     const words = negative ? reading.negative : reading.positive;
     if (words === undefined) throw new Refusal(`no negative reading for "${key}"`);
-    return marked(mark(words, reading.target), false).replace(/\{(\d+)\}/g, (_, n: string) => slots[Number(n) - 1] as string);
+    return this.filled(words, reading.target, slots);
+  }
+
+  /** Words of a reading, or a part of them, with their links marked and a term in each slot. */
+  private filled(words: string, target: string | undefined, slots: string[]): string {
+    return marked(mark(words, target), false).replace(/\{(\d+)\}/g, (_, n: string) => slots[Number(n) - 1] as string);
+  }
+
+  /** Negative clauses that share their words, said once before "none of these", with each clause's noun phrase below it. */
+  private noneOf(items: Sentence[]): Doc {
+    const clauses = items as Extract<Clause, { t: 'reading' }>[];
+    const shared = new Vocabulary(this.readings).shared(clauses.map(c => c.key));
+    if (shared === undefined) throw new Error('naturalloy said "none of these" over clauses that share no words');
+    const said = clauses.map(c => ({ target: this.readings.atoms.get(c.key)?.target, slots: c.args.map(a => this.term(a)) }));
+    const first = said[0] as { target: string | undefined; slots: string[] };
+    return {
+      kind: 'list',
+      intro: `${this.filled(shared.head, first.target, first.slots)} ${fixed(INTRO.noneOf)}`,
+      items: shared.rests.map((rest, i) => this.filled(rest, said[i]?.target, said[i]?.slots ?? []))
+    };
   }
 
   private clause(c: Clause): Doc {
@@ -277,6 +296,7 @@ export class Printer {
         return this.clause(s);
       case 'and':
       case 'or': {
+        if (s.t === 'and' && s.form === 'none-of') return this.noneOf(s.items);
         const docs = s.t === 'and' ? this.together(s.items) : this.independent(s.items, i => this.sentence(i));
         // A sequence of two plain clauses: "a, and at the next moment, b".
         if (s.form === 'sequence-sentence') return own`${docs[0] as string}, and ${docs[1] as string}`;

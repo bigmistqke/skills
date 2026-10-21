@@ -26,11 +26,16 @@ owners: {2} owns {1} | {2} does not own {1}
 m/Gone: {1} is gone in m | {1} is not gone in m
 q: {1} is quiet for {2} | {1} is not quiet for {2}
 kept: {1} is kept | {1} is not kept
+Labelled: {1} has a label | {1} has no label
+Flagged: {1} has a flag | {1} has no flag
+Pinned: {1} has a pin | {1} has no pin
+Marked: {1} has a mark | {1} has no mark
 `;
 export const VOCABULARY = `
 sig Owner { parent: lone Owner }
 sig Cleanup { var on: set Owner, at: lone Owner, home: one Owner, name: one String, tags: set String, n: set Int, size: one Int }
 var sig Registered, Ran in Cleanup {}
+sig Labelled, Flagged, Pinned, Marked in Cleanup {}
 var sig Disposed, Stopped in Owner {}
 pred gone[o: Owner] { o in Disposed }
 pred gone2[o: Owner] { o in Disposed and o not in Stopped }
@@ -270,6 +275,8 @@ export const SWEEP: { what: string; formula: string }[] = [
     'pred gone[o: Owner] { o in Disposed }',
     'pred gone[o: Owner] { o in Disposed and o not in Stopped }'
   ].map(formula => ({ what: '"for every" over one thing of a kind', formula })),
+  // Negative clauses about one subject that share its verb, each with a noun phrase of its own: "none of these".
+  ...['all c: Cleanup | c not in Labelled and c not in Flagged and c not in Pinned and c not in Marked'].map(formula => ({ what: 'negative clauses that share their verb', formula })),
   // `some` over several things, of one type and of two.
   ...['some c: Cleanup, o: Owner | o in c.on and o in Disposed', 'some disj c, d: Cleanup | c in Ran and d not in Ran', 'some c: Cleanup, o, p: Owner | o in c.on and p not in c.on'].map(formula => ({ what: '`some` over several things', formula })),
   // A quantifier about its variable alone, with nothing else to hang from: "there is a cleanup that has run".

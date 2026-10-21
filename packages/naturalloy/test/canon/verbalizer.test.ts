@@ -1148,6 +1148,23 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
+   * @canon spec-negative-clauses-that-share-their-words-are-said-once-before-none-of-these
+   */
+  it('say the words negative clauses share once, before "none of these", with each noun phrase as a bullet', () => {
+    const kinds = parseReadings(['noun Unit: unit', 'Spec: {1} is a spec | {1} is not a spec', 'Axiom: {1} is an axiom | {1} is not an axiom', 'Fact: {1} is a fact | {1} is not a fact', 'Term: {1} is a term | {1} is not a term', 'Ran: {1} has run | {1} has not run'].join('\n'));
+    const words = (formula: string): string => verbalize(`all u: Unit | ${formula}`, kinds).split('\n').slice(1).join('\n');
+    expect(words('u not in Spec and u not in Axiom and u not in Fact and u not in Term')).toBe('  the unit is none of these:\n    - a spec\n    - an axiom\n    - a fact\n    - a term');
+    // A clause that says other words, or one that is not negative, keeps the list as it stands.
+    expect(words('u not in Spec and u not in Axiom and u not in Fact and u not in Ran').split('\n')[0]).toBe('  all of these hold:');
+    expect(words('u not in Spec and u not in Axiom and u not in Fact and u in Term').split('\n')[0]).toBe('  all of these hold:');
+    // Readings that share a noun phrase, "is a definition with", share only the subject and the verb before it.
+    const nouns = parseReadings(['noun Unit: unit', ...['A', 'B', 'C', 'D'].map(x => `${x}: {1} is a definition with an alternative ${x} | {1} is not a definition with an alternative ${x}`)].join('\n'));
+    expect(verbalize('all u: Unit | u not in A and u not in B and u not in C and u not in D', nouns).split('\n').slice(1, 3).join('\n')).toBe(
+      '  the unit is none of these:\n    - a definition with an alternative A'
+    );
+  });
+
+  /**
    * @canon spec-a-list-too-long-for-a-line-is-bullets
    */
   it('are a list when the sentence would run past a line', () => {
