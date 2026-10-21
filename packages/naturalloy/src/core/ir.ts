@@ -204,10 +204,11 @@ class Meaning {
       case 'next':
       case 'compare':
         return this.clause(s);
+      // No item holds always, and no alternative never does.
       case 'and':
-        return s.items.map(i => `(${this.sentence(i)})`).join(' and ');
+        return s.items.length === 0 ? 'no none' : s.items.map(i => `(${this.sentence(i)})`).join(' and ');
       case 'or':
-        return s.items.map(i => `(${this.sentence(i)})`).join(' or ');
+        return s.items.length === 0 ? 'some none' : s.items.map(i => `(${this.sentence(i)})`).join(' or ');
       case 'not':
         return `not (${this.sentence(s.body)})`;
       case 'rule': {
