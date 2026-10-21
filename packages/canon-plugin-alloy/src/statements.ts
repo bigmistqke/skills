@@ -14,7 +14,7 @@ import { beginMarker, regionAt, replaceRegion } from '@bigmistqke/canon/regions'
 import { readUnits } from '@bigmistqke/canon/units';
 import { PARAGRAPHS } from './words.ts';
 import { AlloyParseError } from '@bigmistqke/parse-alloy';
-import { isDefinition, isRefusal, parseReadings, verbalize, verbalizeDefinition, withDefinitions, type Readings } from '@bigmistqke/naturalloy';
+import { isDefinition, isRefusal, parseReadings, readsBack, verbalize, verbalizeDefinition, withDefinitions, type Readings } from '@bigmistqke/naturalloy';
 
 /** The name of the region that holds the generated statement of a unit. */
 export const regionName = (unit: string): string => `statement-${unit}`;
@@ -28,7 +28,7 @@ export const isGenerated = (src: string, unit: string): boolean => regionAt(src,
  * statement that a person wrote, which is never overwritten; `unsayable` is a
  * predicate the words cannot say, with the reason.
  */
-export type StatementKind = 'current' | 'stale' | 'missing' | 'handwritten' | 'unsayable';
+export type StatementKind = 'current' | 'stale' | 'missing' | 'handwritten' | 'unsayable' | 'misread';
 
 export interface StatementState {
   unit: string;
@@ -77,6 +77,23 @@ const quote = (words: string): string =>
     .map(line => (line === '' ? '>' : `> ${line}`))
     .join('\n');
 
+/**
+ * The state of a statement as it stands: a current one that does not read back to one meaning, the one its formula
+ * has, is misread, and says so.
+ */
+function read(unit: string, kind: 'current' | 'stale', quote: string, formula: string, readings: Readings): StatementState {
+  if (kind === 'stale') return { unit, kind, quote };
+  const back = readsBack(formula, readings);
+  if (back.meanings.length === 1 && back.meanings[0] === back.meant) return { unit, kind, quote };
+  const message =
+    back.meanings.length === 0
+      ? 'the statement does not read back by the reading rules of naturalloy'
+      : back.meanings.length > 1
+        ? `the statement reads ${back.meanings.length} ways by the reading rules of naturalloy; give two readings that say the same words different words`
+        : 'the statement reads back as something its formula does not say';
+  return { unit, kind: 'misread', message, quote };
+}
+
 /** What each statement of a document is, in document order; empty for a document with no readings. */
 export function states(src: string, context: Context[] = []): StatementState[] {
   let readings: Readings | undefined;
@@ -98,8 +115,9 @@ export function states(src: string, context: Context[] = []): StatementState[] {
       continue;
     }
     let words: string;
+    let body = '';
     try {
-      const { body } = predicates[0] as { body: string };
+      ({ body } = predicates[0] as { body: string });
       words = quote(isDefinition(body) ? verbalizeDefinition(body, readings, 'markdown', `#${unit.id}`) : verbalize(body, readings, 'markdown', `#${unit.id}`));
     } catch (error) {
       // A refusal says why the unit has no statement; anything else is a fault of naturalloy, and is not hidden as one.
@@ -109,7 +127,7 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     }
     const region = regionName(unit.id);
     const at = regionAt(src, region, endMarker(region));
-    if (at !== undefined) found.push({ unit: unit.id, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
+    if (at !== undefined) found.push(read(unit.id, src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', words, body, readings));
     else found.push({ unit: unit.id, kind: statedByAPerson(unit.own, unit.id) ? 'handwritten' : 'missing', quote: words });
   }
   for (const { key, unit, body } of scenarios(src, blocks)) {
@@ -124,7 +142,7 @@ export function states(src: string, context: Context[] = []): StatementState[] {
     const region = regionName(key);
     const at = regionAt(src, region, endMarker(region));
     if (at === undefined) found.push({ unit: key, kind: 'missing', quote: words });
-    else found.push({ unit: key, kind: src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', quote: words });
+    else found.push(read(key, src.slice(at.body, at.to) === `\n${words}\n` ? 'current' : 'stale', words, body, readings));
   }
   return found;
 }

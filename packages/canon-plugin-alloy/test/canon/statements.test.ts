@@ -246,6 +246,19 @@ function project(document: string, ...commands: string[][]) {
   return { runs, document: readFileSync(join(dir, 'CANON.md'), 'utf8'), dir };
 }
 
+describe('a statement read back', () => {
+  /**
+   * @canon spec-a-statement-that-does-not-read-back-to-its-formula-is-not-current
+   */
+  it('is misread where two readings say the same words, and current once they differ', () => {
+    const twice = '```readings\nnoun Node: node\nStarted: {1} has started | {1} has not started\nDone: {1} has started | {1} is not done\n```';
+    const formula = 'all n: Node | n in Done';
+    const written = write(doc(formula, '', twice)).src;
+    expect(states(written, [])).toMatchObject([{ unit: 'spec-a-leaf', kind: 'misread' }]);
+    expect(states(write(doc(formula)).src, [])).toMatchObject([{ unit: 'spec-a-leaf', kind: 'current' }]);
+  });
+});
+
 describe('the command line', () => {
   /**
    * @canon spec-generate-writes-the-statement-of-an-unwritten-unit-between-markers
