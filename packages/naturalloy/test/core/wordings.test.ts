@@ -1,10 +1,11 @@
-/** `WORDINGS.md` says what the passes do as they now stand. */
+/** The region of each pass in the canon says what the pass does as it now stands. */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { FILE, wordings } from './wordings.ts';
+import { FILE, withRegions } from './wordings.ts';
 
-describe('WORDINGS.md', () => {
-  it('is what the passes and the sweep make of it', () => {
-    expect(readFileSync(FILE, 'utf8')).toBe(wordings());
+describe('the regions of the passes in the canon', () => {
+  it('are what the passes and the sweep make of them', () => {
+    const canon = readFileSync(FILE, 'utf8');
+    expect(canon).toBe(withRegions(canon));
   }, 600_000);
 });
