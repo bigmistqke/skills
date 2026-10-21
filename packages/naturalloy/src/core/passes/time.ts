@@ -5,7 +5,7 @@
 import type { Sentence } from '../ir.ts';
 import { type Context, everywhere, type Pass } from '../pass.ts';
 import { holdsPhrase, sentencesBelow } from '../walk.ts';
-import { holdsRelative, holdsTime, seen } from '../words.ts';
+import { holdsComma, holdsRelative, holdsTime } from '../words.ts';
 
 /** Whether a sentence names a moment of its own, other than the next one: "now", "a moment before", "until". */
 const anchored = (s: Sentence): boolean => [...sentencesBelow(s)].some(x => (x.t === 'moment' && x.op !== 'after') || x.t === 'until' || x.t === 'since');
@@ -45,7 +45,7 @@ export const fromNowOnWhenever: Pass = {
 function single(s: Sentence, context: Context): boolean {
   if ((s.t !== 'reading' && s.t !== 'same' && s.t !== 'isA' && s.t !== 'next') || holdsPhrase(s)) return false;
   const words = context.words(s);
-  return words !== undefined && !holdsTime(words) && !seen(words).includes(',') && !holdsRelative(words);
+  return words !== undefined && !holdsTime(words) && !holdsComma(words) && !holdsRelative(words);
 }
 
 /** `until` and `since` of two plain clauses, said as one sentence: "b now or later, and until then, a". */

@@ -24,16 +24,14 @@ export const MOMENT: Record<Moment, string> = {
   historically: 'now and at every earlier moment'
 };
 
-/** `until` and `since`, each as one sentence of two plain clauses, and with its sides set apart below these intros. */
+/** `until` and `since`: the words that join their two plain clauses in one sentence, and the intros that set their sides apart. */
 export const BINARY = {
   until: {
-    sentence: (b: string, a: string): string => `${b} now or later, and until then, ${a}`,
     joint: ' now or later, and until then, ',
     first: 'now or later, the following holds',
     second: 'at every moment from now until the first such moment, not including it, the following holds'
   },
   since: {
-    sentence: (b: string, a: string): string => `${b} now or earlier, and at every moment after the last such moment, up to and including now, ${a}`,
     joint: ' now or earlier, and at every moment after the last such moment, up to and including now, ',
     first: 'now or earlier, the following holds',
     second: 'at every moment after the last such moment, up to and including now, the following holds'

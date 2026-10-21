@@ -3,10 +3,9 @@
  * where the words the node would be said with in a sentence cannot be read two ways: where a time phrase, a relative
  * clause or a comma would not run over the words that follow it.
  */
-import { MOMENT } from '../constructs.ts';
 import type { Sentence } from '../ir.ts';
 import { children, type Context, everywhere, type Pass } from '../pass.ts';
-import { holdsOwnComma, holdsRelative, holdsTime, INLINE_ITEMS, INLINE_LENGTH, seen, timed, VARIABLE } from '../words.ts';
+import { holdsComma, holdsOwnComma, holdsRelative, holdsTime, INLINE_ITEMS, INLINE_LENGTH, joins, MARK, seen, series, timed, VARIABLE } from '../words.ts';
 
 /** A clause with a variable or a string in each place: one reading, said as it stands. */
 const plainClause = (s: Sentence): boolean =>
@@ -48,11 +47,11 @@ function inSentence(s: Sentence, context: Context): Sentence | undefined {
   if (said.some(words => words === undefined)) return undefined;
   const words = said as string[];
   // A comma inside an item makes a list of three read as a list of more.
-  if (s.items.length > 2 && words.some(w => seen(w).includes(','))) return undefined;
+  if (s.items.length > 2 && words.some(holdsComma)) return undefined;
   // A time phrase at the start of a clause would cover the clauses after it, and a relative clause would run over them.
   if (words.slice(0, -1).some(w => timed(w) || holdsRelative(w))) return undefined;
   // "o and p are the same" has an "and" of its own, which among others would not show where it ends.
-  if (words.some(w => w.includes(`${VARIABLE} and ${VARIABLE}`))) return undefined;
+  if (words.some(w => w.includes(`${VARIABLE} ${MARK.join}and ${VARIABLE}`))) return undefined;
   const hinted: Sentence = { ...s, form: 'sentence' };
   const whole = line(hinted, context);
   return whole !== undefined && seen(whole).length <= INLINE_LENGTH ? hinted : undefined;
@@ -81,9 +80,8 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
   // A time phrase in the first side would reach over the second.
   if (holdsTime(when)) return undefined;
   // On one line, a comma in either side with no "then" between them would read as where the second side starts.
-  if (!timed(then) && (holdsOwnComma(then, context.readings) || seen(when).includes(','))) return undefined;
+  if (!timed(then) && (holdsOwnComma(then) || holdsComma(when))) return undefined;
   // A series in a side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
-  const series = (words: string): boolean => /, (?:and|or) /.test(seen(words).replaceAll(`${MOMENT.before}, `, ''));
   if (series(then) || (otherwise !== undefined && (series(otherwise) || holdsTime(then)))) return undefined;
   return { ...s, form: 'line' };
 });
@@ -110,7 +108,7 @@ function equivalence(s: Sentence, context: Context): Sentence | undefined {
   if (s.t !== 'iff' || s.form !== undefined) return undefined;
   if (plainClause(s.l) && clauseLike(s.r)) {
     const [l, r] = [line(s.l, context), line(s.r, context)];
-    if (l !== undefined && r !== undefined && !holdsTime(l) && !seen(l).includes(',') && !holdsRelative(l)) return { ...s, form: 'exactly-when' };
+    if (l !== undefined && r !== undefined && !holdsTime(l) && !holdsComma(l) && !holdsRelative(l)) return { ...s, form: 'exactly-when' };
   }
   // "a at the next moment exactly when b now": each time phrase ends its own clause, so neither can reach the other.
   const next = (x: Sentence): boolean => x.t === 'moment' && x.op === 'after' && plainClause(x.body);
@@ -119,7 +117,7 @@ function equivalence(s: Sentence, context: Context): Sentence | undefined {
     const bare = (x: Sentence): boolean => {
       const inner = x.t === 'moment' ? x.body : x;
       const words = line(inner, context);
-      return words !== undefined && !holdsTime(words) && !holdsRelative(words) && !seen(words).includes(',') && (inner.t === 'same' ? x === s.r : !/\band\b|\bor\b/.test(seen(words)));
+      return words !== undefined && !holdsTime(words) && !holdsRelative(words) && !holdsComma(words) && (inner.t === 'same' ? x === s.r : !joins(words));
     };
     if (bare(s.l) && bare(s.r)) return { ...s, form: 'next-and-now' };
   }

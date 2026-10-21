@@ -6,7 +6,7 @@
  */
 import type { Clause, Sentence, Term, Var } from '../ir.ts';
 import { type Context, everywhere, type Pass } from '../pass.ts';
-import { holdsRelative, holdsTime, INLINE_ITEMS, INLINE_LENGTH, seen } from '../words.ts';
+import { holdsComma, holdsRelative, holdsTime, INLINE_ITEMS, INLINE_LENGTH, joins, saysNo, seen } from '../words.ts';
 import { mentions } from '../walk.ts';
 import { absorbed, termsOf } from './phrases.ts';
 
@@ -46,7 +46,7 @@ export const thereIsAThat: Pass = {
   if (!parts.every(p => subjectOnce(p, v, context))) return undefined;
   const words = parts.map(p => context.words(p));
   if (words.some(w => w === undefined)) return undefined;
-  if (s.q === 'no' && words.some(w => /\bno\b/.test(seen(w as string)))) return undefined;
+  if (s.q === 'no' && words.some(w => saysNo(w as string))) return undefined;
   const sentence: Sentence = { ...s, vars: [v], body, form: 'there-is-that' };
   const said = context.words(sentence);
   const fits = parts.length <= INLINE_ITEMS && said !== undefined && seen(said).length <= INLINE_LENGTH && !words.slice(0, -1).some(w => holdsTime(w as string) || holdsRelative(w as string));
@@ -84,7 +84,7 @@ export const xAndNoOther: Pass = {
   const clause = next ? member.body : member;
   if (clause.t !== 'reading' || clause.args.filter(term => isVar(term, v)).length !== 1 || clause.args.some(term => term.t === 'np')) return undefined;
   const words = context.words(clause);
-  if (words === undefined || holdsTime(words) || /[,:]|\b(?:and|or)\b/.test(seen(words)) || holdsRelative(words)) return undefined;
+  if (words === undefined || holdsTime(words) || holdsComma(words) || seen(words).includes(':') || joins(words) || holdsRelative(words)) return undefined;
   const one: Clause = { ...clause, args: clause.args.map(term => (isVar(term, v) ? value : term)) };
   const none: Clause = { ...clause, args: clause.args.map(term => (isVar(term, v) ? { t: 'np', det: 'no', v, other: value } : term)) };
   const both: Sentence = { t: 'and', items: [one, none], form: 'sentence' };

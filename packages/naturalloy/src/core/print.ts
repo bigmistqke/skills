@@ -13,7 +13,7 @@ import type { PrintOptions } from './pass.ts';
 import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import { type Doc, isList, lines, markdownLines } from './layout.ts';
 import { freeNames, holdsPhrase } from './walk.ts';
-import { coordinate, holdsOwnComma, holdsTime, seen, shareSubject, timed, VARIABLE } from './words.ts';
+import { coordinate, fixed, holdsComma, holdsOwnComma, holdsTime, marked, own, series, shareSubject, timed, unmarked, VARIABLE } from './words.ts';
 
 /** "a failing cleanup": the article before the noun, by the sound of its first word. */
 export function articleFor(phrase: string): string {
@@ -48,12 +48,12 @@ export class Printer {
 
   private article(type: string): string {
     const written = this.readings.articles.get(type);
-    return written === undefined ? articleFor(unbracketed(this.nounOf(type)).trim()) : `${written} `;
+    return written === undefined ? articleFor(unbracketed(this.nounOf(type)).trim()) : marked(`${written} `, false);
   }
 
   /** The noun of a type, with its words in brackets marked as links. */
   private noun(type: string): string {
-    return mark(this.nounOf(type), this.readings.nounTargets.get(type));
+    return marked(mark(this.nounOf(type), this.readings.nounTargets.get(type)), false);
   }
 
   /** A new name for a variable where it is introduced, linked to the term of its type: unit_1, then unit_2. */
@@ -142,13 +142,13 @@ export class Printer {
       if (parts.every(part => part.startsWith(hole))) {
         const rests = parts.map(part => part.slice(hole.length).trim());
         const negations = rests.every(rest => rest.startsWith('is not '));
-        suffix = ` that ${negations ? 'is not ' : ''}${coordinate(negations ? rests.map(rest => rest.slice('is not '.length)) : rests, negations ? 'or' : 'and')}`;
-      } else suffix = ` that ${(parts[0] as string).slice(0, -hole.length).trim()}`;
+        suffix = own` that ${negations ? 'is not ' : ''}${coordinate(negations ? rests.map(rest => rest.slice('is not '.length)) : rests, negations ? 'or' : 'and')}`;
+      } else suffix = own` that ${(parts[0] as string).slice(0, -hole.length).trim()}`;
     }
-    if (np.det === 'no') return `no ${np.other === undefined ? '' : 'other '}${noun}${suffix}`;
+    if (np.det === 'no') return own`no ${np.other === undefined ? '' : 'other '}${noun}${suffix}`;
     if (np.other === undefined) return `${this.article(np.v.type)}${noun}${suffix}`;
-    if (np.other.t === 'var' && np.other.v.type === np.v.type) return `another ${noun}${suffix}`;
-    return `${this.article(np.v.type)}${noun} other than ${this.term(np.other)}${suffix}`;
+    if (np.other.t === 'var' && np.other.v.type === np.v.type) return own`another ${noun}${suffix}`;
+    return own`${this.article(np.v.type)}${noun} other than ${this.term(np.other)}${suffix}`;
   }
 
   /** A reading with a term in each slot. */
@@ -157,7 +157,7 @@ export class Printer {
     if (!reading) throw new Refusal(`no reading for "${key}"`);
     const words = negative ? reading.negative : reading.positive;
     if (words === undefined) throw new Refusal(`no negative reading for "${key}"`);
-    return mark(words, reading.target).replace(/\{(\d+)\}/g, (_, n: string) => slots[Number(n) - 1] as string);
+    return marked(mark(words, reading.target), false).replace(/\{(\d+)\}/g, (_, n: string) => slots[Number(n) - 1] as string);
   }
 
   private clause(c: Clause): Doc {
@@ -165,7 +165,7 @@ export class Printer {
       case 'reading':
         return this.say(c.key, c.args.map(a => this.term(a)), c.negative);
       case 'same':
-        return `${this.term(c.l)} and ${this.term(c.r)} are ${c.negative ? 'different' : 'the same'}`;
+        return own`${this.term(c.l)} and ${this.term(c.r)} are ${c.negative ? 'different' : 'the same'}`;
       case 'isA':
         return `${this.term(c.x)} is ${c.negative ? 'not ' : ''}${this.article(c.type)}${this.noun(c.type)}`;
       case 'reach': {
@@ -173,17 +173,17 @@ export class Printer {
         const [p, q] = [this.introduce(c.p), this.introduce(c.q)];
         const step = this.sentence(c.step);
         if (typeof step !== 'string') throw new Refusal('a step of a closure is more than one clause');
-        return `${from} ${c.negative ? 'does not reach' : 'reaches'} ${to} in ${c.reflexive ? 'zero' : 'one'} or more steps, where a step from ${p} to ${q} is that ${step}`;
+        return own`${from} ${c.negative ? 'does not reach' : 'reaches'} ${to} in ${c.reflexive ? 'zero' : 'one'} or more steps, where a step from ${p} to ${q} is that ${step}`;
       }
       case 'next':
         return `${this.term(c.y)} is ${c.negative ? 'not ' : ''}the integer after ${this.term(c.x)} without wrapping around`;
       case 'compare': {
         const defs: Doc[] = [];
         const [a, b] = [this.number(c.l, defs).words, this.number(c.r, defs).words];
-        const main = `${WRAP}${a} ${COMPARED[c.op]} ${b}`;
+        const main = own`${fixed(WRAP)}${a} ${fixed(COMPARED[c.op])} ${b}`;
         if (defs.length === 0) return main;
-        if (defs.length === 1 && typeof defs[0] === 'string') return `${main}, where ${defs[0]}`;
-        return { kind: 'list', intro: `${main}, where`, items: defs };
+        if (defs.length === 1 && typeof defs[0] === 'string') return own`${main}, where ${defs[0]}`;
+        return { kind: 'list', intro: own`${main}, where`, items: defs };
       }
     }
   }
@@ -207,7 +207,7 @@ export class Printer {
         return { words, open };
       }
       const name = this.numberName();
-      defs.push(body === undefined ? `${name} is ${words}` : { kind: 'block', intro: `${name} is ${words}`, body });
+      defs.push(body === undefined ? own`${name} is ${words}` : { kind: 'block', intro: own`${name} is ${words}`, body });
       return { words: name, open: false };
     };
     const closed = (part: { words: string; open: boolean }): string => {
@@ -226,27 +226,27 @@ export class Printer {
         return { words: this.term(n.x), open: false };
       case 'count': {
         const shown = n.vars.map(v => this.introduce(v));
-        const of = shown.length === 1 ? `the number of values of ${shown[0]}` : `the number of combinations of ${shown.join(' and ')}`;
+        const of = shown.length === 1 ? own`the number of values of ${shown[0] as string}` : own`the number of combinations of ${shown.join(own` and `)}`;
         const cond = this.sentence(n.cond);
-        return typeof cond === 'string' ? named(`${of} such that ${cond}`, true) : named(`${of} such that`, true, cond);
+        return typeof cond === 'string' ? named(own`${of} such that ${cond}`, true) : named(own`${of} such that`, true, cond);
       }
       case 'sumOf': {
         const shown = this.introduce(n.v);
         const cond = this.sentence(n.cond);
-        return typeof cond === 'string' ? named(`the sum of the values of ${shown} such that ${cond}`, true) : named(`the sum of the values of ${shown} such that`, true, cond);
+        return typeof cond === 'string' ? named(own`the sum of the values of ${shown} such that ${cond}`, true) : named(own`the sum of the values of ${shown} such that`, true, cond);
       }
       case 'sumOver': {
         const shown = n.vars.map(v => this.introduce(v));
         const body = this.number(n.body, undefined);
-        return named(`the sum, over every ${shown.join(' and every ')}, of ${body.words}`, true);
+        return named(own`the sum, over every ${shown.join(own` and every `)}, of ${body.words}`, true);
       }
       case 'arith': {
         const x = closed(this.number(n.l, defs));
         const y = this.number(n.r, defs);
-        if (n.op === 'plus' || n.op === 'minus' || n.op === 'times') return { words: `${x} ${n.op} ${y.words}`, open: y.open };
+        if (n.op === 'plus' || n.op === 'minus' || n.op === 'times') return { words: own`${x} ${n.op} ${y.words}`, open: y.open };
         const z = closed(y);
-        if (n.op === 'div') return named(`${x} divided by ${z}, rounded toward zero; when ${z} is 0, it is -1, 0 or 1 as ${x} is positive, zero or negative`, false);
-        return named(`the remainder of ${x} divided by ${z}, with the sign of ${x}; when ${z} is 0, it is ${x}`, false);
+        if (n.op === 'div') return named(own`${x} divided by ${z}, rounded toward zero; when ${z} is 0, it is -1, 0 or 1 as ${x} is positive, zero or negative`, false);
+        return named(own`the remainder of ${x} divided by ${z}, with the sign of ${x}; when ${z} is 0, it is ${x}`, false);
       }
     }
   }
@@ -282,21 +282,21 @@ export class Printer {
       case 'or': {
         const docs = s.t === 'and' ? this.together(s.items) : this.independent(s.items, i => this.sentence(i));
         // A sequence of two plain clauses: "a, and at the next moment, b".
-        if (s.form === 'sequence-sentence') return `${docs[0] as string}, and ${docs[1] as string}`;
+        if (s.form === 'sequence-sentence') return own`${docs[0] as string}, and ${docs[1] as string}`;
         if (s.form === 'sentence') return coordinate(shareSubject(docs as string[]), s.t);
-        const intro = s.t === 'and' ? INTRO.all : INTRO.any;
+        const intro = fixed(s.t === 'and' ? INTRO.all : INTRO.any);
         return { kind: 'list', intro, items: docs.flatMap(d => this.spliced(d, intro)) };
       }
       case 'not': {
-        if (s.form === 'exactly-one' && s.body.t === 'iff') return { kind: 'list', intro: INTRO.exactlyOne, items: [this.sentence(s.body.l), this.sentence(s.body.r)] };
+        if (s.form === 'exactly-one' && s.body.t === 'iff') return { kind: 'list', intro: fixed(INTRO.exactlyOne), items: [this.sentence(s.body.l), this.sentence(s.body.r)] };
         const body = this.sentence(s.body);
         // One plain clause, or "there is exactly one owner", shows where the negation ends: it is said on the line.
         const simple = (x: Sentence): boolean =>
           ((x.t === 'reading' || x.t === 'same' || x.t === 'isA' || x.t === 'next') && !holdsPhrase(x)) ||
           (x.t === 'quant' && x.body.t === 'and' && x.body.items.length === 0);
-        if (typeof body === 'string' && simple(s.body)) return `${INTRO.untrue} ${body}`;
-        if (s.form === 'untrue' && isList(body)) return { ...body, intro: `${INTRO.untrue} ${body.intro}` };
-        return this.apart(INTRO.untrue, body);
+        if (typeof body === 'string' && simple(s.body)) return own`${fixed(INTRO.untrue)} ${body}`;
+        if (s.form === 'untrue' && isList(body)) return { ...body, intro: own`${fixed(INTRO.untrue)} ${body.intro}` };
+        return this.apart(fixed(INTRO.untrue), body);
       }
       case 'rule':
         return this.rule(s);
@@ -304,11 +304,11 @@ export class Printer {
         if (s.form === 'next-and-now') {
           // Each side's time phrase at its own end: "a at the next moment exactly when b now".
           // Whether two values are the same does not change from one moment to the next: that side needs no "now".
-          const at = (x: Sentence): string => (x.t === 'moment' ? `${this.sentence(x.body) as string} at the next moment` : x.t === 'same' ? (this.sentence(x) as string) : `${this.sentence(x) as string} now`);
-          return `${at(s.l)} exactly when ${at(s.r)}`;
+          const at = (x: Sentence): string => (x.t === 'moment' ? own`${this.sentence(x.body) as string} at the next moment` : x.t === 'same' ? (this.sentence(x) as string) : own`${this.sentence(x) as string} now`);
+          return own`${at(s.l)} exactly when ${at(s.r)}`;
         }
         const [l, r] = [this.sentence(s.l), this.sentence(s.r)];
-        return s.form === 'exactly-when' ? `${l as string} exactly when ${r as string}` : { kind: 'list', intro: INTRO.both, items: [l, r] };
+        return s.form === 'exactly-when' ? own`${l as string} exactly when ${r as string}` : { kind: 'list', intro: fixed(INTRO.both), items: [l, r] };
       }
       case 'quant':
         return this.quantified(s);
@@ -316,24 +316,24 @@ export class Printer {
         // "from now on, whenever a, b": the rule's own "when" takes the time phrase.
         if (s.form === 'whenever' && s.body.t === 'rule') {
           const rule = this.rule(s.body);
-          if (typeof rule === 'string') return `${RULE.whenever} ${rule.slice(`${RULE.when} `.length)}`;
+          if (typeof rule === 'string') return own`${fixed(RULE.whenever)} ${rule.slice(`${RULE.when} `.length)}`;
           if (rule.kind === 'rule') return { ...rule, lead: RULE.whenever };
         }
         const body = this.sentence(s.body);
-        if (s.form !== 'front') return this.apart(MOMENT[s.op], body);
+        if (s.form !== 'front') return this.apart(fixed(MOMENT[s.op]), body);
         // In front of the words it covers: "at the next moment, c has run", or of the line that opens them.
-        if (typeof body === 'string') return `${MOMENT[s.op]}, ${body}`;
+        if (typeof body === 'string') return own`${fixed(MOMENT[s.op])}, ${body}`;
         if (body.kind === 'rule') throw new Error('naturalloy put a time phrase in front of a rule');
-        return { ...body, intro: `${MOMENT[s.op]}, ${body.intro}` };
+        return { ...body, intro: own`${fixed(MOMENT[s.op])}, ${body.intro}` };
       }
       case 'until':
       case 'since': {
         const words = BINARY[s.t];
-        if (s.form === 'sentence') return words.sentence(this.sentence(s.b) as string, this.sentence(s.a) as string);
-        return { kind: 'list', intro: INTRO.all, items: [this.apart(words.first, this.sentence(s.b)), this.apart(words.second, this.sentence(s.a))] };
+        if (s.form === 'sentence') return `${this.sentence(s.b) as string}${fixed(words.joint)}${this.sentence(s.a) as string}`;
+        return { kind: 'list', intro: fixed(INTRO.all), items: [this.apart(fixed(words.first), this.sentence(s.b)), this.apart(fixed(words.second), this.sentence(s.a))] };
       }
       case 'pair':
-        return shareSubject([this.sentence(s.first) as string, this.sentence(s.second) as string]).join(' and ');
+        return shareSubject([this.sentence(s.first) as string, this.sentence(s.second) as string]).join(own` and `);
       case 'define':
         return this.defined(s);
     }
@@ -346,7 +346,7 @@ export class Printer {
    * side that holds a time phrase an "otherwise" follows. A first side that is a series with a comma is its items.
    */
   private rule(s: Extract<Sentence, { t: 'rule' }>): Doc {
-    const apart = (doc: Doc): Doc => this.apart(INTRO.apart, doc);
+    const apart = (doc: Doc): Doc => this.apart(fixed(INTRO.apart), doc);
     const side = (x: Sentence): Doc => {
       const doc = this.sentence(x);
       return x.t === 'rule' || (typeof doc !== 'string' && doc.kind === 'rule') ? apart(doc) : doc;
@@ -355,20 +355,20 @@ export class Printer {
     let then = side(s.then);
     const third = s.otherwise === undefined ? undefined : side(s.otherwise);
     // On one line: "when a, b", with "then" before a second side that begins with a time phrase.
-    if (s.form === 'line') return `${RULE.when} ${when as string}, ${timed(then as string) ? `${RULE.then} ` : ''}${then as string}${third === undefined ? '' : `; ${RULE.otherwise}, ${third as string}`}`;
+    if (s.form === 'line') return own`${RULE.when} ${when as string}, ${timed(then as string) ? `${RULE.then} ` : ''}${then as string}${third === undefined ? '' : own`; ${RULE.otherwise}, ${third as string}`}`;
     // A time phrase in the first side would reach over the second.
     if (typeof when === 'string' && holdsTime(when)) when = apart(when);
     // A comma in either side with no "then" between them would read as where the second side starts.
     if (typeof when === 'string' && typeof then === 'string' && (third === undefined || typeof third === 'string') && !timed(then)) {
-      if (holdsOwnComma(then, this.readings)) then = apart(then);
-      else if (seen(when).includes(',')) when = (s.when.t === 'and' || s.when.t === 'or') && s.when.form === 'sentence' ? this.sentence({ ...s.when, form: 'list' }) : apart(when);
+      if (holdsOwnComma(then)) then = apart(then);
+      else if (holdsComma(when)) when = (s.when.t === 'and' || s.when.t === 'or') && s.when.form === 'sentence' ? this.sentence({ ...s.when, form: 'list' }) : apart(when);
     }
     // A time phrase in the second side would reach over the "otherwise".
     if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
     // A series in the second or the last side, "a, and at the next moment, b", could end before its last clause.
-    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll(`${MOMENT.before}, `, ''));
-    if (series(then)) then = apart(then);
-    const otherwise = series(third) ? apart(third as Doc) : third;
+    const inSeries = (doc: Doc | undefined): boolean => typeof doc === 'string' && series(doc);
+    if (inSeries(then)) then = apart(then);
+    const otherwise = inSeries(third) ? apart(third as Doc) : third;
     return otherwise === undefined ? { kind: 'rule', lead: RULE.when, when, then } : { kind: 'rule', lead: RULE.when, when, then, otherwise };
   }
 
@@ -377,19 +377,19 @@ export class Printer {
     const empty = s.body.t === 'and' && s.body.items.length === 0;
     if (s.q === 'all') {
       if (empty) throw new Refusal('this formula says nothing: it always holds, so it claims nothing');
-      return this.apart(`for ${coordinate(shown.map(name => `every ${name}`), 'and')}`, this.sentence(s.body));
+      return this.apart(own`for ${coordinate(shown.map(name => `every ${name}`), 'and')}`, this.sentence(s.body));
     }
     // Some of several things reads as "for some", the way all reads as "for every": the things, then what holds of them.
-    if (s.q === 'some' && s.vars.length > 1 && !empty) return this.apart(`for ${coordinate(shown.map(name => `some ${name}`), 'and')}`, this.sentence(s.body));
+    if (s.q === 'some' && s.vars.length > 1 && !empty) return this.apart(own`for ${coordinate(shown.map(name => `some ${name}`), 'and')}`, this.sentence(s.body));
     const one = s.vars.length === 1;
-    const count = { some: '', no: 'no ', one: 'exactly one ', lone: 'at most one ' }[s.q];
+    const count = fixed({ some: '', no: 'no ', one: 'exactly one ', lone: 'at most one ' }[s.q]);
     const article = s.q === 'some' ? (one ? this.article((s.vars[0] as Var).type) : '') : count;
     const combination = !one && s.q !== 'some' ? 'combination of ' : '';
-    const head = `there ${s.q === 'some' && !one ? 'are' : 'is'} ${article}${combination}${shown.join(' and ')}`;
+    const head = own`there ${s.q === 'some' && !one ? 'are' : 'is'} ${article}${combination}${shown.join(own` and `)}`;
     if (empty) {
       if (!one) throw new Error('naturalloy has no words for several things with no condition');
       // "there is an owner": the noun alone, in place of the name, where nothing more is said of it.
-      return `there is ${s.q === 'some' ? this.article((s.vars[0] as Var).type) : count}${this.noun((s.vars[0] as Var).type)}`;
+      return own`there is ${s.q === 'some' ? this.article((s.vars[0] as Var).type) : count}${this.noun((s.vars[0] as Var).type)}`;
     }
     // "there is a unit that is a spec", "no unit is a spec", or bullets after "there is a unit that:": the conditions
     // said without their subject, the variable, which the noun names.
@@ -400,14 +400,14 @@ export class Printer {
       this.names.set(v.id, '\u0003');
       const rests = (s.body.t === 'and' ? s.body.items : [s.body]).map(part => (this.sentence(part) as string).slice(hole.length).trim());
       this.names.delete(v.id);
-      if (s.form === 'there-is-that-list') return { kind: 'list', intro: `there is ${this.article(v.type)}${noun} that`, items: rests };
-      if (s.q === 'no' && rests.length === 1) return `no ${noun} ${rests[0] as string}`;
-      return `there is ${s.q === 'no' ? 'no ' : this.article(v.type)}${noun} that ${coordinate(rests, 'and')}`;
+      if (s.form === 'there-is-that-list') return { kind: 'list', intro: own`there is ${this.article(v.type)}${noun} that`, items: rests };
+      if (s.q === 'no' && rests.length === 1) return own`no ${noun} ${rests[0] as string}`;
+      return own`there is ${s.q === 'no' ? fixed('no ') : this.article(v.type)}${noun} that ${coordinate(rests, 'and')}`;
     }
     const body = this.sentence(s.body);
-    if (typeof body === 'string') return `${head} such that ${body}`;
-    if (isList(body)) return { ...body, intro: `${head} such that ${body.intro}` };
-    return this.apart(`${head} such that`, body);
+    if (typeof body === 'string') return own`${head} such that ${body}`;
+    if (isList(body)) return { ...body, intro: own`${head} such that ${body.intro}` };
+    return this.apart(own`${head} such that`, body);
   }
 
   /**
@@ -420,7 +420,7 @@ export class Printer {
       const said = this.sentence(c);
       if (typeof said !== 'string' || !said.startsWith(`${subject} `)) return undefined;
       const rest = said.slice(subject.length + 1);
-      return /^(?:and|or)\b/.test(rest) ? undefined : rest;
+      return /^(?:and|or)\b/.test(unmarked(rest)) ? undefined : rest;
     };
     const groups = new Map<string, { how: 'and' | 'or'; says: string[] }[]>();
     for (const alternative of body.t === 'or' ? body.items : [body]) {
@@ -439,10 +439,10 @@ export class Printer {
       if (alternatives.length > 1 && alternatives.some(a => a.how === 'and' && a.says.length > 1)) return undefined;
       const says = alternatives.length === 1 ? (alternatives[0] as { how: 'and' | 'or'; says: string[] }) : { how: 'or' as const, says: alternatives.flatMap(a => a.says) };
       if (says.says.some(x => x.includes(',')) && says.says.length > 2) return undefined;
-      cases.push(`${kind} that ${coordinate(says.says, says.how)}`);
+      cases.push(own`${kind} that ${coordinate(says.says, says.how)}`);
     }
-    if (cases.length === 1) return `${head} exactly when ${subject} is ${cases[0]}`;
-    return { kind: 'list', intro: `${head} exactly when ${subject} is one of these`, items: cases };
+    if (cases.length === 1) return own`${head} exactly when ${subject} is ${cases[0] as string}`;
+    return { kind: 'list', intro: own`${head} exactly when ${subject} is one of these`, items: cases };
   }
 
   private defined(s: Extract<Sentence, { t: 'define' }>): Doc {
@@ -454,21 +454,21 @@ export class Printer {
     if (kinds !== undefined) sentence = kinds;
     else if (empty) sentence = head;
     else {
-      const body = s.body.t === 'iff' ? ({ kind: 'list', intro: INTRO.both, items: [this.sentence(s.body.l), this.sentence(s.body.r)] } as Doc) : this.sentence(s.body);
+      const body = s.body.t === 'iff' ? ({ kind: 'list', intro: fixed(INTRO.both), items: [this.sentence(s.body.l), this.sentence(s.body.r)] } as Doc) : this.sentence(s.body);
       // A body that is a rule or a "for every" is set apart: after "exactly when", its own words would run on.
-      if (s.body.t === 'rule' || (s.body.t === 'quant' && s.body.q === 'all')) sentence = this.apart(`${head} exactly when ${INTRO.apart}`, body);
-      else if (typeof body === 'string') sentence = `${head} exactly when ${body}`;
-      else if (isList(body)) sentence = { ...body, intro: `${head} exactly when ${body.intro}` };
-      else sentence = this.apart(`${head} exactly when ${INTRO.apart}`, body);
+      if (s.body.t === 'rule' || (s.body.t === 'quant' && s.body.q === 'all')) sentence = this.apart(own`${head} exactly when ${fixed(INTRO.apart)}`, body);
+      else if (typeof body === 'string') sentence = own`${head} exactly when ${body}`;
+      else if (isList(body)) sentence = { ...body, intro: own`${head} exactly when ${body.intro}` };
+      else sentence = this.apart(own`${head} exactly when ${fixed(INTRO.apart)}`, body);
     }
-    return shown.length === 0 ? sentence : this.apart(`for ${coordinate(shown.map(name => `every ${name}`), 'and')}`, sentence);
+    return shown.length === 0 ? sentence : this.apart(own`for ${coordinate(shown.map(name => `every ${name}`), 'and')}`, sentence);
   }
 }
 
 /** A doc as text: laid out, with a capital where the sentence starts with its own words and a period where it ends. */
 export function finish(doc: Doc, layout: 'text' | 'markdown', self: string | undefined, options: PrintOptions = { dropLoneNumbers: false }): string {
   const raw = layout === 'markdown' ? markdownLines(doc) : lines(doc);
-  const out = resolveLinks(raw.join('\n'), layout === 'markdown', self).split('\n');
+  const out = unmarked(resolveLinks(raw.join('\n'), layout === 'markdown', self)).split('\n');
   if (!(out[0] as string).startsWith(VARIABLE)) out[0] = (out[0] as string).replace(/^(\[?)(.)/, (_, bracket: string, c: string) => bracket + c.toUpperCase());
   const last = out.length - 1;
   if (!/(:|^\s*- .*)$/.test(out[last] as string)) out[last] = `${out[last]}.`;
