@@ -338,7 +338,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     > when all of these hold:
     > - the run asks for the logic command
     > - there is no [scenario](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that the scenario cannot happen
-    > - there is no [unit_1](../canon/CANON.md#term-unit) such that unit_1 is held with units that cannot all hold
+    > - no [unit](../canon/CANON.md#term-unit) is held with units that cannot all hold
     >
     > then the run exits with code 0.
   - [`@spec a-reported-scenario-or-contradiction-fails-logic`](#spec-a-reported-scenario-or-contradiction-fails-logic) —
@@ -348,7 +348,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     > - the run asks for the logic command
     > - at least one of these holds:
     >   - there is a [scenario](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that the scenario cannot happen
-    >   - there is a [unit_1](../canon/CANON.md#term-unit) such that unit_1 is held with units that cannot all hold
+    >   - there is a [unit](../canon/CANON.md#term-unit) that is held with units that cannot all hold
     >
     > then the run does not exit with code 0.
   - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — A run of `logic` exits with code 2 when the Alloy analyzer cannot run.
@@ -1711,7 +1711,7 @@ This follows because the analyzer refuses a scope for a signature it does not kn
 > when all of these hold:
 > - the run asks for the logic command
 > - there is no [scenario](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that the scenario cannot happen
-> - there is no [unit_1](../canon/CANON.md#term-unit) such that unit_1 is held with units that cannot all hold
+> - no [unit](../canon/CANON.md#term-unit) is held with units that cannot all hold
 >
 > then the run exits with code 0.
 <!-- statement-spec-logic-succeeds-when-nothing-is-reported:end -->
@@ -1731,7 +1731,7 @@ all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised
 > - the run asks for the logic command
 > - at least one of these holds:
 >   - there is a [scenario](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that the scenario cannot happen
->   - there is a [unit_1](../canon/CANON.md#term-unit) such that unit_1 is held with units that cannot all hold
+>   - there is a [unit](../canon/CANON.md#term-unit) that is held with units that cannot all hold
 >
 > then the run does not exit with code 0.
 <!-- statement-spec-a-reported-scenario-or-contradiction-fails-logic:end -->

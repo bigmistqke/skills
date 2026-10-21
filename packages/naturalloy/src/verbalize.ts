@@ -1488,6 +1488,46 @@ class Verbalizer {
     return (this.readings.fields.get(nameOf(side.e.r, 'a field')) as Field).many && flip ? not(this.equalMembers(l, r)) : undefined;
   }
 
+  /**
+   * `s = x`, for a set or a field of one column and a variable, said as x and no other: "pulse has disposed owner_1 and
+   * has disposed no other owner". The membership is said twice, once of the variable and once of "no other" and the noun
+   * of the column's type, and the second drops the subject the two share. "No other" hints that the variable is in the
+   * set, and the first half says so. Undefined when the sides are not such, the type has no noun, or either half is more
+   * than a plain clause.
+   */
+  private sole(node: Extract<Node, { t: 'cmp' }>): string | undefined {
+    if (node.op !== '=') return undefined;
+    const isVar = (n: Node): boolean => n.t === 'name' && this.bound.has(n.name);
+    const [value, set] = isVar(node.r) && !isVar(node.l) ? [node.r, node.l] : isVar(node.l) && !isVar(node.r) ? [node.l, node.r] : [undefined, undefined];
+    if (value === undefined || set === undefined || this.isValue(set)) return undefined;
+    const { e, primed } = this.unprimed(set);
+    const columns = this.columns(e);
+    if (columns === undefined || columns.length !== 1 || columns[0] === '') return undefined;
+    // A field of at most one value has a reading for being that value: "owner_1 is the home of the cleanup".
+    const nav = this.navigation(e);
+    if (nav !== undefined && this.readings.fields.get(nav.field)?.many !== true) return undefined;
+    if (e.t === 'join' && e.r.t === 'name' && /^(?:fun\/)?next$/.test(e.r.name)) return undefined;
+    const type = columns[0] as string;
+    const written = this.readings.nouns.get(type);
+    if (written === undefined) return undefined;
+    // Only a plain clause keeps "no other" in the place of the variable: inside a noun phrase, "an owner that no other owner
+    // is the parent of", it would cover less than the whole claim.
+    if (!this.single({ t: 'cmp', op: 'in', l: value, r: e })) return undefined;
+    const hole = slotOf(this.level);
+    const probe = new Verbalizer(this.readings, new Map([...this.bound, ['\u0000', holeOf(this.level)]]), this.chain, this.used, this.level + 1);
+    let one: Doc, none: Doc;
+    try {
+      one = this.doc({ t: 'cmp', op: 'in', l: value, r: e });
+      none = probe.doc({ t: 'cmp', op: 'in', l: { t: 'name', name: '\u0000' }, r: e });
+    } catch (error) {
+      asRefusal(error);
+      return undefined;
+    }
+    if (typeof one !== 'string' || typeof none !== 'string' || none.split(hole).length !== 2 || /[,:]|\b(?:and|or)\b/.test(plain(one) + plain(none))) return undefined;
+    const both = shareSubject([one, none.replace(hole, `no other ${mark(written, this.readings.nounTargets.get(type))}`)]).join(' and ');
+    return primed ? NEXT + both : both;
+  }
+
   /** Whether a side of `=` is a navigation `y.f` of a variable and a field, read forward. */
   private forward(side: { e: Node }): boolean {
     return side.e.t === 'join' && this.navigation(side.e)?.forward === true && side.e.r.t === 'name';
@@ -1496,6 +1536,8 @@ class Verbalizer {
   /** A comparison, as the atoms it stands for: a union on the left or a difference on the right is spelled out. */
   private comparison(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Doc {
     if (this.comparesIntegers(node)) return this.integers(node, negative);
+    const sole = negative ? undefined : this.sole(node);
+    if (sole !== undefined) return sole;
     const formula = this.lowered(node, negative);
     if (formula !== undefined) return this.doc(formula);
     const { op } = node;
@@ -2162,7 +2204,7 @@ class Verbalizer {
     const others = (s: string): boolean => (s.match(/\u0001[^\u0001]*\u0001/g) ?? []).length >= 2;
     const at = said.findIndex(s => others(s) && s.endsWith(hole));
     const index = at !== -1 ? at : said.findIndex(s => others(s) && s.startsWith(hole));
-    if (index === -1) return undefined;
+    if (index === -1) return another ? undefined : this.asSubject(q, typeName, written, hole, said, other);
     const main = said[index] as string;
     const relative = said.filter((_, i) => i !== index);
 
@@ -2192,6 +2234,29 @@ class Verbalizer {
       phrase = new RegExp(`^${nounText.replace(/\s+/g, '_')}_\\d+$`).test(shown) ? `another ${noun}${suffix}` : `${article}${noun} other than ${VARIABLE}${shown}${VARIABLE}${suffix}`;
     }
     return main.replace(hole, phrase);
+  }
+
+  /**
+   * A "there is" or "there is no" whose conditions all have the variable as their subject, said with the noun and a
+   * relative clause: "there is a list that has three clauses or fewer and is longer than a line", "no unit is held with
+   * units that cannot all hold". "There is" keeps "a" from reading as "every", as in "a list has …" would. Several
+   * conditions under "no" keep "there is no", so that "no" covers all of them. Undefined when a condition is not about
+   * the variable as its subject, or when the phrase would not fit a line.
+   */
+  private asSubject(q: 'some' | 'no', typeName: string, written: string, hole: string, said: string[], other: Node | undefined): string | undefined {
+    if (other !== undefined || said.length > 3 || !said.every(s => s.startsWith(hole))) return undefined;
+    const rests = said.map(s => s.slice(hole.length));
+    // "x and y are different" has the variable in a subject of two, which a relative clause cannot take.
+    if (rests.some(r => /^ (?:and|or)\b/.test(r) || r.includes(hole))) return undefined;
+    // Under "no", a condition that says "no" itself would read as a double negative: "no claim takes no lane".
+    if (q === 'no' && rests.some(r => /\bno\b/.test(plain(r)))) return undefined;
+    const noun = mark(written, this.readings.nounTargets.get(typeName));
+    const article = this.written({ t: 'name', name: typeName }) ?? articleFor(unbracketed(written).trim());
+    const phrase =
+      q === 'no' && rests.length === 1
+        ? `no ${noun}${rests[0]}`
+        : `there is ${q === 'no' ? 'no ' : article}${noun} that ${coordinate(rests.map(r => r.trim()), 'and')}`;
+    return plain(phrase).replaceAll(VARIABLE, '').length <= INLINE_LENGTH ? phrase : undefined;
   }
 
   /**

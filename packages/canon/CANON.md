@@ -351,9 +351,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     > For every [run](#term-run):
     >
     > when at least one of these holds:
-    > - for some [frontmatter_1](#term-frontmatter) and some [missing plugin](#term-plugin):
-    >
-    >   frontmatter_1 [lists](#term-list) the missing plugin
+    > - there is a [frontmatter](#term-frontmatter) that [lists](#term-list) a [missing plugin](#term-plugin)
     > - there is a [document](#term-document) such that [checker](#term-checker) reports that the document has a frontmatter it cannot read
     > - the run asks for a [command](#term-command) that is not [available](#term-availability)
     > - the run gets code 2 from a plugin
@@ -3280,9 +3278,7 @@ This follows because the test is declared where the function is called. The call
 > For every [run](#term-run):
 >
 > when at least one of these holds:
-> - for some [frontmatter_1](#term-frontmatter) and some [missing plugin](#term-plugin):
->
->   frontmatter_1 [lists](#term-list) the missing plugin
+> - there is a [frontmatter](#term-frontmatter) that [lists](#term-list) a [missing plugin](#term-plugin)
 > - there is a [document](#term-document) such that [checker](#term-checker) reports that the document has a frontmatter it cannot read
 > - the run asks for a [command](#term-command) that is not [available](#term-availability)
 > - the run gets code 2 from a plugin

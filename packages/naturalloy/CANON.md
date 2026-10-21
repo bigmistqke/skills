@@ -127,7 +127,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec sides-that-alloy-does-not-compare-are-refused`](#spec-sides-that-alloy-does-not-compare-are-refused) — The verbalizer refuses a comparison of sides that hold tuples of different sizes, or things of types that share no member.
   - [`@spec an-equality-with-a-side-of-unknown-type-is-refused`](#spec-an-equality-with-a-side-of-unknown-type-is-refused) — The verbalizer refuses `=` or `!=` between two sets when the vocabulary does not tell the type of a side that is not a variable.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
-  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — Take a field `f` that can hold more than one value, where its reading with `y` is more than one plain clause. The verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+  - [`@spec a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other`](#spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other) — Take a variable `x`, and a set or a field of many values `s`, where being in `s` is one plain clause. The verbalizer says `s = x` as `x` in `s` "and" no other member of its type in `s`: "the cleanup is on owner_1 and is on no other owner". The second half drops a subject the two share.
   - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
   - [`@spec an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns) — The verbalizer says a formula about an expression through members of the types of its columns. This holds for an expression that is more than a set or a navigation of a variable.
     - [`@spec a-union-on-the-right-is-said-as-or`](#spec-a-union-on-the-right-is-said-as-or) — The verbalizer says `x in a + b`, for a variable or a pair `x`, as `x in a` or `x in b`.
@@ -297,7 +298,30 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it`](#spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it) — When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
   - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — The verbalizer says variables of different kinds as nested phrases, when the quantifier fits a noun phrase.
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
-  - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) —
+    > For every [quantifier_1](#term-quantifier):
+    >
+    > when all of these hold:
+    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > - at least one of these holds:
+    >   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
+    >   - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+    >   - quantifier_1 is a quantifier under "no" with a condition that says "no"
+    >
+    > then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that`](#spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that) —
+    > For every [quantifier_1](#term-quantifier):
+    >
+    > when all of these hold:
+    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > - quantifier_1 is a quantifier whose variable is the subject of the sentence
+    > - quantifier_1 is a quantifier with three conditions or fewer that fit a line
+    > - quantifier_1 is not a quantifier under "no" with a condition that says "no"
+    > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+    >
+    > then the following holds:
+    >
+    > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
   - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — For every [quantifier_1](#term-quantifier): when the following holds: quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
@@ -390,7 +414,8 @@ sig Quantifier {}
 sig VariableOnce, AsNounPhrase, VariableSubject, AsSubjectPhrase, VariableWithCondition, RelativeClause in Quantifier {}
 sig OneNegation, SaysAnother, NestsPhrases in Quantifier {}
 sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, TimedCondition, InFull in Quantifier {}
-fact quantifier_wordings { no AsNounPhrase & InFull and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
+sig ThereIsThat, LongConditions, NoUnderNo in Quantifier {}
+fact quantifier_wordings { no AsNounPhrase & InFull and no ThereIsThat & InFull and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
 ```
 
 ```readings
@@ -410,6 +435,9 @@ NoWithAnother: {1} is a quantifier that says no variable differs from another an
 ConditionAside: {1} is a quantifier whose condition is not about its variable | {1} is not a quantifier whose condition is not about its variable
 TimedCondition: {1} is a quantifier with several conditions, one of which begins with a time phrase | {1} is not a quantifier with several conditions, one of which begins with a time phrase
 InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and the numbered name | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and the numbered name
+ThereIsThat: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec" | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec"
+LongConditions: {1} is a quantifier with more than three conditions, or with conditions longer than a line | {1} is a quantifier with three conditions or fewer that fit a line
+NoUnderNo: {1} is a quantifier under "no" with a condition that says "no" | {1} is not a quantifier under "no" with a condition that says "no"
 ```
 
 <!-- statement-scenario-1-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
@@ -640,10 +668,7 @@ ThenOwnLine: [verbalizer](#term-verbalizer) says {1} with "then" at the start of
 <!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that all of these hold:
-> - the list has three clauses or fewer
-> - the list has an item that holds a comma
-> - the list has more than two clauses
+> There is a list that has three clauses or fewer, has an item that holds a comma and has more than two clauses.
 <!-- statement-scenario-1-term-series:end -->
 
 ```alloy scenario
@@ -653,7 +678,7 @@ some f: Series | f in Few and f in CommaItem and f in MoreThanTwo
 <!-- statement-scenario-2-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that the list has three clauses or fewer and is longer than a line when it is put in a sentence.
+> There is a list that has three clauses or fewer and is longer than a line when it is put in a sentence.
 <!-- statement-scenario-2-term-series:end -->
 
 ```alloy scenario
@@ -663,9 +688,7 @@ some f: Series | f in Few and f in TooLong
 <!-- statement-scenario-3-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that all of these hold:
-> - the list has clauses that begin with the same subject
-> - the list has more than three clauses
+> There is a list that has clauses that begin with the same subject and has more than three clauses.
 <!-- statement-scenario-3-term-series:end -->
 
 ```alloy scenario
@@ -675,7 +698,7 @@ some f: Series | f in SharedSubject and f in Many
 <!-- statement-scenario-4-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that the list has a clause about a pair of variables and has an item that is more than one clause.
+> There is a list that has a clause about a pair of variables and has an item that is more than one clause.
 <!-- statement-scenario-4-term-series:end -->
 
 ```alloy scenario
@@ -1244,9 +1267,15 @@ This follows because a field of at most one value equals `y` exactly when `y` is
 
 #### @spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
 
-> For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+> Take a field `f` that can hold more than one value, where its reading with `y` is more than one plain clause. The verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
 
-This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half.
+This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half. Where the reading is one plain clause, [`spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other`](#spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other) says both halves in a sentence.
+
+#### @spec a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other
+
+> Take a variable `x`, and a set or a field of many values `s`, where being in `s` is one plain clause. The verbalizer says `s = x` as `x` in `s` "and" no other member of its type in `s`: "the cleanup is on owner_1 and is on no other owner". The second half drops a subject the two share.
+
+This follows because a set equals `x` when `x` is in it and nothing else is, and the two halves say just that. "No other" alone hints that `x` is in the set, which [`spec-no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) guards against. Here the first half says it, so the hint is true. A plain clause keeps "no other" at the level of the claim. Inside a noun phrase, as in "an owner that no other owner is the parent of", it would cover less.
 
 #### @spec two-values-that-are-equal-are-said-member-by-member
 
@@ -2315,13 +2344,43 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> when all of these hold:
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> - at least one of these holds:
+>   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
+>   - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+>   - quantifier_1 is a quantifier under "no" with a condition that says "no"
+>
+> then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
-A noun phrase needs another thing in the sentence to hang from. Sometimes the sentence says only a fact about the variable itself, as in "some unit is a spec". Then the phrase has nothing to attach to. So the verbalizer spells the quantifier out in full, with a numbered name.
+A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or the conditions are many or long. Nor can it when a condition under "no" says "no".
 
 ```alloy
-all f: Quantifier | f in NothingToAttach implies f in InFull
+all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or f in LongConditions or f in NoUnderNo)) implies f in InFull
+```
+
+#### @spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
+
+<!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:begin — generated by `canon generate`; edits are overwritten -->
+> For every [quantifier_1](#term-quantifier):
+>
+> when all of these hold:
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> - quantifier_1 is a quantifier whose variable is the subject of the sentence
+> - quantifier_1 is a quantifier with three conditions or fewer that fit a line
+> - quantifier_1 is not a quantifier under "no" with a condition that says "no"
+> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+>
+> then the following holds:
+>
+> [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
+<!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:end -->
+
+"A unit is a spec" reads as a rule about every unit, and "some unit is a spec" has nothing to hang from. So the verbalizer lets `there is` give the phrase a place, with the conditions as one relative clause: `there is a list that has an item with a comma`. Under "no", one condition reads best as `no unit is a spec`, and several keep `there is no` so that "no" covers each. A condition that says "no" itself stays in full, because `no claim takes no lane` is a double negative.
+
+```alloy
+all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in LongConditions and f not in NoUnderNo and f not in NoWithAnother) implies f in ThereIsThat
 ```
 
 #### @spec no-with-another-is-said-in-full

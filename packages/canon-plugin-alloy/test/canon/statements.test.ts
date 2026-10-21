@@ -174,7 +174,7 @@ describe('the statements of scenarios', () => {
     expect(written).toContain(KEY);
     expect(src).toContain(`<!-- ${regionName(KEY)}:end -->\n\n\`\`\`alloy scenario`);
     expect(src).toContain('> It must be possible that:');
-    expect(src).toContain('> There is a node such that the node has started.');
+    expect(src).toContain('> There is a node that has started.');
     expect(stateOf(src)).toMatchObject({ kind: 'current' });
   });
 
@@ -208,7 +208,7 @@ describe('the statements of scenarios', () => {
     expect(stateOf(changed)).toMatchObject({ kind: 'stale' });
     const again = write(changed);
     expect(again.written).toContain(KEY);
-    expect(again.src).toContain('> There is a node such that the node is done.');
+    expect(again.src).toContain('> There is a node that is done.');
   });
 
   /**
