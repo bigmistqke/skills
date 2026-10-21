@@ -87,7 +87,7 @@ describe('the states of the statements', () => {
     expect(states(changed)).toMatchObject([{ kind: 'stale' }]);
     const again = write(changed);
     expect(again.written).toEqual(['spec-a-leaf']);
-    expect(again.src).toContain('when the node has started, the node is done.');
+    expect(again.src).toContain('whenever the node has started, the node is done.');
     expect(states(again.src)).toMatchObject([{ kind: 'current' }]);
   });
 
@@ -96,7 +96,8 @@ describe('the states of the statements', () => {
    */
   it('overwrites an edit made inside the markers', () => {
     const { src } = write(doc());
-    const edited = src.replace('> Now and at every later moment', '> Sometimes');
+    const edited = src.replace('> From now on', '> Sometimes');
+    expect(edited).not.toBe(src);
     expect(states(edited)).toMatchObject([{ kind: 'stale' }]);
   });
 
@@ -173,7 +174,7 @@ describe('the statements of scenarios', () => {
     expect(written).toContain(KEY);
     expect(src).toContain(`<!-- ${regionName(KEY)}:end -->\n\n\`\`\`alloy scenario`);
     expect(src).toContain('> It must be possible that:');
-    expect(src).toContain('> There is a node such that the node has started.');
+    expect(src).toContain('> There is a node that has started.');
     expect(stateOf(src)).toMatchObject({ kind: 'current' });
   });
 
@@ -207,7 +208,7 @@ describe('the statements of scenarios', () => {
     expect(stateOf(changed)).toMatchObject({ kind: 'stale' });
     const again = write(changed);
     expect(again.written).toContain(KEY);
-    expect(again.src).toContain('> There is a node such that the node is done.');
+    expect(again.src).toContain('> There is a node that is done.');
   });
 
   /**
@@ -244,6 +245,19 @@ function project(document: string, ...commands: string[][]) {
   });
   return { runs, document: readFileSync(join(dir, 'CANON.md'), 'utf8'), dir };
 }
+
+describe('a statement read back', () => {
+  /**
+   * @canon spec-a-statement-that-does-not-read-back-to-its-formula-is-not-current
+   */
+  it('is misread where two readings say the same words, and current once they differ', () => {
+    const twice = '```readings\nnoun Node: node\nStarted: {1} has started | {1} has not started\nDone: {1} has started | {1} is not done\n```';
+    const formula = 'all n: Node | n in Done';
+    const written = write(doc(formula, '', twice)).src;
+    expect(states(written, [])).toMatchObject([{ unit: 'spec-a-leaf', kind: 'misread' }]);
+    expect(states(write(doc(formula)).src, [])).toMatchObject([{ unit: 'spec-a-leaf', kind: 'current' }]);
+  });
+});
 
 describe('the command line', () => {
   /**

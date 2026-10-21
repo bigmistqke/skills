@@ -155,7 +155,7 @@ export function checkStatements(documents: string[], root: string): number {
     for (const state of statements.states(readFileSync(file, 'utf8'), contextFor(file, root))) {
       if (state.kind === 'current') continue;
       code = 1;
-      console.log(`${doc}: ${state.unit}: ${state.kind}: ${state.kind === 'unsayable' ? state.message : WHAT[state.kind]}`);
+      console.log(`${doc}: ${state.unit}: ${state.kind}: ${state.kind === 'unsayable' || state.kind === 'misread' ? state.message : WHAT[state.kind]}`);
     }
   }
   return code;

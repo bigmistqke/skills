@@ -1,0 +1,26 @@
+/** The passes, in the order they run. */
+import type { Pass } from '../pass.ts';
+import { clausesInASentence, exactlyWhen, ruleOnOneLine, timePhraseInFront } from './layout.ts';
+import { forEveryTogether } from './merge.ts';
+import { exactlyOne, negationInward } from './negate.ts';
+import { alwaysInsideForEvery, fromNowOnWhenever, untilInASentence } from './time.ts';
+import { thereIsAThat, xAndNoOther } from './subject.ts';
+import { anotherOfAKind, definitionByKinds, nounPhrases } from './phrases.ts';
+
+export const PASSES: readonly Pass[] = [
+  negationInward,
+  exactlyOne,
+  alwaysInsideForEvery,
+  xAndNoOther,
+  forEveryTogether,
+  anotherOfAKind,
+  nounPhrases,
+  definitionByKinds,
+  thereIsAThat,
+  untilInASentence,
+  timePhraseInFront,
+  clausesInASentence,
+  exactlyWhen,
+  ruleOnOneLine,
+  fromNowOnWhenever,
+  { name: 'lone-numbers-dropped', spec: 'spec-a-variable-alone-of-its-noun-is-named-the-noun', print: { dropLoneNumbers: true } }];
