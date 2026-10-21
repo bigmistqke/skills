@@ -108,6 +108,28 @@ export class Printer {
     return docs;
   }
 
+  /**
+   * The items of an "all of these hold". A "for every" among them is a statement of its own, which may use the names
+   * the others use; the rest are joint conditions, whose variables must not read as one.
+   */
+  private together(items: Sentence[]): Doc[] {
+    const before = [...this.used];
+    const all = new Set(before);
+    let joint = new Set(before);
+    const docs = items.map(item => {
+      const own = item.t === 'quant' && item.q === 'all';
+      this.used.clear();
+      for (const name of own ? before : joint) this.used.add(name);
+      const doc = this.sentence(item);
+      for (const name of this.used) all.add(name);
+      if (!own) joint = new Set(this.used);
+      return doc;
+    });
+    this.used.clear();
+    for (const name of all) this.used.add(name);
+    return docs;
+  }
+
   // ---- clauses ----
 
   private term(x: Term): string {
@@ -259,6 +281,12 @@ export class Printer {
     return isList(doc) && doc.intro === intro ? doc.items : [doc];
   }
 
+  /** The words for a whole statement: the names of its free variables are taken before any other is given. */
+  statement(s: Sentence): Doc {
+    for (const match of JSON.stringify(s).matchAll(/"t":"free","name":"([^"]+)"/g)) this.used.add(match[1] as string);
+    return this.sentence(s);
+  }
+
   sentence(s: Sentence): Doc {
     switch (s.t) {
       case 'reading':
@@ -270,16 +298,28 @@ export class Printer {
         return this.clause(s);
       case 'and':
       case 'or': {
-        const docs = s.t === 'and' ? s.items.map(item => this.sentence(item)) : this.independent(s.items, i => this.sentence(i));
+        const docs = s.t === 'and' ? this.together(s.items) : this.independent(s.items, i => this.sentence(i));
+        // A sequence of two plain clauses: "a, and at the next moment, b".
+        if (s.inline === true && s.t === 'and' && s.sequence === true) return `${docs[0] as string}, and ${docs[1] as string}`;
         if (s.inline === true) return coordinate(shareSubject(docs as string[]), s.t);
         return { kind: 'list', intro: s.t === 'and' ? ALL : ANY, items: docs.flatMap(d => this.spliced(d, s.t === 'and' ? ALL : ANY)) };
       }
-      case 'not':
-        return this.apart(UNTRUE, this.sentence(s.body));
+      case 'not': {
+        if (s.exactlyOne === true && s.body.t === 'iff') return { kind: 'list', intro: 'exactly one of these holds:', items: [this.sentence(s.body.l), this.sentence(s.body.r)] };
+        const body = this.sentence(s.body);
+        // One plain clause, or "there is exactly one owner", shows where the negation ends: it is said on the line.
+        const simple = (x: Sentence): boolean =>
+          ((x.t === 'reading' || x.t === 'same' || x.t === 'isA' || x.t === 'next') && !JSON.stringify(x).includes('"t":"np"')) ||
+          (x.t === 'quant' && x.body.t === 'and' && x.body.items.length === 0);
+        if (typeof body === 'string' && simple(s.body)) return `it is not the case that ${body}`;
+        if (s.untrue === true && isList(body)) return { ...body, intro: `it is not the case that ${body.intro}` };
+        return this.apart(UNTRUE, body);
+      }
       case 'rule': {
+        // A side that is itself a rule is set apart, so that its "when" cannot read as more of this one.
         const side = (x: Sentence): Doc => {
           const doc = this.sentence(x);
-          return typeof doc !== 'string' && doc.kind === 'rule' ? this.apart(APART, doc) : doc;
+          return x.t === 'rule' || (typeof doc !== 'string' && doc.kind === 'rule') ? this.apart(APART, doc) : doc;
         };
         const [when, then] = [side(s.when), side(s.then)];
         const otherwise = s.otherwise === undefined ? undefined : side(s.otherwise);
@@ -295,7 +335,8 @@ export class Printer {
       case 'iff': {
         if (s.nextAndNow === true) {
           // Each side's time phrase at its own end: "a at the next moment exactly when b now".
-          const at = (x: Sentence): string => (x.t === 'moment' ? `${this.sentence(x.body) as string} at the next moment` : `${this.sentence(x) as string} now`);
+          // Whether two values are the same does not change from one moment to the next: that side needs no "now".
+          const at = (x: Sentence): string => (x.t === 'moment' ? `${this.sentence(x.body) as string} at the next moment` : x.t === 'same' ? (this.sentence(x) as string) : `${this.sentence(x) as string} now`);
           return `${at(s.l)} exactly when ${at(s.r)}`;
         }
         const [l, r] = [this.sentence(s.l), this.sentence(s.r)];
@@ -319,6 +360,8 @@ export class Printer {
             : ['now or at an earlier moment, the following holds:', 'at every moment after the last such moment, up to and including now, the following holds:'];
         return { kind: 'list', intro: ALL, items: [this.apart(first, this.sentence(s.b)), this.apart(second, this.sentence(s.a))] };
       }
+      case 'pair':
+        return shareSubject([this.sentence(s.first) as string, this.sentence(s.second) as string]).join(' and ');
       case 'define':
         return this.defined(s);
     }
@@ -347,15 +390,54 @@ export class Printer {
     return this.apart(`${head} such that:`, body);
   }
 
+  /**
+   * A definition by kinds: each alternative's kind as a noun phrase, and what else holds of the parameter as its
+   * relative clause. Undefined where the words of an alternative do not fit, and the definition is said as it stands.
+   */
+  private byKinds(head: string, v: Var, body: Sentence): Doc | undefined {
+    const subject = `${VARIABLE}${this.nameOf(v)}${VARIABLE}`;
+    const predicate = (c: Sentence): string | undefined => {
+      const said = this.sentence(c);
+      if (typeof said !== 'string' || !said.startsWith(`${subject} `)) return undefined;
+      const rest = said.slice(subject.length + 1);
+      return /^(?:and|or)\b/.test(rest) ? undefined : rest;
+    };
+    const groups = new Map<string, { how: 'and' | 'or'; says: string[] }[]>();
+    for (const alternative of body.t === 'or' ? body.items : [body]) {
+      if (alternative.t !== 'and') return undefined;
+      const [guard, ...rest] = alternative.items as [Sentence, ...Sentence[]];
+      const kind = predicate(guard)?.match(/^is (an? .*)$/)?.[1];
+      if (kind === undefined) return undefined;
+      const options = rest.length === 1 && (rest[0] as Sentence).t === 'or' ? (rest[0] as Extract<Sentence, { t: 'or' }>).items : undefined;
+      const says = (options ?? rest).map(predicate);
+      if (says.some(x => x === undefined)) return undefined;
+      groups.set(kind, [...(groups.get(kind) ?? []), { how: options === undefined ? 'and' : 'or', says: says as string[] }]);
+    }
+    const cases: string[] = [];
+    for (const [kind, alternatives] of groups) {
+      // Several alternatives of one kind are "or"; one that is itself a run of "and" would be read two ways beside another.
+      if (alternatives.length > 1 && alternatives.some(a => a.how === 'and' && a.says.length > 1)) return undefined;
+      const says = alternatives.length === 1 ? (alternatives[0] as { how: 'and' | 'or'; says: string[] }) : { how: 'or' as const, says: alternatives.flatMap(a => a.says) };
+      if (says.says.some(x => x.includes(',')) && says.says.length > 2) return undefined;
+      cases.push(`${kind} that ${coordinate(says.says, says.how)}`);
+    }
+    if (cases.length === 1) return `${head} exactly when ${subject} is ${cases[0]}`;
+    return { kind: 'list', intro: `${head} exactly when ${subject} is one of these:`, items: cases };
+  }
+
   private defined(s: Extract<Sentence, { t: 'define' }>): Doc {
     const shown = s.params.map(v => this.introduce(v));
     const head = this.clause(s.head) as string;
     const empty = s.body.t === 'and' && s.body.items.length === 0;
+    const kinds = s.byKinds === true ? this.byKinds(head, s.params[0] as Var, s.body) : undefined;
     let sentence: Doc;
-    if (empty) sentence = head;
+    if (kinds !== undefined) sentence = kinds;
+    else if (empty) sentence = head;
     else {
       const body = s.body.t === 'iff' ? ({ kind: 'list', intro: BOTH, items: [this.sentence(s.body.l), this.sentence(s.body.r)] } as Doc) : this.sentence(s.body);
-      if (typeof body === 'string') sentence = `${head} exactly when ${body}`;
+      // A body that is a rule or a "for every" is set apart: after "exactly when", its own words would run on.
+      if (s.body.t === 'rule' || (s.body.t === 'quant' && s.body.q === 'all')) sentence = this.apart(`${head} exactly when the following holds:`, body);
+      else if (typeof body === 'string') sentence = `${head} exactly when ${body}`;
       else if (isList(body)) sentence = { ...body, intro: `${head} exactly when ${body.intro}` };
       else sentence = this.apart(`${head} exactly when the following holds:`, body);
     }

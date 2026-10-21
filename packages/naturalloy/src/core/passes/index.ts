@@ -2,13 +2,16 @@
 import type { Pass } from '../pass.ts';
 import { clausesInASentence, exactlyWhen, ruleOnOneLine, timePhraseInFront } from './layout.ts';
 import { forEveryTogether } from './merge.ts';
-import { negationInward } from './negate.ts';
-import { nounPhrases } from './phrases.ts';
+import { exactlyOne, negationInward } from './negate.ts';
+import { anotherOfAKind, definitionByKinds, nounPhrases } from './phrases.ts';
 
 export const PASSES: readonly Pass[] = [
   negationInward,
+  exactlyOne,
   forEveryTogether,
+  anotherOfAKind,
   nounPhrases,
+  definitionByKinds,
   timePhraseInFront,
   clausesInASentence,
   exactlyWhen,

@@ -87,6 +87,10 @@ export function children(s: Sentence, f: (child: Sentence) => Sentence): Sentenc
       const args = s.args.map(term => (term.t === 'np' && term.relative !== undefined ? { ...term, relative: f(term.relative) } : term));
       return args.every((term, i) => term === s.args[i] || (term.t === 'np' && term.relative === (s.args[i] as typeof term).relative)) ? s : { ...s, args };
     }
+    case 'pair': {
+      const [first, second] = [f(s.first), f(s.second)];
+      return first === s.first && second === s.second ? s : ({ ...s, first, second } as Sentence);
+    }
     case 'reach': {
       const step = f(s.step);
       return step === s.step ? s : { ...s, step };

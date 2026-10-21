@@ -77,16 +77,26 @@ export type Moment = 'always' | 'eventually' | 'after' | 'before' | 'once' | 'hi
 /** A statement made of clauses. */
 export type Sentence =
   | Clause
-  | { t: 'and'; items: Sentence[]; inline?: boolean }
+  /** `sequence` marks `a ; b`, said "a, and at the next moment, b" where both are plain clauses. */
+  | { t: 'and'; items: Sentence[]; inline?: boolean; sequence?: boolean }
   | { t: 'or'; items: Sentence[]; inline?: boolean }
-  | { t: 'not'; body: Sentence }
+  /** `exactlyOne` says `not (a iff b)` as exactly one of the two holding. */
+  /** `untrue` marks the negation of a predicate said by its body, which stays whole. */
+  | { t: 'not'; body: Sentence; exactlyOne?: boolean; untrue?: boolean }
   | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; oneLine?: boolean; whenever?: boolean }
   | { t: 'iff'; l: Sentence; r: Sentence; inline?: boolean; nextAndNow?: boolean }
-  | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence }
+  /** `ofSet` marks `some S` or `no S` of a set whose reading takes the member: "an edge is being delivered". */
+  | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence; ofSet?: boolean }
   | { t: 'moment'; op: Moment; body: Sentence; inline?: boolean }
   | { t: 'until' | 'since'; a: Sentence; b: Sentence }
+  /**
+   * Two things of one kind, each said as a noun phrase in a clause of its own: "unit_1 names a unit and names another
+   * unit". It means that there are two different things of the kind, the first of which the first clause says, and the
+   * second the second.
+   */
+  | { t: 'pair'; first: Clause; second: Clause }
   /** What a definition names, exactly when its body holds, for every value of its parameters. */
-  | { t: 'define'; head: Clause; params: Var[]; body: Sentence };
+  | { t: 'define'; head: Clause; params: Var[]; body: Sentence; byKinds?: boolean };
 
 /** The Alloy a node means, as text. */
 export function meaning(s: Sentence): string {
@@ -109,7 +119,7 @@ class Meaning {
   }
 
   /** A term in its place, and the quantifiers its noun phrase puts around the clause, outermost first. */
-  private term(x: Term, around: ((inner: string) => string)[]): string {
+  private term = (x: Term, around: ((inner: string) => string)[]): string => {
     switch (x.t) {
       case 'var':
         return this.name(x.v);
@@ -129,6 +139,26 @@ class Meaning {
         });
         return name;
       }
+    }
+  };
+
+  /** A clause whose noun phrase of the variable `flat` is said as the variable itself, with its conditions beside it. */
+  private flat(c: Clause, v: Var): string {
+    const conditions: string[] = [];
+    const around: ((inner: string) => string)[] = [];
+    const term = this.term.bind(this);
+    this.term = (x: Term, list: ((inner: string) => string)[]): string => {
+      if (x.t === 'np' && x.v.id === v.id) {
+        if (x.relative !== undefined) conditions.push(`(${this.sentence(x.relative)})`);
+        return this.name(x.v);
+      }
+      return term(x, list);
+    };
+    try {
+      const core = this.core(c, around);
+      return [...conditions, `(${around.reduceRight((inner, wrap) => wrap(inner), core)})`].join(' and ');
+    } finally {
+      this.term = term;
     }
   }
 
@@ -224,6 +254,15 @@ class Meaning {
       case 'until':
       case 'since':
         return `(${this.sentence(s.a)}) ${s.t} (${this.sentence(s.b)})`;
+      case 'pair': {
+        const np = (c: Clause): Var => {
+          const found = JSON.stringify(c).match(/"t":"np","det":"a","v":\{"id":"([^"]+)","type":"([^"]+)"\}/);
+          if (found === null) throw new Error('naturalloy made a pair without a noun phrase');
+          return { id: found[1] as string, type: found[2] as string };
+        };
+        const [a, b] = [np(s.first), np(s.second)];
+        return `(some ${this.decl([a, b])} | ${this.name(a)} != ${this.name(b)} and (${this.flat(s.first, a)}) and (${this.flat(s.second, b)}))`;
+      }
       case 'define': {
         const claim = `(${this.clause(s.head)}) iff (${this.sentence(s.body)})`;
         return s.params.length === 0 ? claim : `(all ${this.decl(s.params)} | ${claim})`;

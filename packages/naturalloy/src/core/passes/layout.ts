@@ -26,15 +26,24 @@ export const clausesInASentence: Pass = {
   name: 'clauses-in-a-sentence',
   spec: 'spec-three-clauses-or-fewer-are-said-in-a-sentence',
   run(top, context) {
-    const walk = (s: Sentence, belowTime: boolean): Sentence => {
-      const inner = children(s, child => walk(child, s.t === 'moment'));
-      return belowTime ? inner : (inSentence(inner, context) ?? inner);
+    // Below a time phrase an "and" or an "or" stays a list; as a side of a rule, a sentence of three would hold commas
+    // that read as where the rule turns, so a side takes two clauses at most.
+    const walk = (s: Sentence, place: 'time' | 'side' | 'free'): Sentence => {
+      const inner = children(s, child => walk(child, s.t === 'moment' ? 'time' : s.t === 'rule' ? 'side' : 'free'));
+      if (inner.t === 'and' && inner.sequence === true) return inSentence(inner, context) ?? inner;
+      if (place === 'time' || (place === 'side' && (inner.t === 'and' || inner.t === 'or') && inner.items.length > 2)) return inner;
+      return inSentence(inner, context) ?? inner;
     };
-    return walk(top, false);
+    return walk(top, 'free');
   }
 };
 
 function inSentence(s: Sentence, context: Context): Sentence | undefined {
+  // "a, and at the next moment, b": a sequence of two plain clauses.
+  if (s.t === 'and' && s.sequence === true && s.inline !== true) {
+    const [a, b] = s.items as [Sentence, Sentence];
+    return plainClause(a) && b.t === 'moment' && b.op === 'after' && plainClause(b.body) ? { ...s, inline: true } : undefined;
+  }
   if ((s.t !== 'and' && s.t !== 'or') || s.inline === true || s.items.length > INLINE_ITEMS || !s.items.every(clauseLike)) return undefined;
   const said = s.items.map(item => line(item, context));
   if (said.some(words => words === undefined)) return undefined;
@@ -53,6 +62,8 @@ function inSentence(s: Sentence, context: Context): Sentence | undefined {
 /** A time phrase in front of the words it covers: "at the next moment, c has run", "now and at every later moment, for every cleanup:". */
 export const timePhraseInFront = everywhere('time-phrase-in-front', 'spec-a-time-phrase-is-said-in-front-of-what-it-covers', (s, context) => {
   if (s.t !== 'moment' || s.inline === true) return undefined;
+  // A sequence is said "a, and at the next moment, b": it holds a time phrase of its own.
+  if (s.body.t === 'and' && s.body.sequence === true) return undefined;
   const words = line(s.body, context);
   // Two time phrases in a row would read as one moment.
   if (words !== undefined) return holdsTime(words) ? undefined : { ...s, inline: true };
@@ -64,6 +75,8 @@ export const timePhraseInFront = everywhere('time-phrase-in-front', 'spec-a-time
 /** A rule of one-line sides on one line: "when a, b", and "when a, b; otherwise, c". */
 export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-clauses-is-said-on-one-line', (s, context) => {
   if (s.t !== 'rule' || s.oneLine === true) return undefined;
+  // A side that is itself a rule is set apart, so the rule cannot be one line.
+  if (s.when.t === 'rule' || s.then.t === 'rule' || s.otherwise?.t === 'rule') return undefined;
   const [when, then, otherwise] = [line(s.when, context), line(s.then, context), s.otherwise === undefined ? undefined : line(s.otherwise, context)];
   if (when === undefined || then === undefined || (s.otherwise !== undefined && otherwise === undefined)) return undefined;
   // A time phrase in the first side would reach over the second.
@@ -76,20 +89,40 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
   return { ...s, oneLine: true };
 });
 
-/** "a exactly when b", where the first side is a plain clause, whose end the words show. */
-export const exactlyWhen = everywhere('exactly-when', 'spec-an-equivalence-of-a-plain-clause-is-said-with-exactly-when', (s, context) => {
+/**
+ * "a exactly when b", where the first side is a plain clause, whose end the words show; and "a at the next moment
+ * exactly when b now". Not as a side of a rule, a time phrase or a definition, where "exactly when" could take the
+ * whole sentence for a side: there it is "both or neither".
+ */
+export const exactlyWhen: Pass = {
+  name: 'exactly-when',
+  spec: 'spec-an-equivalence-of-a-plain-clause-is-said-with-exactly-when',
+  run(top, context) {
+    const walk = (s: Sentence, aSide: boolean): Sentence => {
+      const isSide = s.t === 'rule' || s.t === 'moment' || s.t === 'until' || s.t === 'since' || s.t === 'define';
+      const inner = children(s, child => walk(child, isSide));
+      return aSide ? inner : (equivalence(inner, context) ?? inner);
+    };
+    return walk(top, false);
+  }
+};
+
+function equivalence(s: Sentence, context: Context): Sentence | undefined {
   if (s.t !== 'iff' || s.inline === true) return undefined;
+  if (plainClause(s.l) && clauseLike(s.r)) {
+    const [l, r] = [line(s.l, context), line(s.r, context)];
+    if (l !== undefined && r !== undefined && !holdsTime(l) && !seen(l).includes(',') && !holdsRelative(l)) return { ...s, inline: true };
+  }
   // "a at the next moment exactly when b now": each time phrase ends its own clause, so neither can reach the other.
   const next = (x: Sentence): boolean => x.t === 'moment' && x.op === 'after' && plainClause(x.body);
   if ((next(s.l) && plainClause(s.r)) || (next(s.r) && plainClause(s.l))) {
+    // A "same" clause is the last words and its "and" joins its pair; any other "and" or "or" could read two ways.
     const bare = (x: Sentence): boolean => {
-      const words = line(x.t === 'moment' ? x.body : x, context);
-      return words !== undefined && !holdsTime(words) && !/,|\band\b|\bor\b/.test(seen(words)) && !holdsRelative(words);
+      const inner = x.t === 'moment' ? x.body : x;
+      const words = line(inner, context);
+      return words !== undefined && !holdsTime(words) && !holdsRelative(words) && !seen(words).includes(',') && (inner.t === 'same' ? x === s.r : !/\band\b|\bor\b/.test(seen(words)));
     };
     if (bare(s.l) && bare(s.r)) return { ...s, inline: true, nextAndNow: true };
   }
-  if (!plainClause(s.l) || !clauseLike(s.r)) return undefined;
-  const [l, r] = [line(s.l, context), line(s.r, context)];
-  if (l === undefined || r === undefined || holdsTime(l) || seen(l).includes(',') || holdsRelative(l)) return undefined;
-  return { ...s, inline: true };
-});
+  return undefined;
+}

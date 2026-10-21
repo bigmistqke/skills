@@ -55,12 +55,13 @@ export function say(source: string, readings: Readings, options: Options = {}): 
 
 /** The IR as words. */
 export function print(s: Sentence, readings: Readings, options: Options = {}, printing: PrintOptions = { dropLoneNumbers: false }): string {
-  return finish(new Printer(readings).sentence(s), options.layout ?? 'text', options.self, printing);
+  return finish(new Printer(readings).statement(s), options.layout ?? 'text', options.self, printing);
 }
 
 /** A definition, `pred name[params] { body }` or `fun name[params]: T { e }`, as the IR. */
 export function lowerDefinition(source: string, readings: Readings): Sentence {
   const written = 'a definition is written `pred name[parameters] { formula }` or `fun name[parameters]: type { expression }`';
+  if (!/^\s*(?:private\s+)?(?:pred|fun)\b/.test(source) && !/^\s*let\s+[\w']+\s*\[/.test(source)) throw new Refusal(written);
   const paragraphs = parseModule(source).paragraphs;
   const p = paragraphs[0];
   if (paragraphs.length !== 1 || p === undefined) throw new Refusal(written);

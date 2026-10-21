@@ -334,7 +334,8 @@ export class Lower {
     } catch (error) {
       throw new Refusal(`no reading for "${node.name}", and its body cannot be said: ${asRefusal(error).message}`);
     }
-    return negative ? { t: 'not', body: said } : said;
+    // A predicate with no reading of its own is negated as a whole: its body is what it means, and it has no negative words.
+    return negative ? { t: 'not', body: said, untrue: true } : said;
   }
 
   /** Refuses a call with an argument whose type shares no member with the type of its parameter, as Alloy does. */
@@ -946,6 +947,15 @@ export class Lower {
       if (e.t === 'name' && !signature && !this.readings.fields.has(e.name) && !this.isVariable(e.name) && !this.readings.atoms.get(e.name)?.positive.includes('{1}')) {
         return this.reading(e.name, 'some', [], none);
       }
+      // some S and no S of a set whose reading takes its member: the member of the signature that holds S.
+      const holder = e.t === 'name' && !signature ? this.readings.holders.get(e.name) : undefined;
+      if (e.t === 'name' && !signature && this.readings.atoms.has(e.name) && !this.readings.fields.has(e.name) && !this.isVariable(e.name) && holder === undefined) {
+        throw new Refusal(`no one signature holds "${e.name}", so "some" or "no" of it has no noun`);
+      }
+      if (e.t === 'name' && holder !== undefined && this.readings.nouns.has(holder) && !this.readings.fields.has(e.name) && !this.isVariable(e.name)) {
+        const v = this.fresh(holder);
+        return { t: 'quant', q: none ? 'no' : 'some', vars: [v], body: this.reading(e.name, 'in', [{ t: 'var', v }], false), ofSet: true };
+      }
     }
     return this.sentence(this.counted(node, negative) as Node);
   }
@@ -1149,8 +1159,10 @@ export class Lower {
             return this.sentence({ t: 'or', items: [{ t: 'unary', op: 'always', f: b }, { t: 'binary', op: 'until', l: b, r: { t: 'and', items: [a, b] } }] });
           case 'triggered':
             return this.sentence({ t: 'or', items: [{ t: 'unary', op: 'historically', f: b }, { t: 'binary', op: 'since', l: b, r: { t: 'and', items: [a, b] } }] });
-          case ';':
-            return this.sentence({ t: 'and', items: [a, { t: 'unary', op: 'after', f: b }] });
+          case ';': {
+            const said = this.sentence({ t: 'and', items: [a, { t: 'unary', op: 'after', f: b }] });
+            return said.t === 'and' ? { ...said, sequence: true } : said;
+          }
         }
         break;
       }

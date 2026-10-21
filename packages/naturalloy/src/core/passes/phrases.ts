@@ -7,7 +7,7 @@
  */
 import type { Clause, NounPhrase, Sentence, Term, Var } from '../ir.ts';
 import { type Context, everywhere } from '../pass.ts';
-import { timed } from '../words.ts';
+import { seen, timed } from '../words.ts';
 
 /** The terms of a clause, in the order of its slots. */
 export function termsOf(c: Clause): Term[] {
@@ -91,48 +91,82 @@ function put(c: Clause, v: Var, np: NounPhrase): Clause {
   }
 }
 
+/** A condition that can carry the noun phrase: a clause, or a clause at the next moment. */
+interface Part {
+  clause: Clause;
+  next: boolean;
+}
+
+function part(s: Sentence): Part | undefined {
+  if (clause(s)) return { clause: s, next: false };
+  if (s.t === 'moment' && s.op === 'after' && clause(s.body)) return { clause: s.body, next: true };
+  return undefined;
+}
+
+/** The variables, free names and strings a clause speaks of besides `v`, inside its noun phrases too. */
+function others(c: Clause, v: Var): number {
+  const found = new Set<string>();
+  const walk = (n: unknown): void => {
+    if (Array.isArray(n)) n.forEach(walk);
+    else if (n !== null && typeof n === 'object') {
+      const o = n as Record<string, unknown>;
+      if (o.t === 'var' && (o.v as Var).id !== v.id) found.add(`var ${(o.v as Var).id}`);
+      else if (o.t === 'free') found.add(`free ${o.name as string}`);
+      else if (o.t === 'string') found.add(`string ${o.value as string}`);
+      for (const [key, value] of Object.entries(o)) if (key !== 'v') walk(value);
+    }
+  };
+  walk(c);
+  return found.size;
+}
+
 /** The quantifier said as a clause with a noun phrase, or undefined where it does not fit. */
-export function absorbed(q: 'some' | 'no', v: Var, body: Sentence, context: Context): Clause | undefined {
+export function absorbed(q: 'some' | 'no', v: Var, body: Sentence, context: Context, ofSet = false): Sentence | undefined {
   if (!context.readings.nouns.has(v.type)) return undefined;
-  const parts = body.t === 'and' ? body.items : [body];
+  const conditions = body.t === 'and' ? body.items : [body];
   let other: Term | undefined;
   const rest: Sentence[] = [];
-  for (const part of parts) {
-    const differs = other === undefined ? differsFrom(part, v) : undefined;
+  for (const condition of conditions) {
+    const differs = other === undefined ? differsFrom(condition, v) : undefined;
     if (differs !== undefined) other = differs;
-    else rest.push(part);
+    else rest.push(condition);
   }
   // "no other" hints that the variable is in the set, which the logic does not say.
   if (rest.length === 0 || (other !== undefined && q === 'no')) return undefined;
-  if (!rest.every(clause)) return undefined;
-  const clauses = rest as Clause[];
-  const places = clauses.map(c => place(c, v, context));
+  const parts = rest.map(part);
+  if (parts.some(p => p === undefined)) return undefined;
+  const ps = parts as Part[];
+  const places = ps.map(p => place(p.clause, v, context));
   if (places.some(p => p === undefined)) return undefined;
   // A time phrase in the phrase would cover the other conditions too.
-  if (rest.length > 1 && rest.some(c => timed(context.words(c) ?? ''))) return undefined;
-  // The main clause puts the variable beside a variable, a string or a name of its own, at its end where it can:
-  // "test_1 carries a tag". Beside only another noun phrase, "a cleanup is on an owner" would read as said of every cleanup.
-  const beside = (i: number): boolean => termsOf(clauses[i] as Clause).filter(term => term.t !== 'np').length >= 2;
-  let main = rest.findIndex((_, i) => beside(i) && places[i] === 'end');
-  if (main === -1) main = rest.findIndex((_, i) => beside(i) && places[i] === 'start');
+  if (ps.length > 1 && ps.some(p => p.next)) return undefined;
+  // The main clause puts the variable beside a variable, a string or a name, at its end where it can: "test_1 carries
+  // a tag". Beside only another noun phrase, "a cleanup is on an owner" would read as said of every cleanup. `some S`
+  // of a set is said of its member alone: "an edge is being delivered", "pulse has disposed no owner".
+  const fits = (i: number): boolean => others((ps[i] as Part).clause, v) >= 1 || (ofSet && ps.length === 1);
+  let main = ps.findIndex((_, i) => fits(i) && places[i] === 'end');
+  if (main === -1) main = ps.findIndex((_, i) => fits(i) && places[i] === 'start');
+  if (main === -1 && ofSet && ps.length === 1 && places[0] === 'inside') main = 0;
   if (main === -1) return undefined;
-  const relative = clauses.filter((_, i) => i !== main);
+  const relative = ps.filter((_, i) => i !== main);
   // The others say more of the variable: each as its subject, or one with it at its end, "an issue that tracker does not know".
   if (relative.length > 0) {
-    const asSubject = relative.every(c => places[clauses.indexOf(c)] === 'start');
-    const asObject = relative.length === 1 && places[clauses.indexOf(relative[0] as Clause)] === 'end';
+    const asSubject = relative.every(p => places[ps.indexOf(p)] === 'start');
+    const asObject = relative.length === 1 && places[ps.indexOf(relative[0] as Part)] === 'end';
     if (!asSubject && !asObject) return undefined;
     // "x and y are different" has the variable in a subject of two, which a relative clause cannot take.
-    if (relative.some(c => c.t === 'same')) return undefined;
+    if (relative.some(p => p.clause.t === 'same')) return undefined;
   }
   const np: NounPhrase = {
     t: 'np',
     det: q === 'no' ? 'no' : 'a',
     v,
-    ...(relative.length === 0 ? {} : { relative: relative.length === 1 ? (relative[0] as Sentence) : { t: 'and', items: relative } }),
+    ...(relative.length === 0 ? {} : { relative: relative.length === 1 ? (relative[0] as Part).clause : { t: 'and', items: relative.map(p => p.clause) } }),
     ...(other === undefined ? {} : { other })
   };
-  return put(clauses[main] as Clause, v, np);
+  const chosen = ps[main] as Part;
+  const said = put(chosen.clause, v, np);
+  return chosen.next ? { t: 'moment', op: 'after', body: said, inline: true } : said;
 }
 
 export const nounPhrases = everywhere('noun-phrases', 'spec-a-quantifier-said-once-is-a-noun-phrase', (s, context) => {
@@ -141,9 +175,54 @@ export const nounPhrases = everywhere('noun-phrases', 'spec-a-quantifier-said-on
   const [first, ...later] = s.vars as [Var, ...Var[]];
   let body: Sentence = s.body;
   for (const v of [...later].reverse()) {
-    const inner = absorbed('some', v, body, context);
+    const inner = absorbed('some', v, body, context, s.ofSet === true);
     if (inner === undefined) return undefined;
     body = inner;
   }
-  return absorbed(s.q, first, body, context);
+  return absorbed(s.q, first, body, context, s.ofSet === true);
+});
+
+/**
+ * A definition by kinds: its body is an "or" of alternatives, or one, that each begin by saying what kind of thing the
+ * parameter is, and go on with clauses about it. The printer says each kind as a noun phrase: "unit_1 is unfounded
+ * exactly when unit_1 is one of these: a spec that cites no axiom and cites no spec; a bug that cites no fact".
+ */
+export const definitionByKinds = everywhere('definition-by-kinds', 'spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind', (s, context) => {
+  if (s.t !== 'define' || s.byKinds === true || s.params.length !== 1) return undefined;
+  const v = s.params[0] as Var;
+  const about = (c: Sentence): boolean => clause(c) && place(c, v, context) === 'start' && c.t !== 'same';
+  const fits = (alternative: Sentence): boolean => {
+    if (alternative.t !== 'and' || alternative.items.length < 2) return false;
+    const [guard, ...rest] = alternative.items as [Sentence, ...Sentence[]];
+    // The kind is what the first clause says the parameter is: "unit_1 is a spec".
+    if (!about(guard) || !/^\S+ is an? /.test(seen(context.words(guard) ?? ''))) return false;
+    if (rest.length === 1 && (rest[0] as Sentence).t === 'or') return ((rest[0] as Extract<Sentence, { t: 'or' }>).items).every(about);
+    return rest.every(about);
+  };
+  const alternatives = s.body.t === 'or' ? s.body.items : [s.body];
+  return alternatives.every(fits) ? { ...s, byKinds: true } : undefined;
+});
+
+/**
+ * Two things of one kind that must differ, each with conditions of its own: "unit_1 names a unit and names another
+ * unit", and not "there are unit_2 and unit_3 such that unit_2 and unit_3 are different, unit_1 names unit_2 and unit_1
+ * names unit_3".
+ */
+export const anotherOfAKind = everywhere('another-of-a-kind', 'spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another', (s, context) => {
+  if (s.t !== 'quant' || s.q !== 'some' || s.vars.length !== 2) return undefined;
+  const [a, b] = s.vars as [Var, Var];
+  if (a.type !== b.type || s.body.t !== 'and') return undefined;
+  const parts = s.body.items;
+  const differ = parts.findIndex(p => p.t === 'same' && p.negative && ((isVar(p.l, a) && isVar(p.r, b)) || (isVar(p.l, b) && isVar(p.r, a))));
+  if (differ === -1) return undefined;
+  const rest = parts.filter((_, i) => i !== differ);
+  const ofA = rest.filter(p => mentions(p, a) && !mentions(p, b));
+  const ofB = rest.filter(p => mentions(p, b) && !mentions(p, a));
+  if (ofA.length === 0 || ofB.length === 0 || ofA.length + ofB.length !== rest.length) return undefined;
+  const all = (items: Sentence[]): Sentence => (items.length === 1 ? (items[0] as Sentence) : { t: 'and', items });
+  const [first, second] = [absorbed('some', a, all(ofA), context), absorbed('some', b, all(ofB), context)];
+  if (first === undefined || second === undefined || !clause(first) || !clause(second)) return undefined;
+  // The second is "another": a noun phrase that differs from the first.
+  const another = (c: Clause): Clause => JSON.parse(JSON.stringify(c).replace(`"t":"np","det":"a","v":{"id":"${b.id}","type":"${b.type}"}`, `"t":"np","det":"a","v":{"id":"${b.id}","type":"${b.type}"},"other":{"t":"var","v":{"id":"${a.id}","type":"${a.type}"}}`)) as Clause;
+  return { t: 'pair', first, second: another(second) };
 });
