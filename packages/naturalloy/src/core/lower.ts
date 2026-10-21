@@ -329,7 +329,7 @@ export class Lower {
       throw new Refusal(`no reading for "${node.name}", and its body cannot be said: ${asRefusal(error).message}`);
     }
     // A predicate with no reading of its own is negated as a whole: its body is what it means, and it has no negative words.
-    return negative ? { t: 'not', body: said, untrue: true } : said;
+    return negative ? { t: 'not', body: said, form: 'untrue' } : said;
   }
 
   /** Refuses a call with an argument whose type shares no member with the type of its parameter, as Alloy does. */
@@ -857,12 +857,12 @@ export class Lower {
         // a + b not in s: not every member is in s, so at least one is not.
         if (op !== 'in') return this.comparison({ ...node, op: 'in' }, !negative);
         const parts = [l.l, l.r].map(side => this.comparison({ ...node, l: side }, negative));
-        return { t: negative ? 'or' : 'and', items: parts, spelled: true };
+        return { t: negative ? 'or' : 'and', items: parts, form: 'list' };
       }
       if (r.t === 'diff') {
         if (op !== 'in') return this.comparison({ ...node, op: 'in' }, !negative);
         const parts = [this.comparison({ ...node, op: 'in', r: r.l }, negative), this.comparison({ ...node, op: 'not in', r: r.r }, negative)];
-        return { t: negative ? 'or' : 'and', items: parts, spelled: true };
+        return { t: negative ? 'or' : 'and', items: parts, form: 'list' };
       }
       if (!this.readPrimed(r)) {
         const { e, primed } = this.unprimed(r);
@@ -948,7 +948,7 @@ export class Lower {
       }
       if (e.t === 'name' && holder !== undefined && this.readings.nouns.has(holder) && !this.readings.fields.has(e.name) && !this.isVariable(e.name)) {
         const v = this.fresh(holder);
-        return { t: 'quant', q: none ? 'no' : 'some', vars: [v], body: this.reading(e.name, 'in', [{ t: 'var', v }], false), ofSet: true };
+        return { t: 'quant', q: none ? 'no' : 'some', vars: [v], body: this.reading(e.name, 'in', [{ t: 'var', v }], false), origin: 'set' };
       }
     }
     return this.sentence(this.counted(node, negative) as Node);
@@ -1155,7 +1155,7 @@ export class Lower {
             return this.sentence({ t: 'or', items: [{ t: 'unary', op: 'historically', f: b }, { t: 'binary', op: 'since', l: b, r: { t: 'and', items: [a, b] } }] });
           case ';': {
             const said = this.sentence({ t: 'and', items: [a, { t: 'unary', op: 'after', f: b }] });
-            return said.t === 'and' ? { ...said, sequence: true } : said;
+            return said.t === 'and' ? { ...said, form: 'sequence' } : said;
           }
         }
         break;
@@ -1200,7 +1200,7 @@ export class Lower {
       }
       // A binary temporal operator has no dual to move into: it is negated whole.
       case 'binary':
-        return { t: 'not', body: this.sentence(node), whole: true };
+        return { t: 'not', body: this.sentence(node), form: 'whole' };
       default:
         return { t: 'not', body: this.sentence(node) };
     }

@@ -166,7 +166,7 @@ export function absorbed(q: 'some' | 'no', v: Var, body: Sentence, context: Cont
   };
   const chosen = ps[main] as Part;
   const said = put(chosen.clause, v, np);
-  return chosen.next ? { t: 'moment', op: 'after', body: said, inline: true } : said;
+  return chosen.next ? { t: 'moment', op: 'after', body: said, form: 'front' } : said;
 }
 
 export const nounPhrases: Pass = {
@@ -176,11 +176,11 @@ export const nounPhrases: Pass = {
   const [first, ...later] = s.vars as [Var, ...Var[]];
   let body: Sentence = s.body;
   for (const v of [...later].reverse()) {
-    const inner = absorbed('some', v, body, context, s.ofSet === true);
+    const inner = absorbed('some', v, body, context, s.origin === 'set');
     if (inner === undefined) return undefined;
     body = inner;
   }
-  return absorbed(s.q, first, body, context, s.ofSet === true);
+  return absorbed(s.q, first, body, context, s.origin === 'set');
 }),
   evidence: {
     rejected: ['"another" where the formula has no "!=".', 'a noun phrase hanging only from another noun phrase, "a cleanup is on an owner": it reads as said of every cleanup.']
@@ -193,7 +193,7 @@ export const nounPhrases: Pass = {
  * exactly when unit_1 is one of these: a spec that cites no axiom and cites no spec; a bug that cites no fact".
  */
 export const definitionByKinds = everywhere('definition-by-kinds', 'spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind', (s, context) => {
-  if (s.t !== 'define' || s.byKinds === true || s.params.length !== 1) return undefined;
+  if (s.t !== 'define' || s.form !== undefined || s.params.length !== 1) return undefined;
   const v = s.params[0] as Var;
   const about = (c: Sentence): boolean => clause(c) && place(c, v, context) === 'start' && c.t !== 'same';
   const fits = (alternative: Sentence): boolean => {
@@ -205,7 +205,7 @@ export const definitionByKinds = everywhere('definition-by-kinds', 'spec-a-defin
     return rest.every(about);
   };
   const alternatives = s.body.t === 'or' ? s.body.items : [s.body];
-  return alternatives.every(fits) ? { ...s, byKinds: true } : undefined;
+  return alternatives.every(fits) ? { ...s, form: 'by-kinds' } : undefined;
 });
 
 /**

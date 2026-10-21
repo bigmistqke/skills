@@ -281,45 +281,45 @@ export class Printer {
       case 'or': {
         const docs = s.t === 'and' ? this.together(s.items) : this.independent(s.items, i => this.sentence(i));
         // A sequence of two plain clauses: "a, and at the next moment, b".
-        if (s.inline === true && s.t === 'and' && s.sequence === true) return `${docs[0] as string}, and ${docs[1] as string}`;
-        if (s.inline === true) return coordinate(shareSubject(docs as string[]), s.t);
+        if (s.form === 'sequence-sentence') return `${docs[0] as string}, and ${docs[1] as string}`;
+        if (s.form === 'sentence') return coordinate(shareSubject(docs as string[]), s.t);
         const intro = s.t === 'and' ? INTRO.all : INTRO.any;
         return { kind: 'list', intro, items: docs.flatMap(d => this.spliced(d, intro)) };
       }
       case 'not': {
-        if (s.exactlyOne === true && s.body.t === 'iff') return { kind: 'list', intro: INTRO.exactlyOne, items: [this.sentence(s.body.l), this.sentence(s.body.r)] };
+        if (s.form === 'exactly-one' && s.body.t === 'iff') return { kind: 'list', intro: INTRO.exactlyOne, items: [this.sentence(s.body.l), this.sentence(s.body.r)] };
         const body = this.sentence(s.body);
         // One plain clause, or "there is exactly one owner", shows where the negation ends: it is said on the line.
         const simple = (x: Sentence): boolean =>
           ((x.t === 'reading' || x.t === 'same' || x.t === 'isA' || x.t === 'next') && !JSON.stringify(x).includes('"t":"np"')) ||
           (x.t === 'quant' && x.body.t === 'and' && x.body.items.length === 0);
         if (typeof body === 'string' && simple(s.body)) return `${INTRO.untrue} ${body}`;
-        if (s.untrue === true && isList(body)) return { ...body, intro: `${INTRO.untrue} ${body.intro}` };
+        if (s.form === 'untrue' && isList(body)) return { ...body, intro: `${INTRO.untrue} ${body.intro}` };
         return this.apart(INTRO.untrue, body);
       }
       case 'rule':
         return this.rule(s);
       case 'iff': {
-        if (s.nextAndNow === true) {
+        if (s.form === 'next-and-now') {
           // Each side's time phrase at its own end: "a at the next moment exactly when b now".
           // Whether two values are the same does not change from one moment to the next: that side needs no "now".
           const at = (x: Sentence): string => (x.t === 'moment' ? `${this.sentence(x.body) as string} at the next moment` : x.t === 'same' ? (this.sentence(x) as string) : `${this.sentence(x) as string} now`);
           return `${at(s.l)} exactly when ${at(s.r)}`;
         }
         const [l, r] = [this.sentence(s.l), this.sentence(s.r)];
-        return s.inline === true ? `${l as string} exactly when ${r as string}` : { kind: 'list', intro: INTRO.both, items: [l, r] };
+        return s.form === 'exactly-when' ? `${l as string} exactly when ${r as string}` : { kind: 'list', intro: INTRO.both, items: [l, r] };
       }
       case 'quant':
         return this.quantified(s);
       case 'moment': {
         // "from now on, whenever a, b": the rule's own "when" takes the time phrase.
-        if (s.op === 'always' && s.body.t === 'rule' && s.body.whenever === true) {
+        if (s.form === 'whenever' && s.body.t === 'rule') {
           const rule = this.rule(s.body);
           if (typeof rule === 'string') return `${RULE.whenever} ${rule.slice(`${RULE.when} `.length)}`;
           if (rule.kind === 'rule') return { ...rule, lead: RULE.whenever };
         }
         const body = this.sentence(s.body);
-        if (s.inline !== true) return this.apart(MOMENT[s.op], body);
+        if (s.form !== 'front') return this.apart(MOMENT[s.op], body);
         // In front of the words it covers: "at the next moment, c has run", or of the line that opens them.
         if (typeof body === 'string') return `${MOMENT[s.op]}, ${body}`;
         if (body.kind === 'rule') throw new Error('naturalloy put a time phrase in front of a rule');
@@ -328,7 +328,7 @@ export class Printer {
       case 'until':
       case 'since': {
         const words = BINARY[s.t];
-        if (s.sentence === true) return words.sentence(this.sentence(s.b) as string, this.sentence(s.a) as string);
+        if (s.form === 'sentence') return words.sentence(this.sentence(s.b) as string, this.sentence(s.a) as string);
         return { kind: 'list', intro: INTRO.all, items: [this.apart(words.first, this.sentence(s.b)), this.apart(words.second, this.sentence(s.a))] };
       }
       case 'pair':
@@ -354,13 +354,13 @@ export class Printer {
     let then = side(s.then);
     const third = s.otherwise === undefined ? undefined : side(s.otherwise);
     // On one line: "when a, b", with "then" before a second side that begins with a time phrase.
-    if (s.oneLine === true) return `${RULE.when} ${when as string}, ${timed(then as string) ? `${RULE.then} ` : ''}${then as string}${third === undefined ? '' : `; ${RULE.otherwise}, ${third as string}`}`;
+    if (s.form === 'line') return `${RULE.when} ${when as string}, ${timed(then as string) ? `${RULE.then} ` : ''}${then as string}${third === undefined ? '' : `; ${RULE.otherwise}, ${third as string}`}`;
     // A time phrase in the first side would reach over the second.
     if (typeof when === 'string' && holdsTime(when)) when = apart(when);
     // A comma in either side with no "then" between them would read as where the second side starts.
     if (typeof when === 'string' && typeof then === 'string' && (third === undefined || typeof third === 'string') && !timed(then)) {
       if (holdsOwnComma(then, this.readings)) then = apart(then);
-      else if (seen(when).includes(',')) when = (s.when.t === 'and' || s.when.t === 'or') && s.when.inline === true ? this.sentence({ ...s.when, inline: false }) : apart(when);
+      else if (seen(when).includes(',')) when = (s.when.t === 'and' || s.when.t === 'or') && s.when.form === 'sentence' ? this.sentence({ ...s.when, form: 'list' }) : apart(when);
     }
     // A time phrase in the second side would reach over the "otherwise".
     if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
@@ -392,14 +392,14 @@ export class Printer {
     }
     // "there is a unit that is a spec", "no unit is a spec", or bullets after "there is a unit that:": the conditions
     // said without their subject, the variable, which the noun names.
-    if (s.subject !== undefined && one) {
+    if ((s.form === 'there-is-that' || s.form === 'there-is-that-list') && one) {
       const v = s.vars[0] as Var;
       const noun = this.noun(v.type);
       const hole = `${VARIABLE}\u0003${VARIABLE}`;
       this.names.set(v.id, '\u0003');
       const rests = (s.body.t === 'and' ? s.body.items : [s.body]).map(part => (this.sentence(part) as string).slice(hole.length).trim());
       this.names.delete(v.id);
-      if (s.subject === 'list') return { kind: 'list', intro: `there is ${this.article(v.type)}${noun} that`, items: rests };
+      if (s.form === 'there-is-that-list') return { kind: 'list', intro: `there is ${this.article(v.type)}${noun} that`, items: rests };
       if (s.q === 'no' && rests.length === 1) return `no ${noun} ${rests[0] as string}`;
       return `there is ${s.q === 'no' ? 'no ' : this.article(v.type)}${noun} that ${coordinate(rests, 'and')}`;
     }
@@ -448,7 +448,7 @@ export class Printer {
     const shown = s.params.map(v => this.introduce(v));
     const head = this.clause(s.head) as string;
     const empty = s.body.t === 'and' && s.body.items.length === 0;
-    const kinds = s.byKinds === true ? this.byKinds(head, s.params[0] as Var, s.body) : undefined;
+    const kinds = s.form === 'by-kinds' ? this.byKinds(head, s.params[0] as Var, s.body) : undefined;
     let sentence: Doc;
     if (kinds !== undefined) sentence = kinds;
     else if (empty) sentence = head;

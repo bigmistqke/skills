@@ -42,7 +42,7 @@ export const alwaysInsideForEvery = everywhere('always-inside-for-every', 'spec-
 /** A rule at every moment from now, "from now on, whenever" its condition: the moments it covers start now. */
 export const fromNowOnWhenever: Pass = {
   ...everywhere('from-now-on-whenever', 'spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever', s =>
-  s.t === 'moment' && s.op === 'always' && s.body.t === 'rule' && s.body.otherwise === undefined && s.body.whenever !== true && !anchored(s.body) ? { ...s, body: { ...s.body, whenever: true } } : undefined
+  s.t === 'moment' && s.op === 'always' && s.form === undefined && s.body.t === 'rule' && s.body.otherwise === undefined && !anchored(s.body) ? { ...s, form: 'whenever' } : undefined
 ),
   evidence: {
     readers: ['Two passes of a strict judge (Opus) found 98 of 102 sampled statements lossless; the 4 failures came from the old "a moment before", now "a moment just before".', 'On a canon of 41 rules, a judge rated 25 as reading as well as the handwritten claim, against none before.'],
@@ -60,7 +60,7 @@ function single(s: Sentence, context: Context): boolean {
 /** `until` and `since` of two plain clauses, said as one sentence: "b now or later, and until then, a". */
 export const untilInASentence: Pass = {
   ...everywhere('until-in-a-sentence', 'spec-until-of-two-plain-clauses-is-one-sentence', (s, context) =>
-  (s.t === 'until' || s.t === 'since') && s.sentence !== true && single(s.a, context) && single(s.b, context) ? { ...s, sentence: true } : undefined
+  (s.t === 'until' || s.t === 'since') && s.form === undefined && single(s.a, context) && single(s.b, context) ? { ...s, form: 'sentence' } : undefined
 ),
   evidence: {
     readers: ['On 8 timelines built to catch each misreading, 5 of 5 readers (Opus, Sonnet, three haiku) read "until then" right; "first" is not needed, since any moment of b gives the same truth.'],

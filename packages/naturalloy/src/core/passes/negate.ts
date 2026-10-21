@@ -45,10 +45,10 @@ export function negated(s: Sentence, context: Context): Sentence | undefined {
 }
 
 export const negationInward = everywhere('negation-inward', 'spec-not-before-a-compound-is-said-with-the-not-moved-inward', (s, context) =>
-  s.t === 'not' && s.untrue !== true && s.whole !== true ? negated(s.body, context) : undefined
+  s.t === 'not' && s.form === undefined ? negated(s.body, context) : undefined
 );
 
 /** `not (a iff b)` said as exactly one of the two holding. */
 export const exactlyOne = everywhere('exactly-one', 'spec-not-before-an-equivalence-is-said-as-exactly-one-of-its-sides', s =>
-  s.t === 'not' && s.body.t === 'iff' && s.exactlyOne !== true ? { ...s, exactlyOne: true } : undefined
+  s.t === 'not' && s.form === undefined && s.body.t === 'iff' ? { ...s, form: 'exactly-one' } : undefined
 );

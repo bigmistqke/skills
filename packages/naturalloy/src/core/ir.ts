@@ -77,33 +77,39 @@ export type Compared = '<' | '>' | '=<' | '>=' | '=' | '!=' | '!<' | '!>' | '!=<
 export type Quantifier = 'all' | 'some' | 'no' | 'one' | 'lone';
 export type Moment = 'always' | 'eventually' | 'after' | 'before' | 'once' | 'historically';
 
-/** A statement made of clauses. */
+/**
+ * A statement made of clauses. A node's `form` says how the printer says it, where a construct has more than one way;
+ * with no form, the printer says it in full. Lowering sets a form where the formula already decides it, and the passes
+ * set the rest. A form changes the words and never the meaning, so `meaning` ignores it.
+ */
 export type Sentence =
   | Clause
-  /** `sequence` marks `a ; b`, said "a, and at the next moment, b" where both are plain clauses. */
-  | { t: 'and'; items: Sentence[]; inline?: boolean; sequence?: boolean; spelled?: boolean }
-  /** `spelled` marks the members of a union or a difference spelled out, which stay a list. */
-  | { t: 'or'; items: Sentence[]; inline?: boolean; spelled?: boolean }
-  /** `exactlyOne` says `not (a iff b)` as exactly one of the two holding. */
-  /** `untrue` marks the negation of a predicate said by its body, which stays whole. */
-  /** `whole` marks a negation with no formula to move into, said whole below "it is not the case that". */
-  | { t: 'not'; body: Sentence; exactlyOne?: boolean; untrue?: boolean; whole?: boolean }
-  /** `whenever` says a rule right below "from now on" as "from now on, whenever" its condition. */
-  | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; oneLine?: boolean; whenever?: boolean }
-  | { t: 'iff'; l: Sentence; r: Sentence; inline?: boolean; nextAndNow?: boolean }
-  /** `ofSet` marks `some S` or `no S` of a set whose reading takes the member: "an edge is being delivered". */
-  | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence; ofSet?: boolean; subject?: 'sentence' | 'list' }
-  | { t: 'moment'; op: Moment; body: Sentence; inline?: boolean }
-  /** `sentence` says `until` or `since` of two plain clauses as one sentence. */
-  | { t: 'until' | 'since'; a: Sentence; b: Sentence; sentence?: boolean }
+  /** As bullets, as one sentence, or for `a ; b`: bullets until both are plain clauses, then "a, and at the next moment, b". */
+  | { t: 'and'; items: Sentence[]; form?: 'list' | 'sentence' | 'sequence' | 'sequence-sentence' }
+  | { t: 'or'; items: Sentence[]; form?: 'list' | 'sentence' }
+  /**
+   * Whole below "it is not the case that", where no formula takes the negation in; as untrue, for a predicate said by
+   * its body; or for `not (a iff b)`, as exactly one of the two holding.
+   */
+  | { t: 'not'; body: Sentence; form?: 'whole' | 'untrue' | 'exactly-one' }
+  | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; form?: 'line' }
+  | { t: 'iff'; l: Sentence; r: Sentence; form?: 'exactly-when' | 'next-and-now' }
+  /**
+   * "there is a unit that is a spec", or with its conditions as bullets after "that:". `origin` marks `some S` or `no S`
+   * of a set whose reading takes the member, which a noun phrase may say alone: "an edge is being delivered".
+   */
+  | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence; origin?: 'set'; form?: 'there-is-that' | 'there-is-that-list' }
+  /** In front of the words it covers; and for `always` over a rule, as "from now on, whenever" its condition. */
+  | { t: 'moment'; op: Moment; body: Sentence; form?: 'front' | 'whenever' }
+  | { t: 'until' | 'since'; a: Sentence; b: Sentence; form?: 'sentence' }
   /**
    * Two things of one kind, each said as a noun phrase in a clause of its own: "unit_1 names a unit and names another
    * unit". It means that there are two different things of the kind, the first of which the first clause says, and the
    * second the second.
    */
   | { t: 'pair'; first: Clause; second: Clause }
-  /** What a definition names, exactly when its body holds, for every value of its parameters. */
-  | { t: 'define'; head: Clause; params: Var[]; body: Sentence; byKinds?: boolean };
+  /** What a definition names, exactly when its body holds, for every value of its parameters; or said kind by kind. */
+  | { t: 'define'; head: Clause; params: Var[]; body: Sentence; form?: 'by-kinds' };
 
 /** The Alloy a node means, as text. */
 export function meaning(s: Sentence): string {

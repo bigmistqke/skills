@@ -17,7 +17,7 @@ const plainClause = (s: Sentence): boolean =>
 const anyClause = (s: Sentence): boolean => s.t === 'reading' || s.t === 'same' || s.t === 'isA' || s.t === 'next';
 
 /** What can stand beside other clauses in a sentence: a clause, or one at the next moment. */
-const clauseLike = (s: Sentence): boolean => anyClause(s) || (s.t === 'moment' && s.op === 'after' && s.inline === true && anyClause(s.body));
+const clauseLike = (s: Sentence): boolean => anyClause(s) || (s.t === 'moment' && s.op === 'after' && s.form === 'front' && anyClause(s.body));
 
 /** The words of a node as one line, or undefined where they are more. */
 const line = (s: Sentence, context: Context): string | undefined => context.words(s);
@@ -30,7 +30,7 @@ export const clausesInASentence: Pass = {
     // Below a time phrase an "and" or an "or" stays a list.
     const walk = (s: Sentence, belowTime: boolean): Sentence => {
       const inner = children(s, child => walk(child, s.t === 'moment'));
-      if (inner.t === 'and' && inner.sequence === true) return inSentence(inner, context) ?? inner;
+      if (inner.t === 'and' && inner.form === 'sequence') return inSentence(inner, context) ?? inner;
       return belowTime ? inner : (inSentence(inner, context) ?? inner);
     };
     return walk(top, false);
@@ -39,11 +39,11 @@ export const clausesInASentence: Pass = {
 
 function inSentence(s: Sentence, context: Context): Sentence | undefined {
   // "a, and at the next moment, b": a sequence of two plain clauses.
-  if (s.t === 'and' && s.sequence === true && s.inline !== true) {
+  if (s.t === 'and' && s.form === 'sequence') {
     const [a, b] = s.items as [Sentence, Sentence];
-    return plainClause(a) && b.t === 'moment' && b.op === 'after' && plainClause(b.body) ? { ...s, inline: true } : undefined;
+    return plainClause(a) && b.t === 'moment' && b.op === 'after' && plainClause(b.body) ? { ...s, form: 'sequence-sentence' } : undefined;
   }
-  if ((s.t !== 'and' && s.t !== 'or') || s.inline === true || s.spelled === true || s.items.length > INLINE_ITEMS || !s.items.every(clauseLike)) return undefined;
+  if ((s.t !== 'and' && s.t !== 'or') || s.form !== undefined || s.items.length > INLINE_ITEMS || !s.items.every(clauseLike)) return undefined;
   const said = s.items.map(item => line(item, context));
   if (said.some(words => words === undefined)) return undefined;
   const words = said as string[];
@@ -53,27 +53,27 @@ function inSentence(s: Sentence, context: Context): Sentence | undefined {
   if (words.slice(0, -1).some(w => timed(w) || holdsRelative(w))) return undefined;
   // "o and p are the same" has an "and" of its own, which among others would not show where it ends.
   if (words.some(w => w.includes(`${VARIABLE} and ${VARIABLE}`))) return undefined;
-  const hinted: Sentence = { ...s, inline: true };
+  const hinted: Sentence = { ...s, form: 'sentence' };
   const whole = line(hinted, context);
   return whole !== undefined && seen(whole).length <= INLINE_LENGTH ? hinted : undefined;
 }
 
 /** A time phrase in front of the words it covers: "at the next moment, c has run", "now and at every later moment, for every cleanup:". */
 export const timePhraseInFront = everywhere('time-phrase-in-front', 'spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart', (s, context) => {
-  if (s.t !== 'moment' || s.inline === true) return undefined;
+  if (s.t !== 'moment' || s.form !== undefined) return undefined;
   // A sequence is said "a, and at the next moment, b": it holds a time phrase of its own.
-  if (s.body.t === 'and' && s.body.sequence === true) return undefined;
+  if (s.body.t === 'and' && s.body.form === 'sequence') return undefined;
   const words = line(s.body, context);
   // Two time phrases in a row would read as one moment.
-  if (words !== undefined) return holdsTime(words) ? undefined : { ...s, inline: true };
+  if (words !== undefined) return holdsTime(words) ? undefined : { ...s, form: 'front' };
   // A list or a block takes the phrase on the line that opens it, when that line holds no time phrase of its own; a rule keeps it above.
   const opening = context.opening(s.body);
-  return opening !== undefined && 'intro' in opening && !holdsTime(opening.intro) ? { ...s, inline: true } : undefined;
+  return opening !== undefined && 'intro' in opening && !holdsTime(opening.intro) ? { ...s, form: 'front' } : undefined;
 });
 
 /** A rule of one-line sides on one line: "when a, b", and "when a, b; otherwise, c". */
 export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-clauses-is-said-on-one-line', (s, context) => {
-  if (s.t !== 'rule' || s.oneLine === true) return undefined;
+  if (s.t !== 'rule' || s.form !== undefined) return undefined;
   // A side that is itself a rule is set apart, so the rule cannot be one line.
   if (s.when.t === 'rule' || s.then.t === 'rule' || s.otherwise?.t === 'rule') return undefined;
   const [when, then, otherwise] = [line(s.when, context), line(s.then, context), s.otherwise === undefined ? undefined : line(s.otherwise, context)];
@@ -85,7 +85,7 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
   // A series in a side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
   const series = (words: string): boolean => /, (?:and|or) /.test(seen(words).replaceAll(`${MOMENT.before}, `, ''));
   if (series(then) || (otherwise !== undefined && (series(otherwise) || holdsTime(then)))) return undefined;
-  return { ...s, oneLine: true };
+  return { ...s, form: 'line' };
 });
 
 /**
@@ -107,10 +107,10 @@ export const exactlyWhen: Pass = {
 };
 
 function equivalence(s: Sentence, context: Context): Sentence | undefined {
-  if (s.t !== 'iff' || s.inline === true) return undefined;
+  if (s.t !== 'iff' || s.form !== undefined) return undefined;
   if (plainClause(s.l) && clauseLike(s.r)) {
     const [l, r] = [line(s.l, context), line(s.r, context)];
-    if (l !== undefined && r !== undefined && !holdsTime(l) && !seen(l).includes(',') && !holdsRelative(l)) return { ...s, inline: true };
+    if (l !== undefined && r !== undefined && !holdsTime(l) && !seen(l).includes(',') && !holdsRelative(l)) return { ...s, form: 'exactly-when' };
   }
   // "a at the next moment exactly when b now": each time phrase ends its own clause, so neither can reach the other.
   const next = (x: Sentence): boolean => x.t === 'moment' && x.op === 'after' && plainClause(x.body);
@@ -121,7 +121,7 @@ function equivalence(s: Sentence, context: Context): Sentence | undefined {
       const words = line(inner, context);
       return words !== undefined && !holdsTime(words) && !holdsRelative(words) && !seen(words).includes(',') && (inner.t === 'same' ? x === s.r : !/\band\b|\bor\b/.test(seen(words)));
     };
-    if (bare(s.l) && bare(s.r)) return { ...s, inline: true, nextAndNow: true };
+    if (bare(s.l) && bare(s.r)) return { ...s, form: 'next-and-now' };
   }
   return undefined;
 }

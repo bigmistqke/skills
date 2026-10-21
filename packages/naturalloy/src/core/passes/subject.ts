@@ -31,7 +31,7 @@ function subjectOnce(c: Sentence, v: Var, context: Context): c is Clause {
  */
 export const thereIsAThat: Pass = {
   ...everywhere('there-is-a-that', 'spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that', (s, context) => {
-  if (s.t !== 'quant' || (s.q !== 'some' && s.q !== 'no') || s.subject !== undefined) return undefined;
+  if (s.t !== 'quant' || (s.q !== 'some' && s.q !== 'no') || s.form !== undefined) return undefined;
   const [v, ...later] = s.vars as [Var, ...Var[]];
   if (!context.readings.nouns.has(v.type)) return undefined;
   // Variables after the first are said inside its conditions as noun phrases: "no cleanup is on an owner".
@@ -46,11 +46,11 @@ export const thereIsAThat: Pass = {
   const words = parts.map(p => context.words(p));
   if (words.some(w => w === undefined)) return undefined;
   if (s.q === 'no' && words.some(w => /\bno\b/.test(seen(w as string)))) return undefined;
-  const sentence: Sentence = { ...s, vars: [v], body, subject: 'sentence' };
+  const sentence: Sentence = { ...s, vars: [v], body, form: 'there-is-that' };
   const said = context.words(sentence);
   const fits = parts.length <= INLINE_ITEMS && said !== undefined && seen(said).length <= INLINE_LENGTH && !words.slice(0, -1).some(w => holdsTime(w as string) || holdsRelative(w as string));
   if (fits) return sentence;
-  return s.q === 'some' && parts.length > 1 ? { ...s, vars: [v], body, subject: 'list' } : undefined;
+  return s.q === 'some' && parts.length > 1 ? { ...s, vars: [v], body, form: 'there-is-that-list' } : undefined;
 }),
   evidence: {
     readers: [
@@ -86,8 +86,8 @@ export const xAndNoOther: Pass = {
   if (words === undefined || holdsTime(words) || /[,:]|\b(?:and|or)\b/.test(seen(words)) || holdsRelative(words)) return undefined;
   const one: Clause = { ...clause, args: clause.args.map(term => (isVar(term, v) ? value : term)) };
   const none: Clause = { ...clause, args: clause.args.map(term => (isVar(term, v) ? { t: 'np', det: 'no', v, other: value } : term)) };
-  const both: Sentence = { t: 'and', items: [one, none], inline: true };
-  return next ? { t: 'moment', op: 'after', body: both, inline: true } : both;
+  const both: Sentence = { t: 'and', items: [one, none], form: 'sentence' };
+  return next ? { t: 'moment', op: 'after', body: both, form: 'front' } : both;
 }),
   evidence: {
     readers: ['A strict judge (Opus) found 46 of 46 changed statements lossless; two haiku readers got 16 of 16 situations right, "no other" over an empty set among them.'],
