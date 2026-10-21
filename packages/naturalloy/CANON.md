@@ -386,6 +386,17 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-comma-of-a-reading-after-then-is-left-on-its-line`](#spec-a-comma-of-a-reading-after-then-is-left-on-its-line) — The verbalizer leaves on its line a second side whose only comma is inside the words of a reading, such as ", such as …" or ", with …".
   - [`@spec a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart`](#spec-a-second-side-that-holds-a-time-phrase-before-an-otherwise-is-set-apart) — In a rule with an "otherwise", the verbalizer sets the second side apart when it holds a time phrase, the one it begins with included.
   - [`@spec a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart`](#spec-a-second-or-last-side-of-a-rule-that-holds-a-series-is-set-apart) — The verbalizer sets apart a side of a rule after "then" or "otherwise" when that side is a series of clauses after a comma.
+- [`@axiom a-reader-needs-few-rules-to-read-the-words`](#axiom-a-reader-needs-few-rules-to-read-the-words) — A reader who holds a few rules of reading takes each statement of the verbalizer in the one way its formula means.
+  - [`@spec a-noun-phrase-covers-the-clause-it-stands-in`](#spec-a-noun-phrase-covers-the-clause-it-stands-in) — A noun phrase says its quantifier over the clause it stands in, and over nothing beyond it. "The cleanup is on no owner" says that no owner has the cleanup on it.
+  - [`@spec the-first-noun-phrase-of-a-clause-covers-the-next`](#spec-the-first-noun-phrase-of-a-clause-covers-the-next) — Of two noun phrases in one clause, the first covers the second. "No cleanup is on an owner" says that no cleanup is on any owner.
+  - [`@spec a-relative-clause-says-more-of-the-noun-it-follows`](#spec-a-relative-clause-says-more-of-the-noun-it-follows) — A relative clause, "that …", says what else holds of the noun right before it. An "and" inside it joins only its own conditions.
+  - [`@spec the-noun-alone-names-the-one-thing-of-its-kind`](#spec-the-noun-alone-names-the-one-thing-of-its-kind) — "The cleanup" names the one cleanup the statement speaks of. Where two things of one kind are in play, each keeps its number, as "cleanup_1" and "cleanup_2" do.
+  - [`@spec now-is-the-moment-a-statement-is-read-at`](#spec-now-is-the-moment-a-statement-is-read-at) — "Now" is the moment a reader takes the statement at. Inside "from now on" or "at the next moment", it is each moment that phrase picks.
+  - [`@spec a-time-phrase-covers-the-rest-of-its-sentence`](#spec-a-time-phrase-covers-the-rest-of-its-sentence) — A time phrase covers the words after it up to the end of its sentence. Where it ends in a colon, it covers the lines set apart below it.
+  - [`@spec until-then-stops-before-its-moment`](#spec-until-then-stops-before-its-moment) — "b now or later, and until then, a" says that b holds at some moment from now on. It says that a holds at every moment from now up to that one, and maybe not at it.
+  - [`@spec the-bullets-below-a-colon-are-the-parts-of-its-line`](#spec-the-bullets-below-a-colon-are-the-parts-of-its-line) — The bullets below a line that ends in a colon are the parts of what that line says. Their indentation shows which line they belong to.
+  - [`@spec a-sentence-joins-its-clauses-with-and-or-with-or-never-both`](#spec-a-sentence-joins-its-clauses-with-and-or-with-or-never-both) — A sentence joins its clauses with "and" or with "or", and never with both. A list shows how such clauses group.
+  - [`@spec exactly-when-goes-both-ways-and-when-goes-one`](#spec-exactly-when-goes-both-ways-and-when-goes-one) — "x exactly when y" says that each holds where the other does. "When x, y" says that y holds wherever x does, and nothing of the moments without x.
 <!-- toc:end -->
 
 ## Terms
@@ -2733,3 +2744,69 @@ This follows because a reader could take the time phrase as covering the "otherw
 > The verbalizer sets apart a side of a rule after "then" or "otherwise" when that side is a series of clauses after a comma.
 
 This follows because a reader could take the last clause of the series as a claim of its own, outside the rule. An example is "a, and at the next moment, b".
+
+## @axiom a-reader-needs-few-rules-to-read-the-words
+
+> A reader who holds a few rules of reading takes each statement of the verbalizer in the one way its formula means.
+
+Words that translate a formula without loss still need a reader who reads them as the formula means. English leaves open where a phrase stops, which noun a "that" follows and from when "now" counts. The verbalizer settles each of these one way, and the rules below say which. A reader learns them once, and a probe can ask whether readers hold them. Attempto Controlled English keeps such rules for the same reason.
+
+#### @spec a-noun-phrase-covers-the-clause-it-stands-in
+
+> A noun phrase says its quantifier over the clause it stands in, and over nothing beyond it. "The cleanup is on no owner" says that no owner has the cleanup on it.
+
+This follows because the clause is the smallest stretch of words that holds the noun phrase. A reader looks no further for what it covers.
+
+#### @spec the-first-noun-phrase-of-a-clause-covers-the-next
+
+> Of two noun phrases in one clause, the first covers the second. "No cleanup is on an owner" says that no cleanup is on any owner.
+
+This follows because a reader meets the first phrase first, and takes what follows as said of what it names.
+
+#### @spec a-relative-clause-says-more-of-the-noun-it-follows
+
+> A relative clause, "that …", says what else holds of the noun right before it. An "and" inside it joins only its own conditions.
+
+This follows because "that" points back to the nearest noun. The verbalizer puts a relative clause only where nothing follows that its "and" could take in.
+
+#### @spec the-noun-alone-names-the-one-thing-of-its-kind
+
+> "The cleanup" names the one cleanup the statement speaks of. Where two things of one kind are in play, each keeps its number, as "cleanup_1" and "cleanup_2" do.
+
+This follows because "the" picks out one thing, and a reader can tell which one only when one thing of that kind is in play.
+
+#### @spec now-is-the-moment-a-statement-is-read-at
+
+> "Now" is the moment a reader takes the statement at. Inside "from now on" or "at the next moment", it is each moment that phrase picks.
+
+This follows because a time phrase moves the reader to the moments it names, and the words below it hold there.
+
+#### @spec a-time-phrase-covers-the-rest-of-its-sentence
+
+> A time phrase covers the words after it up to the end of its sentence. Where it ends in a colon, it covers the lines set apart below it.
+
+This follows because a reader has no other mark of where a time phrase stops. So the verbalizer sets apart below it any words with a time phrase of their own.
+
+#### @spec until-then-stops-before-its-moment
+
+> "b now or later, and until then, a" says that b holds at some moment from now on. It says that a holds at every moment from now up to that one, and maybe not at it.
+
+This follows because "until then" ends where "then" starts, as "I wait until five" does. Any moment of b gives the same truth, so the words need not say the first. On timelines built to catch each misreading, five of five readers took it this way.
+
+#### @spec the-bullets-below-a-colon-are-the-parts-of-its-line
+
+> The bullets below a line that ends in a colon are the parts of what that line says. Their indentation shows which line they belong to.
+
+This follows because a list ends where its last item does, so no part of it can read as more of another.
+
+#### @spec a-sentence-joins-its-clauses-with-and-or-with-or-never-both
+
+> A sentence joins its clauses with "and" or with "or", and never with both. A list shows how such clauses group.
+
+This follows because "a and b or c" groups two ways, and a reader cannot tell which one the formula holds.
+
+#### @spec exactly-when-goes-both-ways-and-when-goes-one
+
+> "x exactly when y" says that each holds where the other does. "When x, y" says that y holds wherever x does, and nothing of the moments without x.
+
+This follows because a reader takes "when" as a rule and "exactly when" as both ways. "The light is on exactly when the switch is down" reads so.
