@@ -121,6 +121,14 @@ export function parses(s: Sentence): Node {
   return parseFormula(meaning(s));
 }
 
+/** A quantifier a noun phrase puts around the clause it stands in. */
+type Wrap = (inner: string) => string;
+/** The variable a clause says flat, and the conditions of its noun phrase, said beside the clause. */
+interface Flat {
+  v: Var;
+  conditions: string[];
+}
+
 class Meaning {
   /** The Alloy name of each variable: its id, with only the characters a name takes. */
   private name(v: Var): string {
@@ -131,8 +139,15 @@ class Meaning {
     return vars.map(v => `${this.name(v)}: ${v.type}`).join(', ');
   }
 
-  /** A term in its place, and the quantifiers its noun phrase puts around the clause, outermost first. */
-  private term = (x: Term, around: ((inner: string) => string)[]): string => {
+  /**
+   * A term in its place, and the quantifiers its noun phrase puts around the clause, outermost first. The noun phrase of
+   * the variable `flat` names, said flat, is the variable itself, with its conditions beside the clause.
+   */
+  private term(x: Term, around: Wrap[], flat?: Flat): string {
+    if (flat !== undefined && x.t === 'np' && x.v.id === flat.v.id) {
+      if (x.relative !== undefined) flat.conditions.push(`(${this.sentence(x.relative)})`);
+      return this.name(x.v);
+    }
     switch (x.t) {
       case 'var':
         return this.name(x.v);
@@ -143,7 +158,7 @@ class Meaning {
       case 'np': {
         const name = this.name(x.v);
         const conditions = [
-          ...(x.other === undefined ? [] : [`${name} != ${this.term(x.other, around)}`]),
+          ...(x.other === undefined ? [] : [`${name} != ${this.term(x.other, around, flat)}`]),
           ...(x.relative === undefined ? [] : [`(${this.sentence(x.relative)})`])
         ];
         around.push(inner => {
@@ -153,40 +168,28 @@ class Meaning {
         return name;
       }
     }
-  };
+  }
 
-  /** A clause whose noun phrase of the variable `flat` is said as the variable itself, with its conditions beside it. */
+  /** A clause whose noun phrase of the variable `v` is said as the variable itself, with its conditions beside it. */
   private flat(c: Clause, v: Var): string {
-    const conditions: string[] = [];
-    const around: ((inner: string) => string)[] = [];
-    const term = this.term.bind(this);
-    this.term = (x: Term, list: ((inner: string) => string)[]): string => {
-      if (x.t === 'np' && x.v.id === v.id) {
-        if (x.relative !== undefined) conditions.push(`(${this.sentence(x.relative)})`);
-        return this.name(x.v);
-      }
-      return term(x, list);
-    };
-    try {
-      const core = this.core(c, around);
-      return [...conditions, `(${around.reduceRight((inner, wrap) => wrap(inner), core)})`].join(' and ');
-    } finally {
-      this.term = term;
-    }
+    const flat: Flat = { v, conditions: [] };
+    const around: Wrap[] = [];
+    const core = this.core(c, around, flat);
+    return [...flat.conditions, `(${around.reduceRight((inner, wrap) => wrap(inner), core)})`].join(' and ');
   }
 
   /** A clause with its noun phrases' quantifiers around it, the first phrase outermost. */
   private clause(c: Clause): string {
-    const around: ((inner: string) => string)[] = [];
+    const around: Wrap[] = [];
     const core = this.core(c, around);
     return around.reduceRight((inner, wrap) => wrap(inner), core);
   }
 
-  private core(c: Clause, around: ((inner: string) => string)[]): string {
+  private core(c: Clause, around: Wrap[], flat?: Flat): string {
     const not = (negative: boolean, f: string): string => (negative ? `not (${f})` : f);
     switch (c.t) {
       case 'reading': {
-        const args = c.args.map(a => this.term(a, around));
+        const args = c.args.map(a => this.term(a, around, flat));
         const key = c.key;
         switch (c.form) {
           case 'in':
@@ -201,26 +204,26 @@ class Meaning {
         break;
       }
       case 'same':
-        return `${this.term(c.l, around)} ${c.negative ? '!=' : '='} ${this.term(c.r, around)}`;
+        return `${this.term(c.l, around, flat)} ${c.negative ? '!=' : '='} ${this.term(c.r, around, flat)}`;
       case 'isA':
-        return `${this.term(c.x, around)} ${c.negative ? 'not in' : 'in'} ${c.type}`;
+        return `${this.term(c.x, around, flat)} ${c.negative ? 'not in' : 'in'} ${c.type}`;
       case 'reach': {
-        const [from, to] = [this.term(c.from, around), this.term(c.to, around)];
+        const [from, to] = [this.term(c.from, around, flat), this.term(c.to, around, flat)];
         return not(c.negative, `${from}->${to} in ${c.reflexive ? '*' : '^'}{${this.decl([c.p, c.q])} | ${this.sentence(c.step)}}`);
       }
       case 'next':
-        return not(c.negative, `${this.term(c.x, around)}->${this.term(c.y, around)} in next`);
+        return not(c.negative, `${this.term(c.x, around, flat)}->${this.term(c.y, around, flat)} in next`);
       case 'compare':
-        return `${this.num(c.l)} ${c.op} ${this.num(c.r)}`;
+        return `${this.num(c.l, flat)} ${c.op} ${this.num(c.r, flat)}`;
     }
   }
 
-  private num(n: Num): string {
+  private num(n: Num, flat?: Flat): string {
     switch (n.t) {
       case 'literal':
         return String(n.value);
       case 'term':
-        return this.term(n.x, []);
+        return this.term(n.x, [], flat);
       case 'least':
         return 'min';
       case 'greatest':
@@ -230,10 +233,10 @@ class Meaning {
       case 'sumOf':
         return `(sum s_: {${this.decl([n.v])} | ${this.sentence(n.cond)}} | s_)`;
       case 'sumOver':
-        return `(sum ${this.decl(n.vars)} | ${this.num(n.body)})`;
+        return `(sum ${this.decl(n.vars)} | ${this.num(n.body, flat)})`;
       case 'arith': {
         const op = { plus: 'plus', minus: 'minus', times: 'mul', div: 'div', rem: 'rem' }[n.op];
-        return `${op}[${this.num(n.l)}, ${this.num(n.r)}]`;
+        return `${op}[${this.num(n.l, flat)}, ${this.num(n.r, flat)}]`;
       }
     }
   }
