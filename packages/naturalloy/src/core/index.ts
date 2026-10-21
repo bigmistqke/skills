@@ -30,8 +30,16 @@ export function context(readings: Readings): Context {
     readings,
     words: s => {
       try {
-        const doc = new Printer(readings).sentence(s);
+        const doc = new Printer(readings, true).sentence(s);
         return typeof doc === 'string' ? doc : undefined;
+      } catch {
+        return undefined;
+      }
+    },
+    opening: s => {
+      try {
+        const doc = new Printer(readings, true).sentence(s);
+        return typeof doc === 'string' ? undefined : doc.kind === 'rule' ? { rule: true } : { intro: doc.intro };
       } catch {
         return undefined;
       }

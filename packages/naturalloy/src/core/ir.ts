@@ -80,10 +80,10 @@ export type Sentence =
   | { t: 'and'; items: Sentence[]; inline?: boolean }
   | { t: 'or'; items: Sentence[]; inline?: boolean }
   | { t: 'not'; body: Sentence }
-  | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; whenever?: boolean }
-  | { t: 'iff'; l: Sentence; r: Sentence; inline?: boolean }
+  | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; oneLine?: boolean; whenever?: boolean }
+  | { t: 'iff'; l: Sentence; r: Sentence; inline?: boolean; nextAndNow?: boolean }
   | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence }
-  | { t: 'moment'; op: Moment; body: Sentence }
+  | { t: 'moment'; op: Moment; body: Sentence; inline?: boolean }
   | { t: 'until' | 'since'; a: Sentence; b: Sentence }
   /** What a definition names, exactly when its body holds, for every value of its parameters. */
   | { t: 'define'; head: Clause; params: Var[]; body: Sentence };

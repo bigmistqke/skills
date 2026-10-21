@@ -10,8 +10,7 @@ import { type Readings, LINK, LINK_MARK, mark, plain, Refusal, resolveLinks, unb
 import type { Clause, Num, Sentence, Term, Var } from './ir.ts';
 import type { PrintOptions } from './pass.ts';
 
-/** Marks a variable in the words, so that a sentence is never started with a capital in place of the variable's own letter. */
-const VARIABLE = '\u0001';
+import { coordinate, holdsTime, shareSubject, timed, VARIABLE } from './words.ts';
 
 const ALL = 'all of these hold:';
 const ANY = 'at least one of these holds:';
@@ -49,9 +48,12 @@ export class Printer {
   private readonly names = new Map<string, string>();
 
   private readonly readings: Readings;
+  /** Whether a variable said before it is introduced is named where it is said: for measuring a part on its own. */
+  private readonly lenient: boolean;
 
-  constructor(readings: Readings) {
+  constructor(readings: Readings, lenient = false) {
     this.readings = readings;
+    this.lenient = lenient;
   }
 
   // ---- names ----
@@ -85,7 +87,7 @@ export class Printer {
   }
 
   private nameOf(v: Var): string {
-    const name = this.names.get(v.id);
+    const name = this.names.get(v.id) ?? (this.lenient ? (this.introduce(v), this.names.get(v.id)) : undefined);
     if (name === undefined) throw new Error(`naturalloy printed the variable ${v.id} before it introduced it`);
     return name;
   }
@@ -117,8 +119,32 @@ export class Printer {
       case 'string':
         return `${VARIABLE}${JSON.stringify(x.value)}${VARIABLE}`;
       case 'np':
-        throw new Error('naturalloy has no words for a noun phrase yet');
+        return this.phrase(x);
     }
+  }
+
+  /** A noun phrase: "no owner", "an issue that tracker does not know", "another unit", "a text other than "a"". */
+  private phrase(np: Extract<Term, { t: 'np' }>): string {
+    const noun = this.noun(np.v.type);
+    const hole = `${VARIABLE}\u0003${VARIABLE}`;
+    let suffix = '';
+    if (np.relative !== undefined) {
+      // The conditions are said with a hole in the place of the variable, which the relative clause then leaves out.
+      const before = this.names.get(np.v.id);
+      this.names.set(np.v.id, '\u0003');
+      const parts = (np.relative.t === 'and' ? np.relative.items : [np.relative]).map(part => this.sentence(part) as string);
+      if (before === undefined) this.names.delete(np.v.id);
+      else this.names.set(np.v.id, before);
+      if (parts.every(part => part.startsWith(hole))) {
+        const rests = parts.map(part => part.slice(hole.length).trim());
+        const negations = rests.every(rest => rest.startsWith('is not '));
+        suffix = ` that ${negations ? 'is not ' : ''}${coordinate(negations ? rests.map(rest => rest.slice('is not '.length)) : rests, negations ? 'or' : 'and')}`;
+      } else suffix = ` that ${(parts[0] as string).slice(0, -hole.length).trim()}`;
+    }
+    if (np.det === 'no') return `no ${noun}${suffix}`;
+    if (np.other === undefined) return `${this.article(np.v.type)}${noun}${suffix}`;
+    if (np.other.t === 'var' && np.other.v.type === np.v.type) return `another ${noun}${suffix}`;
+    return `${this.article(np.v.type)}${noun} other than ${this.term(np.other)}${suffix}`;
   }
 
   /** A reading with a term in each slot. */
@@ -243,9 +269,11 @@ export class Printer {
       case 'compare':
         return this.clause(s);
       case 'and':
-        return { kind: 'list', intro: ALL, items: s.items.map(item => this.sentence(item)).flatMap(d => this.spliced(d, ALL)) };
-      case 'or':
-        return { kind: 'list', intro: ANY, items: this.independent(s.items, i => this.sentence(i)).flatMap(d => this.spliced(d, ANY)) };
+      case 'or': {
+        const docs = s.t === 'and' ? s.items.map(item => this.sentence(item)) : this.independent(s.items, i => this.sentence(i));
+        if (s.inline === true) return coordinate(shareSubject(docs as string[]), s.t);
+        return { kind: 'list', intro: s.t === 'and' ? ALL : ANY, items: docs.flatMap(d => this.spliced(d, s.t === 'and' ? ALL : ANY)) };
+      }
       case 'not':
         return this.apart(UNTRUE, this.sentence(s.body));
       case 'rule': {
@@ -254,14 +282,35 @@ export class Printer {
           return typeof doc !== 'string' && doc.kind === 'rule' ? this.apart(APART, doc) : doc;
         };
         const [when, then] = [side(s.when), side(s.then)];
-        return s.otherwise === undefined ? { kind: 'rule', when, then } : { kind: 'rule', when, then, otherwise: side(s.otherwise) };
+        const otherwise = s.otherwise === undefined ? undefined : side(s.otherwise);
+        // A time phrase in the first side would reach over the second: the first side is set apart below "when".
+        if (s.oneLine !== true && typeof when === 'string' && holdsTime(when)) {
+          const apartWhen = this.apart(APART, when);
+          return otherwise === undefined ? { kind: 'rule', when: apartWhen, then } : { kind: 'rule', when: apartWhen, then, otherwise };
+        }
+        // On one line: "when a, b", with "then" before a second side that begins with a time phrase.
+        if (s.oneLine === true) return `when ${when as string}, ${timed(then as string) ? 'then ' : ''}${then as string}${otherwise === undefined ? '' : `; otherwise, ${otherwise as string}`}`;
+        return otherwise === undefined ? { kind: 'rule', when, then } : { kind: 'rule', when, then, otherwise };
       }
-      case 'iff':
-        return { kind: 'list', intro: BOTH, items: [this.sentence(s.l), this.sentence(s.r)] };
+      case 'iff': {
+        if (s.nextAndNow === true) {
+          // Each side's time phrase at its own end: "a at the next moment exactly when b now".
+          const at = (x: Sentence): string => (x.t === 'moment' ? `${this.sentence(x.body) as string} at the next moment` : `${this.sentence(x) as string} now`);
+          return `${at(s.l)} exactly when ${at(s.r)}`;
+        }
+        const [l, r] = [this.sentence(s.l), this.sentence(s.r)];
+        return s.inline === true ? `${l as string} exactly when ${r as string}` : { kind: 'list', intro: BOTH, items: [l, r] };
+      }
       case 'quant':
         return this.quantified(s);
-      case 'moment':
-        return this.apart(`${MOMENT[s.op]}:`, this.sentence(s.body));
+      case 'moment': {
+        const body = this.sentence(s.body);
+        if (s.inline !== true) return this.apart(`${MOMENT[s.op]}:`, body);
+        // In front of the words it covers: "at the next moment, c has run", or of the line that opens them.
+        if (typeof body === 'string') return `${MOMENT[s.op]}, ${body}`;
+        if (body.kind === 'rule') throw new Error('naturalloy put a time phrase in front of a rule');
+        return { ...body, intro: `${MOMENT[s.op]}, ${body.intro}` };
+      }
       case 'until':
       case 'since': {
         const [first, second] =

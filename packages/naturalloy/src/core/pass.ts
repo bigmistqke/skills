@@ -8,7 +8,7 @@
  * the IR as lowered: the literal reading, `-O0`.
  */
 import type { Readings } from '../readings.ts';
-import type { Sentence } from './ir.ts';
+import type { Num, Sentence } from './ir.ts';
 
 /** What the printer can be asked to do beyond laying out the IR. */
 export interface PrintOptions {
@@ -19,8 +19,10 @@ export interface PrintOptions {
 /** What a pass of the IR may consult. */
 export interface Context {
   readings: Readings;
-  /** The words of a part of the IR, as the printer would lay it out with the passes so far, for a pass that weighs its length. */
+  /** The words of a part of the IR as one line, as the printer would say it with the passes so far; undefined where they are more than a line. */
   words(s: Sentence): string | undefined;
+  /** The opening line of a part the printer lays out as a list or a block, and whether it is a rule; undefined for one line. */
+  opening(s: Sentence): { intro: string } | { rule: true } | undefined;
 }
 
 export type Pass =
@@ -80,8 +82,42 @@ export function children(s: Sentence, f: (child: Sentence) => Sentence): Sentenc
       const [a, b] = [f(s.a), f(s.b)];
       return a === s.a && b === s.b ? s : { ...s, a, b };
     }
+    case 'reading': {
+      // A noun phrase's conditions are a sentence of their own.
+      const args = s.args.map(term => (term.t === 'np' && term.relative !== undefined ? { ...term, relative: f(term.relative) } : term));
+      return args.every((term, i) => term === s.args[i] || (term.t === 'np' && term.relative === (s.args[i] as typeof term).relative)) ? s : { ...s, args };
+    }
+    case 'reach': {
+      const step = f(s.step);
+      return step === s.step ? s : { ...s, step };
+    }
+    case 'compare': {
+      const [l, r] = [inNumber(s.l, f), inNumber(s.r, f)];
+      return l === s.l && r === s.r ? s : { ...s, l, r };
+    }
     default:
       return s;
+  }
+}
+
+/** A number with the sentences inside it, its conditions, rebuilt with `f`. */
+function inNumber(n: Num, f: (child: Sentence) => Sentence): Num {
+  switch (n.t) {
+    case 'count':
+    case 'sumOf': {
+      const cond = f(n.cond);
+      return cond === n.cond ? n : { ...n, cond };
+    }
+    case 'sumOver': {
+      const body = inNumber(n.body, f);
+      return body === n.body ? n : { ...n, body };
+    }
+    case 'arith': {
+      const [l, r] = [inNumber(n.l, f), inNumber(n.r, f)];
+      return l === n.l && r === n.r ? n : { ...n, l, r };
+    }
+    default:
+      return n;
   }
 }
 
