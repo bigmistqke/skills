@@ -3,6 +3,7 @@
  * where the words the node would be said with in a sentence cannot be read two ways: where a time phrase, a relative
  * clause or a comma would not run over the words that follow it.
  */
+import { MOMENT } from '../constructs.ts';
 import type { Sentence } from '../ir.ts';
 import { children, type Context, everywhere, type Pass } from '../pass.ts';
 import { holdsOwnComma, holdsRelative, holdsTime, INLINE_ITEMS, INLINE_LENGTH, seen, timed, VARIABLE } from '../words.ts';
@@ -82,7 +83,7 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
   // On one line, a comma in either side with no "then" between them would read as where the second side starts.
   if (!timed(then) && (holdsOwnComma(then, context.readings) || seen(when).includes(','))) return undefined;
   // A series in a side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
-  const series = (words: string): boolean => /, (?:and|or) /.test(seen(words).replace(/there is a moment (?:just )?before, and at it, /g, ''));
+  const series = (words: string): boolean => /, (?:and|or) /.test(seen(words).replaceAll(`${MOMENT.before}, `, ''));
   if (series(then) || (otherwise !== undefined && (series(otherwise) || holdsTime(then)))) return undefined;
   return { ...s, oneLine: true };
 });

@@ -9,72 +9,12 @@
  */
 import type { Readings } from '../readings.ts';
 import { unbracketed } from '../readings.ts';
+import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import type { Clause, Compared, Moment, NounPhrase, Num, Sentence, Term, Var } from './ir.ts';
+import { type Doc, readLayout } from './layout.ts';
 
-/** What a statement was laid out as: a line, a list, a block, or a rule. */
-type Doc = string | { kind: 'list'; intro: string; items: Doc[] } | { kind: 'block'; intro: string; body: Doc } | { kind: 'rule'; lead: string; when: Doc; then: Doc; otherwise?: Doc };
-
-interface Line {
-  indent: number;
-  text: string;
-}
-
-/** The layout of lines: the first line opens a rule, a list, a block, or is all there is. */
-function layout(lines: Line[]): Doc[] {
-  const [first, ...rest] = lines;
-  if (first === undefined) return [];
-  const base = first.indent;
-  const lead = /^(when|from now on, whenever) /.exec(first.text)?.[1];
-  const thenAt = rest.findIndex(line => line.indent === base && line.text.startsWith('then '));
-  if (lead !== undefined && thenAt !== -1) {
-    const otherwiseAt = rest.findIndex(line => line.indent === base && line.text.startsWith('otherwise '));
-    const whenLines = [{ indent: base, text: first.text.slice(lead.length + 1) }, ...rest.slice(0, thenAt)];
-    const thenEnd = otherwiseAt === -1 ? rest.length : otherwiseAt;
-    const then = rest[thenAt] as Line;
-    const thenLines = [{ indent: base, text: then.text.slice('then '.length) }, ...rest.slice(thenAt + 1, thenEnd).map(line => ({ indent: line.indent - 5, text: line.text }))];
-    const otherwiseLines =
-      otherwiseAt === -1 ? undefined : [{ indent: base, text: (rest[otherwiseAt] as Line).text.slice('otherwise '.length) }, ...rest.slice(otherwiseAt + 1).map(line => ({ indent: line.indent - 10, text: line.text }))];
-    const out: Doc[] = [];
-    for (const when of layout(whenLines))
-      for (const thenDoc of layout(thenLines)) {
-        if (otherwiseLines === undefined) out.push({ kind: 'rule', lead, when, then: thenDoc });
-        else for (const otherwise of layout(otherwiseLines)) out.push({ kind: 'rule', lead, when, then: thenDoc, otherwise });
-      }
-    return out;
-  }
-  if (rest.length === 0) return [first.text];
-  if (!first.text.endsWith(':')) return [];
-  const intro = first.text.slice(0, -1);
-  const below = rest[0] as Line;
-  if (below.indent === base + 2 && below.text.startsWith('- ')) {
-    // Each item opens at a bullet at the indent below the intro, and goes on with the lines below it.
-    const starts = rest.flatMap((line, i) => (line.indent === base + 2 && line.text.startsWith('- ') ? [i] : []));
-    const items = starts.map((start, k) => [{ indent: base + 4, text: (rest[start] as Line).text.slice(2) }, ...rest.slice(start + 1, starts[k + 1] ?? rest.length)]);
-    let all: Doc[][] = [[]];
-    for (const item of items) all = all.flatMap(done => layout(item).map(doc => [...done, doc]));
-    return all.map(docs => ({ kind: 'list', intro, items: docs }));
-  }
-  return layout(rest).map(body => ({ kind: 'block', intro, body }));
-}
-
-/** The lines of a statement, without its capital and its period. */
-function linesOf(text: string): Line[] {
-  const lines = text.split('\n').map(line => ({ indent: line.length - line.trimStart().length, text: line.trim() }));
-  const first = lines[0] as Line;
-  first.text = first.text.replace(/^([A-Z])/, c => c.toLowerCase());
-  const last = lines[lines.length - 1] as Line;
-  last.text = last.text.replace(/\.$/, '');
-  return lines;
-}
-
-const MOMENTS: [string, Moment][] = [
-  ['from now on', 'always'],
-  ['now or later', 'eventually'],
-  ['at the next moment', 'after'],
-  ['there is a moment just before, and at it', 'before'],
-  ['now or earlier', 'once'],
-  ['now and at every earlier moment', 'historically']
-];
+/** Each time phrase with the operator it says. */
+const MOMENTS = Object.entries(MOMENT) as [Moment, string][];
 
 /** What the names of a statement stand for, as a reader meets them. */
 type Scope = ReadonlyMap<string, Term>;
@@ -88,12 +28,8 @@ function splits(words: string, separator: string): [string, string][] {
 
 const escape = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const WRAP = "in integers that wrap around at the analyzer's bit width, ";
 /** The words of each operator of a comparison of numbers, the longest first, so that "is not less than" is not read as "less than". */
-const COMPARED: [string, Compared][] = [
-  ['is not less than', '!<'], ['is not greater than', '!>'], ['is not at most', '!=<'], ['is not at least', '!>='], ['is not equal to', '!='],
-  ['is less than', '<'], ['is greater than', '>'], ['is at most', '=<'], ['is at least', '>='], ['is equal to', '=']
-];
+const OPERATORS = (Object.entries(COMPARED) as [Compared, string][]).map(([op, words]): [string, Compared] => [words, op]).sort((x, y) => y[0].length - x[0].length);
 
 /** The numbers the words name after "where": number_1, number_2, each with every reading of its words. */
 type Defs = ReadonlyMap<string, Num[]>;
@@ -151,7 +87,7 @@ export class Parser {
   /** Every IR the words of a statement can be read as. */
   statement(text: string): Sentence[] {
     // "another" or "no other" with nothing before it of its kind has no reading.
-    return layout(linesOf(text))
+    return readLayout(text)
       .flatMap(doc => this.doc(doc, new Map()))
       .map(s => settled(s) as Sentence)
       .filter(s => !unresolved(s));
@@ -312,10 +248,10 @@ export class Parser {
     if (!words.startsWith(WRAP)) return [];
     const out: Clause[] = [];
     const rest = words.slice(WRAP.length);
-    for (const [phrase, op] of COMPARED)
+    for (const [phrase, op] of OPERATORS)
       for (const [a, b] of splits(rest, ` ${phrase} `)) {
         // A shorter phrase inside a longer one, "less than" in "not less than", is the longer one's.
-        if (COMPARED.some(([longer]) => longer !== phrase && longer.endsWith(phrase) && a.endsWith(` ${longer.slice(0, -phrase.length).trim()}`))) continue;
+        if (OPERATORS.some(([longer]) => longer !== phrase && longer.endsWith(phrase) && a.endsWith(` ${longer.slice(0, -phrase.length).trim()}`))) continue;
         for (const l of this.numbers(a, scope, defs)) for (const r of this.numbers(b, scope, defs)) out.push({ t: 'compare', op, l, r });
       }
     return out;
@@ -463,37 +399,37 @@ export class Parser {
     // A comparison with one number named after "where".
     for (const [head, def] of splits(words, ', where ')) for (const defs of this.where([def], scope)) out.push(...this.compare(head, scope, defs));
     // "when a, b" and "when a, then b", with "; otherwise, c".
-    for (const lead of ['when ', 'from now on, whenever '] as const) {
-      if (!words.startsWith(lead)) continue;
-      const body = words.slice(lead.length);
-      const [main, otherwiseWords] = body.includes('; otherwise, ') ? (splits(body, '; otherwise, ').at(-1) as [string, string]) : [body, undefined];
+    for (const lead of [RULE.when, RULE.whenever]) {
+      if (!words.startsWith(`${lead} `)) continue;
+      const body = words.slice(lead.length + 1);
+      const otherwiseMark = `; ${RULE.otherwise}, `;
+      const [main, otherwiseWords] = body.includes(otherwiseMark) ? (splits(body, otherwiseMark).at(-1) as [string, string]) : [body, undefined];
       for (const [when, rest] of splits(main, ', ')) {
-        const then = rest.startsWith('then ') ? rest.slice(5) : rest;
+        const then = rest.startsWith(`${RULE.then} `) ? rest.slice(RULE.then.length + 1) : rest;
         for (const w of this.sentence(when, scope))
           for (const t of this.sentence(then, scope)) {
             const rules: Sentence[] =
               otherwiseWords === undefined ? [{ t: 'rule', when: w, then: t }] : this.sentence(otherwiseWords, scope).map(o => ({ t: 'rule', when: w, then: t, otherwise: o }) as Sentence);
-            for (const rule of rules) out.push(lead === 'when ' ? rule : { t: 'moment', op: 'always', body: rule });
+            for (const rule of rules) out.push(lead === RULE.when ? rule : { t: 'moment', op: 'always', body: rule });
           }
       }
     }
-    for (const [phrase, op] of MOMENTS) if (words.startsWith(`${phrase}, `)) for (const body of this.sentence(words.slice(phrase.length + 2), scope)) out.push({ t: 'moment', op, body });
+    for (const [op, phrase] of MOMENTS) if (words.startsWith(`${phrase}, `)) for (const body of this.sentence(words.slice(phrase.length + 2), scope)) out.push({ t: 'moment', op, body });
     // "b now or later, and until then, a"; "b now or earlier, and at every moment after the last such moment, up to and including now, a".
-    for (const [b, a] of splits(words, ' now or later, and until then, ')) for (const bs of this.sentence(b, scope)) for (const as of this.sentence(a, scope)) out.push({ t: 'until', a: as, b: bs });
-    for (const [b, a] of splits(words, ' now or earlier, and at every moment after the last such moment, up to and including now, '))
-      for (const bs of this.sentence(b, scope)) for (const as of this.sentence(a, scope)) out.push({ t: 'since', a: as, b: bs });
+    for (const op of ['until', 'since'] as const)
+      for (const [b, a] of splits(words, BINARY[op].joint)) for (const bs of this.sentence(b, scope)) for (const as of this.sentence(a, scope)) out.push({ t: op, a: as, b: bs });
     for (const [l, r] of splits(words, ' exactly when ')) {
       const next = /^(.+) at the next moment$/.exec(l);
       const now = /^(.+) now$/.exec(r);
       for (const ls of this.sentence(l, scope)) for (const rs of this.sentence(r, scope)) out.push({ t: 'iff', l: ls, r: rs });
       if (next !== null) for (const ls of this.sentence(next[1] as string, scope)) for (const rs of this.sentence(now?.[1] ?? r, scope)) out.push({ t: 'iff', l: { t: 'moment', op: 'after', body: ls }, r: rs });
     }
-    if (words.startsWith('it is not the case that ')) for (const body of this.sentence(words.slice('it is not the case that '.length), scope)) out.push({ t: 'not', body });
+    if (words.startsWith(`${INTRO.untrue} `)) for (const body of this.sentence(words.slice(INTRO.untrue.length + 1), scope)) out.push({ t: 'not', body });
     // A definition by kinds with one kind: "unit_1 is unfounded exactly when unit_1 is a spec that cites no unit".
     for (const [head, kind] of splits(words, ' exactly when ')) for (const heads of this.clauses(head, scope)) for (const body of this.kinds(kind, scope)) out.push({ t: 'iff', l: heads, r: body });
     out.push(...this.quantifier(words, scope));
     // "a, and at the next moment, b".
-    for (const [a, b] of splits(words, ', and ')) if (b.startsWith('at the next moment, ')) for (const as of this.sentence(a, scope)) for (const bs of this.sentence(b, scope)) out.push({ t: 'and', items: [as, bs] });
+    for (const [a, b] of splits(words, ', and ')) if (b.startsWith(`${MOMENT.after}, `)) for (const as of this.sentence(a, scope)) for (const bs of this.sentence(b, scope)) out.push({ t: 'and', items: [as, bs] });
     out.push(...this.coordination(words, scope));
     return out;
   }
@@ -508,8 +444,8 @@ export class Parser {
           all = all.flatMap(done => {
             const said: Sentence[] = this.clauses(part, scope).filter(c => this.clauseLike(c));
             // A time phrase covers the rest of its sentence: only the last clause of a series can begin with one.
-            const timed = i === parts.length - 1 && i > 0 ? MOMENTS.find(([phrase]) => phrase === 'at the next moment' && part.startsWith(`${phrase}, `)) : undefined;
-            if (timed !== undefined) said.push(...this.clauses(part.slice('at the next moment, '.length), scope).map(c => ({ t: 'moment', op: 'after', body: c }) as Sentence));
+            const timed = i === parts.length - 1 && i > 0 && part.startsWith(`${MOMENT.after}, `);
+            if (timed) said.push(...this.clauses(part.slice(`${MOMENT.after}, `.length), scope).map(c => ({ t: 'moment', op: 'after', body: c }) as Sentence));
             // Without its subject: the subject of the clause before it.
             const before = done[i - 1];
             const subject = before === undefined ? undefined : this.subjectWords(parts[i - 1] as string, scope);
@@ -613,7 +549,7 @@ export class Parser {
       for (const when of this.doc(doc.when, scope))
         for (const then of this.doc(doc.then, scope)) {
           const rules: Sentence[] = doc.otherwise === undefined ? [{ t: 'rule', when, then }] : this.doc(doc.otherwise, scope).map(o => ({ t: 'rule', when, then, otherwise: o }) as Sentence);
-          for (const rule of rules) out.push(doc.lead === 'when' ? rule : { t: 'moment', op: 'always', body: rule });
+          for (const rule of rules) out.push(doc.lead === RULE.when ? rule : { t: 'moment', op: 'always', body: rule });
         }
       return out;
     }
@@ -632,28 +568,26 @@ export class Parser {
     const one = (inner: Scope): Sentence[] => items(inner).flatMap(list => (list.length === 1 ? [list[0] as Sentence] : []));
     if (doc.kind === 'list') {
       const lists: [string, (xs: Sentence[]) => Sentence | undefined][] = [
-        ['all of these hold', xs => ({ t: 'and', items: xs })],
-        ['at least one of these holds', xs => ({ t: 'or', items: xs })],
-        ['both or neither of these hold', xs => (xs.length === 2 ? { t: 'iff', l: xs[0] as Sentence, r: xs[1] as Sentence } : undefined)],
-        ['exactly one of these holds', xs => (xs.length === 2 ? { t: 'not', body: { t: 'iff', l: xs[0] as Sentence, r: xs[1] as Sentence } } : undefined)]
+        [INTRO.all, xs => ({ t: 'and', items: xs })],
+        [INTRO.any, xs => ({ t: 'or', items: xs })],
+        [INTRO.both, xs => (xs.length === 2 ? { t: 'iff', l: xs[0] as Sentence, r: xs[1] as Sentence } : undefined)],
+        [INTRO.exactlyOne, xs => (xs.length === 2 ? { t: 'not', body: { t: 'iff', l: xs[0] as Sentence, r: xs[1] as Sentence } } : undefined)]
       ];
       for (const [words, make] of lists) if (intro === words) for (const xs of items(scope)) {
         const made = make(xs);
         if (made !== undefined) out.push(made);
       }
       // `until` and `since` with their sides set apart, each below the words that place it in time.
-      const parts: [string, string, 'until' | 'since'][] = [
-        ['now or later, the following holds', 'at every moment from now until the first such moment, not including it, the following holds', 'until'],
-        ['now or earlier, the following holds', 'at every moment after the last such moment, up to and including now, the following holds', 'since']
-      ];
       const [first, second] = doc.items;
-      for (const [b, a, op] of parts)
-        if (intro === 'all of these hold' && doc.items.length === 2 && typeof first === 'object' && first.kind === 'block' && first.intro === b && typeof second === 'object' && second.kind === 'block' && second.intro === a)
+      for (const op of ['until', 'since'] as const) {
+        const { first: b, second: a } = BINARY[op];
+        if (intro === INTRO.all && doc.items.length === 2 && typeof first === 'object' && first.kind === 'block' && first.intro === b && typeof second === 'object' && second.kind === 'block' && second.intro === a)
           for (const bs of this.doc(first.body, scope)) for (const as of this.doc(second.body, scope)) out.push({ t: op, a: as, b: bs });
+      }
     }
     if (doc.kind === 'block') {
-      if (intro === 'the following holds' || intro === 'it is not the case that') for (const body of one(scope)) out.push(intro === 'the following holds' ? body : { t: 'not', body });
-      for (const [phrase, op] of MOMENTS) if (intro === phrase) for (const body of one(scope)) out.push({ t: 'moment', op, body });
+      if (intro === INTRO.apart || intro === INTRO.untrue) for (const body of one(scope)) out.push(intro === INTRO.apart ? body : { t: 'not', body });
+      for (const [op, phrase] of MOMENTS) if (intro === phrase) for (const body of one(scope)) out.push({ t: 'moment', op, body });
     }
     // A definition: what it names "exactly when" a list, a block, or the kinds the subject is one of.
     for (const [head, rest] of splits(intro, ' exactly when ')) {
@@ -671,8 +605,8 @@ export class Parser {
     // A comparison with the numbers it names below "where:".
     if (doc.kind === 'list' && intro.endsWith(', where')) for (const defs of this.where(doc.items, scope)) out.push(...this.compare(intro.slice(0, -', where'.length), scope, defs));
     // An intro after a time phrase: "from now on, for every cleanup:".
-    for (const [phrase, op] of MOMENTS) if (intro.startsWith(`${phrase}, `)) for (const body of this.intro(intro.slice(phrase.length + 2), doc, scope)) out.push({ t: 'moment', op, body });
-    if (intro.startsWith('it is not the case that ')) for (const body of this.intro(intro.slice('it is not the case that '.length), doc, scope)) out.push({ t: 'not', body });
+    for (const [op, phrase] of MOMENTS) if (intro.startsWith(`${phrase}, `)) for (const body of this.intro(intro.slice(phrase.length + 2), doc, scope)) out.push({ t: 'moment', op, body });
+    if (intro.startsWith(`${INTRO.untrue} `)) for (const body of this.intro(intro.slice(INTRO.untrue.length + 1), doc, scope)) out.push({ t: 'not', body });
     // "for every cleanup_1, every owner_1 and every owner_2:" and "for some …".
     const forAll = /^for (every|some) (.+)$/.exec(intro);
     if (forAll !== null) {

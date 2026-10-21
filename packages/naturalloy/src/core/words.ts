@@ -4,6 +4,7 @@
  * sentence turns.
  */
 import { plain, type Readings, unbracketed } from '../readings.ts';
+import { TIME_PHRASES } from './constructs.ts';
 
 /** Marks a variable in the words, so that a sentence is never started with a capital in place of the variable's own letter. */
 export const VARIABLE = '\u0001';
@@ -12,7 +13,7 @@ export const VARIABLE = '\u0001';
 export const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
 
 /** The time phrases the printer says, at the start of the words they cover. */
-export const TIME_PHRASE = /^(?:from now on|now or later|now or earlier|now or at|now and at|at every|at the next|right after|there is a moment (?:just )?before|up to and including|back to and including|in integers that wrap)\b/;
+export const TIME_PHRASE = new RegExp(`^(?:${TIME_PHRASES.map(phrase => phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`);
 const TIME_ANYWHERE = new RegExp(TIME_PHRASE.source.replace('^', '\\b'));
 
 /** Whether words begin with a time phrase. */
