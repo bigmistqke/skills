@@ -17,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, REFINES } from './kinds.ts';
+import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, PREFIXES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
 import type { PluginContext } from './plugin.ts';
 import { configKeysOf, documentsFor, findCommands } from './plugins.ts';
@@ -481,13 +481,17 @@ function clip(said: string, indent: number): string {
  * is the ordinary way. `╌` is a link, drawn for the units a table holds: a
  * table cannot nest, so a matrix cell names its spec in an `href` instead, and
  * that difference is worth seeing rather than flattening away.
+ *
+ * With `from`, the tree is that unit and what sits in it, with no terms, facts
+ * or conflicts.
  */
 function treeOf(
   file: string,
   testsPer: Map<string, number>,
   gapsOnly: boolean,
   verbose: boolean,
-  links: Map<string, Array<{ target: string; derives: boolean }>> = new Map()
+  links: Map<string, Array<{ target: string; derives: boolean }>> = new Map(),
+  from?: string
 ): string {
   const rel = relative(ROOT, file);
   const src = readFileSync(file, 'utf8');
@@ -648,14 +652,14 @@ function treeOf(
       }
     }
   };
-  if (!gapsOnly) {
+  if (!gapsOnly && from === undefined) {
     listGivens('term-', false);
     listGivens('fact-', true);
   }
 
   // A conflict belongs to no unit and derives from none, so it is no part of
   // the tree either. It is drawn as what it is, a warning, with its statement.
-  const conflicts = gapsOnly ? [] : headings.filter(u => kindOf(u.id ?? '') === 'conflict-');
+  const conflicts = gapsOnly || from !== undefined ? [] : headings.filter(u => kindOf(u.id ?? '') === 'conflict-');
   if (conflicts.length > 0) out.push('');
   for (const unit of conflicts) {
     const [tag, ...word] = prose(unit.id ?? '').split(' ');
@@ -666,8 +670,9 @@ function treeOf(
     }
   }
 
-  for (const root of headings.filter(u => !u.parent || !byId.has(u.parent))) {
-    if (['term-', 'fact-', 'conflict-'].includes(kindOf(root.id ?? '') ?? '')) continue;
+  const roots = from === undefined ? headings.filter(u => !u.parent || !byId.has(u.parent)) : headings.filter(u => u.id === from);
+  for (const root of roots) {
+    if (from === undefined && ['term-', 'fact-', 'conflict-'].includes(kindOf(root.id ?? '') ?? '')) continue;
     if (!keep(root)) continue;
     const rootKind = kindOf(root.id ?? '') ?? 'axiom-';
     const [rootTag, ...rootLabel] = prose(root.id ?? '').split(' ');
@@ -809,6 +814,17 @@ interface Unit {
   site?: string;
   /** The unit's own text, before its first nested heading. */
   own?: string;
+  /** The unit it sits in. */
+  parent?: string;
+  /** Where its heading starts in its document: the offset, and the line from 1. */
+  start: number;
+  line: number;
+}
+
+/** A test that checks a unit: its file and line, as `<file>:<line>`, and its title. */
+interface TestAt {
+  where: string;
+  title: string;
 }
 
 interface Analysis {
@@ -819,6 +835,8 @@ interface Analysis {
   written: string[];
   /** How many tests pin each unit, by `<doc>#<id>`; absent means none. */
   testsPer: Map<string, number>;
+  /** The tests that pin each unit, by `<doc>#<id>`, in the order they were read. */
+  testsAt: Map<string, TestAt[]>;
   /**
    * Every unit a unit links to, by `<doc>#<id>`, and whether the link is a
    * further parent (it sits on the unit's "Derives from:" line) or a
@@ -880,6 +898,7 @@ function analyse(write: boolean): Analysis {
   const testedTargets = new Set<string>();
 
   const testsPer = new Map<string, number>();
+  const testsAt = new Map<string, TestAt[]>();
 
   /**
    * The spec each bug breaks: the one it sits in, or one its "Derives from:"
@@ -926,6 +945,7 @@ function analyse(write: boolean): Analysis {
     }
     const { withId, anchors } = scanFile(file);
     const docSource = readFileSync(file, 'utf8');
+    const docLineAt = linesOf(docSource);
 
     if (rel.endsWith('.md')) {
       for (const m of readFileSync(file, 'utf8').matchAll(OVERFULL_HEADING)) {
@@ -961,7 +981,10 @@ function analyse(write: boolean): Analysis {
           cites: new Set(),
           statement: el.statement,
           site: el.site,
-          own: el.own
+          own: el.own,
+          parent: el.parent,
+          start: el.start,
+          line: docLineAt(el.start)
         });
     }
 
@@ -1281,6 +1304,7 @@ function analyse(write: boolean): Analysis {
         citedTargets.add(key);
         testedTargets.add(key);
         testsPer.set(key, (testsPer.get(key) ?? 0) + 1);
+        testsAt.set(key, [...(testsAt.get(key) ?? []), { where: `${rel}:${line}`, title }]);
       }
     }
     return parsed;
@@ -1553,7 +1577,7 @@ function analyse(write: boolean): Analysis {
     }
   }
 
-  return { findings, units, suites: enforcedFiles.size, written, testsPer, links, bugs };
+  return { findings, units, suites: enforcedFiles.size, written, testsPer, testsAt, links, bugs };
 }
 
 // ---------------------------------------------------------------------------
@@ -1567,13 +1591,21 @@ it derives from — its position under the unit it derives from, a link on a
 "Derives from:" line in a document, a @canon JSDoc tag in a test — and the
 documents' index and the table of kinds are generated from those links rather
 than hand-kept. check is the gate, generate is the writer, and tree is the map.
+show and find read a unit with what the documents hold of it in other places.
 
 Usage:
   ${COMMAND} check [--offline]     report every finding; exit 1 if there is one. With a
                                    "tracker" in the scope, also ask it about each bug's
                                    issue; --offline skips that and needs no network
   ${COMMAND} generate              rewrite the generated regions
-  ${COMMAND} tree [options]        print the derivation tree with test counts
+  ${COMMAND} tree [unit] [options] print the derivation tree with test counts; with a unit,
+                                   only that unit and what sits in it
+  ${COMMAND} show <unit> …         print each unit's own text, the units it sits in up to its root,
+                                   the units its "Derives from:" line names, the units that sit in
+                                   it, the units that derive from it, and the tests that check it
+  ${COMMAND} find <word> … [--kind <kind>]
+                                   list the units whose id or own text holds every word, in any
+                                   case, each with where it starts, its id and its statement
   ${COMMAND} lint [file …]         check the language of the documents' prose; exit 1 on a finding
   ${COMMAND} logic [file …]        check the alloy blocks of the documents together: whether each
                                    scenario can happen while every unit holds, and whether each unit's
@@ -1628,6 +1660,8 @@ Tree connectors:
 
 Stems are shown as prose: @spec A write lands at once is the unit
 spec-a-write-lands-at-once. Lower the words and hyphenate to get the id back.
+show and tree take a unit in any of these forms: spec-a-stem, "@spec a-stem",
+@spec a-stem, "@spec A stem", and CANON.md#spec-a-stem as check reports it.
 
 --suspect is a heuristic and deliberately not part of check. A spec carrying
 many tests and no nested specs is usually saying several things with no way to
@@ -1795,8 +1829,14 @@ function tree(options: {
   gaps: boolean;
   verbose: boolean;
   suspect: number | undefined;
+  from: string | undefined;
 }): void {
-  const { testsPer, links } = analyse(false);
+  const { units, testsPer, links } = analyse(false);
+  if (options.from !== undefined) {
+    const unit = unitNamed(units, options.from);
+    console.log(treeOf(join(ROOT, unit.doc), testsPer, options.gaps, options.verbose, links, unit.id));
+    return;
+  }
   for (const doc of DOCS) {
     const file = join(ROOT, doc);
     if (!existsSync(file)) continue;
@@ -1808,8 +1848,166 @@ function tree(options: {
   }
 }
 
+/**
+ * The names on a command line, with a bare `@spec` joined to the stem after it,
+ * so `canon show @spec a-stem` names one unit as a heading writes it.
+ */
+function namesOf(args: string[]): string[] {
+  const names: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] as string;
+    names.push(/^@[a-z]+$/.test(arg) && i + 1 < args.length ? `${arg} ${args[++i]}` : arg);
+  }
+  return names;
+}
+
+/**
+ * The id a name gives: the id itself, `@spec a-stem` as a heading writes it, or
+ * `@spec A stem` as the tree writes it. A `<doc>#` before it, as check reports a
+ * unit, is dropped.
+ */
+const idOf = (name: string): string =>
+  name.slice(name.lastIndexOf('#') + 1).trim().replace(/^@/, '').toLowerCase().replace(/\s+/g, '-');
+
+/** The unit an id names in any document, if one does. */
+const unitOf = (units: Map<string, Unit>, id: string): Unit | undefined =>
+  [...units.values()].find(unit => unit.id === id);
+
+/** The unit a name names; a name that names none stops the run. */
+function unitNamed(units: Map<string, Unit>, name: string): Unit {
+  const unit = unitOf(units, idOf(name));
+  if (unit === undefined) {
+    console.error(`canon: "${name}" names no unit; \`${COMMAND} find <words>\` lists the units that hold them`);
+    process.exit(2);
+  }
+  return unit;
+}
+
+/**
+ * A unit on a line of its own: where it starts, its id, what follows the id,
+ * and its statement, cut to fit a terminal. A pipe gets the whole statement, so
+ * a reader that greps the line needs no second call for the rest.
+ */
+function unitLine(unit: Unit, after = '', indent = 0): string {
+  const head = `${unit.doc}:${unit.line}  ${unit.id}${after}`;
+  if (!unit.statement) return head;
+  const said = process.stdout.isTTY ? clip(unit.statement, indent + head.length + 3) : unit.statement.replace(/\s+/g, ' ').trim();
+  return `${head} — ${said}`;
+}
+
+/** The lines of a list under its title, or `none` under it. */
+const listed = (title: string, lines: string[]): string =>
+  [`${title}`, ...(lines.length > 0 ? lines : ['none']).map(line => `  ${line}`)].join('\n');
+
+/** A generated region's marker, which says nothing of the unit. */
+const MARKER_LINE = /^<!--\s*[\w-]+:(begin|end)\b.*-->\s*$/;
+
+/**
+ * Print each unit a name names, with what it follows from, what follows from
+ * it and the tests that check it. A name that names no unit is reported after
+ * the others are printed, and the run exits with code 2.
+ */
+function show(names: string[]): void {
+  const { units, testsPer, testsAt, links } = analyse(false);
+  const keyOf = (unit: Unit): string => `${unit.doc}#${unit.id}`;
+  const byStart = (a: Unit, b: Unit): number => DOCS.indexOf(a.doc) - DOCS.indexOf(b.doc) || a.start - b.start;
+  const printed: string[] = [];
+  const unknown: string[] = [];
+  for (const name of names) {
+    const unit = unitOf(units, idOf(name));
+    if (unit === undefined) {
+      unknown.push(name);
+      continue;
+    }
+    const key = keyOf(unit);
+    const out = [`${unit.doc}:${unit.line}  ${unit.id}`];
+
+    if (unit.own !== undefined) {
+      const src = readFileSync(join(ROOT, unit.doc), 'utf8');
+      const body = src.indexOf('\n', unit.start) + 1;
+      const text = src
+        .slice(unit.start, body + unit.own.length)
+        .split('\n')
+        .filter(line => !MARKER_LINE.test(line))
+        .join('\n')
+        .trimEnd();
+      out.push('', text);
+    }
+
+    const above: Unit[] = [];
+    for (let at = unit.parent; at !== undefined; ) {
+      const parent = units.get(`${unit.doc}#${at}`);
+      if (parent === undefined || above.includes(parent)) break;
+      above.push(parent);
+      at = parent.parent;
+    }
+    const derivesFrom = (links.get(key) ?? [])
+      .filter(link => link.derives)
+      .flatMap(link => units.get(link.target) ?? []);
+    const within = [...units.values()].filter(other => other.doc === unit.doc && other.parent === unit.id).sort(byStart);
+    const derivers = [...links]
+      .filter(([, list]) => list.some(link => link.derives && link.target === key))
+      .flatMap(([from]) => units.get(from) ?? [])
+      .sort(byStart);
+
+    // A leaf claim owes a test, so its count says whether it has one; a claim
+    // holding claims is pinned through them, and owes none of its own.
+    const tally = (other: Unit): string => {
+      if (!CLAIMS.includes(other.kind)) return '';
+      if ([...units.values()].some(u => u.doc === other.doc && u.parent === other.id && REFINES.includes(u.kind))) return '';
+      const n = testsPer.get(keyOf(other)) ?? 0;
+      return n === 0 ? '  no test' : `  ${n} test${n === 1 ? '' : 's'}`;
+    };
+
+    out.push(
+      '',
+      listed('Sits in:', above.map(u => unitLine(u, '', 2))),
+      listed('Derives from:', derivesFrom.map(u => unitLine(u, '', 2))),
+      listed('Sitting in it:', within.map(u => unitLine(u, tally(u), 2))),
+      listed('Deriving from it:', derivers.map(u => unitLine(u, '', 2))),
+      listed('Tested by:', (testsAt.get(key) ?? []).map(test => `${test.where}  ${test.title}`))
+    );
+    printed.push(out.join('\n'));
+  }
+  if (printed.length > 0) console.log(printed.join('\n\n'));
+  for (const name of unknown) {
+    console.error(`canon: "${name}" names no unit; \`${COMMAND} find <words>\` lists the units that hold them`);
+  }
+  if (unknown.length > 0) process.exit(2);
+}
+
+/**
+ * Print a line for each unit whose id or own text holds every word, in any
+ * case, in the order of the documents; with `kind`, only the units of it.
+ */
+function find(words: string[], kind: string | undefined): void {
+  let only: Kind | undefined;
+  if (kind !== undefined) {
+    const prefix = `${kind.replace(/^@/, '').replace(/-$/, '')}-`;
+    only = PREFIXES.find(p => p === prefix);
+    if (only === undefined) {
+      console.error(`canon: --kind takes one of ${PREFIXES.map(noun).join(', ')}, not "${kind}"`);
+      process.exit(2);
+    }
+  }
+  const { units } = analyse(false);
+  const lowered = words.map(word => word.toLowerCase());
+  const found = [...units.values()]
+    .filter(unit => only === undefined || unit.kind === only)
+    .filter(unit => {
+      const text = `${unit.id}\n${unit.own ?? ''}`.toLowerCase();
+      return lowered.every(word => text.includes(word));
+    })
+    .sort((a, b) => DOCS.indexOf(a.doc) - DOCS.indexOf(b.doc) || a.start - b.start);
+  if (found.length === 0) {
+    console.error(`canon: no unit holds ${words.map(word => `"${word}"`).join(' and ')}`);
+    return;
+  }
+  for (const unit of found) console.log(unitLine(unit));
+}
+
 /** The commands the core runs itself; every other command is added by a plugin. */
-const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'log']);
+const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'show', 'find', 'log']);
 
 /**
  * Run the command that plugins add, each over the documents that apply it, and
@@ -1895,6 +2093,7 @@ async function main(argv: string[]): Promise<void> {
         review: { type: 'string', multiple: true },
         show: { type: 'string', multiple: true },
         svg: { type: 'boolean' },
+        kind: { type: 'string' },
         help: { type: 'boolean', short: 'h' }
       }
     });
@@ -1926,7 +2125,17 @@ async function main(argv: string[]): Promise<void> {
     log(rest[0]);
     return;
   }
-  if (rest.length > 0) {
+  if (command === 'show' || command === 'find') {
+    if (rest.length === 0) {
+      console.error(`canon: ${command} takes ${command === 'show' ? 'a unit' : 'a word'} or more\n\n${HELP}`);
+      process.exit(2);
+    }
+    if (command === 'show') show(namesOf(rest));
+    else find(rest, typeof values.kind === 'string' ? values.kind : undefined);
+    return;
+  }
+  const from = command === 'tree' ? namesOf(rest) : [];
+  if (rest.length > 0 && from.length !== 1) {
     console.error(`canon: unexpected argument "${rest[0]}"\n\n${HELP}`);
     process.exit(2);
   }
@@ -1945,9 +2154,14 @@ async function main(argv: string[]): Promise<void> {
         console.error('canon: --suspect takes a whole number');
         process.exit(2);
       }
+      if (suspect !== undefined && from[0] !== undefined) {
+        console.error('canon: tree takes a unit or --suspect, not both');
+        process.exit(2);
+      }
       tree({
         gaps: values.gaps === true,
         verbose: values.verbose === true,
+        from: from[0],
         suspect
       });
       return;

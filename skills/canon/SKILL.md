@@ -52,7 +52,7 @@ This file holds what every session needs. Two files beside it hold the rest:
 ## 2. The session
 
 1. If no `CANON.md` has settings in its frontmatter and `package.json` has no `canon` field, the project has no checker yet. Ask the owner before you set it up as [`checker.md`](checker.md) describes.
-2. At the start, read the root axioms and the facts. Then read every unit that covers the area of your task.
+2. At the start, read the root axioms and the facts. Then read every unit that covers the area of your task. The command `pnpm canon find` lists the units that hold a word, and `pnpm canon show` prints a unit with its parents, its children and its tests.
 3. Use the canon for every choice you make in the system, internal ones included. An internal choice needs the canon most, because nothing outside the system checks it.
 4. When you face a choice, find the units that decide it. Choose the option they force, and cite them in your reasoning.
 5. When the units do not decide a choice, the canon lacks a value or a spec. Settle it with the owner of the design through the grill-with-canon skill, which writes the answer into the canon.

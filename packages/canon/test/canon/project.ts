@@ -81,6 +81,12 @@ export function check(document: string, tests = '', extra: Extra = {}): Record<s
   return counts(run.stdout);
 }
 
+/** Run the command line `args` over a project of the document, the test file and what else it holds. */
+export function run(args: string[], document: string, tests = '', extra: Extra = {}): { stdout: string; stderr: string; status: number | null } {
+  const result = spawnSync(process.execPath, [CLI, ...args], { cwd: project(document, tests, undefined, extra), encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
+  return { stdout: result.stdout, stderr: result.stderr, status: result.status };
+}
+
 /** Run `check` over a project whose GitHub tracker holds `issues`, each number with its state. */
 export async function checkTracked(document: string, tests: string, issues: Record<number, 'open' | 'closed'>): Promise<Record<string, number>> {
   const server = createServer((request, response) => {
