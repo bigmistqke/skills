@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { lower } from '../../src/core/index.ts';
 import { meaning } from '../../src/core/ir.ts';
 import { parseReadings, withDefinitions } from '../../src/readings.ts';
-import { isDefinition } from '../../src/verbalize.ts';
+import { isDefinition } from '../../src/core/index.ts';
 import { JAR, verdicts } from '../analyzer.ts';
 import { READINGS, SWEEP, VOCABULARY } from '../canon/sweep.ts';
 
@@ -50,6 +50,9 @@ describe('the meaning of the IR of each formula of the sweep', () => {
     expect(claims().length).toBeGreaterThan(1500);
   });
 
+  /**
+   * @canon spec-a-rewrite-means-what-the-formula-it-replaces-means
+   */
   it.skipIf(JAR === undefined)('holds exactly when the formula does, as the analyzer finds', async () => {
     const all = claims();
     const module = (scope: string) => (batch: Claim[]) => [VOCABULARY, ...batch.map((c, i) => `check check_${i} { some ${STRINGS} implies (${c.check}) } ${scope}`)].join('\n');

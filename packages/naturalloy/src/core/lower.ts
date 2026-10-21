@@ -7,7 +7,7 @@
  * What the IR means is checked against the formula it was lowered from: `meaning(lower(f))` holds exactly when `f` does.
  */
 import { AlloyParseError, type Decl, type Node, parseFormula, print } from '@bigmistqke/parse-alloy';
-import type { Clause, Form, Moment, Num, Sentence, Term, Var } from './ir.ts';
+import type { Clause, Compared, Form, Moment, Num, Sentence, Term, Var } from './ir.ts';
 import { asRefusal, type Definition, type Field, type Readings, Refusal, unqualified } from '../readings.ts';
 
 /** What a formula that says nothing is refused with. */
@@ -19,13 +19,7 @@ const FALSE: Node = { t: 'not', f: { t: 'true' } };
 /** The names Alloy gives its own sets, which are never variables. */
 const BUILTIN = new Set(['none', 'univ', 'iden', 'Int', 'String', 'steps', 'seq/Int', 'next', 'min', 'max']);
 const COMPARED = new Set(['<', '>', '=<', '>=', '=', '!=', '!<', '!>', '!=<', '!>=']);
-/** A comparison of integers with its `!` moved into the operator it negates. */
-const POSITIVE: Record<string, { op: '<' | '>' | '=<' | '>=' | '=' | '!='; negative: boolean }> = {
-  '<': { op: '<', negative: false }, '>': { op: '>', negative: false }, '=<': { op: '=<', negative: false }, '>=': { op: '>=', negative: false },
-  '=': { op: '=', negative: false }, '!=': { op: '!=', negative: false }, '!<': { op: '>=', negative: false }, '!>': { op: '=<', negative: false },
-  '!=<': { op: '>', negative: false }, '!>=': { op: '<', negative: false }
-};
-const NEGATED_OP: Record<string, '<' | '>' | '=<' | '>=' | '=' | '!='> = { '<': '>=', '>': '=<', '=<': '>', '>=': '<', '=': '!=', '!=': '=' };
+const NEGATED_OP: Record<string, Compared> = { '<': '!<', '>': '!>', '=<': '!=<', '>=': '!>=', '=': '!=', '!<': '<', '!>': '>', '!=<': '=<', '!>=': '>=', '!=': '=' };
 
 /** What a reader calls each construct, for a refusal to name it. */
 const CONSTRUCTS: Record<Node['t'], string> = {
@@ -690,8 +684,8 @@ export class Lower {
       const [number, other] = this.integer(l) ? [l, r] : [r, l];
       if (!this.integer(other) && !this.isValue(other)) throw new Refusal(`"${node.op}" between the set "${shown(other)}" and the number "${shown(number)}" compares sets, which the words would have to say with the wrap of the number`);
     }
-    const positive = POSITIVE[node.op] as { op: '<' | '>' | '=<' | '>=' | '=' | '!=' };
-    return { t: 'compare', op: negative ? NEGATED_OP[positive.op] : positive.op, l: this.number(l, false), r: this.number(r, false) };
+    const op = node.op as Compared;
+    return { t: 'compare', op: negative ? (NEGATED_OP[op] as Compared) : op, l: this.number(l, false), r: this.number(r, false) };
   }
 
   /** The words of a number. Inside a sum, a division would have to be said in the middle of it, and is refused. */
@@ -863,12 +857,12 @@ export class Lower {
         // a + b not in s: not every member is in s, so at least one is not.
         if (op !== 'in') return this.comparison({ ...node, op: 'in' }, !negative);
         const parts = [l.l, l.r].map(side => this.comparison({ ...node, l: side }, negative));
-        return { t: negative ? 'or' : 'and', items: parts };
+        return { t: negative ? 'or' : 'and', items: parts, spelled: true };
       }
       if (r.t === 'diff') {
         if (op !== 'in') return this.comparison({ ...node, op: 'in' }, !negative);
         const parts = [this.comparison({ ...node, op: 'in', r: r.l }, negative), this.comparison({ ...node, op: 'not in', r: r.r }, negative)];
-        return { t: negative ? 'or' : 'and', items: parts };
+        return { t: negative ? 'or' : 'and', items: parts, spelled: true };
       }
       if (!this.readPrimed(r)) {
         const { e, primed } = this.unprimed(r);
@@ -1204,6 +1198,9 @@ export class Lower {
         if (call === undefined) throw new Refusal(`a ${CONSTRUCTS[node.t]} cannot stand as a statement`);
         return this.call(call, true);
       }
+      // A binary temporal operator has no dual to move into: it is negated whole.
+      case 'binary':
+        return { t: 'not', body: this.sentence(node), whole: true };
       default:
         return { t: 'not', body: this.sentence(node) };
     }

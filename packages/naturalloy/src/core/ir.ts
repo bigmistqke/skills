@@ -55,7 +55,7 @@ export type Clause =
   /** "y is the integer after x without wrapping around". */
   | { t: 'next'; x: Term; y: Term; negative: boolean }
   /** A comparison of numbers in integers that wrap. */
-  | { t: 'compare'; op: '<' | '>' | '=<' | '>=' | '=' | '!='; l: Num; r: Num };
+  | { t: 'compare'; op: Compared; l: Num; r: Num };
 
 /** A number, as the words say it. */
 export type Num =
@@ -71,6 +71,9 @@ export type Num =
   | { t: 'sumOver'; vars: Var[]; body: Num }
   | { t: 'arith'; op: 'plus' | 'minus' | 'times' | 'div' | 'rem'; l: Num; r: Num };
 
+/** The operators of a comparison of numbers, each said with words of its own: `!<` is "is not less than". */
+export type Compared = '<' | '>' | '=<' | '>=' | '=' | '!=' | '!<' | '!>' | '!=<' | '!>=';
+
 export type Quantifier = 'all' | 'some' | 'no' | 'one' | 'lone';
 export type Moment = 'always' | 'eventually' | 'after' | 'before' | 'once' | 'historically';
 
@@ -78,11 +81,13 @@ export type Moment = 'always' | 'eventually' | 'after' | 'before' | 'once' | 'hi
 export type Sentence =
   | Clause
   /** `sequence` marks `a ; b`, said "a, and at the next moment, b" where both are plain clauses. */
-  | { t: 'and'; items: Sentence[]; inline?: boolean; sequence?: boolean }
-  | { t: 'or'; items: Sentence[]; inline?: boolean }
+  | { t: 'and'; items: Sentence[]; inline?: boolean; sequence?: boolean; spelled?: boolean }
+  /** `spelled` marks the members of a union or a difference spelled out, which stay a list. */
+  | { t: 'or'; items: Sentence[]; inline?: boolean; spelled?: boolean }
   /** `exactlyOne` says `not (a iff b)` as exactly one of the two holding. */
   /** `untrue` marks the negation of a predicate said by its body, which stays whole. */
-  | { t: 'not'; body: Sentence; exactlyOne?: boolean; untrue?: boolean }
+  /** `whole` marks a negation with no formula to move into, said whole below "it is not the case that". */
+  | { t: 'not'; body: Sentence; exactlyOne?: boolean; untrue?: boolean; whole?: boolean }
   | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; oneLine?: boolean; whenever?: boolean }
   | { t: 'iff'; l: Sentence; r: Sentence; inline?: boolean; nextAndNow?: boolean }
   /** `ofSet` marks `some S` or `no S` of a set whose reading takes the member: "an edge is being delivered". */

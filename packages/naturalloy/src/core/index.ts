@@ -7,6 +7,7 @@ import { paramsOf, type Readings, Refusal, unqualified, withDifferences } from '
 import type { Sentence } from './ir.ts';
 import { Lower, read } from './lower.ts';
 import { type Context, optimize, type Pass, type PrintOptions, type Trace } from './pass.ts';
+import { PASSES } from './passes/index.ts';
 import { finish, Printer } from './print.ts';
 
 export interface Options {
@@ -61,7 +62,7 @@ export function print(s: Sentence, readings: Readings, options: Options = {}, pr
 /** A definition, `pred name[params] { body }` or `fun name[params]: T { e }`, as the IR. */
 export function lowerDefinition(source: string, readings: Readings): Sentence {
   const written = 'a definition is written `pred name[parameters] { formula }` or `fun name[parameters]: type { expression }`';
-  if (!/^\s*(?:private\s+)?(?:pred|fun)\b/.test(source) && !/^\s*let\s+[\w']+\s*\[/.test(source)) throw new Refusal(written);
+  if (!isDefinition(source)) throw new Refusal(written);
   const paragraphs = parseModule(source).paragraphs;
   const p = paragraphs[0];
   if (paragraphs.length !== 1 || p === undefined) throw new Refusal(written);
@@ -86,4 +87,20 @@ export function lowerDefinition(source: string, readings: Readings): Sentence {
 export function sayDefinition(source: string, readings: Readings, options: Options = {}): string {
   const { ir, print: printing } = optimize(lowerDefinition(source, readings), options.passes ?? [], context(readings), options.off, options.trace);
   return print(ir, readings, options, printing);
+}
+
+/** Whether the text is a definition, `pred name[params] { body }`, and not a formula. */
+export const isDefinition = (source: string): boolean => /^\s*(?:private\s+)?(?:pred|fun)\b/.test(source) || /^\s*let\s+[\w']+\s*\[/.test(source);
+
+/**
+ * The words for the formula in `source`, with every pass, as lines of text or as markdown with links. `self` is the
+ * href of the place the words are for, which they never link to. Throws a Refusal that names what cannot be said.
+ */
+export function verbalize(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
+  return say(source, readings, { layout, self, passes: PASSES });
+}
+
+/** The words for a definition, `pred name[params] { body }`: what it names, exactly when its body holds. */
+export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
+  return sayDefinition(source, readings, { layout, self, passes: PASSES });
 }

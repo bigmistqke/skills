@@ -6,11 +6,11 @@
  * The printer names the variables: each by the noun of its type and the next number free for that noun, in the order
  * a reader meets them. The items of a list that stand on their own may each use the same names.
  */
-import { type Readings, LINK, LINK_MARK, mark, plain, Refusal, resolveLinks, unbracketed } from '../readings.ts';
+import { type Readings, LINK, mark, Refusal, resolveLinks, unbracketed } from '../readings.ts';
 import type { Clause, Num, Sentence, Term, Var } from './ir.ts';
 import type { PrintOptions } from './pass.ts';
 
-import { coordinate, holdsTime, shareSubject, timed, VARIABLE } from './words.ts';
+import { coordinate, holdsOwnComma, holdsTime, seen, shareSubject, timed, VARIABLE } from './words.ts';
 
 const ALL = 'all of these hold:';
 const ANY = 'at least one of these holds:';
@@ -19,7 +19,10 @@ const UNTRUE = 'it is not the case that:';
 const APART = 'the following holds:';
 const WRAP = "in integers that wrap around at the analyzer's bit width, ";
 
-const COMPARED: Record<string, string> = { '<': 'is less than', '>': 'is greater than', '=<': 'is at most', '>=': 'is at least', '=': 'is equal to', '!=': 'is not equal to' };
+const COMPARED: Record<string, string> = {
+  '<': 'is less than', '>': 'is greater than', '=<': 'is at most', '>=': 'is at least', '=': 'is equal to',
+  '!<': 'is not less than', '!>': 'is not greater than', '!=<': 'is not at most', '!>=': 'is not at least', '!=': 'is not equal to'
+};
 
 const MOMENT: Record<string, string> = {
   always: 'now and at every later moment',
@@ -315,23 +318,8 @@ export class Printer {
         if (s.untrue === true && isList(body)) return { ...body, intro: `it is not the case that ${body.intro}` };
         return this.apart(UNTRUE, body);
       }
-      case 'rule': {
-        // A side that is itself a rule is set apart, so that its "when" cannot read as more of this one.
-        const side = (x: Sentence): Doc => {
-          const doc = this.sentence(x);
-          return x.t === 'rule' || (typeof doc !== 'string' && doc.kind === 'rule') ? this.apart(APART, doc) : doc;
-        };
-        const [when, then] = [side(s.when), side(s.then)];
-        const otherwise = s.otherwise === undefined ? undefined : side(s.otherwise);
-        // A time phrase in the first side would reach over the second: the first side is set apart below "when".
-        if (s.oneLine !== true && typeof when === 'string' && holdsTime(when)) {
-          const apartWhen = this.apart(APART, when);
-          return otherwise === undefined ? { kind: 'rule', when: apartWhen, then } : { kind: 'rule', when: apartWhen, then, otherwise };
-        }
-        // On one line: "when a, b", with "then" before a second side that begins with a time phrase.
-        if (s.oneLine === true) return `when ${when as string}, ${timed(then as string) ? 'then ' : ''}${then as string}${otherwise === undefined ? '' : `; otherwise, ${otherwise as string}`}`;
-        return otherwise === undefined ? { kind: 'rule', when, then } : { kind: 'rule', when, then, otherwise };
-      }
+      case 'rule':
+        return this.rule(s);
       case 'iff': {
         if (s.nextAndNow === true) {
           // Each side's time phrase at its own end: "a at the next moment exactly when b now".
@@ -365,6 +353,39 @@ export class Printer {
       case 'define':
         return this.defined(s);
     }
+  }
+
+  /**
+   * A rule: "when" its first side, its second side, "otherwise" a third. A side whose end the words cannot mark is set
+   * apart below "the following holds": a side that is a rule, a first side that holds a time phrase, a second side that
+   * holds a comma of its own where no "then" shows where it starts, a side that is a series after a comma, and a second
+   * side that holds a time phrase an "otherwise" follows. A first side that is a series with a comma is its items.
+   */
+  private rule(s: Extract<Sentence, { t: 'rule' }>): Doc {
+    const apart = (doc: Doc): Doc => this.apart(APART, doc);
+    const side = (x: Sentence): Doc => {
+      const doc = this.sentence(x);
+      return x.t === 'rule' || (typeof doc !== 'string' && doc.kind === 'rule') ? apart(doc) : doc;
+    };
+    let when = side(s.when);
+    let then = side(s.then);
+    const third = s.otherwise === undefined ? undefined : side(s.otherwise);
+    // On one line: "when a, b", with "then" before a second side that begins with a time phrase.
+    if (s.oneLine === true) return `when ${when as string}, ${timed(then as string) ? 'then ' : ''}${then as string}${third === undefined ? '' : `; otherwise, ${third as string}`}`;
+    // A time phrase in the first side would reach over the second.
+    if (typeof when === 'string' && holdsTime(when)) when = apart(when);
+    // A comma in either side with no "then" between them would read as where the second side starts.
+    if (typeof when === 'string' && typeof then === 'string' && (third === undefined || typeof third === 'string') && !timed(then)) {
+      if (holdsOwnComma(then, this.readings)) then = apart(then);
+      else if (seen(when).includes(',')) when = (s.when.t === 'and' || s.when.t === 'or') && s.when.inline === true ? this.sentence({ ...s.when, inline: false }) : apart(when);
+    }
+    // A time phrase in the second side would reach over the "otherwise".
+    if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
+    // A series in the second or the last side, "a, and at the next moment, b", could end before its last clause.
+    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll('there is a moment before, and at it, ', ''));
+    if (series(then)) then = apart(then);
+    const otherwise = series(third) ? apart(third as Doc) : third;
+    return otherwise === undefined ? { kind: 'rule', when, then } : { kind: 'rule', when, then, otherwise };
   }
 
   private quantified(s: Extract<Sentence, { t: 'quant' }>): Doc {
@@ -533,6 +554,4 @@ function unnumbered(text: string): string {
   return out.replace(/^(> )?the /, (_, quote: string | undefined) => `${quote ?? ''}The `);
 }
 
-/** The words without the marks of variables and links. */
-export const seen = (words: string): string => plain(words).replaceAll(VARIABLE, '');
-export { LINK_MARK };
+

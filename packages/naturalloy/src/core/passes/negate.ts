@@ -7,7 +7,7 @@
 import type { Clause, Sentence } from '../ir.ts';
 import { type Context, everywhere } from '../pass.ts';
 
-const OPPOSITE = { '<': '>=', '>': '=<', '=<': '>', '>=': '<', '=': '!=', '!=': '=' } as const;
+const OPPOSITE = { '<': '!<', '>': '!>', '=<': '!=<', '>=': '!>=', '=': '!=', '!<': '<', '!>': '>', '!=<': '=<', '!>=': '>=', '!=': '=' } as const;
 const DUAL = { always: 'eventually', eventually: 'always', historically: 'once', once: 'historically', after: 'after' } as const;
 
 /** The sentence that `not s` equals with the negation moved all the way in, or undefined where it cannot move. */
@@ -45,7 +45,7 @@ export function negated(s: Sentence, context: Context): Sentence | undefined {
 }
 
 export const negationInward = everywhere('negation-inward', 'spec-not-before-a-compound-is-said-with-the-not-moved-inward', (s, context) =>
-  s.t === 'not' && s.untrue !== true ? negated(s.body, context) : undefined
+  s.t === 'not' && s.untrue !== true && s.whole !== true ? negated(s.body, context) : undefined
 );
 
 /** `not (a iff b)` said as exactly one of the two holding. */

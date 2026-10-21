@@ -8,7 +8,7 @@ import { meaning, type Sentence } from '../../src/core/ir.ts';
 import { optimize, type Trace } from '../../src/core/pass.ts';
 import { PASSES } from '../../src/core/passes/index.ts';
 import { parseReadings, withDefinitions } from '../../src/readings.ts';
-import { isDefinition } from '../../src/verbalize.ts';
+import { isDefinition } from '../../src/core/index.ts';
 import { JAR, verdicts } from '../analyzer.ts';
 import { READINGS, SWEEP, VOCABULARY } from '../canon/sweep.ts';
 
@@ -51,6 +51,9 @@ export function changes(): Change[] {
 }
 
 describe('the passes over the sweep', () => {
+  /**
+   * @canon spec-a-rewrite-means-what-the-formula-it-replaces-means
+   */
   it.skipIf(JAR === undefined)('change no formula into one that means something else, as the analyzer finds', async () => {
     const all = changes();
     expect(all.length).toBeGreaterThan(0);

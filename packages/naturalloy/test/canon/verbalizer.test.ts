@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { isDefinition, parseDefinitions, parseReadings, Refusal, verbalize, verbalizeDefinition, withDefinitions } from '../../src/verbalize.ts';
+import { isDefinition, parseDefinitions, parseReadings, Refusal, verbalize, verbalizeDefinition, withDefinitions } from '../../src/index.ts';
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures', 'lifetimes');
 const read = (name: string): string => readFileSync(join(FIXTURE, name), 'utf8');

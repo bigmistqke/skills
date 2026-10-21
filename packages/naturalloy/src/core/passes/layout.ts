@@ -26,15 +26,13 @@ export const clausesInASentence: Pass = {
   name: 'clauses-in-a-sentence',
   spec: 'spec-three-clauses-or-fewer-are-said-in-a-sentence',
   run(top, context) {
-    // Below a time phrase an "and" or an "or" stays a list; as a side of a rule, a sentence of three would hold commas
-    // that read as where the rule turns, so a side takes two clauses at most.
-    const walk = (s: Sentence, place: 'time' | 'side' | 'free'): Sentence => {
-      const inner = children(s, child => walk(child, s.t === 'moment' ? 'time' : s.t === 'rule' ? 'side' : 'free'));
+    // Below a time phrase an "and" or an "or" stays a list.
+    const walk = (s: Sentence, belowTime: boolean): Sentence => {
+      const inner = children(s, child => walk(child, s.t === 'moment'));
       if (inner.t === 'and' && inner.sequence === true) return inSentence(inner, context) ?? inner;
-      if (place === 'time' || (place === 'side' && (inner.t === 'and' || inner.t === 'or') && inner.items.length > 2)) return inner;
-      return inSentence(inner, context) ?? inner;
+      return belowTime ? inner : (inSentence(inner, context) ?? inner);
     };
-    return walk(top, 'free');
+    return walk(top, false);
   }
 };
 
@@ -44,7 +42,7 @@ function inSentence(s: Sentence, context: Context): Sentence | undefined {
     const [a, b] = s.items as [Sentence, Sentence];
     return plainClause(a) && b.t === 'moment' && b.op === 'after' && plainClause(b.body) ? { ...s, inline: true } : undefined;
   }
-  if ((s.t !== 'and' && s.t !== 'or') || s.inline === true || s.items.length > INLINE_ITEMS || !s.items.every(clauseLike)) return undefined;
+  if ((s.t !== 'and' && s.t !== 'or') || s.inline === true || s.spelled === true || s.items.length > INLINE_ITEMS || !s.items.every(clauseLike)) return undefined;
   const said = s.items.map(item => line(item, context));
   if (said.some(words => words === undefined)) return undefined;
   const words = said as string[];
