@@ -160,7 +160,7 @@ test('a throwing listener does not stop the next one', () => {
    3. A unit that stood alone as a spec becomes an exception, and shows where a fact pinches.
    4. A "This follows because" sentence gets shorter, because its parent now forces it.
 4. The canon is a program that you run when you make a decision. A stronger flow gives stronger guidance, in the canon and in the code that expresses it. Treat such a restructure as an optimisation, and look for chances to make one.
-5. A restructure removes no test. Each test that cites a moved or renamed unit cites its new id.
+5. A restructure removes no test. Each test that cites a moved or renamed unit cites its new id. `canon rename` moves them for you, as [the checker](checker.md#renaming-a-unit) describes.
 6. A restructure changes no behaviour. If it shows a claim that the code breaks, follow [the defect procedure](SKILL.md#4-fixing-a-defect).
 
 ## 11. Conflicts

@@ -829,6 +829,54 @@ interface Analysis {
   bugs: Map<string, string>;
 }
 
+/** A test file: `.test` or `.spec`, in TypeScript with or without JSX. */
+const isSuite = (name: string): boolean => /\.(test|spec)(-d)?\.tsx?$/.test(name);
+
+/** Every suite under a tree, so a voluntary citation is still read. */
+function allSuites(dir: string, out: string[] = []): string[] {
+  for (const name of readdirSync(dir)) {
+    const entry = join(dir, name);
+    if (statSync(entry).isDirectory()) {
+      allSuites(entry, out);
+    } else if (isSuite(name)) {
+      out.push(entry);
+    }
+  }
+  return out;
+}
+
+/** Every other `.ts` — the implementation, which may cite the canon in its JSDoc. */
+function allModules(dir: string, out: string[] = []): string[] {
+  for (const name of readdirSync(dir)) {
+    const entry = join(dir, name);
+    if (statSync(entry).isDirectory()) {
+      allModules(entry, out);
+    } else if (/\.tsx?$/.test(name) && !isSuite(name)) {
+      out.push(entry);
+    }
+  }
+  return out;
+}
+
+/**
+ * Every declared prose reference that is not itself in scope: the documents
+ * that explain the canon, whose links must resolve.
+ *
+ * Markdown only. A `.ts` beside them may be tooling that writes the literal
+ * `@canon` in its own strings because it is what parses the tag — so reading
+ * it would find citations that were never citations.
+ */
+function allReferences(path: string, out: string[] = []): string[] {
+  if (!existsSync(path)) return out;
+  if (!statSync(path).isDirectory()) {
+    if (path.endsWith('.md') && !DOCS.includes(relative(ROOT, path)))
+      out.push(path);
+    return out;
+  }
+  for (const name of readdirSync(path)) allReferences(join(path, name), out);
+  return out;
+}
+
 /**
  * Read every in-scope document, suite and module, and judge what they cite.
  *
@@ -1286,54 +1334,6 @@ function analyse(write: boolean): Analysis {
     return parsed;
   }
 
-  /** A test file: `.test` or `.spec`, in TypeScript with or without JSX. */
-  const isSuite = (name: string): boolean => /\.(test|spec)(-d)?\.tsx?$/.test(name);
-
-  /** Every suite under a tree, so a voluntary citation is still read. */
-  function allSuites(dir: string, out: string[] = []): string[] {
-    for (const name of readdirSync(dir)) {
-      const entry = join(dir, name);
-      if (statSync(entry).isDirectory()) {
-        allSuites(entry, out);
-      } else if (isSuite(name)) {
-        out.push(entry);
-      }
-    }
-    return out;
-  }
-
-  /** Every other `.ts` — the implementation, which may cite the canon in its JSDoc. */
-  function allModules(dir: string, out: string[] = []): string[] {
-    for (const name of readdirSync(dir)) {
-      const entry = join(dir, name);
-      if (statSync(entry).isDirectory()) {
-        allModules(entry, out);
-      } else if (/\.tsx?$/.test(name) && !isSuite(name)) {
-        out.push(entry);
-      }
-    }
-    return out;
-  }
-
-  /**
-   * Every declared prose reference that is not itself in scope: the documents
-   * that explain the canon, whose links must resolve.
-   *
-   * Markdown only. A `.ts` beside them may be tooling that writes the literal
-   * `@canon` in its own strings because it is what parses the tag — so reading
-   * it would find citations that were never citations.
-   */
-  function allReferences(path: string, out: string[] = []): string[] {
-    if (!existsSync(path)) return out;
-    if (!statSync(path).isDirectory()) {
-      if (path.endsWith('.md') && !DOCS.includes(relative(ROOT, path)))
-        out.push(path);
-      return out;
-    }
-    for (const name of readdirSync(path)) allReferences(join(path, name), out);
-    return out;
-  }
-
   /**
    * Read a suite or a module of the sources: its tests, as `readSuite` does,
    * and every other `@canon` tag in a comment, which only resolves.
@@ -1566,7 +1566,8 @@ Every unit that makes a derived claim carries a machine-checkable link to what
 it derives from — its position under the unit it derives from, a link on a
 "Derives from:" line in a document, a @canon JSDoc tag in a test — and the
 documents' index and the table of kinds are generated from those links rather
-than hand-kept. check is the gate, generate is the writer, and tree is the map.
+than hand-kept. check is the gate, generate is the writer, tree is the map, and
+rename moves a unit's id and every name of it at once.
 
 Usage:
   ${COMMAND} check [--offline]     report every finding; exit 1 if there is one. With a
@@ -1586,6 +1587,11 @@ Usage:
                                    --svg as the SVG that Pele renders from it
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
+  ${COMMAND} rename <id> <stem> [--dry-run]
+                                   give the unit the new stem, keeping its kind, and move every pointer,
+                                   tag, code span and generated region that names it to the new id; then
+                                   write the generated regions. --dry-run prints each line it would change
+                                   and changes nothing
 
 Options for tree:
   --gaps          only the branches leading to a claim no test pins
@@ -1791,6 +1797,156 @@ async function generate(): Promise<number> {
   return fromPlugins;
 }
 
+/** A stem: words of lowercase letters and digits, joined by single hyphens. */
+const STEM = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/** `text` as a pattern that matches it literally. */
+const literally = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Give the unit `old` the stem `stem`, and move every name of it to the new
+ * id: the pointers whose path leads to its document, the tags in the comments
+ * of the suites and the sources and in the references, the code spans that
+ * spell it, and the markers of the regions named after it. Then write the
+ * generated regions, as `generate` does. The exit code: 0, or 2 when the
+ * rename cannot hold, with nothing changed.
+ *
+ * Every change is worked out before any file is written, so a refusal leaves
+ * the project as it was, and a dry run prints what the rename would write.
+ */
+async function rename(old: string, stem: string, dryRun: boolean): Promise<number> {
+  const refuse = (why: string): number => {
+    console.error(`canon: rename: ${why}`);
+    return 2;
+  };
+
+  // The units the project declares, and those of the documents it extends, which another project holds.
+  const own = new Map<string, { doc: string; kind: string; start: number }>();
+  const extended = new Map<string, string>();
+  for (const rel of DOCS) {
+    const file = join(ROOT, rel);
+    if (!rel.endsWith('.md') || !existsSync(file)) continue;
+    for (const unit of readUnits(readFileSync(file, 'utf8'))) {
+      if (!own.has(unit.id)) own.set(unit.id, { doc: rel, kind: unit.kind, start: unit.start });
+    }
+    let context: string[] = [];
+    try {
+      context = contextOf(file, ROOT);
+    } catch {
+      // A path that names no document is refused before any command runs.
+    }
+    for (const other of context) {
+      for (const unit of readUnits(readFileSync(other, 'utf8'))) extended.set(unit.id, relative(ROOT, other));
+    }
+  }
+
+  const unit = own.get(old);
+  if (unit === undefined) {
+    const elsewhere = extended.get(old);
+    return refuse(
+      elsewhere === undefined
+        ? `${old} names no unit of the project's documents`
+        : `${old} is declared in ${elsewhere}, a document this project extends; rename it in the project that holds it`
+    );
+  }
+  if (!STEM.test(stem)) {
+    return refuse(`"${stem}" is not a stem: words of lowercase letters and digits, joined by single hyphens`);
+  }
+  const next = `${unit.kind}-${stem}`;
+  const holder = own.get(next)?.doc ?? extended.get(next);
+  if (holder !== undefined) return refuse(`${next} is already declared in ${holder}`);
+
+  const home = join(ROOT, unit.doc);
+  const id = literally(old);
+  /** The id ends here: an id that goes on is another id. */
+  const ends = '(?![\\w-])';
+  const tags = new RegExp(`(@canon\\s+)${id}${ends}`, 'g');
+  // An axiom tag names an axiom with its kind or without it.
+  const axiomTags = unit.kind === 'axiom' ? new RegExp(`(@axiom\\s+)(axiom-)?${literally(old.slice('axiom-'.length))}${ends}`, 'g') : undefined;
+  const retag = (text: string): string => {
+    const moved = text.replace(tags, `$1${next}`);
+    return axiomTags === undefined ? moved : moved.replace(axiomTags, (_, at: string, kind = '') => `${at}${kind}${stem}`);
+  };
+
+  /** A document or a reference, with every pointer to the unit, code span of its id and tag of it moved. */
+  const reword = (file: string, src: string): string => {
+    const leads = (path: string): boolean => (path === '' ? file === home : join(dirname(file), path) === home);
+    return retag(
+      src
+        .replace(new RegExp(`(\\]\\()([^)\\s#]*)#${id}(?=\\))`, 'g'), (m, open: string, path: string) => (leads(path) ? `${open}${path}#${next}` : m))
+        .replace(new RegExp(`(href=")([^"#]*)#${id}(?=")`, 'g'), (m, open: string, path: string) => (leads(path) ? `${open}${path}#${next}` : m))
+        .replace(new RegExp(`(?<!\`)\`${id}\`(?!\`)`, 'g'), `\`${next}\``)
+    );
+  };
+
+  /** Each file the rename changes, with its text as it is and as it will be. */
+  const changes = new Map<string, { was: string; is: string }>();
+  const change = (file: string, rewrite: (src: string) => string): void => {
+    const was = changes.get(file)?.was ?? readFileSync(file, 'utf8');
+    const is = rewrite(changes.get(file)?.is ?? was);
+    changes.set(file, { was, is });
+  };
+
+  // The heading: its kind stays, and the stem after it is the new one.
+  change(home, src => {
+    const end = src.indexOf('\n', unit.start);
+    const line = src.slice(unit.start, end === -1 ? undefined : end);
+    return src.slice(0, unit.start) + line.replace(/^(#{1,6}[ \t]+@[a-z]+[ \t]+)\S+/, `$1${stem}`) + (end === -1 ? '' : src.slice(end));
+  });
+  // A region named after the unit, such as the statement a plugin writes for it, ends its markers with the id.
+  const markers = new RegExp(`(<!--[ \\t]*(?:[\\w-]*-)?)${id}(:(?:begin|end)\\b)`, 'g');
+  for (const rel of DOCS) {
+    const file = join(ROOT, rel);
+    if (rel.endsWith('.md') && existsSync(file)) change(file, src => reword(file, src).replace(markers, `$1${next}$2`));
+  }
+  for (const ref of REFERENCES) for (const file of allReferences(join(ROOT, ref))) change(file, src => reword(file, src));
+
+  // A tag in a suite or a source is one in a comment: text in a string names no unit.
+  const sources = new Set<string>(existsSync(join(ROOT, TESTS)) ? [...allSuites(join(ROOT, TESTS)), ...allModules(join(ROOT, TESTS))] : []);
+  for (const root of SOURCES) {
+    const abs = join(ROOT, root);
+    if (existsSync(abs)) for (const file of [...allSuites(abs), ...allModules(abs)]) sources.add(file);
+  }
+  for (const file of sources) {
+    const src = readFileSync(file, 'utf8');
+    let comments: Array<{ start: number; end: number }>;
+    try {
+      comments = parseSource(src, file.endsWith('.tsx')).comments;
+    } catch (error) {
+      return refuse(`${relative(ROOT, file)} does not parse as TypeScript: ${(error as Error).message}`);
+    }
+    let out = '';
+    let at = 0;
+    for (const { start, end } of comments) {
+      out += src.slice(at, start) + retag(src.slice(start, end));
+      at = end;
+    }
+    out += src.slice(at);
+    if (out !== src) changes.set(file, { was: src, is: out });
+  }
+
+  let lines = 0;
+  let files = 0;
+  for (const [file, { was, is }] of changes) {
+    if (was === is) continue;
+    files++;
+    const before = was.split('\n');
+    const after = is.split('\n');
+    for (const [i, line] of before.entries()) {
+      if (line === after[i]) continue;
+      lines++;
+      if (dryRun) console.log(`${relative(ROOT, file)}:${i + 1}\n  - ${line}\n  + ${after[i]}`);
+    }
+    if (!dryRun) writeFileSync(file, is);
+  }
+  if (dryRun) {
+    console.log(`\nrename ${old} to ${next} would change ${lines} line(s) in ${files} file(s)`);
+    return 0;
+  }
+  console.log(`renamed ${old} to ${next}: ${lines} line(s) in ${files} file(s)`);
+  return generate();
+}
+
 function tree(options: {
   gaps: boolean;
   verbose: boolean;
@@ -1809,7 +1965,7 @@ function tree(options: {
 }
 
 /** The commands the core runs itself; every other command is added by a plugin. */
-const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'log']);
+const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'log', 'rename']);
 
 /**
  * Run the command that plugins add, each over the documents that apply it, and
@@ -1895,6 +2051,7 @@ async function main(argv: string[]): Promise<void> {
         review: { type: 'string', multiple: true },
         show: { type: 'string', multiple: true },
         svg: { type: 'boolean' },
+        'dry-run': { type: 'boolean' },
         help: { type: 'boolean', short: 'h' }
       }
     });
@@ -1924,6 +2081,14 @@ async function main(argv: string[]): Promise<void> {
       process.exit(2);
     }
     log(rest[0]);
+    return;
+  }
+  if (command === 'rename') {
+    if (rest.length !== 2) {
+      console.error(`canon: rename takes the id of a unit and its new stem\n\n${HELP}`);
+      process.exit(2);
+    }
+    process.exitCode = await rename(rest[0] as string, rest[1] as string, values['dry-run'] === true);
     return;
   }
   if (rest.length > 0) {
