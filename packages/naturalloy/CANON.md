@@ -449,21 +449,9 @@ for 6
 
 > A formula is a piece of Alloy that states a claim, and that the verbalizer says in words.
 
-```alloy vocabulary
-```
-
-```readings
-```
-
 ### @term quantified-formula
 
 > A quantified formula is a formula that declares variables, and the verbalizer names them and says their types.
-
-```alloy vocabulary
-```
-
-```readings
-```
 
 ### @term quantifier
 
@@ -577,12 +565,6 @@ fits: {1} [fits] a noun phrase | {1} does not [fit] a noun phrase
 
 > A predicate call is a formula that names a predicate and gives its arguments.
 
-```alloy vocabulary
-```
-
-```readings
-```
-
 ### @term definition-passage
 
 > A definition is a predicate with a body that the verbalizer says as what its name means exactly when the body holds.
@@ -670,12 +652,6 @@ byKind: {1} can be said [kind by kind] | {1} cannot be said [kind by kind]
 ### @term linked-formula
 
 > A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
-
-```alloy vocabulary
-```
-
-```readings
-```
 
 ### @term series
 
@@ -825,12 +801,6 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 ### @term line
 
 > A line is one line of a table of readings, which gives a word of the logic its sentences.
-
-```alloy vocabulary
-```
-
-```readings
-```
 
 ### @term pass
 
