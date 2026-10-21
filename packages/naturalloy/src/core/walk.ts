@@ -117,3 +117,65 @@ export const holdsPhrase = (s: Sentence): boolean => [...termsBelow(s)].some(x =
 
 /** The names of the variables a sentence leaves free. */
 export const freeNames = (s: Sentence): Set<string> => new Set([...termsBelow(s)].flatMap(x => (x.t === 'free' ? [x.name] : [])));
+
+/** A sentence with each term below it given by `f`, a noun phrase's own conditions and other thing first. */
+export function mapTerms<S extends Sentence>(s: S, f: (x: Term) => Term): S {
+  const term = (x: Term): Term => {
+    if (x.t !== 'np') return f(x);
+    const np = { ...x };
+    if (x.other !== undefined) np.other = term(x.other);
+    if (x.relative !== undefined) np.relative = mapTerms(x.relative, f);
+    return f(np);
+  };
+  const sentence = (y: Sentence): Sentence => mapTerms(y, f);
+  const num = (n: Num): Num => {
+    switch (n.t) {
+      case 'term':
+        return { ...n, x: term(n.x) };
+      case 'count':
+      case 'sumOf':
+        return { ...n, cond: sentence(n.cond) };
+      case 'sumOver':
+        return { ...n, body: num(n.body) };
+      case 'arith':
+        return { ...n, l: num(n.l), r: num(n.r) };
+      default:
+        return n;
+    }
+  };
+  const out = ((): Sentence => {
+    switch (s.t) {
+      case 'reading':
+        return { ...s, args: s.args.map(term) };
+      case 'same':
+        return { ...s, l: term(s.l), r: term(s.r) };
+      case 'isA':
+        return { ...s, x: term(s.x) };
+      case 'next':
+        return { ...s, x: term(s.x), y: term(s.y) };
+      case 'reach':
+        return { ...s, from: term(s.from), to: term(s.to), step: sentence(s.step) };
+      case 'compare':
+        return { ...s, l: num(s.l), r: num(s.r) };
+      case 'and':
+      case 'or':
+        return { ...s, items: s.items.map(sentence) };
+      case 'not':
+      case 'moment':
+      case 'quant':
+        return { ...s, body: sentence(s.body) };
+      case 'define':
+        return { ...s, head: mapTerms(s.head, f), body: sentence(s.body) };
+      case 'rule':
+        return s.otherwise === undefined ? { ...s, when: sentence(s.when), then: sentence(s.then) } : { ...s, when: sentence(s.when), then: sentence(s.then), otherwise: sentence(s.otherwise) };
+      case 'iff':
+        return { ...s, l: sentence(s.l), r: sentence(s.r) };
+      case 'until':
+      case 'since':
+        return { ...s, a: sentence(s.a), b: sentence(s.b) };
+      case 'pair':
+        return { ...s, first: mapTerms(s.first, f), second: mapTerms(s.second, f) };
+    }
+  })();
+  return out as S;
+}

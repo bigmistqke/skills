@@ -12,6 +12,7 @@ import { unbracketed } from '../readings.ts';
 import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import type { Clause, Compared, Moment, NounPhrase, Num, Sentence, Term, Var } from './ir.ts';
 import { type Doc, readLayout } from './layout.ts';
+import { mapTerms } from './walk.ts';
 
 /** Each time phrase with the operator it says. */
 const MOMENTS = Object.entries(MOMENT) as [Moment, string][];
@@ -34,30 +35,31 @@ const OPERATORS = (Object.entries(COMPARED) as [Compared, string][]).map(([op, w
 /** The numbers the words name after "where": number_1, number_2, each with every reading of its words. */
 type Defs = ReadonlyMap<string, Num[]>;
 
-/** Noun phrases "another" and "no other" whose other thing is the term the clause before says in the same place. */
-const PENDING = new WeakSet<object>();
-/** For such a phrase, the thing of its kind a quantifier introduced last, which it differs from when nothing nearer is named. */
-const FALLBACK = new WeakMap<object, Term>();
-
-/** A reading with each "another" or "no other" that differs from nothing differing from the thing its quantifier introduced last. */
-function settled(node: unknown): unknown {
-  if (Array.isArray(node)) return node.map(settled);
-  if (node === null || typeof node !== 'object') return node;
-  const o = node as Record<string, unknown>;
-  const fallback = o.t === 'np' && PENDING.has(o) && o.other === undefined ? FALLBACK.get(o) : undefined;
-  const out = Object.fromEntries(Object.entries(o).map(([k, v]) => [k, settled(v)]));
-  if (fallback !== undefined) return { ...out, other: fallback };
-  if (PENDING.has(o)) PENDING.add(out);
-  return out;
+/**
+ * "another" or "no other" while the words are read: a noun phrase whose other thing is what the clause before says in
+ * the same place, or one its own clause names before it, and otherwise `kin`, the thing of its kind a quantifier
+ * introduced last.
+ */
+interface Another extends NounPhrase {
+  another: { kin?: Term };
 }
 
-/** Whether a reading holds "another" or "no other" that differs from nothing. */
-function unresolved(node: unknown): boolean {
-  if (Array.isArray(node)) return node.some(unresolved);
-  if (node === null || typeof node !== 'object') return false;
-  const o = node as Record<string, unknown>;
-  if (o.t === 'np' && PENDING.has(o) && o.other === undefined) return true;
-  return Object.values(o).some(unresolved);
+const isAnother = (x: Term): x is Another => x.t === 'np' && 'another' in x;
+
+/**
+ * A reading with each "another" or "no other" settled: one that differs from nothing differs from its `kin`, and
+ * undefined where it has none, since then nothing before it is of its kind.
+ */
+function settled(s: Sentence): Sentence | undefined {
+  let lost = false;
+  const out = mapTerms(s, x => {
+    if (!isAnother(x)) return x;
+    const { another, ...np } = x;
+    const other = np.other ?? another.kin;
+    if (other === undefined) lost = true;
+    return other === undefined ? np : { ...np, other };
+  });
+  return lost ? undefined : out;
 }
 
 export class Parser {
@@ -89,8 +91,7 @@ export class Parser {
     // "another" or "no other" with nothing before it of its kind has no reading.
     return readLayout(text)
       .flatMap(doc => this.doc(doc, new Map()))
-      .map(s => settled(s) as Sentence)
-      .filter(s => !unresolved(s));
+      .flatMap(s => settled(s) ?? []);
   }
 
   private fresh(type: string): Var {
@@ -146,11 +147,9 @@ export class Parser {
           if (det === 'another' || det === 'no other') {
             // It differs from the thing of its kind the words named last: in its clause, in the clause before, or where a
             // quantifier introduced it.
-            const pending = { ...np };
-            PENDING.add(pending);
             const kin = [...scope.values()].filter(term => term.t === 'var' && term.v.type === type).at(-1);
-            if (kin !== undefined) FALLBACK.set(pending, kin);
-            out.push(pending);
+            const another: Another = { ...np, another: kin === undefined ? {} : { kin } };
+            out.push(another);
             continue;
           }
           if (otherTerm !== undefined) np.other = otherTerm;
@@ -209,7 +208,7 @@ export class Parser {
       for (const args of all) {
         // "another unit" in a clause that names a unit before it differs from that unit.
         const resolved = args.map((arg, k) => {
-          if (arg.t !== 'np' || !PENDING.has(arg)) return arg;
+          if (!isAnother(arg)) return arg;
           // A subject the words leave out is not named before it.
           const before = (elided ? args.slice(1, k) : args.slice(0, k)).reverse().find(b => b.t === 'var' && b.v.type === arg.v.type);
           return before === undefined ? arg : { ...arg, other: before };
@@ -459,7 +458,7 @@ export class Parser {
           if (word === 'and' && items.length === 2) {
             const [first, second] = items as [Sentence, Sentence];
             if (first.t === 'reading' && second.t === 'reading') {
-              const k = second.args.findIndex(arg => arg.t === 'np' && PENDING.has(arg) && arg.det === 'a');
+              const k = second.args.findIndex(arg => isAnother(arg) && arg.det === 'a');
               const one = first.args[k];
               if (k !== -1 && one?.t === 'np' && one.det === 'a' && one.v.type === (second.args[k] as NounPhrase).v.type) {
                 const another = { ...(second.args[k] as NounPhrase), other: { t: 'var', v: one.v } as Term };
@@ -473,7 +472,7 @@ export class Parser {
             const before = items[i - 1] as Sentence;
             if (before.t !== 'reading' || before.key !== item.key) return item;
             // "no other" differs from what the clause before says in its place, where that is a thing and not a phrase.
-            const args = item.args.map((arg, k) => (arg.t === 'np' && PENDING.has(arg) && arg.other === undefined && (before.args[k] as Term).t !== 'np' ? { ...arg, other: before.args[k] as Term } : arg));
+            const args = item.args.map((arg, k) => (isAnother(arg) && arg.other === undefined && (before.args[k] as Term).t !== 'np' ? { ...arg, other: before.args[k] as Term } : arg));
             return { ...item, args };
           });
           out.push({ t: word, items: fixed });
