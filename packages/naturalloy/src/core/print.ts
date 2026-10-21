@@ -12,6 +12,7 @@ import type { PrintOptions } from './pass.ts';
 
 import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import { type Doc, isList, lines, markdownLines } from './layout.ts';
+import { freeNames, holdsPhrase } from './walk.ts';
 import { coordinate, holdsOwnComma, holdsTime, seen, shareSubject, timed, VARIABLE } from './words.ts';
 
 /** "a failing cleanup": the article before the noun, by the sound of its first word. */
@@ -264,7 +265,7 @@ export class Printer {
 
   /** The words for a whole statement: the names of its free variables are taken before any other is given. */
   statement(s: Sentence): Doc {
-    for (const match of JSON.stringify(s).matchAll(/"t":"free","name":"([^"]+)"/g)) this.used.add(match[1] as string);
+    for (const name of freeNames(s)) this.used.add(name);
     return this.sentence(s);
   }
 
@@ -291,7 +292,7 @@ export class Printer {
         const body = this.sentence(s.body);
         // One plain clause, or "there is exactly one owner", shows where the negation ends: it is said on the line.
         const simple = (x: Sentence): boolean =>
-          ((x.t === 'reading' || x.t === 'same' || x.t === 'isA' || x.t === 'next') && !JSON.stringify(x).includes('"t":"np"')) ||
+          ((x.t === 'reading' || x.t === 'same' || x.t === 'isA' || x.t === 'next') && !holdsPhrase(x)) ||
           (x.t === 'quant' && x.body.t === 'and' && x.body.items.length === 0);
         if (typeof body === 'string' && simple(s.body)) return `${INTRO.untrue} ${body}`;
         if (s.form === 'untrue' && isList(body)) return { ...body, intro: `${INTRO.untrue} ${body.intro}` };

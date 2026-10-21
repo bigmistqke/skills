@@ -7,6 +7,7 @@
  */
 import type { Clause, NounPhrase, Sentence, Term, Var } from '../ir.ts';
 import { type Context, everywhere, type Pass } from '../pass.ts';
+import { mentions } from '../walk.ts';
 import { seen, timed } from '../words.ts';
 
 /** The terms of a clause, in the order of its slots. */
@@ -26,12 +27,6 @@ export function termsOf(c: Clause): Term[] {
 }
 
 const isVar = (term: Term, v: Var): boolean => term.t === 'var' && term.v.id === v.id;
-
-/** Whether a sentence names the variable anywhere: as a term, or inside a noun phrase's conditions. */
-export function mentions(s: Sentence | Term | undefined, v: Var): boolean {
-  if (s === undefined) return false;
-  return JSON.stringify(s).includes(`"id":"${v.id}"`);
-}
 
 /** The words of a reading of a clause, with its slots: where in them the variable's slot stands. */
 function template(c: Clause, context: Context): string | undefined {
@@ -227,7 +222,8 @@ export const anotherOfAKind = everywhere('another-of-a-kind', 'spec-a-variable-t
   const all = (items: Sentence[]): Sentence => (items.length === 1 ? (items[0] as Sentence) : { t: 'and', items });
   const [first, second] = [absorbed('some', a, all(ofA), context), absorbed('some', b, all(ofB), context)];
   if (first === undefined || second === undefined || !clause(first) || !clause(second)) return undefined;
-  // The second is "another": a noun phrase that differs from the first.
-  const another = (c: Clause): Clause => JSON.parse(JSON.stringify(c).replace(`"t":"np","det":"a","v":{"id":"${b.id}","type":"${b.type}"}`, `"t":"np","det":"a","v":{"id":"${b.id}","type":"${b.type}"},"other":{"t":"var","v":{"id":"${a.id}","type":"${a.type}"}}`)) as Clause;
-  return { t: 'pair', first, second: another(second) };
+  // The second is "another": its noun phrase differs from the first.
+  if (second.t !== 'reading') return undefined;
+  const args = second.args.map(arg => (arg.t === 'np' && arg.v.id === b.id ? { ...arg, other: { t: 'var', v: a } as Term } : arg));
+  return { t: 'pair', a, b, first, second: { ...second, args } };
 });

@@ -463,7 +463,7 @@ export class Parser {
               const one = first.args[k];
               if (k !== -1 && one?.t === 'np' && one.det === 'a' && one.v.type === (second.args[k] as NounPhrase).v.type) {
                 const another = { ...(second.args[k] as NounPhrase), other: { t: 'var', v: one.v } as Term };
-                out.push({ t: 'pair', first, second: { ...second, args: second.args.map((arg, i) => (i === k ? another : arg)) } });
+                out.push({ t: 'pair', a: one.v, b: another.v, first, second: { ...second, args: second.args.map((arg, i) => (i === k ? another : arg)) } });
                 continue;
               }
             }

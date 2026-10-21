@@ -107,7 +107,7 @@ export type Sentence =
    * unit". It means that there are two different things of the kind, the first of which the first clause says, and the
    * second the second.
    */
-  | { t: 'pair'; first: Clause; second: Clause }
+  | { t: 'pair'; a: Var; b: Var; first: Clause; second: Clause }
   /** What a definition names, exactly when its body holds, for every value of its parameters; or said kind by kind. */
   | { t: 'define'; head: Clause; params: Var[]; body: Sentence; form?: 'by-kinds' };
 
@@ -267,15 +267,8 @@ class Meaning {
       case 'until':
       case 'since':
         return `(${this.sentence(s.a)}) ${s.t} (${this.sentence(s.b)})`;
-      case 'pair': {
-        const np = (c: Clause): Var => {
-          const found = JSON.stringify(c).match(/"t":"np","det":"a","v":\{"id":"([^"]+)","type":"([^"]+)"\}/);
-          if (found === null) throw new Error('naturalloy made a pair without a noun phrase');
-          return { id: found[1] as string, type: found[2] as string };
-        };
-        const [a, b] = [np(s.first), np(s.second)];
-        return `(some ${this.decl([a, b])} | ${this.name(a)} != ${this.name(b)} and (${this.flat(s.first, a)}) and (${this.flat(s.second, b)}))`;
-      }
+      case 'pair':
+        return `(some ${this.decl([s.a, s.b])} | ${this.name(s.a)} != ${this.name(s.b)} and (${this.flat(s.first, s.a)}) and (${this.flat(s.second, s.b)}))`;
       case 'define': {
         const claim = `(${this.clause(s.head)}) iff (${this.sentence(s.body)})`;
         return s.params.length === 0 ? claim : `(all ${this.decl(s.params)} | ${claim})`;

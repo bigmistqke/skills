@@ -7,7 +7,8 @@
 import type { Clause, Sentence, Term, Var } from '../ir.ts';
 import { type Context, everywhere, type Pass } from '../pass.ts';
 import { holdsRelative, holdsTime, INLINE_ITEMS, INLINE_LENGTH, seen } from '../words.ts';
-import { absorbed, mentions, termsOf } from './phrases.ts';
+import { mentions } from '../walk.ts';
+import { absorbed, termsOf } from './phrases.ts';
 
 const isVar = (term: Term, v: Var): boolean => term.t === 'var' && term.v.id === v.id;
 

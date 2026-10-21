@@ -4,20 +4,11 @@
  */
 import type { Sentence } from '../ir.ts';
 import { type Context, everywhere, type Pass } from '../pass.ts';
+import { holdsPhrase, sentencesBelow } from '../walk.ts';
 import { holdsRelative, holdsTime, seen } from '../words.ts';
 
 /** Whether a sentence names a moment of its own, other than the next one: "now", "a moment before", "until". */
-function anchored(s: Sentence): boolean {
-  if (s.t === 'moment' && s.op === 'after') return anchored(s.body);
-  if (s.t === 'moment' || s.t === 'until' || s.t === 'since') return true;
-  return JSON.stringify(s).match(/"t":"(?:moment|until|since)"/) !== null && !onlyNext(s);
-}
-
-/** Whether every moment a sentence names is the next one. */
-function onlyNext(s: Sentence): boolean {
-  const ops = [...JSON.stringify(s).matchAll(/"t":"(moment|until|since)"(?:,"op":"(\w+)")?/g)];
-  return ops.every(m => m[1] === 'moment' && m[2] === 'after');
-}
+const anchored = (s: Sentence): boolean => [...sentencesBelow(s)].some(x => (x.t === 'moment' && x.op !== 'after') || x.t === 'until' || x.t === 'since');
 
 /** Whether a signature has the same members at every moment: the vocabulary declares it, and not `var`. */
 const constant = (type: string, context: Context): boolean => context.readings.holders.has(type) && !context.readings.variables.has(type);
@@ -52,7 +43,7 @@ export const fromNowOnWhenever: Pass = {
 
 /** A clause of one reading with a variable in each place: no time phrase, comma, relative clause or noun phrase. */
 function single(s: Sentence, context: Context): boolean {
-  if ((s.t !== 'reading' && s.t !== 'same' && s.t !== 'isA' && s.t !== 'next') || JSON.stringify(s).includes('"t":"np"')) return false;
+  if ((s.t !== 'reading' && s.t !== 'same' && s.t !== 'isA' && s.t !== 'next') || holdsPhrase(s)) return false;
   const words = context.words(s);
   return words !== undefined && !holdsTime(words) && !seen(words).includes(',') && !holdsRelative(words);
 }
