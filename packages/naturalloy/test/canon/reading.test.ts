@@ -21,7 +21,7 @@ describe('the rules of reading', () => {
    */
   it('lets a noun phrase cover the clause it stands in', () => {
     expect(say('no o: Owner | o in c.on')).toBe('c is on no owner.');
-    expect(means('no o: Owner | o in c.on')).toBe('(no v_1: Owner | (c->v_1 in on))');
+    expect(means('no o: Owner | o in c.on')).toBe('(no v_1: Owner | c->v_1 in on)');
     expect(say('all c, d: Cleanup | some c.on and some d.on')).toBe('For every cleanup_1 and every cleanup_2:\n  cleanup_1 is on an owner and cleanup_2 is on an owner.');
   });
 
@@ -30,7 +30,7 @@ describe('the rules of reading', () => {
    */
   it('lets the first noun phrase of a clause cover the next', () => {
     expect(say('no c: Cleanup | some o: Owner | o in c.on')).toBe('No cleanup is on an owner.');
-    expect(means('no c: Cleanup | some o: Owner | o in c.on')).toBe('(no v_1: Cleanup | (some v_2: Owner | (v_1->v_2 in on)))');
+    expect(means('no c: Cleanup | some o: Owner | o in c.on')).toBe('(no v_1: Cleanup | (some v_2: Owner | v_1->v_2 in on))');
   });
 
   /**
