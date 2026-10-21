@@ -25,7 +25,15 @@ export interface Context {
   opening(s: Sentence): { intro: string } | { rule: true } | undefined;
 }
 
-export type Pass =
+/** What a pass rests on, beyond the analyzer: how readers took its words, and the words tried before them. */
+export interface Evidence {
+  /** How readers took the words: the judges and the probes, in a sentence each. */
+  readers?: string[];
+  /** Words tried for the same thing and left, each with why. */
+  rejected?: string[];
+}
+
+export type Pass = (
   | {
       /** A short name, which `WORDINGS.md`, the dumps and a switch use: `there-is-a-that`. */
       name: string;
@@ -34,7 +42,8 @@ export type Pass =
       /** The IR with the change made wherever it applies, or the same object where it applies nowhere. */
       run(s: Sentence, context: Context): Sentence;
     }
-  | { name: string; spec: string; print: Partial<PrintOptions> };
+  | { name: string; spec: string; print: Partial<PrintOptions> }
+) & { evidence?: Evidence };
 
 /** What a run of the pipeline saw: the IR after each pass of the IR, by its name. */
 export type Trace = { pass: string; after: Sentence }[];
