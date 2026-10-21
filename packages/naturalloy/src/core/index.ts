@@ -5,7 +5,9 @@
 import { parseModule } from '@bigmistqke/parse-alloy';
 import { paramsOf, type Readings, Refusal, unqualified, withDifferences } from '../readings.ts';
 import type { Sentence } from './ir.ts';
-import { Lower, read } from './lower.ts';
+import { read } from './formula.ts';
+import { Lower } from './lower.ts';
+import { Vocabulary } from './vocabulary.ts';
 import { type Context, optimize, type Pass, type PrintOptions, type Trace } from './pass.ts';
 import { PASSES } from './passes/index.ts';
 import { finish, Printer } from './print.ts';
@@ -24,7 +26,7 @@ export interface Options {
 
 /** A formula as the IR, before any pass. */
 export function lower(source: string, readings: Readings): Sentence {
-  return new Lower(readings).sentence(read(source));
+  return new Lower(new Vocabulary(readings)).sentence(read(source));
 }
 
 /** What a pass may consult. */
@@ -79,7 +81,7 @@ export function lowerDefinition(source: string, readings: Readings): Sentence {
       return { name, type: base.name };
     })
   );
-  const lower = new Lower(readings);
+  const lower = new Lower(new Vocabulary(readings));
   if (p.t === 'pred') return lower.definition(p.name, params, unqualified(withDifferences(decls, p.body)));
   const result = p.result.t === 'mult' ? p.result.e : p.result;
   if (result.t !== 'name') throw new Refusal(`the value of "${p.name}" has no type that is a name`);

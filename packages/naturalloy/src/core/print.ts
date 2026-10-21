@@ -12,14 +12,9 @@ import type { PrintOptions } from './pass.ts';
 
 import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import { type Doc, isList, lines, markdownLines } from './layout.ts';
+import { articleFor } from './vocabulary.ts';
 import { freeNames, holdsPhrase } from './walk.ts';
 import { coordinate, fixed, holdsComma, holdsOwnComma, holdsTime, marked, own, series, shareSubject, timed, unmarked, VARIABLE } from './words.ts';
-
-/** "a failing cleanup": the article before the noun, by the sound of its first word. */
-export function articleFor(phrase: string): string {
-  if (/^(?:uni|use|usu|uti|eu|one|once)/i.test(phrase)) return 'a ';
-  return /^[aeiou]/i.test(phrase) ? 'an ' : 'a ';
-}
 
 export type { Doc };
 

@@ -12,6 +12,7 @@ import { unbracketed } from '../readings.ts';
 import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from './constructs.ts';
 import type { Clause, Compared, Moment, NounPhrase, Num, Sentence, Term, Var } from './ir.ts';
 import { type Doc, readLayout } from './layout.ts';
+import { Vocabulary } from './vocabulary.ts';
 import { mapTerms } from './walk.ts';
 
 /** Each time phrase with the operator it says. */
@@ -64,6 +65,7 @@ function settled(s: Sentence): Sentence | undefined {
 
 export class Parser {
   private readonly readings: Readings;
+  private readonly vocabulary: Vocabulary;
   /** The type of each noun, by its words. */
   private readonly types = new Map<string, string>();
   /** Each reading's words as a pattern with a group for each slot. */
@@ -74,6 +76,7 @@ export class Parser {
 
   constructor(readings: Readings, free: Iterable<string> = []) {
     this.readings = readings;
+    this.vocabulary = new Vocabulary(readings);
     this.free = new Set(free);
     for (const [type, words] of readings.nouns) this.types.set(unbracketed(words).trim(), type);
     for (const [key, reading] of readings.atoms)
@@ -201,10 +204,10 @@ export class Parser {
       const arity = Math.max(0, ...template.slots);
       let all: Term[][] = [[]];
       for (let slot = 1; slot <= arity; slot++) all = all.flatMap(done => this.terms(filled.get(slot) as string, scope).map(term => [...done, term]));
-      const form = arity === 0 ? 'some' : this.form(template.key);
+      const form = arity === 0 ? 'some' : this.vocabulary.form(template.key);
       // A reader takes words two readings share as the one whose things are of the kinds the words name.
-      const columns = this.columnsOf(template.key);
-      all = all.filter(args => columns === undefined || args.every((arg, i) => this.fits(this.typeOfTerm(arg), columns[i])));
+      const columns = this.vocabulary.slotTypes(template.key);
+      all = all.filter(args => columns === undefined || args.every((arg, i) => this.vocabulary.fits(this.typeOfTerm(arg), columns[i])));
       for (const args of all) {
         // "another unit" in a clause that names a unit before it differs from that unit.
         const resolved = args.map((arg, k) => {
@@ -338,56 +341,8 @@ export class Parser {
     return all;
   }
 
-  /** The types each thing a reading takes may be, in the order of its slots, as the vocabulary declares them. */
-  private columnsOf(key: string): (string[] | undefined)[] | undefined {
-    const bare = key.replace(/'$/, '');
-    if (bare.includes('.')) return this.readings.columns?.get(bare);
-    const field = this.readings.fields.get(bare);
-    if (field !== undefined) return [field.owner === undefined ? undefined : [field.owner], [field.type]];
-    const relation = this.readings.relations?.get(bare);
-    if (relation !== undefined) return [[relation.owner], ...relation.columns.map(c => [c])];
-    if (this.readings.holders.has(bare)) return [[bare]];
-    return this.readings.definitions.get(bare)?.types?.map(t => (t === undefined ? undefined : [t]));
-  }
-
   private typeOfTerm(term: Term): string | undefined {
     return term.t === 'var' || term.t === 'np' ? term.v.type : term.t === 'string' ? 'String' : undefined;
-  }
-
-  /** The signatures a signature is declared in, itself first. */
-  private above(type: string): string[] {
-    const out = [type];
-    for (let at = this.readings.holders.get(type); at !== undefined && !out.includes(at); at = this.readings.holders.get(at)) out.push(at);
-    return out;
-  }
-
-  /**
-   * Whether a thing of one type can be a thing of the other, as Alloy has it: one is declared in the other, or they
-   * share a signature that one of them reaches through a signature declared `in`, which may share members with any.
-   */
-  private overlap(a: string, b: string): boolean {
-    if (a === b || a === 'univ' || b === 'univ') return true;
-    // A signature with no one signature above it, such as one declared in a union, may share members with any.
-    if (!this.readings.holders.has(a) || !this.readings.holders.has(b)) return true;
-    const [up, other] = [this.above(a), this.above(b)];
-    if (up.includes(b) || other.includes(a)) return true;
-    const common = up.find(t => other.includes(t));
-    if (common === undefined) return false;
-    const below = (chain: string[]): string[] => chain.slice(0, chain.indexOf(common));
-    return [...below(up), ...below(other)].some(t => this.readings.subsets?.has(t) === true);
-  }
-
-  private fits(a: string | undefined, b: string[] | undefined): boolean {
-    return a === undefined || b === undefined || b.some(t => this.overlap(a, t));
-  }
-
-  /** How a reading's words relate to the formula, by what the vocabulary declares its key to be. */
-  private form(key: string): 'in' | 'call' | 'fun' {
-    if (this.readings.functions.has(key)) return 'fun';
-    if (this.readings.definitions.has(key) || this.readings.macros.has(key)) return 'call';
-    if (this.readings.fields.has(key) || this.readings.holders.has(key.replace(/'$/, '')) || key.includes('.') || this.readings.relations?.has(key) === true) return 'in';
-    // A name the vocabulary does not declare, of another module: a signature or a set by its capital, a predicate otherwise.
-    return /^[A-Z]/.test(key.split('/').at(-1) as string) ? 'in' : 'call';
   }
 
   // ---- sentences ----

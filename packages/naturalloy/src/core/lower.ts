@@ -6,140 +6,19 @@
  *
  * What the IR means is checked against the formula it was lowered from: `meaning(lower(f))` holds exactly when `f` does.
  */
-import { AlloyParseError, type Decl, type Node, parseFormula, print } from '@bigmistqke/parse-alloy';
+import { type Decl, type Node, print } from '@bigmistqke/parse-alloy';
 import type { Clause, Compared, Form, Moment, Num, Sentence, Term, Var } from './ir.ts';
-import { asRefusal, type Definition, type Field, type Readings, Refusal, unqualified } from '../readings.ts';
+import { asRefusal, type Field, type Readings, Refusal } from '../readings.ts';
+import { CONSTRUCTS, expanded, holdsBinary, MULTIPLIED, nameOf, shown, substitute } from './formula.ts';
+import { Types } from './types.ts';
+import type { Vocabulary } from './vocabulary.ts';
 
 /** What a formula that says nothing is refused with. */
 export const ALWAYS = 'this formula says nothing: it always holds, so it claims nothing';
 export const NEVER = 'this formula says nothing: it never holds, so it claims what cannot be';
-const MULTIPLIED = 'says how many each side relates, and no reading says that';
 /** A formula that never holds, as `x in none` is: the negation of the empty block. */
 const FALSE: Node = { t: 'not', f: { t: 'true' } };
-/** The names Alloy gives its own sets, which are never variables. */
-const BUILTIN = new Set(['none', 'univ', 'iden', 'Int', 'String', 'steps', 'seq/Int', 'next', 'min', 'max']);
-const COMPARED = new Set(['<', '>', '=<', '>=', '=', '!=', '!<', '!>', '!=<', '!>=']);
 const NEGATED_OP: Record<string, Compared> = { '<': '!<', '>': '!>', '=<': '!=<', '>=': '!>=', '=': '!=', '!<': '<', '!>': '>', '!=<': '=<', '!>=': '>=', '!=': '=' };
-
-/** What a reader calls each construct, for a refusal to name it. */
-const CONSTRUCTS: Record<Node['t'], string> = {
-  name: 'name', number: 'number', string: 'string', true: 'true formula', prime: 'primed expression', transpose: 'transpose', closure: 'closure', rclosure: 'reflexive closure',
-  join: 'navigation', call: 'call', box: 'box join', arrow: 'arrow', domain: 'domain restriction', range: 'range restriction', inter: 'intersection', override: 'override',
-  union: 'union', diff: 'difference', arith: 'integer operation', card: 'count', cast: 'cast to an integer', cmp: 'comparison', mult: 'multiplicity', not: 'negation', and: 'conjunction',
-  or: 'disjunction', implies: 'rule', ite: 'rule with an else', iff: 'equivalence', unary: 'temporal operator', binary: 'temporal operator', quant: 'quantifier', let: 'let', comprehension: 'set comprehension'
-};
-
-function nameOf(node: Node, what: string): string {
-  if (node.t !== 'name') throw new Refusal(`${what} must be a name, not a ${CONSTRUCTS[node.t]}`);
-  return node.name;
-}
-
-/** An expression as a reader writes it, for a refusal to name: `c.(on + reached)`. */
-function shown(e: Node): string {
-  let text = print(e);
-  for (let before = ''; before !== text; ) [before, text] = [text, text.replace(/\(([\w.']+)\)/g, '$1')];
-  return /^\((.*)\)$/.test(text) && balancedParens(text.slice(1, -1)) ? text.slice(1, -1) : text;
-}
-
-function balancedParens(text: string): boolean {
-  let depth = 0;
-  for (const c of text) if ((depth += c === '(' ? 1 : c === ')' ? -1 : 0) < 0) return false;
-  return depth === 0;
-}
-
-/** The names of the predicates and functions a formula calls. */
-function callsIn(node: unknown, found = new Set<string>()): Set<string> {
-  if (Array.isArray(node)) for (const n of node) callsIn(n, found);
-  else if (node !== null && typeof node === 'object') {
-    const o = node as Record<string, unknown>;
-    if (o.t === 'call') found.add(o.name as string);
-    for (const [key, value] of Object.entries(o)) if (key !== 'span') callsIn(value, found);
-  }
-  return found;
-}
-
-/** The names an expression uses. */
-function namesIn(node: unknown, found = new Set<string>()): Set<string> {
-  if (Array.isArray(node)) for (const n of node) namesIn(n, found);
-  else if (node !== null && typeof node === 'object') {
-    const o = node as Record<string, unknown>;
-    if (o.t === 'name') found.add(o.name as string);
-    else for (const [key, value] of Object.entries(o)) if (key !== 'span') namesIn(value, found);
-  }
-  return found;
-}
-
-/**
- * A formula with `value` in the place of the name `name`, for `of`: the `let` or the parameter that names it. A
- * quantifier or a `let` that declares the name again hides it from there on; one that declares a name the value uses,
- * where the name is put, would capture it, and is refused.
- */
-export function substitute(node: Node, name: string, value: Node, of: string): Node {
-  const refusal = (captured: string): Error => new Refusal(`the body of ${of} declares "${captured}", which its value names`);
-  const free = namesIn(value);
-  const walk = (n: unknown): unknown => {
-    if (Array.isArray(n)) return n.map(walk);
-    if (n === null || typeof n !== 'object') return n;
-    const o = n as Node;
-    if (o.t === 'name') return o.name === name ? value : o;
-    if (o.t === 'quant' || o.t === 'comprehension') {
-      const declared = o.decls.flatMap(d => d.names);
-      const decls = o.decls.map(d => ({ ...d, type: walk(d.type) as Node }));
-      if (declared.includes(name)) return { ...o, decls };
-      const captured = declared.find(x => free.has(x));
-      if (captured !== undefined && namesIn(o.body).has(name)) throw refusal(captured);
-      return { ...o, decls, body: walk(o.body) as Node };
-    }
-    if (o.t === 'let') {
-      const binds = o.binds.map(b => ({ ...b, value: walk(b.value) as Node }));
-      if (o.binds.some(b => b.name === name)) return { ...o, binds };
-      const captured = o.binds.find(b => free.has(b.name));
-      if (captured !== undefined && namesIn(o.body).has(name)) throw refusal(captured.name);
-      return { ...o, binds, body: walk(o.body) as Node };
-    }
-    return Object.fromEntries(Object.entries(o).map(([key, v]) => [key, key === 'span' ? v : walk(v)]));
-  };
-  return walk(node) as Node;
-}
-
-/** The body of a `let` with each value in the place of its name. */
-function expanded(node: Extract<Node, { t: 'let' }>): Node {
-  return node.binds.reduceRight((body, bind) => substitute(body, bind.name, bind.value, `the "let" of "${bind.name}"`), node.body);
-}
-
-/** Whether a formula holds `until`, `since`, `releases`, `triggered` or `;` anywhere in it. */
-function holdsBinary(node: Node): boolean {
-  switch (node.t) {
-    case 'binary':
-      return true;
-    case 'not':
-    case 'unary':
-      return holdsBinary(node.f);
-    case 'and':
-    case 'or':
-      return node.items.some(holdsBinary);
-    case 'implies':
-    case 'iff':
-      return holdsBinary(node.l) || holdsBinary(node.r);
-    case 'ite':
-      return holdsBinary(node.c) || holdsBinary(node.a) || holdsBinary(node.b);
-    case 'quant':
-    case 'let':
-      return holdsBinary(node.body);
-    default:
-      return false;
-  }
-}
-
-/** A formula as the lowering reads it: parsed, with the names of this module plain. */
-export function read(source: string): Node {
-  try {
-    return unqualified(parseFormula(source));
-  } catch (error) {
-    if (error instanceof AlloyParseError) throw new Refusal(error.message);
-    throw error;
-  }
-}
 
 /** The ids of the variables of one rendering, so that no two are one. */
 export class Ids {
@@ -163,11 +42,15 @@ export class Lower {
 
   private readonly readings: Readings;
   private readonly ids: Ids;
+  private readonly vocabulary: Vocabulary;
+  private readonly types: Types;
 
-  constructor(readings: Readings, ids: Ids = new Ids(), bound: Map<string, Term> = new Map(), chain: string[] = [], lowering: Set<string> = new Set(), depth: { n: number } = { n: 0 }) {
-    this.readings = readings;
+  constructor(vocabulary: Vocabulary, ids: Ids = new Ids(), bound: Map<string, Term> = new Map(), chain: string[] = [], lowering: Set<string> = new Set(), depth: { n: number } = { n: 0 }) {
+    this.vocabulary = vocabulary;
+    this.readings = this.vocabulary.readings;
     this.ids = ids;
     this.bound = bound;
+    this.types = new Types(this.vocabulary, bound);
     this.chain = chain;
     this.lowering = lowering;
     this.depth = depth;
@@ -175,7 +58,7 @@ export class Lower {
 
   /** The lowering inside a scope with more names bound. */
   private within(more: Iterable<[string, Term]>, chain = this.chain): Lower {
-    return new Lower(this.readings, this.ids, new Map([...this.bound, ...more]), chain, this.lowering, this.depth);
+    return new Lower(this.vocabulary, this.ids, new Map([...this.bound, ...more]), chain, this.lowering, this.depth);
   }
 
   /** A new variable of a type with a noun. */
@@ -191,17 +74,9 @@ export class Lower {
 
   // ---- what a name stands for ----
 
-  /** Whether a name stands for one thing: a variable, and not a set, a signature or a field of the vocabulary. */
-  private isVariable(name: string): boolean {
-    return (
-      this.bound.has(name) ||
-      !(BUILTIN.has(name) || this.readings.atoms.has(name) || this.readings.nouns.has(name) || this.readings.fields.has(name) || this.readings.relations?.has(name) === true || this.readings.holders.has(name))
-    );
-  }
-
   /** Whether a node is one thing a reading can take in a slot: a variable or a string. */
   private isValue(node: Node): boolean {
-    return (node.t === 'name' && this.isVariable(node.name)) || node.t === 'string';
+    return (node.t === 'name' && this.types.isVariable(node.name)) || node.t === 'string';
   }
 
   /** The term a variable or a string stands for. */
@@ -209,20 +84,8 @@ export class Lower {
     if (node.t === 'string') return { t: 'string', value: node.value };
     const name = nameOf(node, what);
     if (name === 'this' && !this.bound.has(name)) throw new Refusal('Alloy does not read "this" outside a predicate or a function of a signature');
-    if (!this.isVariable(name)) throw new Refusal(`"${name}" is a set or a field, where a variable must be`);
+    if (!this.types.isVariable(name)) throw new Refusal(`"${name}" is a set or a field, where a variable must be`);
     return this.bound.get(name) ?? { t: 'free', name };
-  }
-
-  /** The type a quantifier declares a variable of; undefined for a free one. */
-  private boundType(name: string): string | undefined {
-    const term = this.bound.get(name);
-    return term?.t === 'var' ? term.v.type : term?.t === 'string' ? 'String' : undefined;
-  }
-
-  private merged(a: string[] | undefined, b: string[] | undefined): string[] | undefined {
-    if (a === undefined || b === undefined || a.length !== b.length) return undefined;
-    const types = a.map((type, i) => (type === '' ? (b[i] as string) : b[i] === '' || b[i] === type ? type : undefined));
-    return types.every(type => type !== undefined) ? (types as string[]) : undefined;
   }
 
   /** The expression without its prime, and whether it had one. */
@@ -250,16 +113,16 @@ export class Lower {
   private navigation(join: Node): { field: string; from: Node; forward: boolean; type: string } | undefined {
     const node: Node =
       join.t !== 'join' ? join
-      : join.r.t === 'transpose' && join.l.t === 'name' && this.isVariable(join.l.name) ? { t: 'join', l: join.r.e, r: join.l }
-      : join.l.t === 'transpose' && join.r.t === 'name' && this.isVariable(join.r.name) ? { t: 'join', l: join.r, r: join.l.e }
+      : join.r.t === 'transpose' && join.l.t === 'name' && this.types.isVariable(join.l.name) ? { t: 'join', l: join.r.e, r: join.l }
+      : join.l.t === 'transpose' && join.r.t === 'name' && this.types.isVariable(join.r.name) ? { t: 'join', l: join.r, r: join.l.e }
       : join;
     if (node.t !== 'join' || node.l.t !== 'name' || node.r.t !== 'name') return undefined;
     if (this.readings.atoms.has(`${node.l.name}.${node.r.name}`)) return undefined;
     const { l, r } = node;
     const forward = this.readings.fields.get(r.name);
-    if (this.isVariable(l.name) && forward !== undefined) return { field: r.name, from: l, forward: true, type: forward.type };
+    if (this.types.isVariable(l.name) && forward !== undefined) return { field: r.name, from: l, forward: true, type: forward.type };
     const backward = this.readings.fields.get(l.name);
-    if (this.isVariable(r.name) && backward?.owner !== undefined) return { field: l.name, from: r, forward: false, type: backward.owner };
+    if (this.types.isVariable(r.name) && backward?.owner !== undefined) return { field: l.name, from: r, forward: false, type: backward.owner };
     return undefined;
   }
 
@@ -286,8 +149,8 @@ export class Lower {
   private call(node: Extract<Node, { t: 'call' }>, negative: boolean): Sentence {
     const apart = this.disjoint(node);
     if (apart !== undefined) return negative ? this.negation(apart) : this.sentence(apart);
-    const given = node.args.map(a => this.shape(a));
-    this.typed(node.name, given);
+    const given = node.args.map(a => this.types.shape(a));
+    this.types.typed(node.name, given);
     if (this.readings.atoms.has(node.name)) {
       const through = this.throughMember(node, negative);
       return through === undefined ? this.reading(node.name, 'call', given.map(a => this.term(a, 'an argument')), negative) : this.sentence(through);
@@ -321,7 +184,7 @@ export class Lower {
       else body = substitute(body, param, resolved(arg), `"${node.name}", for its parameter "${param}",`);
     });
     // The body sees the names of this scope only through aliases: its own names are its parameters and what it declares.
-    const inside = new Lower(this.readings, this.ids, new Map([...aliases, ...params]), [...this.chain, node.name], this.lowering, this.depth);
+    const inside = new Lower(this.vocabulary, this.ids, new Map([...aliases, ...params]), [...this.chain, node.name], this.lowering, this.depth);
     let said: Sentence;
     try {
       said = inside.sentence(body);
@@ -332,100 +195,26 @@ export class Lower {
     return negative ? { t: 'not', body: said, form: 'untrue' } : said;
   }
 
-  /** Refuses a call with an argument whose type shares no member with the type of its parameter, as Alloy does. */
-  private typed(name: string, given: Node[]): void {
-    const definition = this.readings.definitions.get(name);
-    given.forEach((arg, i) => {
-      const param = definition?.types?.[i];
-      const columns = arg.t === 'string' ? ['String'] : this.columns(arg);
-      if (param === undefined || columns?.length !== 1 || columns[0] === '') return;
-      const [a, b] = [this.top(columns[0] as string), this.top(param)];
-      if (a === undefined || b === undefined || a === b || a === 'univ' || b === 'univ') return;
-      const noun = (type: string): string => {
-        const words = this.readings.nouns.get(type);
-        if (words === undefined) return `"${type}"`;
-        const plainWords = words.replace(/\[([^\]]+)\](?:\([^)]*\))?/g, '$1');
-        return `${this.readings.articles.has(type) ? `${this.readings.articles.get(type)} ` : /^(?:uni|use|usu|uti|eu|one|once)/i.test(plainWords) ? 'a ' : /^[aeiou]/i.test(plainWords) ? 'an ' : 'a '}${plainWords}`;
-      };
-      const shown_ = arg.t === 'string' ? shown(arg) : `"${shown(arg)}"`;
-      throw new Refusal(`"${name}" takes ${noun(b)} for "${definition?.params[i]}", and ${shown_} is ${noun(a)}`);
-    });
-  }
-
-  /** The signature that stands on its own above a type. */
-  private top(type: string): string | undefined {
-    if (type === 'String' || type === 'Int' || type === 'univ') return type;
-    if (type === 'seq/Int') return 'Int';
-    for (let at = type; ; ) {
-      const holder = this.readings.holders.get(at);
-      if (holder === undefined) return undefined;
-      if (holder === at) return at;
-      at = holder;
-    }
-  }
-
   /** `disj[a, b, …]` as the formula it means. */
   private disjoint(node: Extract<Node, { t: 'call' }>): Node | undefined {
     if (node.name !== 'disj' || this.readings.atoms.has('disj') || this.readings.definitions.has('disj')) return undefined;
     const pairs = node.args.flatMap((a, i) =>
-      node.args.slice(i + 1).map((b): Node => (this.isValue(this.shape(a)) && this.isValue(this.shape(b)) ? { t: 'cmp', op: '!=', l: a, r: b } : { t: 'mult', q: 'no', e: { t: 'inter', l: a, r: b } }))
+      node.args.slice(i + 1).map((b): Node => (this.isValue(this.types.shape(a)) && this.isValue(this.types.shape(b)) ? { t: 'cmp', op: '!=', l: a, r: b } : { t: 'mult', q: 'no', e: { t: 'inter', l: a, r: b } }))
     );
     return pairs.length === 1 ? (pairs[0] as Node) : { t: 'and', items: pairs };
   }
 
   /** A call with a reading and an argument that is an expression, as the formula it is said through: the one member of the argument. */
   private throughMember(node: Extract<Node, { t: 'call' }>, negative: boolean): Node | undefined {
-    const given = node.args.map(a => this.shape(a));
+    const given = node.args.map(a => this.types.shape(a));
     const at = given.findIndex(a => !this.isValue(a));
     if (at === -1) return undefined;
     const arg = given[at] as Node;
-    const type = this.columns(arg);
-    if (!this.exact(arg) || type?.length !== 1 || type[0] === '') throw new Refusal(`the reading of "${node.name}" takes one thing, and "${shown(arg)}" can hold none or several`);
+    const type = this.types.columns(arg);
+    if (!this.types.exact(arg) || type?.length !== 1 || type[0] === '') throw new Refusal(`the reading of "${node.name}" takes one thing, and "${shown(arg)}" can hold none or several`);
     const m = this.member();
     const call: Node = { t: 'call', name: node.name, args: given.map((a, i) => (i === at ? m : a)) };
     return { t: 'quant', q: 'some', decls: [{ names: [nameOf(m, '')], type: { t: 'name', name: type[0] as string } }], body: { t: 'and', items: [this.inside([m], arg), negative ? { t: 'not', f: call } : call] } };
-  }
-
-  /** An expression as Alloy reads it: a box join of a field is a join, and a function without a reading is its body. */
-  private shape(given: Node): Node {
-    const e = this.withoutNone(given);
-    if (e.t === 'name' && e.name === 'steps') throw new Refusal('Alloy reads "steps" only in a scope, and not in a formula');
-    const field = (n: Node): boolean => n.t === 'name' && this.readings.fields.has(n.name) && !this.readings.definitions.has(n.name);
-    const valued = (name: string): boolean => this.readings.functions.has(name) || this.readings.macros.has(name);
-    if (e.t === 'call' && e.args.length === 1 && field({ t: 'name', name: e.name })) return { t: 'join', l: e.args[0] as Node, r: { t: 'name', name: e.name } };
-    if (e.t === 'box' && e.args.length === 1 && field(e.e)) return { t: 'join', l: e.args[0] as Node, r: e.e };
-    if (e.t === 'join' && e.r.t === 'name' && valued(e.r.name)) return this.shape({ t: 'call', name: e.r.name, args: [e.l] });
-    if (e.t === 'box' && e.e.t === 'join' && e.e.r.t === 'name' && valued(e.e.r.name)) return this.shape({ t: 'call', name: e.e.r.name, args: [e.e.l, ...e.args] });
-    if (e.t === 'call' && valued(e.name) && !this.readFunction(e)) {
-      const fn = (this.readings.functions.get(e.name) ?? this.readings.macros.get(e.name)) as Definition;
-      if (fn.params.length !== e.args.length) throw new Refusal(`"${e.name}" takes ${fn.params.length} arguments, not ${e.args.length}`);
-      if (callsIn(fn.body).has(e.name)) throw new Refusal(`"${e.name}" is defined in terms of itself; give it a reading`);
-      return this.shape(fn.params.reduce((body, param, i) => substitute(body, param, e.args[i] as Node, `"${e.name}", for its parameter "${param}",`), fn.body));
-    }
-    return e;
-  }
-
-  private withoutNone(e: Node): Node {
-    const none = (n: Node): boolean => n.t === 'name' && n.name === 'none';
-    switch (e.t) {
-      case 'union':
-        return none(e.l) ? this.withoutNone(e.r) : none(e.r) ? this.withoutNone(e.l) : e;
-      case 'diff':
-        return none(e.r) ? this.withoutNone(e.l) : none(e.l) ? e.l : e;
-      case 'inter':
-      case 'join':
-      case 'arrow':
-        return none(e.l) ? e.l : none(e.r) ? e.r : e;
-      case 'prime':
-      case 'transpose':
-        return none(e.e) ? e.e : e;
-      default:
-        return e;
-    }
-  }
-
-  private readFunction(e: Node): boolean {
-    return e.t === 'call' && this.readings.functions.has(e.name) && this.readings.atoms.has(e.name) && e.args.every(a => a.t === 'name' && this.isVariable(a.name));
   }
 
   /** A join with a predicate, `x.p` or `x.p[y]`, as the call it is. */
@@ -437,116 +226,13 @@ export class Lower {
     return undefined;
   }
 
-  /** The signature with a noun that a set is a set of. */
-  private kind(name: string): string {
-    let at = name;
-    for (let holder = this.readings.holders.get(at); !this.readings.nouns.has(at) && holder !== undefined && holder !== at; holder = this.readings.holders.get(at)) at = holder;
-    return at;
-  }
-
-  /** The types of the columns of an expression, as the vocabulary declares them. A variable of no known type is ''. */
-  private columns(node: Node): string[] | undefined {
-    const e = this.shape(node);
-    switch (e.t) {
-      case 'name': {
-        if (e.name === 'iden') return ['univ', 'univ'];
-        if (e.name === 'next') return ['Int', 'Int'];
-        if (e.name === 'univ') return ['univ'];
-        if (this.isVariable(e.name)) return [this.boundType(e.name) ?? ''];
-        const field = this.readings.fields.get(e.name);
-        if (field !== undefined) return field.owner === undefined ? undefined : [field.owner, field.type];
-        const relation = this.readings.relations?.get(e.name);
-        if (relation !== undefined) return [relation.owner, ...relation.columns];
-        return this.readings.holders.has(e.name) ? [this.kind(e.name)] : undefined;
-      }
-      case 'prime':
-        return this.columns(e.e);
-      case 'transpose': {
-        const c = this.columns(e.e);
-        return c?.length === 2 ? [c[1] as string, c[0] as string] : undefined;
-      }
-      case 'union':
-      case 'override':
-        return this.merged(this.columns(e.l), this.columns(e.r));
-      case 'inter':
-        return this.columns(e.l) ?? this.columns(e.r);
-      case 'diff':
-        return this.columns(e.l);
-      case 'join': {
-        if (e.r.t === 'rclosure') {
-          const [from, step] = [this.columns(e.l), this.columns(e.r.e)];
-          if (from?.length === 1 && step?.length === 2 && step[0] === step[1] && (from[0] === '' || from[0] === step[0])) return [step[0] as string];
-        }
-        const [a, b] = [this.columns(e.l), this.columns(e.r)];
-        if (a === undefined || b === undefined) return undefined;
-        const c = [...a.slice(0, -1), ...b.slice(1)];
-        return c.length > 0 ? c : undefined;
-      }
-      case 'arrow': {
-        if (e.lm !== undefined || e.rm !== undefined) throw new Refusal(`"${shown(e)}" ${MULTIPLIED}`);
-        const [a, b] = [this.columns(e.l), this.columns(e.r)];
-        return a === undefined || b === undefined ? undefined : [...a, ...b];
-      }
-      case 'domain':
-        return this.columns(e.r);
-      case 'range':
-      case 'closure':
-        return this.columns(e.t === 'range' ? e.l : e.e);
-      case 'ite': {
-        const [a, b] = [this.columns(e.a), this.columns(e.b)];
-        return a !== undefined && b !== undefined && a.join() === b.join() ? a : undefined;
-      }
-      case 'comprehension': {
-        const types = e.decls.flatMap(d => d.names.map(() => this.columns(d.type)));
-        return types.every(t => t?.length === 1 && t[0] !== '') ? types.map(t => (t as string[])[0] as string) : undefined;
-      }
-      case 'call': {
-        const result = this.readings.functions.get(e.name)?.result;
-        const type = result?.t === 'mult' ? result.e : result;
-        return type?.t === 'name' ? [this.kind(type.name)] : undefined;
-      }
-      default:
-        return undefined;
-    }
-  }
-
-  private exact(e: Node): boolean {
-    return this.howMany(e) === 'one';
-  }
-
-  private howMany(e: Node): 'one' | 'lone' | 'any' {
-    const shaped = this.shape(e);
-    switch (shaped.t) {
-      case 'string':
-      case 'number':
-        return 'one';
-      case 'name':
-        if (shaped.name === 'none') return 'lone';
-        return this.isVariable(shaped.name) ? 'one' : 'any';
-      case 'prime':
-        return this.howMany(shaped.e);
-      case 'join': {
-        const field = shaped.r.t === 'name' ? this.readings.fields.get(shaped.r.name) : undefined;
-        if (field === undefined) return 'any';
-        const from = this.howMany(shaped.l);
-        if (from === 'one' && field.exact) return 'one';
-        return from !== 'any' && !field.many ? 'lone' : 'any';
-      }
-      case 'inter':
-      case 'diff':
-        return this.howMany(shaped.l) === 'any' && (shaped.t === 'diff' || this.howMany(shaped.r) === 'any') ? 'any' : 'lone';
-      default:
-        return 'any';
-    }
-  }
-
   private relation(e: Node): boolean {
     return e.t === 'join' && e.l.t === 'name' && e.r.t === 'name' && this.readings.atoms.has(`${e.l.name}.${e.r.name}`);
   }
 
   private direct(e: Node): boolean {
     if (e.t === 'name') return e.name !== 'iden';
-    if (this.readFunction(e) || e.t === 'closure' || e.t === 'rclosure') return true;
+    if (this.types.readFunction(e) || e.t === 'closure' || e.t === 'rclosure') return true;
     if (e.t === 'prime') return this.direct(e.e);
     if (e.t !== 'join') return false;
     const { e: bare } = this.unprimed(e);
@@ -555,7 +241,7 @@ export class Lower {
 
   /** That a variable, or a tuple of them, is in an expression, as a formula of memberships the readings say. */
   private inside(xs: Node[], node: Node): Node {
-    const e = this.shape(node);
+    const e = this.types.shape(node);
     const tuple = xs.slice(1).reduce((l: Node, r): Node => ({ t: 'arrow', l, r }), xs[0] as Node);
     const base: Node = { t: 'cmp', op: 'in', l: tuple, r: e };
     switch (e.t) {
@@ -591,15 +277,15 @@ export class Lower {
         return base;
       case 'arrow': {
         if (e.lm !== undefined || e.rm !== undefined) throw new Refusal(`"${shown(e)}" ${MULTIPLIED}`);
-        const k = this.columns(e.l)?.length;
+        const k = this.types.columns(e.l)?.length;
         return k === undefined || k >= xs.length ? base : { t: 'and', items: [this.inside(xs.slice(0, k), e.l), this.inside(xs.slice(k), e.r)] };
       }
       case 'join': {
         if (this.direct(e)) return base;
         const { l, r } = e;
-        if (l.t === 'name' && this.isVariable(l.name)) return this.inside([l, ...xs], r);
-        if (r.t === 'name' && this.isVariable(r.name)) return this.inside([...xs, r], l);
-        const left = this.columns(l);
+        if (l.t === 'name' && this.types.isVariable(l.name)) return this.inside([l, ...xs], r);
+        if (r.t === 'name' && this.types.isVariable(r.name)) return this.inside([...xs, r], l);
+        const left = this.types.columns(l);
         const type = left?.[left.length - 1];
         if (left === undefined || type === undefined || type === '') return base;
         const k = left.length - 1;
@@ -613,76 +299,14 @@ export class Lower {
     }
   }
 
-  private untyped(e: Node): Error {
-    const words = new Set(['name', 'prime', 'transpose', 'join', 'union', 'inter', 'diff', 'arrow', 'call', 'box', 'closure', 'rclosure', 'override', 'domain', 'range', 'comprehension']);
-    if (this.integer(e)) return new Refusal(`"${shown(e)}" is a number outside an integer comparison`);
-    const odd = (n: Node): Node | undefined => {
-      if (!words.has(n.t)) return n;
-      for (const child of Object.values(n)) {
-        const inner = child !== null && typeof child === 'object' && 't' in child ? odd(child as Node) : undefined;
-        if (inner !== undefined) return inner;
-      }
-      return undefined;
-    };
-    const found = odd(e);
-    return new Refusal(found === undefined ? `the vocabulary does not tell what kind of thing "${shown(e)}" holds` : `"${shown(e)}" holds a ${CONSTRUCTS[found.t]}, which has no words`);
-  }
-
-  private typeOf(...sides: Node[]): string {
-    for (const side of sides) {
-      const c = this.columns(side);
-      if (c?.length === 1 && c[0] !== '') return c[0] as string;
-    }
-    throw this.untyped(sides[0] as Node);
-  }
-
-  private integer(e: Node): boolean {
-    const operation = (name: string): boolean => ['plus', 'minus', 'mul', 'div', 'rem'].includes(name) && !this.readings.definitions.has(name) && !this.readings.functions.has(name);
-    switch (e.t) {
-      case 'number':
-      case 'card':
-      case 'cast':
-      case 'arith':
-        return true;
-      case 'quant':
-        return e.q === 'sum';
-      case 'name':
-        return e.name === 'min' || e.name === 'max';
-      case 'call':
-        return operation(e.name);
-      case 'box':
-        return e.e.t === 'join' && e.e.r.t === 'name' && operation(e.e.r.name);
-      default:
-        return false;
-    }
-  }
-
-  private comparesIntegers(node: Extract<Node, { t: 'cmp' }>): boolean {
-    if (COMPARED.has(node.op) && node.op !== '=' && node.op !== '!=') return true;
-    return (node.op === '=' || node.op === '!=') && (this.integer(node.l) || this.integer(node.r));
-  }
-
-  private comparable(l: Node, r: Node): void {
-    const of = (side: Node): string[] | undefined => (side.t === 'string' ? ['String'] : this.columns(side));
-    const [a, b] = [of(l), of(r)];
-    if (a === undefined || b === undefined) return;
-    if (a.length !== b.length) throw new Refusal(`"${shown(l)}" and "${shown(r)}" hold tuples of ${a.length} and ${b.length} things, which Alloy does not compare`);
-    a.forEach((type, i) => {
-      const other = b[i] as string;
-      if (type === '' || other === '') return;
-      const [x, y] = [this.top(type), this.top(other)];
-      if (x !== undefined && y !== undefined && x !== y && x !== 'univ' && y !== 'univ') throw new Refusal(`"${shown(l)}" and "${shown(r)}" hold things of types that share no member, which Alloy does not compare`);
-    });
-  }
-
   // ---- numbers ----
 
   /** A comparison of integers. */
   private integers(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Clause {
     const { l, r } = node;
     if (node.op === '=' || node.op === '!=') {
-      const [number, other] = this.integer(l) ? [l, r] : [r, l];
-      if (!this.integer(other) && !this.isValue(other)) throw new Refusal(`"${node.op}" between the set "${shown(other)}" and the number "${shown(number)}" compares sets, which the words would have to say with the wrap of the number`);
+      const [number, other] = this.types.integer(l) ? [l, r] : [r, l];
+      if (!this.types.integer(other) && !this.isValue(other)) throw new Refusal(`"${node.op}" between the set "${shown(other)}" and the number "${shown(number)}" compares sets, which the words would have to say with the wrap of the number`);
     }
     const op = node.op as Compared;
     return { t: 'compare', op: negative ? (NEGATED_OP[op] as Compared) : op, l: this.number(l, false), r: this.number(r, false) };
@@ -690,7 +314,7 @@ export class Lower {
 
   /** The words of a number. Inside a sum, a division would have to be said in the middle of it, and is refused. */
   private number(given: Node, inSum: boolean): Num {
-    const e = this.shape(given);
+    const e = this.types.shape(given);
     switch (e.t) {
       case 'number':
         return { t: 'literal', value: e.value };
@@ -700,7 +324,7 @@ export class Lower {
         if (this.isValue(e)) return { t: 'term', x: this.term(e, 'a number') };
         return this.summed(e);
       case 'card':
-        if (this.shape(e.e).t === 'name' && (this.shape(e.e) as { name: string }).name === 'none') return { t: 'literal', value: 0 };
+        if (this.types.shape(e.e).t === 'name' && (this.types.shape(e.e) as { name: string }).name === 'none') return { t: 'literal', value: 0 };
         return this.countOf(e.e);
       case 'cast':
         if (this.isValue(e.e)) return { t: 'term', x: this.term(e.e, 'a number') };
@@ -746,8 +370,8 @@ export class Lower {
 
   /** `#e`: the number of values, or combinations, in it. */
   private countOf(e: Node): Num {
-    const types = this.columns(e);
-    if (types === undefined || types.includes('')) throw this.untyped(e);
+    const types = this.types.columns(e);
+    if (types === undefined || types.includes('')) throw this.types.untyped(e);
     const vars = types.map(type => this.fresh(type));
     const ms = vars.map((): Node => this.member());
     const cond = this.within(ms.map((m, i): [string, Term] => [nameOf(m, ''), { t: 'var', v: vars[i] as Var }])).sentence(this.inside(ms, e));
@@ -756,8 +380,8 @@ export class Lower {
 
   /** A set of integers where a number belongs: the sum of its members. */
   private summed(e: Node): Num {
-    const types = this.columns(e);
-    if (types?.length !== 1 || this.kind(types[0] as string) !== 'Int') throw new Refusal(`"${shown(e)}" is not a number or a set of integers`);
+    const types = this.types.columns(e);
+    if (types?.length !== 1 || this.vocabulary.kind(types[0] as string) !== 'Int') throw new Refusal(`"${shown(e)}" is not a number or a set of integers`);
     const v = this.fresh('Int');
     const m = this.member();
     return { t: 'sumOf', v, cond: this.within([[nameOf(m, ''), { t: 'var', v }]]).sentence(this.inside([m], e)) };
@@ -767,9 +391,9 @@ export class Lower {
 
   /** `e in s` member by member. */
   private subset(l: Node, r: Node): Node {
-    this.comparable(l, r);
-    const types = this.columns(l);
-    if (types === undefined || types.includes('')) throw this.untyped(l);
+    this.types.comparable(l, r);
+    const types = this.types.columns(l);
+    if (types === undefined || types.includes('')) throw this.types.untyped(l);
     const ms = types.map(() => this.member());
     return { t: 'quant', q: 'all', decls: ms.map((m, i) => ({ names: [nameOf(m, '')], type: { t: 'name', name: types[i] as string } })), body: { t: 'implies', l: this.inside(ms, l), r: this.inside(ms, r) } };
   }
@@ -777,8 +401,8 @@ export class Lower {
   /** `x->y in ^r` and `x->y in *r`. */
   private reach(pair: Extract<Node, { t: 'arrow' }>, closure: Extract<Node, { t: 'closure' | 'rclosure' }>, negative: boolean): Clause {
     const [from, to] = [this.term(pair.l, 'a side of "->"'), this.term(pair.r, 'a side of "->"')];
-    const types = this.columns(closure.e);
-    if (types?.length !== 2 || types.includes('')) throw this.untyped(closure.e);
+    const types = this.types.columns(closure.e);
+    if (types?.length !== 2 || types.includes('')) throw this.types.untyped(closure.e);
     const [p, q] = [this.fresh(types[0] as string), this.fresh(types[1] as string)];
     const [mp, mq] = [this.member(), this.member()];
     const step = this.within([
@@ -790,39 +414,39 @@ export class Lower {
 
   /** `a = b` member by member. */
   private equalMembers(l: Node, r: Node): Node {
-    this.comparable(l, r);
-    for (const side of [l, r]) if (!this.isValue(side) && this.columns(side) === undefined) throw this.untyped(side);
-    const columns = [this.columns(l), this.columns(r)].find(c => c !== undefined && c.length > 1 && !c.includes(''));
+    this.types.comparable(l, r);
+    for (const side of [l, r]) if (!this.isValue(side) && this.types.columns(side) === undefined) throw this.types.untyped(side);
+    const columns = [this.types.columns(l), this.types.columns(r)].find(c => c !== undefined && c.length > 1 && !c.includes(''));
     if (columns !== undefined) {
       const ms = columns.map(() => this.member());
       return { t: 'quant', q: 'all', decls: ms.map((m, i) => ({ names: [nameOf(m, '')], type: { t: 'name', name: columns[i] as string } })), body: { t: 'iff', l: this.inside(ms, l), r: this.inside(ms, r) } };
     }
     const m = this.member();
-    const of = (side: Node): Node => (side.t === 'name' && this.isVariable(side.name) ? { t: 'cmp', op: '=', l: m, r: side } : this.inside([m], side));
-    const wide = [l, r].some(side => this.columns(side)?.[0] === 'univ') ? 'univ' : this.typeOf(l, r);
+    const of = (side: Node): Node => (side.t === 'name' && this.types.isVariable(side.name) ? { t: 'cmp', op: '=', l: m, r: side } : this.inside([m], side));
+    const wide = [l, r].some(side => this.types.columns(side)?.[0] === 'univ') ? 'univ' : this.types.typeOf(l, r);
     return { t: 'quant', q: 'all', decls: [{ names: [nameOf(m, '')], type: { t: 'name', name: wide } }], body: { t: 'iff', l: of(l), r: of(r) } };
   }
 
   /** The formula a comparison is said through, when no reading says it as it stands; undefined when one does. */
   private lowered(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Node | undefined {
     const { op } = node;
-    if (this.comparesIntegers(node)) return undefined;
-    if ((op === 'in' || op === 'not in') && this.integer(node.l)) throw this.untyped(node.l);
-    const [l, r] = [this.shape(node.l), this.shape(node.r)];
+    if (this.types.comparesIntegers(node)) return undefined;
+    if ((op === 'in' || op === 'not in') && this.types.integer(node.l)) throw this.types.untyped(node.l);
+    const [l, r] = [this.types.shape(node.l), this.types.shape(node.r)];
     const flip = negative !== (op === 'not in' || op === '!=');
     const not = (f: Node): Node => (flip ? { t: 'not', f } : f);
     const none = (n: Node): boolean => n.t === 'name' && n.name === 'none';
     if (op !== 'in' && op !== 'not in' && (none(l) || none(r))) return { t: 'mult', q: flip ? 'some' : 'no', e: none(l) ? r : l };
-    if ((op === 'in' || op === 'not in') && none(r) && !(l.t === 'name' && this.isVariable(l.name)) && l.t !== 'arrow') return { t: 'mult', q: flip ? 'some' : 'no', e: l };
+    if ((op === 'in' || op === 'not in') && none(r) && !(l.t === 'name' && this.types.isVariable(l.name)) && l.t !== 'arrow') return { t: 'mult', q: flip ? 'some' : 'no', e: l };
     if ((op === 'in' || op === 'not in') && none(r)) return not(FALSE);
-    const builtin = (n: Node): string | undefined => (n.t === 'string' ? 'String' : n.t === 'name' && this.bound.has(n.name) ? this.boundType(n.name) : undefined);
+    const builtin = (n: Node): string | undefined => (n.t === 'string' ? 'String' : n.t === 'name' && this.bound.has(n.name) ? this.types.boundType(n.name) : undefined);
     if ((op === 'in' || op === 'not in') && (none(l) || (r.t === 'name' && (r.name === 'String' || r.name === 'Int') && builtin(l) === r.name))) return not({ t: 'true' });
     if (op === 'in' || op === 'not in') {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.lowered({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
       if (l.t === 'union' || r.t === 'diff') return undefined;
-      if (this.integer(r) && l.t === 'name' && this.boundType(l.name) === 'Int') return not({ t: 'cmp', op: '=', l, r });
-      if (r.t === 'string' && this.exact(l)) return not({ t: 'cmp', op: '=', l, r });
-      if (r.t === 'name' && this.bound.has(r.name) && l.t !== 'arrow') return not(this.exact(l) ? { t: 'cmp', op: '=', l, r } : this.subset(l, r));
+      if (this.types.integer(r) && l.t === 'name' && this.types.boundType(l.name) === 'Int') return not({ t: 'cmp', op: '=', l, r });
+      if (r.t === 'string' && this.types.exact(l)) return not({ t: 'cmp', op: '=', l, r });
+      if (r.t === 'name' && this.bound.has(r.name) && l.t !== 'arrow') return not(this.types.exact(l) ? { t: 'cmp', op: '=', l, r } : this.subset(l, r));
       if ((l.t !== 'name' && l.t !== 'arrow' && l.t !== 'string') || (l.t === 'name' && !this.isValue(l)) || (l.t === 'arrow' && !(this.isValue(l.l) && this.isValue(l.r)))) return not(this.subset(l, r));
       if (this.direct(r) || this.signature(r)) return undefined;
       const spelled = this.inside(l.t === 'arrow' ? [l.l, l.r] : [l], r);
@@ -845,11 +469,11 @@ export class Lower {
   }
 
   private comparison(node: Extract<Node, { t: 'cmp' }>, negative: boolean): Sentence {
-    if (this.comparesIntegers(node)) return this.integers(node, negative);
+    if (this.types.comparesIntegers(node)) return this.integers(node, negative);
     const formula = this.lowered(node, negative);
     if (formula !== undefined) return this.sentence(formula);
     const { op } = node;
-    const [l, r] = [this.shape(node.l), this.shape(node.r)];
+    const [l, r] = [this.types.shape(node.l), this.types.shape(node.r)];
     const flip = negative !== (op === 'not in' || op === '!=');
     if (op === 'in' || op === 'not in') {
       if (l.t === 'arrow' && l.lm === undefined && l.rm === undefined && r.t === 'transpose') return this.comparison({ ...node, l: { t: 'arrow', l: l.r, r: l.l }, r: r.e }, negative);
@@ -873,7 +497,7 @@ export class Lower {
       if (this.signature(r) && l.t === 'name') return { t: 'isA', x: this.term(l, 'the left of "in"'), type: (r as Extract<Node, { t: 'name' }>).name, negative: flip };
       if ((r.t === 'closure' || r.t === 'rclosure') && l.t === 'arrow') return this.reach(l, r, flip);
       if (r.t === 'name' && r.name === 'next' && l.t === 'arrow') return { t: 'next', x: this.term(l.l, 'a side of "->"'), y: this.term(l.r, 'a side of "->"'), negative: flip };
-      if (r.t === 'call' && this.readFunction(r)) return this.reading(r.name, 'fun', [...r.args.map(a => this.term(a, 'an argument')), this.term(l, 'the left of "in"')], flip);
+      if (r.t === 'call' && this.types.readFunction(r)) return this.reading(r.name, 'fun', [...r.args.map(a => this.term(a, 'an argument')), this.term(l, 'the left of "in"')], flip);
       const slots = l.t === 'arrow' ? [this.term(l.l, 'a side of "->"'), this.term(l.r, 'a side of "->"')] : [this.term(l, 'the left of "in"')];
       const key = r.t === 'join' ? `${nameOf(r.l, 'a relation')}.${nameOf(r.r, 'a relation')}` : r.t === 'prime' ? `${nameOf(r.e, 'a primed set')}'` : nameOf(r, 'the right of "in"');
       return this.reading(key, 'in', slots, flip);
@@ -917,8 +541,8 @@ export class Lower {
 
   private mult(node: Extract<Node, { t: 'mult' }>, negative: boolean): Sentence {
     if (node.q === 'set' || node.q === 'seq') throw new Refusal(`"${node.q}" before an expression is not a formula; Alloy reads it only in a declaration`);
-    const given = this.shape(node.e);
-    if (this.integer(given)) throw this.untyped(given);
+    const given = this.types.shape(node.e);
+    if (this.types.integer(given)) throw this.types.untyped(given);
     if ((given.t === 'name' && given.name === 'none') || given.t === 'rclosure') return this.sentence(this.counted(node, negative) as Node);
     // some, no, one and lone of a signature with a noun and no reading: "there is an owner", which the noun says in full.
     if (given.t === 'name' && this.readings.nouns.has(given.name) && !this.readings.atoms.has(given.name)) {
@@ -938,15 +562,15 @@ export class Lower {
         return { t: 'quant', q: none ? 'no' : 'some', vars: [v], body: this.within([['\u0000', { t: 'var', v }]]).member_({ t: 'name', name: '\u0000' }, nav, false) };
       }
       const signature = e.t === 'name' && this.readings.nouns.has(e.name) && !this.readings.atoms.has(e.name);
-      if (e.t === 'name' && !signature && !this.readings.fields.has(e.name) && !this.isVariable(e.name) && !this.readings.atoms.get(e.name)?.positive.includes('{1}')) {
+      if (e.t === 'name' && !signature && !this.readings.fields.has(e.name) && !this.types.isVariable(e.name) && !this.readings.atoms.get(e.name)?.positive.includes('{1}')) {
         return this.reading(e.name, 'some', [], none);
       }
       // some S and no S of a set whose reading takes its member: the member of the signature that holds S.
       const holder = e.t === 'name' && !signature ? this.readings.holders.get(e.name) : undefined;
-      if (e.t === 'name' && !signature && this.readings.atoms.has(e.name) && !this.readings.fields.has(e.name) && !this.isVariable(e.name) && holder === undefined) {
+      if (e.t === 'name' && !signature && this.readings.atoms.has(e.name) && !this.readings.fields.has(e.name) && !this.types.isVariable(e.name) && holder === undefined) {
         throw new Refusal(`no one signature holds "${e.name}", so "some" or "no" of it has no noun`);
       }
-      if (e.t === 'name' && holder !== undefined && this.readings.nouns.has(holder) && !this.readings.fields.has(e.name) && !this.isVariable(e.name)) {
+      if (e.t === 'name' && holder !== undefined && this.readings.nouns.has(holder) && !this.readings.fields.has(e.name) && !this.types.isVariable(e.name)) {
         const v = this.fresh(holder);
         return { t: 'quant', q: none ? 'no' : 'some', vars: [v], body: this.reading(e.name, 'in', [{ t: 'var', v }], false), origin: 'set' };
       }
@@ -956,11 +580,11 @@ export class Lower {
 
   /** `some`, `no`, `one` or `lone` of an expression, as the quantifier over the members of the types of its columns. */
   private counted(node: Extract<Node, { t: 'mult' }>, negative: boolean): Node | undefined {
-    const given = this.shape(node.e);
-    if (this.integer(given)) throw this.untyped(given);
+    const given = this.types.shape(node.e);
+    if (this.types.integer(given)) throw this.types.untyped(given);
     if (given.t === 'name' && given.name === 'none') return (node.q === 'no' || node.q === 'lone') !== negative ? { t: 'true' } : FALSE;
     if (given.t === 'rclosure') throw new Refusal(`"${shown(given)}" holds every member of every type, Int included, which no noun names`);
-    if (this.exact(given)) return (node.q === 'no') !== negative ? FALSE : { t: 'true' };
+    if (this.types.exact(given)) return (node.q === 'no') !== negative ? FALSE : { t: 'true' };
     if (node.q === 'some' || node.q === 'no') {
       if (this.readPrimed(given)) return undefined;
       const { e, primed } = this.unprimed(given);
@@ -969,8 +593,8 @@ export class Lower {
         return f === undefined ? undefined : { t: 'unary', op: 'after', f };
       }
     }
-    const types = this.columns(given);
-    if (types === undefined || types.includes('')) throw this.untyped(node.e);
+    const types = this.types.columns(given);
+    if (types === undefined || types.includes('')) throw this.types.untyped(node.e);
     const ms = types.map(() => this.member());
     const q = node.q === 'one' || node.q === 'lone' ? node.q : (node.q === 'no') !== negative ? 'no' : 'some';
     const f: Node = { t: 'quant', q, decls: ms.map((m, i) => ({ names: [nameOf(m, '')], type: { t: 'name', name: types[i] as string } })), body: this.inside(ms, given) };
@@ -990,12 +614,12 @@ export class Lower {
         const out = base.r;
         for (const name of names) {
           const x: Node = { t: 'name', name };
-          conditions.push(out.t === 'name' && this.isVariable(out.name) ? { t: 'cmp', op: '!=', l: x, r: out } : { t: 'cmp', op: 'not in', l: x, r: out });
+          conditions.push(out.t === 'name' && this.types.isVariable(out.name) ? { t: 'cmp', op: '!=', l: x, r: out } : { t: 'cmp', op: 'not in', l: x, r: out });
         }
         base = base.l;
       }
       if (base.t !== 'name') {
-        const type_ = this.typeOf(base);
+        const type_ = this.types.typeOf(base);
         for (const name of names) conditions.push({ t: 'cmp', op: 'in', l: { t: 'name', name }, r: base });
         base = { t: 'name', name: type_ };
       }
@@ -1035,7 +659,7 @@ export class Lower {
   private overOne(node: Extract<Node, { t: 'quant' }>): Node | undefined {
     const [decl, ...rest] = node.decls;
     if (decl === undefined || decl.names.length !== 1) return undefined;
-    const type = this.shape(decl.type);
+    const type = this.types.shape(decl.type);
     if (type.t !== 'name') return undefined;
     if (type.name === 'none') return ['all', 'no', 'lone'].includes(node.q) ? { t: 'true' } : FALSE;
     if (!this.bound.has(type.name)) return undefined;
@@ -1048,10 +672,10 @@ export class Lower {
   /** A quantifier over a union of signatures that no one type holds, as the same quantifier over each. */
   private overEach(node: Extract<Node, { t: 'quant' }>): Node | undefined {
     if (node.q !== 'all' && node.q !== 'some' && node.q !== 'no') return undefined;
-    const at = node.decls.findIndex(d => d.names.length === 1 && this.shape(d.type).t === 'union' && this.columns(d.type) === undefined);
+    const at = node.decls.findIndex(d => d.names.length === 1 && this.types.shape(d.type).t === 'union' && this.types.columns(d.type) === undefined);
     if (at === -1) return undefined;
     const decl = node.decls[at] as Extract<Node, { t: 'quant' }>['decls'][number];
-    const union = this.shape(decl.type) as Extract<Node, { t: 'union' }>;
+    const union = this.types.shape(decl.type) as Extract<Node, { t: 'union' }>;
     const over = (type: Node): Node => ({ ...node, decls: node.decls.map((d, i) => (i === at ? { ...d, type } : d)) });
     return { t: node.q === 'some' ? 'or' : 'and', items: [over(union.l), over(union.r)] };
   }

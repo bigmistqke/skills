@@ -166,12 +166,8 @@ export function parseRelations(vocabulary: string): Map<string, { owner: string;
     if (sig.t !== 'sig' || sig.names.length !== 1) continue;
     for (const decl of sig.fields) {
       const columns = decl.defined || decl.type.t !== 'arrow' ? undefined : names(decl.type);
-      // Keyed by the field, and by the signature and the field, as a reading of `Sig.rel` names it: two signatures may each declare `rel`.
-      if (columns !== undefined)
-        for (const name of decl.names) {
-          relations.set(name, { owner: sig.names[0] as string, columns });
-          relations.set(`${sig.names[0] as string}.${name}`, { owner: sig.names[0] as string, columns });
-        }
+      // A reading of `Sig.rel` takes the types of its columns from `columns`, which keys them by the signature too.
+      if (columns !== undefined) for (const name of decl.names) relations.set(name, { owner: sig.names[0] as string, columns });
     }
   }
   return relations;
