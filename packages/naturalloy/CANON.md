@@ -704,8 +704,8 @@ fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many 
 noun Series: [list]
 Items: {1} is a run of clauses joined by and or by or | {1} is not a run of clauses joined by and or by or
 Rule: {1} is a rule with a first side and a second | {1} is not a rule with a first side and a second
-Few: {1} has three clauses or fewer | {1} has more than three clauses
-Many: {1} has more than three clauses | {1} has three clauses or fewer
+Few: {1} has three clauses or fewer | {1} does not have three clauses or fewer
+Many: {1} has more than three clauses | {1} does not have more than three clauses
 MoreThanTwo: {1} has more than two clauses | {1} has two clauses or fewer
 NotClause: {1} has an item that is more than one clause | {1} has only items that are one clause
 CommaItem: {1} has an item that holds a comma | {1} has no item that holds a comma
