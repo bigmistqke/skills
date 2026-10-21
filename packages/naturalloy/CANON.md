@@ -429,6 +429,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec the-bullets-below-a-colon-are-the-parts-of-its-line`](#spec-the-bullets-below-a-colon-are-the-parts-of-its-line) — The bullets below a line that ends in a colon are the parts of what that line says. Their indentation shows which line they belong to.
   - [`@spec a-sentence-joins-its-clauses-with-and-or-with-or-never-both`](#spec-a-sentence-joins-its-clauses-with-and-or-with-or-never-both) — A sentence joins its clauses with "and" or with "or", and never with both. A list shows how such clauses group.
   - [`@spec exactly-when-goes-both-ways-and-when-goes-one`](#spec-exactly-when-goes-both-ways-and-when-goes-one) — "x exactly when y" says that each holds where the other does. "When x, y" says that y holds wherever x does, and nothing of the moments without x.
+  - [`@spec another-differs-from-the-thing-of-its-kind-named-last`](#spec-another-differs-from-the-thing-of-its-kind-named-last) — "Another unit" and "no other unit" differ from the unit the words named last before them. That unit is in the same clause, in the clause before it, or where a quantifier introduced it.
+  - [`@spec each-statement-reads-back-to-its-meaning`](#spec-each-statement-reads-back-to-its-meaning) — Read by these rules, the words of each statement have one meaning, and it is the meaning of what the verbalizer said.
 <!-- toc:end -->
 
 ## Terms
@@ -3359,3 +3361,15 @@ This follows because "a and b or c" groups two ways, and a reader cannot tell wh
 > "x exactly when y" says that each holds where the other does. "When x, y" says that y holds wherever x does, and nothing of the moments without x.
 
 This follows because a reader takes "when" as a rule and "exactly when" as both ways. "The light is on exactly when the switch is down" reads so.
+
+#### @spec another-differs-from-the-thing-of-its-kind-named-last
+
+> "Another unit" and "no other unit" differ from the unit the words named last before them. That unit is in the same clause, in the clause before it, or where a quantifier introduced it.
+
+This follows because a reader looks back for what "other" points at, as for "the". A subject that a series leaves out is not in the words, so it is not what a reader finds.
+
+#### @spec each-statement-reads-back-to-its-meaning
+
+> Read by these rules, the words of each statement have one meaning, and it is the meaning of what the verbalizer said.
+
+This follows because the rules are only of use if they settle each statement one way. A parser reads the words of the sweep back by the rules. It finds one reading for each statement, and that reading means what the printed IR means.
