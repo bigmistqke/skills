@@ -1,1 +1,3 @@
-export { articleFor, isDefinition, isRefusal, Refusal, parseDefinitions, parseFields, parseReadings, unbracketed, verbalize, verbalizeDefinition, withDefinitions, type Readings } from './verbalize.ts';
+export { articleFor } from './core/vocabulary.ts';
+export { isDefinition, readsBack, verbalize, verbalizeDefinition } from './core/index.ts';
+export { isRefusal, parseDefinitions, parseFields, parseReadings, Refusal, unbracketed, withDefinitions, type Readings } from './readings.ts';

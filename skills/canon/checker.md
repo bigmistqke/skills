@@ -57,6 +57,8 @@ pnpm canon find word --kind spec   # the same, for one kind of unit
 pnpm canon lint               # language checks on the prose of the documents
 pnpm canon logic              # whether the formulas of the units can all hold together
 pnpm canon log                # commits that change the implementation without naming a unit
+pnpm canon rename spec-a-leaf a-single-leaf            # give a unit a new stem, and move every name of it
+pnpm canon rename spec-a-leaf a-single-leaf --dry-run  # print each line it would change, and change nothing
 ```
 
 The examples use `pnpm canon`, the command this project declares in its scope.
@@ -68,6 +70,25 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 5. `graph` comes from `@bigmistqke/canon-plugin-pele`. It prints the derivations of the documents as a Mermaid flowchart, or with `--svg` as an SVG that Pele renders.
 6. Read a unit with `show`, and find it with `find`, not with a search of the document. A search finds the heading of a unit. It misses the units above it, the units that derive from it and the tests that check it. The commands `show` and `tree` take a unit as its id, as `@spec a-stem`, or in words as the tree writes it.
 7. The checker needs Node 22 or later.
+
+### Renaming a unit
+
+`rename <id> <stem>` gives the unit with the id a new stem. It keeps the kind: `rename spec-a-leaf a-single-leaf` leaves a spec, with the id `spec-a-single-leaf`. To change the kind, move the unit by hand: a new kind owes other parents. The command moves every name of the unit to the new id:
+
+- The heading of the unit.
+- Each pointer to it, in its own document, in the other documents and in the references. This covers the "Derives from:" and "Between:" lines and the index.
+- Each `@canon` tag that names it, in a comment of a suite or a source, or in a reference. Text in a string is no tag, and it stays.
+- Each code span whose whole text is the id, such as the text of a link on a "Derives from:" line.
+- The markers of each generated region named after the unit, such as `statement-spec-a-leaf` and `statement-scenario-1-spec-a-leaf`, which the Alloy plugin writes.
+
+Then it writes the generated regions, as `generate` does. A rename of a clean project leaves it clean.
+
+1. It changes only the names of the unit. A longer id that starts with the old one stays, and so does a pointer with the same fragment into another document.
+2. A rename that cannot hold exits with code 2 and changes no file. It refuses an old id that names no unit, a new id that is in use, and a new stem that is not a stem. A stem is words of lowercase letters and digits, joined by single hyphens.
+3. A unit of an extended document belongs to another project, so `rename` refuses it. Rename it in that project. A document of another project that points into this one is outside the scope, and its own check reports the pointers that rot.
+4. `--dry-run` prints the file and the number of each line it would change, with the line before and after, and changes no file.
+5. The Alloy plugin names the predicate of a unit after its id, with underscores for hyphens, and a scenario after the unit that holds it. Nothing stores those names, so they follow the rename.
+6. A reviewed map is different: it holds a hash of the statement, the predicate and the map. When a statement that a person wrote links to the renamed unit, its text changes, and `logic` reports the map stale. Read it again and mark it with `logic --review`. The rename does not mark a review that nobody made.
 
 ## 3. Issues
 

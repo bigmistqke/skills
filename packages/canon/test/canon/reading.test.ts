@@ -3,7 +3,7 @@
  * with a unit.
  */
 import { describe, expect, it } from 'vitest';
-import { canon, generated, run } from './project.ts';
+import { canon, generated, run, scratch } from './project.ts';
 
 /** The tag a test cites a unit with, spelled apart so the checker does not read this file's templates as citations. */
 const TAG = ['@', 'canon'].join('');
@@ -81,7 +81,7 @@ const lineOf = (() => {
 })();
 
 describe('show', () => {
-  const show = (...names: string[]) => run(['show', ...names], DOCUMENT, TESTS);
+  const show = (...names: string[]) => run(scratch(DOCUMENT, TESTS), 'show', ...names);
 
   /**
    * @canon spec-show-prints-the-own-text-of-a-unit-with-where-it-starts
@@ -149,8 +149,10 @@ describe('show', () => {
    */
   it('reads a unit as its id, as its kind and stem after an @, or in words', () => {
     const header = `CANON.md:${lineOf('#### @spec a-leaf')}  spec-a-leaf`;
+    // One project for the four names: show only reads it.
+    const dir = scratch(DOCUMENT, TESTS);
     for (const names of [['spec-a-leaf'], ['@spec a-leaf'], ['@spec', 'a-leaf'], ['@spec A leaf']]) {
-      expect(show(...names).stdout.split('\n')[0]).toBe(header);
+      expect(run(dir, 'show', ...names).stdout.split('\n')[0]).toBe(header);
     }
   });
 
@@ -166,7 +168,7 @@ describe('show', () => {
 });
 
 describe('find', () => {
-  const find = (...args: string[]) => run(['find', ...args], DOCUMENT, TESTS).stdout.trim().split('\n').filter(Boolean);
+  const find = (...args: string[]) => run(scratch(DOCUMENT, TESTS), 'find', ...args).stdout.trim().split('\n').filter(Boolean);
 
   /**
    * @canon spec-find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case
@@ -199,7 +201,7 @@ describe('tree of a unit', () => {
    * @canon spec-tree-of-a-unit-draws-the-tree-from-that-unit-down
    */
   it('draws the unit and the units that sit in it, and nothing else', () => {
-    const { stdout, status } = run(['tree', 'spec-a-parent'], DOCUMENT, TESTS);
+    const { stdout, status } = run(scratch(DOCUMENT, TESTS), 'tree', 'spec-a-parent');
     expect(status).toBe(0);
     expect(stdout).toContain('@spec A parent');
     expect(stdout).toContain('@spec A leaf');

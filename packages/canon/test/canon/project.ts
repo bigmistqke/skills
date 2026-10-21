@@ -60,6 +60,17 @@ function project(document: string, tests: string, tracker?: Record<string, unkno
   return dir;
 }
 
+/** A project of the document, the test file and what else it holds, left for a command to change; its directory. */
+export function scratch(document: string, tests = '', extra: Extra = {}): string {
+  return project(document, tests, undefined, extra);
+}
+
+/** Run the checker with `args` in the project at `dir`: its exit code, and what it printed. */
+export function run(dir: string, ...args: string[]): { status: number | null; stdout: string; stderr: string } {
+  const { status, stdout, stderr } = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
+  return { status, stdout, stderr };
+}
+
 /** The document as `generate` leaves it, in a project of it alone. */
 export function generated(document: string): string {
   return readFileSync(join(project(document, ''), 'CANON.md'), 'utf8');
@@ -79,12 +90,6 @@ function counts(out: string): Record<string, number> {
 export function check(document: string, tests = '', extra: Extra = {}): Record<string, number> {
   const run = spawnSync(process.execPath, [CLI, 'check', '--offline'], { cwd: project(document, tests, undefined, extra), encoding: 'utf8' });
   return counts(run.stdout);
-}
-
-/** Run the command line `args` over a project of the document, the test file and what else it holds. */
-export function run(args: string[], document: string, tests = '', extra: Extra = {}): { stdout: string; stderr: string; status: number | null } {
-  const result = spawnSync(process.execPath, [CLI, ...args], { cwd: project(document, tests, undefined, extra), encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
-  return { stdout: result.stdout, stderr: result.stderr, status: result.status };
 }
 
 /** Run `check` over a project whose GitHub tracker holds `issues`, each number with its state. */
