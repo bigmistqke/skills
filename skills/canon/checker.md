@@ -50,6 +50,10 @@ pnpm canon tree               # the terms, then the facts, then the derivation t
 pnpm canon tree -v            # the same, with each unit's statement
 pnpm canon tree --gaps        # only the branches that lead to an untested claim
 pnpm canon tree --suspect 3   # specs with no nested specs and three or more tests
+pnpm canon tree spec-a-stem   # one unit and what sits in it
+pnpm canon show spec-a-stem   # a unit, what it follows from, what follows from it, and its tests
+pnpm canon find word word     # the units whose id or own text holds every word
+pnpm canon find word --kind spec   # the same, for one kind of unit
 pnpm canon lint               # language checks on the prose of the documents
 pnpm canon logic              # whether the formulas of the units can all hold together
 pnpm canon log                # commits that change the implementation without naming a unit
@@ -64,7 +68,8 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 3. Add the `toc:begin` and `toc:end` markers to each new canon document, once.
 4. `lint` comes from `@bigmistqke/canon-plugin-retext`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
 5. `graph` comes from `@bigmistqke/canon-plugin-pele`. It prints the derivations of the documents as a Mermaid flowchart, or with `--svg` as an SVG that Pele renders.
-6. The checker needs Node 22 or later.
+6. Read a unit with `show`, and find it with `find`, not with a search of the document. A search finds the heading of a unit. It misses the units above it, the units that derive from it and the tests that check it. The commands `show` and `tree` take a unit as its id, as `@spec a-stem`, or in words as the tree writes it.
+7. The checker needs Node 22 or later.
 
 ### Renaming a unit
 

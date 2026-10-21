@@ -67,7 +67,7 @@ export function scratch(document: string, tests = '', extra: Extra = {}): string
 
 /** Run the checker with `args` in the project at `dir`: its exit code, and what it printed. */
 export function run(dir: string, ...args: string[]): { status: number | null; stdout: string; stderr: string } {
-  const { status, stdout, stderr } = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8' });
+  const { status, stdout, stderr } = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
   return { status, stdout, stderr };
 }
 

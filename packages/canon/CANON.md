@@ -519,6 +519,21 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-runner-marker-the-settings-do-not-list-is-refused`](#spec-a-runner-marker-the-settings-do-not-list-is-refused) — A runner marker in a project whose setting `runners` does not list `"@runner"` is one the checker cannot read. The checker says to add `"@runner"` to the setting.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
   - [`@spec a-check-with-no-runner-says-it-reads-no-test`](#spec-a-check-with-no-runner-says-it-reads-no-test) — When the project has no runner, the report of `check` says that it reads no tests.
+- [`@axiom the-document-holds-the-canon-the-commands-handle-it`](#axiom-the-document-holds-the-canon-the-commands-handle-it) — The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
+  - [`@spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it`](#spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it) — `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it.
+    - [`@spec show-prints-the-own-text-of-a-unit-with-where-it-starts`](#spec-show-prints-the-own-text-of-a-unit-with-where-it-starts) — `show` prints the heading and the [own text](#term-own-text) of a unit, after the document and the line where the unit starts.
+    - [`@spec show-lists-the-units-a-unit-sits-in-up-to-its-root`](#spec-show-lists-the-units-a-unit-sits-in-up-to-its-root) — `show` lists the unit that a unit sits in, the unit that one sits in, and so on up to a unit that sits in none.
+    - [`@spec show-lists-the-units-a-unit-derives-from-on-its-derives-from-line`](#spec-show-lists-the-units-a-unit-derives-from-on-its-derives-from-line) — `show` lists the units that the "Derives from:" line of a unit names.
+    - [`@spec show-lists-the-units-that-sit-in-a-unit`](#spec-show-lists-the-units-that-sit-in-a-unit) — `show` lists the units that sit in a unit, each with the number of tests that check it.
+    - [`@spec show-lists-the-units-that-derive-from-a-unit-on-their-derives-from-line`](#spec-show-lists-the-units-that-derive-from-a-unit-on-their-derives-from-line) — `show` lists the units whose "Derives from:" line names a unit.
+    - [`@spec show-lists-the-tests-that-check-a-unit`](#spec-show-lists-the-tests-that-check-a-unit) — `show` lists each test that checks a unit, by its file, its line and its title.
+    - [`@spec show-reads-an-id-as-the-heading-or-the-tree-writes-it`](#spec-show-reads-an-id-as-the-heading-or-the-tree-writes-it) — `show` reads a unit as its id, as its kind and stem after an `@`, or in words as the tree writes it.
+    - [`@spec show-of-a-name-that-names-no-unit-fails-the-run`](#spec-show-of-a-name-that-names-no-unit-fails-the-run) — When a name on the command line of `show` names no unit, the checker says so, and the run exits with code 2.
+  - [`@spec find-lists-the-units-whose-text-holds-every-word-it-is-given`](#spec-find-lists-the-units-whose-text-holds-every-word-it-is-given) — `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement.
+    - [`@spec find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case`](#spec-find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case) — A unit matches a word when its id or its own text holds the word, in capitals or not.
+    - [`@spec find-lists-a-unit-only-when-it-holds-every-word`](#spec-find-lists-a-unit-only-when-it-holds-every-word) — `find` leaves out a unit that holds some of the words on its command line and not every one.
+    - [`@spec find-with-a-kind-lists-only-units-of-that-kind`](#spec-find-with-a-kind-lists-only-units-of-that-kind) — When the command line of `find` names a kind, it lists only the units of that kind.
+  - [`@spec tree-of-a-unit-draws-the-tree-from-that-unit-down`](#spec-tree-of-a-unit-draws-the-tree-from-that-unit-down) — When the command line of `tree` names a unit, it draws that unit and the units that sit in it, and nothing else.
 - [`@axiom renaming-a-unit-asks-only-for-its-new-stem`](#axiom-renaming-a-unit-asks-only-for-its-new-stem) — Renaming a unit costs the author the choice of its new stem, and nothing else.
   - [`@spec rename-gives-a-unit-a-new-stem-and-keeps-its-kind`](#spec-rename-gives-a-unit-a-new-stem-and-keeps-its-kind) — `rename <id> <stem>` writes the heading of the unit with the id as its own kind and the new stem.
   - [`@spec rename-moves-every-name-of-the-unit-to-the-new-id`](#spec-rename-moves-every-name-of-the-unit-to-the-new-id) — After `rename`, each tag, pointer, code span and generated region of the project that named the old id names the new id.
@@ -548,7 +563,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 
 > Checker is the program the canon describes.
 
-The program `canon`, with its commands `check`, `generate`, `tree`, `log` and `rename`, and the commands that its [plugins](#term-plugin) add. A canon holds [units](#term-unit).
+The program `canon`, with its commands `check`, `generate`, `tree`, `show`, `find`, `log` and `rename`, and the commands that its [plugins](#term-plugin) add. A canon holds [units](#term-unit).
 
 ```alloy bounds
 for 6
@@ -4065,6 +4080,98 @@ This follows because the checker reads the tests and the tags of a file from its
 > When the project has no runner, the report of `check` says that it reads no tests.
 
 This follows because a clean check means the canon holds, and in a project with no runner it holds without tests. The author acts on a clean check, so the report says how much it covers.
+
+## @axiom the-document-holds-the-canon-the-commands-handle-it
+
+> The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
+
+A person reasons in a document, and its structure makes it a canon. A unit [sits in](#term-sit) the unit whose heading holds its heading. It [derives from](#term-derive) the units its "Derives from:" line names. A [test](#term-test) in another file [checks](#term-check) it through a [tag](#term-tag). The lines of the unit show none of that.
+
+A reader who searches a document for a heading gets the text of a unit. The reader misses what the unit follows from, what follows from it and what tests it. A writer who edits the text can break the nesting or the index unseen. The checker reads the structure for `check`, so it hands it to the reader and the writer too.
+
+### @spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it
+
+> `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it.
+
+This follows because a reader needs each of these to change a unit, and the documents hold each in a different place.
+
+#### @spec show-prints-the-own-text-of-a-unit-with-where-it-starts
+
+> `show` prints the heading and the [own text](#term-own-text) of a unit, after the document and the line where the unit starts.
+
+This follows because the own text is what the unit says, and the line lets a writer open the unit where it is.
+
+#### @spec show-lists-the-units-a-unit-sits-in-up-to-its-root
+
+> `show` lists the unit that a unit sits in, the unit that one sits in, and so on up to a unit that sits in none.
+
+This follows because a unit follows from every unit above it, and its root is the value it serves.
+
+#### @spec show-lists-the-units-a-unit-derives-from-on-its-derives-from-line
+
+> `show` lists the units that the "Derives from:" line of a unit names.
+
+This follows because a unit follows from these as much as from the unit it sits in.
+
+#### @spec show-lists-the-units-that-sit-in-a-unit
+
+> `show` lists the units that sit in a unit, each with the number of tests that check it.
+
+This follows because these follow from the unit, and a change to the unit can break them.
+
+#### @spec show-lists-the-units-that-derive-from-a-unit-on-their-derives-from-line
+
+> `show` lists the units whose "Derives from:" line names a unit.
+
+This follows because these follow from the unit too. They can sit in another part of the document, or in another document.
+
+#### @spec show-lists-the-tests-that-check-a-unit
+
+> `show` lists each test that checks a unit, by its file, its line and its title.
+
+This follows because a change to a claim changes the tests that check it, and a tag sits in another file than its unit.
+
+#### @spec show-reads-an-id-as-the-heading-or-the-tree-writes-it
+
+> `show` reads a unit as its id, as its kind and stem after an `@`, or in words as the tree writes it.
+
+This follows because a reader copies the name of a unit from where it saw the name, and each of these names one unit.
+
+#### @spec show-of-a-name-that-names-no-unit-fails-the-run
+
+> When a name on the command line of `show` names no unit, the checker says so, and the run exits with code 2.
+
+This follows because a reader who asked for a unit must not take silence for an empty unit.
+
+### @spec find-lists-the-units-whose-text-holds-every-word-it-is-given
+
+> `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement.
+
+This follows because a reader often knows what a unit is about and not its id. The line gives the id to ask `show` for.
+
+#### @spec find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case
+
+> A unit matches a word when its id or its own text holds the word, in capitals or not.
+
+This follows because the words of a stem are the words of its statement. A reader does not know which of them the unit uses.
+
+#### @spec find-lists-a-unit-only-when-it-holds-every-word
+
+> `find` leaves out a unit that holds some of the words on its command line and not every one.
+
+This follows because a reader narrows a search by adding a word.
+
+#### @spec find-with-a-kind-lists-only-units-of-that-kind
+
+> When the command line of `find` names a kind, it lists only the units of that kind.
+
+This follows because a reader who looks for a claim to change does not want the terms that use the same words.
+
+### @spec tree-of-a-unit-draws-the-tree-from-that-unit-down
+
+> When the command line of `tree` names a unit, it draws that unit and the units that sit in it, and nothing else.
+
+This follows because the tree of a whole document is too long to read for one part of it. A reader who knows the part names its root.
 
 ## @axiom renaming-a-unit-asks-only-for-its-new-stem
 
