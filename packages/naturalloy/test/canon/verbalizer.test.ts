@@ -995,10 +995,17 @@ describe('a quantifier about its variable alone', () => {
   });
 
   /**
+   * @canon spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that
+   */
+  it('says many conditions as bullets after "there is a … that:"', () => {
+    expect(said('some v: Unit | v in Spec and v in Axiom and v in Fact and v not in Spec')).toBe('There is a unit that:\n  - is a spec\n  - is an axiom\n  - is a fact\n  - is not a spec');
+  });
+
+  /**
    * @canon spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full
    */
-  it('says it in full when the conditions are many, or when "no" would meet "no"', () => {
-    expect(said('some v: Unit | v in Spec and v in Axiom and v in Fact and v not in Spec')).toMatch(/^There is a unit such that all of these hold:/);
+  it('says it in full when the conditions under "no" are many, or when "no" would meet "no"', () => {
+    expect(said('no v: Unit | v in Spec and v in Axiom and v in Fact and v not in Spec')).toMatch(/^There is no unit such that all of these hold:/);
     expect(said('no v: Unit | no w: Unit | v->w in Twice.rel')).toMatch(/^There is no unit_1 such that /);
   });
 });

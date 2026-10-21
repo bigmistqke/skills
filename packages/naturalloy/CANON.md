@@ -305,7 +305,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > - quantifier_1 is a quantifier with no fact for its variable beside another thing
     > - at least one of these holds:
     >   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
-    >   - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+    >   - all of these hold:
+    >     - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+    >     - quantifier_1 is a quantifier under "no"
     >   - quantifier_1 is a quantifier under "no" with a condition that says "no"
     >
     > then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
@@ -322,6 +324,19 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > then the following holds:
     >
     > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
+  - [`@spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that`](#spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that) —
+    > For every [quantifier_1](#term-quantifier):
+    >
+    > when all of these hold:
+    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > - quantifier_1 is a quantifier whose variable is the subject of the sentence
+    > - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+    > - quantifier_1 is not a quantifier under "no"
+    > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+    >
+    > then the following holds:
+    >
+    > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
   - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — For every [quantifier_1](#term-quantifier): when the following holds: quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
@@ -414,8 +429,8 @@ sig Quantifier {}
 sig VariableOnce, AsNounPhrase, VariableSubject, AsSubjectPhrase, VariableWithCondition, RelativeClause in Quantifier {}
 sig OneNegation, SaysAnother, NestsPhrases in Quantifier {}
 sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, TimedCondition, InFull in Quantifier {}
-sig ThereIsThat, LongConditions, NoUnderNo in Quantifier {}
-fact quantifier_wordings { no AsNounPhrase & InFull and no ThereIsThat & InFull and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
+sig ThereIsThat, ThereIsThatList, LongConditions, NoUnderNo, UnderNo in Quantifier {}
+fact quantifier_wordings { no AsNounPhrase & InFull and no ThereIsThat & InFull and no ThereIsThatList & InFull and no ThereIsThat & ThereIsThatList and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
 ```
 
 ```readings
@@ -436,6 +451,8 @@ ConditionAside: {1} is a quantifier whose condition is not about its variable | 
 TimedCondition: {1} is a quantifier with several conditions, one of which begins with a time phrase | {1} is not a quantifier with several conditions, one of which begins with a time phrase
 InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and the numbered name | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and the numbered name
 ThereIsThat: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec" | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec"
+ThereIsThatList: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject
+UnderNo: {1} is a quantifier under "no" | {1} is not a quantifier under "no"
 LongConditions: {1} is a quantifier with more than three conditions, or with conditions longer than a line | {1} is a quantifier with three conditions or fewer that fit a line
 NoUnderNo: {1} is a quantifier under "no" with a condition that says "no" | {1} is not a quantifier under "no" with a condition that says "no"
 ```
@@ -443,9 +460,9 @@ NoUnderNo: {1} is a quantifier under "no" with a condition that says "no" | {1} 
 <!-- statement-scenario-1-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable the sentence says once
-> - quantifier_1 is a quantifier that says no variable differs from another and holds a condition
+> There is a quantifier that:
+> - is a quantifier whose variable the sentence says once
+> - is a quantifier that says no variable differs from another and holds a condition
 <!-- statement-scenario-1-term-quantifier:end -->
 
 ```alloy scenario
@@ -455,9 +472,9 @@ some f: Quantifier | f in VariableOnce and f in NoWithAnother
 <!-- statement-scenario-2-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable is the subject of the sentence
-> - quantifier_1 is a quantifier whose reading says the variable twice
+> There is a quantifier that:
+> - is a quantifier whose variable is the subject of the sentence
+> - is a quantifier whose reading says the variable twice
 <!-- statement-scenario-2-term-quantifier:end -->
 
 ```alloy scenario
@@ -467,9 +484,9 @@ some f: Quantifier | f in VariableSubject and f in VariableTwice
 <!-- statement-scenario-3-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable the sentence says once
-> - quantifier_1 is a quantifier whose condition is not about its variable
+> There is a quantifier that:
+> - is a quantifier whose variable the sentence says once
+> - is a quantifier whose condition is not about its variable
 <!-- statement-scenario-3-term-quantifier:end -->
 
 ```alloy scenario
@@ -479,9 +496,9 @@ some f: Quantifier | f in VariableOnce and f in ConditionAside
 <!-- statement-scenario-4-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable has a further condition
-> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> There is a quantifier that:
+> - is a quantifier whose variable has a further condition
+> - is a quantifier with no fact for its variable beside another thing
 <!-- statement-scenario-4-term-quantifier:end -->
 
 ```alloy scenario
@@ -551,9 +568,9 @@ AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternative
 <!-- statement-scenario-1-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition_1 such that all of these hold:
-> - definition_1 is a definition with two alternatives for one kind
-> - definition_1 is a definition with a run of and beside another alternative of its kind
+> There is a definition that:
+> - is a definition with two alternatives for one kind
+> - is a definition with a run of and beside another alternative of its kind
 <!-- statement-scenario-1-term-definition-passage:end -->
 
 ```alloy scenario
@@ -563,9 +580,9 @@ some f: Definition | f in SameKindTwice and f in AmbiguousAnd
 <!-- statement-scenario-2-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition_1 such that all of these hold:
-> - definition_1 is a definition whose alternatives are of one kind
-> - definition_1 is a definition with an alternative that says something about another unit
+> There is a definition that:
+> - is a definition whose alternatives are of one kind
+> - is a definition with an alternative that says something about another unit
 <!-- statement-scenario-2-term-definition-passage:end -->
 
 ```alloy scenario
@@ -575,9 +592,9 @@ some f: Definition | f in OneKind and f in NotAboutSubject
 <!-- statement-scenario-3-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition_1 such that all of these hold:
-> - definition_1 is a definition with an or inside one kind
-> - definition_1 is a definition with an alternative that does not begin with its kind
+> There is a definition that:
+> - is a definition with an or inside one kind
+> - is a definition with an alternative that does not begin with its kind
 <!-- statement-scenario-3-term-definition-passage:end -->
 
 ```alloy scenario
@@ -708,9 +725,9 @@ some f: Series | f in PairInList and f in NotClause
 <!-- statement-scenario-5-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that all of these hold:
-> - the list is a rule whose second side begins with a time phrase
-> - the list is not a rule whose two sides are each one clause
+> There is a list that:
+> - is a rule whose second side begins with a time phrase
+> - is not a rule whose two sides are each one clause
 <!-- statement-scenario-5-term-series:end -->
 
 ```alloy scenario
@@ -720,7 +737,9 @@ some f: Series | f in TimeSecond and f not in OneLineRule
 <!-- statement-scenario-6-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that the list is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase.
+> There is a list that:
+> - is a rule whose two sides are each one clause
+> - is a rule whose first side begins with a time phrase
 <!-- statement-scenario-6-term-series:end -->
 
 ```alloy scenario
@@ -2348,16 +2367,18 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 > - quantifier_1 is a quantifier with no fact for its variable beside another thing
 > - at least one of these holds:
 >   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
->   - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+>   - all of these hold:
+>     - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+>     - quantifier_1 is a quantifier under "no"
 >   - quantifier_1 is a quantifier under "no" with a condition that says "no"
 >
 > then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
-A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or the conditions are many or long. Nor can it when a condition under "no" says "no".
+A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or when the conditions under "no" are many or long. Nor can it when a condition under "no" says "no".
 
 ```alloy
-all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or f in LongConditions or f in NoUnderNo)) implies f in InFull
+all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or (f in LongConditions and f in UnderNo) or f in NoUnderNo)) implies f in InFull
 ```
 
 #### @spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
@@ -2381,6 +2402,29 @@ all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or f in 
 
 ```alloy
 all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in LongConditions and f not in NoUnderNo and f not in NoWithAnother) implies f in ThereIsThat
+```
+
+#### @spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that
+
+<!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:begin — generated by `canon generate`; edits are overwritten -->
+> For every [quantifier_1](#term-quantifier):
+>
+> when all of these hold:
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> - quantifier_1 is a quantifier whose variable is the subject of the sentence
+> - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+> - quantifier_1 is not a quantifier under "no"
+> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+>
+> then the following holds:
+>
+> [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
+<!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:end -->
+
+Conditions too many or too long for one sentence still share their subject. So the sentence opens with `there is a quantifier that:`, and each condition follows as a bullet that goes on from "that". The numbered name and the repeated subject go. Under "no", such bullets could read as each one denied on its own, so "no" keeps the full form.
+
+```alloy
+all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f in LongConditions and f not in UnderNo and f not in NoWithAnother) implies f in ThereIsThatList
 ```
 
 #### @spec no-with-another-is-said-in-full

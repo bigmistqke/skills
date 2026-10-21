@@ -1932,7 +1932,7 @@ class Verbalizer {
     const split = this.overEach(quant) ?? this.overOne(quant);
     if (split !== undefined) return this.doc(this.rewrote(quant, split));
     const node = this.plain(quant);
-    const absorbed = this.absorbed(node);
+    const absorbed = this.absorbed(node) ?? this.subjectList(node);
     if (absorbed !== undefined) return absorbed;
     const scope = new Map(this.bound);
     const vars = node.decls.flatMap(({ names, type }) =>
@@ -2234,6 +2234,36 @@ class Verbalizer {
       phrase = new RegExp(`^${nounText.replace(/\s+/g, '_')}_\\d+$`).test(shown) ? `another ${noun}${suffix}` : `${article}${noun} other than ${VARIABLE}${shown}${VARIABLE}${suffix}`;
     }
     return main.replace(hole, phrase);
+  }
+
+  /**
+   * A "there is" whose conditions all have the variable as their subject, and are too many or too long for a sentence:
+   * "there is a quantifier that:", and each condition below it as a bullet without its subject. "No" keeps its numbered
+   * name: under "there is no unit that:", the bullets could read as each one denied on its own.
+   */
+  private subjectList(quant: Extract<Node, { t: 'quant' }>): Doc | undefined {
+    const node = this.plain(quant);
+    if (node.q !== 'some' || node.decls.length !== 1 || (node.decls[0] as { names: string[] }).names.length !== 1) return undefined;
+    const { names, type } = node.decls[0] as { names: string[]; type: Node };
+    const x = names[0] as string;
+    const typeName = type.t === 'name' ? type.name : undefined;
+    const written = typeName === undefined ? undefined : this.readings.nouns.get(typeName);
+    if (typeName === undefined || written === undefined) return undefined;
+    const parts = node.body.t === 'and' ? node.body.items : [node.body];
+    if (parts.length < 2 || parts.some(p => differsFrom(p, x) !== undefined)) return undefined;
+    const hole = slotOf(this.level);
+    const before = [...this.used];
+    const probe = new Verbalizer(this.readings, new Map([...this.bound, [x, holeOf(this.level)]]), this.chain, this.used, this.level + 1);
+    const said = parts.map(part => probe.clause(part));
+    const rests = said.map(s => (s !== undefined && s.startsWith(hole) && s.split(hole).length === 2 ? s.slice(hole.length) : undefined));
+    if (rests.some(r => r === undefined || /^ (?:and|or)\b/.test(r))) {
+      this.used.clear();
+      for (const name of before) this.used.add(name);
+      return undefined;
+    }
+    const noun = mark(written, this.readings.nounTargets.get(typeName));
+    const article = this.written(type) ?? articleFor(unbracketed(written).trim());
+    return { kind: 'list', intro: `there is ${article}${noun} that:`, items: (rests as string[]).map(r => r.trim()) };
   }
 
   /**
