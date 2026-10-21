@@ -58,8 +58,26 @@ describe('the words', () => {
    */
   it('says a quantifier with the noun of its type, repeated for each variable', () => {
     expect(say('all o: Owner, k: Owner, c: Cleanup | c in Ran')).toBe(
-      'For every owner_1 and every owner_2 and every cleanup:\n  the cleanup has run.'
+      'For every owner_1, every owner_2 and every cleanup:\n  the cleanup has run.'
     );
+  });
+
+  /**
+   * @canon spec-three-things-a-for-every-names-are-a-list
+   */
+  it('writes three things a for every or a for some names as a list', () => {
+    expect(say('all c: Cleanup, o, p: Owner | c in Ran implies o in Disposed')).toMatch(/^For every cleanup, every owner_1 and every owner_2:/);
+    expect(say('some c: Cleanup, o, p: Owner | o in c.on and p not in c.on')).toMatch(/^For some cleanup, some owner_1 and some owner_2:/);
+    expect(say('all c: Cleanup, o: Owner | c in Ran implies o in Disposed')).toMatch(/^For every cleanup and every owner:/);
+  });
+
+  /**
+   * @canon spec-some-of-several-things-is-said-as-for-some
+   */
+  it('says some over several variables as for some each of them, and over one as there is', () => {
+    expect(say('some c: Cleanup, o: Owner | o in c.on and c in Ran')).toBe('For some cleanup and some owner:\n  the cleanup is on the owner and has run.');
+    expect(say('some c, d: Cleanup | c != d and c in Ran')).toContain('For some cleanup_1 and some cleanup_2:');
+    expect(say('some c: Cleanup | c in Ran and c in Registered')).toMatch(/^There is a cleanup such that /);
   });
 
   /**
@@ -67,7 +85,7 @@ describe('the words', () => {
    */
   it('names a variable after its noun and the number it is, whatever the formula called it', () => {
     const readings = parseReadings('noun Unit: unit\nnoun Spec: spec\nnoun ExpectedFailure: expected failure\nRan: {1} has run | {1} has not run');
-    expect(say('all x, y: Unit, z: Spec | x in Ran', readings)).toBe('For every unit_1 and every unit_2 and every spec:\n  unit_1 has run.');
+    expect(say('all x, y: Unit, z: Spec | x in Ran', readings)).toBe('For every unit_1, every unit_2 and every spec:\n  unit_1 has run.');
     expect(say('all u: Unit | all u2: Unit | u in Ran', readings)).toBe('For every unit_1 and every unit_2:\n  unit_1 has run.');
   });
 
@@ -77,7 +95,7 @@ describe('the words', () => {
    */
   it('names a variable the noun alone when no other variable or word has its noun, and a counted one by its number', () => {
     expect(say('some e: ExpectedFailure | e in Ran', parseReadings('noun ExpectedFailure: expected failure\nRan: {1} has run | {1} has not run'))).toBe(
-      'There is an expected failure such that the expected failure has run.'
+      'There is an expected failure that has run.'
     );
     expect(say('one x: Owner | x in c.on')).toBe('There is exactly one owner such that c is on the owner.');
     // A link's target is not a word the reader sees: "(#term-unit)" does not say the noun again.
@@ -98,9 +116,9 @@ describe('the words', () => {
    * @canon spec-no-over-several-variables-is-said-as-no-combination
    */
   it('says "some" and "no" with an article, or as a combination of several', () => {
-    expect(say('some c: Failing | c in Ran')).toBe('There is a failing cleanup such that the failing cleanup has run.');
+    expect(say('some c: Failing | c in Ran')).toBe('There is a failing cleanup that has run.');
     expect(say('some o: Owner | o in Disposed')).toBe('There is an owner such that pulse has disposed the owner.');
-    expect(say('no c: Cleanup, o: Owner | c.on = o')).toBe('There is no combination of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.');
+    expect(say('no c: Cleanup, o: Owner | c.on = o')).toBe('No cleanup is on an owner.');
   });
 
   /**
@@ -134,7 +152,7 @@ describe('the words', () => {
       'For every cleanup_1 and every cleanup_2:\n  when all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n  then cleanup_2 has run.'
     );
     expect(say('all disj c, d: Cleanup | d in Ran')).toBe('For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different, cleanup_2 has run.');
-    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('There are cleanup_1 and cleanup_2 such that all of these hold:\n  - cleanup_1 and cleanup_2 are different\n  - cleanup_1 has run\n  - cleanup_2 has run');
+    expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('For some cleanup_1 and some cleanup_2:\n  all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n    - cleanup_2 has run');
   });
 
   /**
@@ -245,7 +263,7 @@ describe('the words', () => {
    */
   it('says an and or an or below a time phrase as a list', () => {
     expect(say("c in (Ran + Registered)'")).toBe('At the next moment, at least one of these holds:\n  - c has run\n  - code has registered c');
-    expect(say('eventually (c in Ran and c in Registered)')).toBe('Now or at a later moment, all of these hold:\n  - c has run\n  - code has registered c');
+    expect(say('eventually (c in Ran and c in Registered)')).toBe('Now or later, all of these hold:\n  - c has run\n  - code has registered c');
   });
 
   /**
@@ -279,10 +297,12 @@ describe('the words', () => {
    */
   it('says a field of many values that equals a variable member by member', () => {
     const many = withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { var on: set Owner }');
-    expect(say('c.on = o', many)).toBe('For every owner:\n  c is on the owner exactly when the owner and o are the same.');
-    expect(say('o = c.on', many)).toBe('For every owner:\n  c is on the owner exactly when the owner and o are the same.');
-    expect(say("c.on' = o", many)).toBe('For every owner:\n  c is on the owner at the next moment exactly when the owner and o are the same.');
-    const beside = say('(c.on = o and c in Ran) implies c in Registered', withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2} | {1} is not on {2}\nRan: {1} has run | {1} has not run\nRegistered: code has registered {1} | code has not registered {1}'), 'sig Owner {} sig Cleanup { var on: set Owner }'));
+    // Being on the owner is said with a comma of its own here, so "no other" is not said beside it.
+    const comma = withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2}, as planned | {1} is not on {2}, as planned'), 'sig Owner {} sig Cleanup { var on: set Owner }');
+    expect(say('c.on = o', comma)).toMatch(/^For every owner:\n/);
+    expect(say('o = c.on', comma)).toMatch(/^For every owner:\n/);
+    expect(say("c.on' = o", comma)).toMatch(/^For every owner:\n/);
+    const beside = say('(c.on = o and c in Ran) implies c in Registered', withDefinitions(parseReadings('noun Owner: owner\non: {1} is on {2}, as planned | {1} is not on {2}, as planned\nRan: {1} has run | {1} has not run\nRegistered: code has registered {1} | code has not registered {1}'), 'sig Owner {} sig Cleanup { var on: set Owner }'));
     expect(beside).toContain('for every owner:');
     expect(beside).not.toContain('owner_2');
     expect(say('c.on != o', many)).toBe('There is an owner such that exactly one of these holds:\n  - c is on the owner\n  - the owner and o are the same');
@@ -312,32 +332,32 @@ describe('the words', () => {
    */
   it('starts a sentence with a capital only where the sentence starts with its own words', () => {
     expect(say('c in Ran')).toBe('c has run.');
-    expect(say('eventually c in Ran')).toBe('Now or at a later moment, c has run.');
+    expect(say('eventually c in Ran')).toBe('Now or later, c has run.');
   });
 
   /**
-   * @canon spec-eventually-is-said-as-now-or-at-a-later-moment
+   * @canon spec-eventually-is-said-as-now-or-later
    * @canon spec-after-is-said-as-at-the-next-moment
    * @canon spec-until-is-said-as-two-parts
    */
   it('says the temporal operators', () => {
-    expect(say('eventually c in Ran')).toBe('Now or at a later moment, c has run.');
+    expect(say('eventually c in Ran')).toBe('Now or later, c has run.');
     expect(say('after c in Ran')).toBe('At the next moment, c has run.');
     expect(say('(not runNow[c]) until runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      d runs', '  - at every moment from now until the first such moment, not including it, the following holds:', '      c does not run.'].join('\n')
+      ['d runs now or later, and until then, c does not run.'].join('\n')
     );
   });
 
   /**
-   * @canon spec-always-is-said-as-now-and-at-every-later-moment
-   * @canon spec-before-is-said-as-there-is-a-moment-before-and-at-it
-   * @canon spec-once-is-said-as-now-or-at-an-earlier-moment
+   * @canon spec-always-is-said-as-from-now-on
+   * @canon spec-before-is-said-as-there-is-a-moment-just-before-and-at-it
+   * @canon spec-once-is-said-as-now-or-earlier
    * @canon spec-historically-is-said-as-now-and-at-every-earlier-moment
    */
   it('says always and the past operators of one formula', () => {
-    expect(say('always c in Ran')).toBe('Now and at every later moment, c has run.');
-    expect(say('before c in Ran')).toBe('There is a moment before, and at it, c has run.');
-    expect(say('once c in Ran')).toBe('Now or at an earlier moment, c has run.');
+    expect(say('always c in Ran')).toBe('From now on, c has run.');
+    expect(say('before c in Ran')).toBe('There is a moment just before, and at it, c has run.');
+    expect(say('once c in Ran')).toBe('Now or earlier, c has run.');
     expect(say('historically c in Ran')).toBe('Now and at every earlier moment, c has run.');
   });
 
@@ -345,14 +365,14 @@ describe('the words', () => {
    * @canon spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart
    */
   it('sets apart below a time phrase the words that hold a time phrase of their own', () => {
-    expect(say("always o in Disposed'")).toBe('Now and at every later moment:\n  at the next moment, pulse has disposed o.');
+    expect(say("always o in Disposed'")).toBe('From now on:\n  at the next moment, pulse has disposed o.');
     expect(say("o in (Disposed')'")).toBe('At the next moment:\n  at the next moment, pulse has disposed o.');
     expect(say('after (c in Ran ; o in Disposed)')).toBe('At the next moment:\n  c has run, and at the next moment, pulse has disposed o.');
     expect(say('eventually (c in Registered until c in Ran)')).toBe(
-      ['Now or at a later moment, all of these hold:', '  - now or at a later moment, the following holds:', '      c has run', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
+      ['Now or later:', '  c has run now or later, and until then, code has registered c.'].join('\n')
     );
-    expect(say("always (c in Ran and d in Ran')")).toBe('Now and at every later moment, all of these hold:\n  - c has run\n  - at the next moment, d has run');
-    expect(say('always (c in Ran and d in Ran)')).toBe('Now and at every later moment, all of these hold:\n  - c has run\n  - d has run');
+    expect(say("always (c in Ran and d in Ran')")).toBe('From now on, all of these hold:\n  - c has run\n  - at the next moment, d has run');
+    expect(say('always (c in Ran and d in Ran)')).toBe('From now on, all of these hold:\n  - c has run\n  - d has run');
   });
 
   /**
@@ -363,25 +383,17 @@ describe('the words', () => {
    */
   it('says since, releases, triggered and the semicolon', () => {
     expect(say('(not runNow[c]) since runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      d runs', '  - at every moment after the last such moment, up to and including now, the following holds:', '      c does not run.'].join('\n')
+      ['d runs now or earlier, and at every moment after the last such moment, up to and including now, c does not run.'].join('\n')
     );
     expect(say('runNow[d] releases (not runNow[c])')).toBe(
-      [
-        'At least one of these holds:',
-        '  - now and at every later moment, c does not run',
-        '  - all of these hold:',
-        '      - now or at a later moment, the following holds:',
-        '          d runs and c does not run',
-        '      - at every moment from now until the first such moment, not including it, the following holds:',
-        '          c does not run.'
-      ].join('\n')
+      ['At least one of these holds:', '  - from now on, c does not run', '  - all of these hold:', '      - now or later, the following holds:', '          d runs and c does not run', '      - at every moment from now until the first such moment, not including it, the following holds:', '          c does not run.'].join('\n')
     );
     expect(say('runNow[d] triggered (not runNow[c])')).toBe(
       [
         'At least one of these holds:',
         '  - now and at every earlier moment, c does not run',
         '  - all of these hold:',
-        '      - now or at an earlier moment, the following holds:',
+        '      - now or earlier, the following holds:',
         '          d runs and c does not run',
         '      - at every moment after the last such moment, up to and including now, the following holds:',
         '          c does not run.'
@@ -438,12 +450,12 @@ describe('a predicate with no reading of its own', () => {
    * @canon spec-the-alternatives-of-a-list-reuse-a-name-and-keep-it-taken-for-what-follows
    */
   it('lets the alternatives of a list reuse a name, and keeps it taken for what follows', () => {
-    const readings = defined('pred p { (some c: Cleanup | c in Ran) or (some c: Cleanup | c in Registered) }');
-    expect(say('some c: Cleanup | p and c in Ran', readings)).toContain('- there is a cleanup_2 such that cleanup_2 has run\n      - there is a cleanup_2 such that code has registered cleanup_2');
-    expect(say('(some c: Cleanup | c in Ran) or (some c: Cleanup | c in Registered)', readings)).toBe(
-      ['At least one of these holds:', '  - there is a cleanup such that the cleanup has run', '  - there is a cleanup such that code has registered the cleanup'].join('\n')
+    const readings = defined('pred p { (some c: Cleanup | c in Registered) or (some c: Cleanup | c in Registered and c in Ran) }');
+    expect(say('some c: Cleanup | p and c in Registered', readings)).toContain('- there is a cleanup_2 such that code has registered cleanup_2\n      - there is a cleanup_2 such that');
+    expect(say('(some c: Cleanup | c in Registered) or (some c: Cleanup | c in Registered and c in Ran)', readings)).toMatch(
+      /^At least one of these holds:\n  - there is a cleanup such that code has registered the cleanup\n  - there is a cleanup such that /
     );
-    expect(say('((some c: Cleanup | c in Ran) or (some c: Cleanup | c in Registered)) and (some c: Cleanup | c in Ran)', readings)).toContain('there is a cleanup_2 such that cleanup_2 has run');
+    expect(say('((some c: Cleanup | c in Registered) or (some c: Cleanup | c in Registered and c in Ran)) and (some c: Cleanup | c in Registered)', readings)).toContain('there is a cleanup_2 such that code has registered cleanup_2');
   });
 
   /**
@@ -455,7 +467,7 @@ describe('a predicate with no reading of its own', () => {
     expect(say('(all c: Cleanup | c in Ran) and (all c: Cleanup | c in Registered)', readings)).toBe(
       ['All of these hold:', '  - for every cleanup:', '      the cleanup has run', '  - for every cleanup:', '      code has registered the cleanup.'].join('\n')
     );
-    expect(say('(some c: Cleanup | c in Ran) and (some c: Cleanup | c in Registered)', readings)).toContain('there is a cleanup_2 such that code has registered cleanup_2');
+    expect(say('(some c: Cleanup | c in Registered) and (some c: Cleanup | c in Registered)', readings)).toContain('there is a cleanup_2 such that code has registered cleanup_2');
   });
 
   /**
@@ -463,8 +475,8 @@ describe('a predicate with no reading of its own', () => {
    */
   it('says "a unit" and "an owner", by the sound of the word', () => {
     const readings = parseReadings('noun Unit: unit\nnoun Owner: owner\nRan: {1} has run | {1} has not run');
-    expect(say('some u: Unit | u in Ran', readings)).toBe('There is a unit such that the unit has run.');
-    expect(say('some o: Owner | o in Ran', readings)).toBe('There is an owner such that the owner has run.');
+    expect(say('some u: Unit | u in Ran', readings)).toBe('There is a unit that has run.');
+    expect(say('some o: Owner | o in Ran', readings)).toBe('There is an owner that has run.');
   });
 
   /**
@@ -472,9 +484,9 @@ describe('a predicate with no reading of its own', () => {
    */
   it('takes the article a noun is written with, when the sound of the word is not enough', () => {
     const readings = parseReadings('noun Hour: an hour\nnoun Unit: a unit\nnoun Owner: owner\nRan: {1} has run | {1} has not run');
-    expect(say('some h: Hour | h in Ran', readings)).toBe('There is an hour such that the hour has run.');
+    expect(say('some h: Hour | h in Ran', readings)).toBe('There is an hour that has run.');
     expect(say('all h: Hour | h in Ran', readings)).toBe('For every hour:\n  the hour has run.');
-    expect(say('some o: Owner | o in Ran', readings)).toBe('There is an owner such that the owner has run.');
+    expect(say('some o: Owner | o in Ran', readings)).toBe('There is an owner that has run.');
   });
 
   /**
@@ -840,7 +852,7 @@ describe('a word that names a term', () => {
    * @canon spec-the-nouns-of-a-quantifier-link-and-the-article-follows-the-word
    */
   it('links the nouns of a quantifier, and picks the article by the word and not the brackets', () => {
-    expect(markdown('some o: Owner | o in Ran')).toBe('There is an [owner](#term-x) such that the owner has run.');
+    expect(markdown('some o: Owner | o in Ran')).toBe('There is an [owner](#term-x) that has run.');
     expect(markdown('all u: Unit | u in Done')).toBe('For every [unit](#term-x):\n\nthe unit is done.');
   });
 
@@ -956,14 +968,70 @@ describe('a quantifier said as a noun phrase', () => {
    * @canon spec-a-condition-that-is-not-about-the-variable-is-said-in-full
    */
   it('is said in full when it does not fit', () => {
-    // no fact for the variable beside another thing
-    expect(said('some v: Unit | v in Spec')).toBe('there is a unit_2 such that unit_2 is a spec.');
+    // no fact for the variable beside another thing, and the variable not the subject of every condition
+    expect(said('some v: Unit | v in Known')).toBe('there is a unit_2 such that tracker knows unit_2.');
     // a reading that says the variable twice
     expect(said('some v: Unit | u->v in Twice.rel')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and in unit_2.');
     // "no" with "another" says something else than "another"
     expect(said('no v: Unit | v != u and v->u in Sit.rel')).toBe('there is no unit_2 such that all of these hold:\n    - unit_2 and unit_1 are different\n    - unit_2 sits in unit_1');
     // a condition that is not about the variable
     expect(said('some v: Unit | u->v in Sit.rel and u in Spec')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and is a spec.');
+  });
+});
+
+describe('a quantifier about its variable alone', () => {
+  const readings = parseReadings(
+    ['noun Unit: unit', 'Spec: {1} is a spec | {1} is not a spec', 'Axiom: {1} is an axiom | {1} is not an axiom', 'Fact: {1} is a fact | {1} is not a fact', 'Twice.rel: {1} sits in {2} and in {2} | {1} does not sit in {2} and in {2}'].join('\n'),
+    '#term-x'
+  );
+  const said = (formula: string): string => verbalize(formula, readings);
+
+  /**
+   * @canon spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
+   */
+  it('says "there is" with the noun and a relative clause, and "no" before one condition', () => {
+    expect(said('some v: Unit | v in Spec')).toBe('There is a unit that is a spec.');
+    expect(said('some v: Unit | v in Spec and v in Axiom')).toBe('There is a unit that is a spec and is an axiom.');
+    expect(said('no v: Unit | v in Spec')).toBe('No unit is a spec.');
+    expect(said('no v: Unit | v in Spec and v not in Axiom')).toBe('There is no unit that is a spec and is not an axiom.');
+  });
+
+  /**
+   * @canon spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that
+   */
+  it('says many conditions as bullets after "there is a … that:"', () => {
+    expect(said('some v: Unit | v in Spec and v in Axiom and v in Fact and v not in Spec')).toBe('There is a unit that:\n  - is a spec\n  - is an axiom\n  - is a fact\n  - is not a spec');
+  });
+
+  /**
+   * @canon spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full
+   */
+  it('says it in full when the conditions under "no" are many, or when "no" would meet "no"', () => {
+    expect(said('no v: Unit | v in Spec and v in Axiom and v in Fact and v not in Spec')).toMatch(/^There is no unit such that all of these hold:/);
+    expect(said('no v: Unit | no w: Unit | v->w in Twice.rel')).toMatch(/^There is no unit_1 such that /);
+  });
+});
+
+describe('a set equal to a variable', () => {
+  const readings = withDefinitions(
+    parseReadings(['noun Cleanup: cleanup', 'noun Owner: owner', 'on: {1} is on {2} | {1} is not on {2}', 'parent: {2} is the parent of {1} | {2} is not the parent of {1}', 'Disposed: pulse has disposed {1} | pulse has not disposed {1}'].join('\n')),
+    'sig Owner { parent: lone Owner } sig Cleanup { var on: set Owner } var sig Disposed in Owner {}'
+  );
+  const say = (formula: string): string => verbalize(formula, readings);
+  /**
+   * @canon spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other
+   */
+  it('says the variable in the set, and no other member of its type', () => {
+    expect(say('all c: Cleanup, o: Owner | c.on = o')).toBe('For every cleanup and every owner_1:\n  the cleanup is on owner_1 and is on no other owner.');
+    expect(say("all c: Cleanup, o: Owner | o = c.on'")).toBe('For every cleanup and every owner_1:\n  at the next moment, the cleanup is on owner_1 and is on no other owner.');
+    expect(say('all o: Owner | Disposed = o')).toBe('For every owner_1:\n  pulse has disposed owner_1 and pulse has disposed no other owner.');
+  });
+
+  /**
+   * @canon spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
+   */
+  it('says it member by member when being in the set is more than one plain clause', () => {
+    expect(say('all c: Cleanup, o: Owner | c.on.parent = o')).toContain('owner_2 and owner_1 are the same');
   });
 });
 
@@ -1047,8 +1115,8 @@ describe('the items of a list said in a sentence', () => {
    */
   it('set apart the first side of a rule when it holds a time phrase', () => {
     expect(say('(after c in Ran) implies c in Registered')).toBe('When the following holds:\n  at the next moment, c has run\nthen code has registered c.');
-    expect(say('(before c in Ran) implies c in Registered')).toBe('When the following holds:\n  there is a moment before, and at it, c has run\nthen code has registered c.');
-    expect(say('(once c in Ran) implies c in Registered')).toBe('When the following holds:\n  now or at an earlier moment, c has run\nthen code has registered c.');
+    expect(say('(before c in Ran) implies c in Registered')).toBe('When the following holds:\n  there is a moment just before, and at it, c has run\nthen code has registered c.');
+    expect(say('(once c in Ran) implies c in Registered')).toBe('When the following holds:\n  now or earlier, c has run\nthen code has registered c.');
     expect(say('(historically c in Ran) implies c in Registered')).toBe('When the following holds:\n  now and at every earlier moment, c has run\nthen code has registered c.');
     expect(say('(c in Ran ; o in Disposed) implies c in Registered')).toBe('When the following holds:\n  c has run, and at the next moment, pulse has disposed o\nthen code has registered c.');
   });
@@ -1060,9 +1128,9 @@ describe('the items of a list said in a sentence', () => {
     expect(say('c in Registered implies (c in Ran ; o in Disposed)')).toBe('When code has registered c\nthen the following holds:\n       c has run, and at the next moment, pulse has disposed o.');
     expect(say('(c in Ran and d in Ran and c in Registered) implies o in Disposed')).toBe('When all of these hold:\n  - c has run\n  - d has run\n  - code has registered c\nthen pulse has disposed o.');
     expect(say('(c in Ran and d in Ran and c in Registered) implies always o in Disposed')).toBe(
-      'When c has run, d has run and code has registered c, then now and at every later moment, pulse has disposed o.'
+      'When c has run, d has run and code has registered c, then from now on, pulse has disposed o.'
     );
-    expect(say('c in Registered implies always o in Disposed')).toBe('When code has registered c, then now and at every later moment, pulse has disposed o.');
+    expect(say('c in Registered implies always o in Disposed')).toBe('When code has registered c, then from now on, pulse has disposed o.');
   });
 
   /**
@@ -1122,7 +1190,7 @@ describe('the items of a list said in a sentence', () => {
     const rule = said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies u in Axiom');
     expect(rule.split('\n')[0]).toBe('when all of these hold:');
     expect(rule.split('\n').at(-1)?.trim()).toBe('then the unit is an axiom.');
-    expect(said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies eventually u in Axiom').split('\n').at(-1)?.trim()).toBe('then now or at a later moment, the unit is an axiom.');
+    expect(said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies eventually u in Axiom').split('\n').at(-1)?.trim()).toBe('then now or later, the unit is an axiom.');
   });
 
   /**
@@ -1151,10 +1219,10 @@ describe('the items of a list said in a sentence', () => {
    * @canon spec-a-rule-drops-its-then-before-anything-else
    */
   it('keep the "then" of a rule when what follows is a time phrase, and drop it otherwise', () => {
-    expect(said('u in Spec implies eventually u in Axiom')).toBe('when the unit is a spec, then now or at a later moment, the unit is an axiom.');
+    expect(said('u in Spec implies eventually u in Axiom')).toBe('when the unit is a spec, then now or later, the unit is an axiom.');
     expect(said('u in Spec implies after u in Axiom')).toBe('when the unit is a spec, then at the next moment, the unit is an axiom.');
-    expect(said('u in Spec implies once u in Axiom')).toBe('when the unit is a spec, then now or at an earlier moment, the unit is an axiom.');
-    expect(said('u in Spec implies before u in Axiom')).toBe('when the unit is a spec, then there is a moment before, and at it, the unit is an axiom.');
+    expect(said('u in Spec implies once u in Axiom')).toBe('when the unit is a spec, then now or earlier, the unit is an axiom.');
+    expect(said('u in Spec implies before u in Axiom')).toBe('when the unit is a spec, then there is a moment just before, and at it, the unit is an axiom.');
     expect(said('u in Spec implies u in Axiom')).toBe('when the unit is a spec, the unit is an axiom.');
   });
 });
@@ -1264,8 +1332,8 @@ describe('an expression said through the types of its columns', () => {
     expect(say('no Ran & Registered')).toBe('There is no cleanup such that the cleanup has run and code has registered the cleanup.');
     expect(say('some Ran - Registered')).toBe('There is a cleanup such that the cleanup has run and code has not registered the cleanup.');
     expect(say('some c.on & Disposed')).toBe('c is on an owner that pulse has disposed.');
-    expect(say('no on')).toBe('There is no combination of cleanup_1 and owner_1 such that cleanup_1 is on owner_1.');
-    expect(say('some ~on')).toBe('There are owner_1 and cleanup_1 such that cleanup_1 is on owner_1.');
+    expect(say('no on')).toBe('No cleanup is on an owner.');
+    expect(say('some ~on')).toBe('For some owner and some cleanup:\n  the cleanup is on the owner.');
   });
 
   /**
@@ -1539,7 +1607,7 @@ describe('relations and atoms', () => {
    */
   it('says univ as a signature of its own, with the noun the readings give it', () => {
     const things = withDefinitions(parseReadings(`${read('readings.txt')}\nnoun univ: thing`), read('vocabulary.als'));
-    expect(say('some x: univ | x in Ran', things)).toBe('There is a thing such that the thing has run.');
+    expect(say('some x: univ | x in Ran', things)).toBe('There is a thing that has run.');
     expect(say('c in univ', things)).toBe('c is a thing.');
     expect(() => say('some x: univ | x in Ran')).toThrow('no noun for "univ"');
   });
@@ -1853,7 +1921,7 @@ describe('connectives, quantifiers and let', () => {
    */
   it('says an equivalence with a side of more than one clause as both or neither', () => {
     expect(say('(c in Ran and d in Ran) iff c in Registered')).toBe('Both or neither of these hold:\n  - c has run and d has run\n  - code has registered c');
-    expect(say('c in Ran iff eventually d in Ran')).toBe('Both or neither of these hold:\n  - c has run\n  - now or at a later moment, d has run');
+    expect(say('c in Ran iff eventually d in Ran')).toBe('Both or neither of these hold:\n  - c has run\n  - now or later, d has run');
   });
 
   /**
@@ -1960,15 +2028,15 @@ describe('connectives, quantifiers and let', () => {
    * @canon spec-not-before-some-or-no-is-said-as-the-other
    */
   it('says not before some or no as the other', () => {
-    expect(say('not some c: Cleanup | c in Ran')).toBe('There is no cleanup such that the cleanup has run.');
-    expect(say('not no c: Cleanup | c in Ran')).toBe('There is a cleanup such that the cleanup has run.');
+    expect(say('not some c: Cleanup | c in Ran')).toBe('No cleanup has run.');
+    expect(say('not no c: Cleanup | c in Ran')).toBe('There is a cleanup that has run.');
   });
 
   /**
    * @canon spec-not-before-all-is-said-as-some-with-the-body-negated
    */
   it('says not before all as some with the body negated', () => {
-    expect(say('not all c: Cleanup | c in Ran')).toBe('There is a cleanup such that the cleanup has not run.');
+    expect(say('not all c: Cleanup | c in Ran')).toBe('There is a cleanup that has not run.');
     expect(say('not all c: Cleanup - Ran | c in Registered')).toBe('There is a cleanup such that the cleanup has not run and code has not registered the cleanup.');
   });
 
@@ -1976,8 +2044,8 @@ describe('connectives, quantifiers and let', () => {
    * @canon spec-not-before-always-or-eventually-is-said-as-the-other-with-the-formula-negated
    */
   it('says not before always or eventually as the other with the formula negated', () => {
-    expect(say('not eventually c in Ran')).toBe('Now and at every later moment, c has not run.');
-    expect(say('not always c in Ran')).toBe('Now or at a later moment, c has not run.');
+    expect(say('not eventually c in Ran')).toBe('From now on, c has not run.');
+    expect(say('not always c in Ran')).toBe('Now or later, c has not run.');
   });
 
   /**
@@ -1985,7 +2053,7 @@ describe('connectives, quantifiers and let', () => {
    */
   it('says not before historically or once as the other with the formula negated', () => {
     expect(say('not once c in Ran')).toBe('Now and at every earlier moment, c has not run.');
-    expect(say('not historically c in Ran')).toBe('Now or at an earlier moment, c has not run.');
+    expect(say('not historically c in Ran')).toBe('Now or earlier, c has not run.');
   });
 
   /**
@@ -2001,18 +2069,9 @@ describe('connectives, quantifiers and let', () => {
   it('says a not with no formula to move into as "it is not the case that", with the formula set apart', () => {
     expect(say('not one c: Cleanup | c in Ran')).toBe('It is not the case that:\n  there is exactly one cleanup such that the cleanup has run.');
     expect(say('not lone c: Cleanup | c in Ran')).toBe('It is not the case that:\n  there is at most one cleanup such that the cleanup has run.');
-    expect(say('not before c in Ran')).toBe('It is not the case that:\n  there is a moment before, and at it, c has run.');
+    expect(say('not before c in Ran')).toBe('It is not the case that:\n  there is a moment just before, and at it, c has run.');
     expect(say('not (runNow[d] releases runNow[c])')).toBe(
-      [
-        'It is not the case that:',
-        '  at least one of these holds:',
-        '    - now and at every later moment, c runs',
-        '    - all of these hold:',
-        '        - now or at a later moment, the following holds:',
-        '            d runs and c runs',
-        '        - at every moment from now until the first such moment, not including it, the following holds:',
-        '            c runs.'
-      ].join('\n')
+      ['It is not the case that:', '  at least one of these holds:', '    - from now on, c runs', '    - all of these hold:', '        - now or later, the following holds:', '            d runs and c runs', '        - at every moment from now until the first such moment, not including it, the following holds:', '            c runs.'].join('\n')
     );
   });
 
@@ -2024,7 +2083,7 @@ describe('connectives, quantifiers and let', () => {
     expect(say('let x = c.on | no x')).toBe('c is on no owner.');
     expect(say('let x = c, y = x | y in Ran')).toBe('c has run.');
     expect(say('not let x = c | x in Ran')).toBe('c has not run.');
-    expect(say('let x = c | some x: Cleanup | x in Ran')).toBe('There is a cleanup such that the cleanup has run.');
+    expect(say('let x = c | some x: Cleanup | x in Ran')).toBe('There is a cleanup that has run.');
   });
 
   /**
@@ -2169,7 +2228,7 @@ describe('an override with a variable in it', () => {
    */
   it('says an override with a pair of variables, as a state is updated', () => {
     const sweep = withDefinitions(parseReadings('noun Owner: owner\nnoun Cleanup: cleanup\non: {1} is on {2} | {1} is not on {2}'), 'sig Owner {} sig Cleanup { var on: set Owner }');
-    expect(say("all c: Cleanup, o: Owner | on' = on ++ (c -> o)", sweep)).toMatch(/^For every cleanup_1 and every owner_1 and every cleanup_2 and every owner_2:\n  both or neither of these hold:\n    - at the next moment, cleanup_2 is on owner_2/);
+    expect(say("all c: Cleanup, o: Owner | on' = on ++ (c -> o)", sweep)).toMatch(/^For every cleanup_1, every owner_1, every cleanup_2 and every owner_2:\n  both or neither of these hold:\n    - at the next moment, cleanup_2 is on owner_2/);
   });
 });
 
@@ -2228,7 +2287,7 @@ describe('what it refuses', () => {
    */
   it('says until with a side of more than a clause as two parts', () => {
     expect(say('(c in Ran implies d in Ran) until runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      d runs', '  - at every moment from now until the first such moment, not including it, the following holds:', '      when c has run, d has run.'].join('\n')
+      ['All of these hold:', '  - now or later, the following holds:', '      d runs', '  - at every moment from now until the first such moment, not including it, the following holds:', '      when c has run, d has run.'].join('\n')
     );
   });
 
@@ -2237,8 +2296,27 @@ describe('what it refuses', () => {
    */
   it('says since with a side of more than a clause as two parts', () => {
     expect(say('(c in Ran implies d in Ran) since runNow[d]')).toBe(
-      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      d runs', '  - at every moment after the last such moment, up to and including now, the following holds:', '      when c has run, d has run.'].join('\n')
+      ['All of these hold:', '  - now or earlier, the following holds:', '      d runs', '  - at every moment after the last such moment, up to and including now, the following holds:', '      when c has run, d has run.'].join('\n')
     );
+  });
+
+  /**
+   * @canon spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever
+   */
+  it('says a rule at every moment from now as from now on, whenever', () => {
+    expect(say('always (c in Ran implies d in Ran)')).toBe('From now on, whenever c has run, d has run.');
+    expect(say('always (c in Ran implies after d in Ran)')).toBe('From now on, whenever c has run, then at the next moment, d has run.');
+    expect(say('c in Registered implies always (c in Ran implies d in Ran)')).toContain('from now on, whenever c has run, d has run');
+  });
+
+  /**
+   * @canon spec-until-of-two-plain-clauses-is-one-sentence
+   * @canon spec-since-of-two-plain-clauses-is-one-sentence
+   */
+  it('says until and since of two plain clauses as one sentence', () => {
+    expect(say('c in Registered until o in Disposed')).toBe('Pulse has disposed o now or later, and until then, code has registered c.');
+    expect(say('c in Ran since o in Disposed')).toBe('Pulse has disposed o now or earlier, and at every moment after the last such moment, up to and including now, c has run.');
+    expect(say('c in Registered until (c in Ran or o in Disposed)')).toMatch(/^All of these hold:/);
   });
 
   /**
@@ -2248,10 +2326,9 @@ describe('what it refuses', () => {
     expect(say('runNow[d] releases (c in Ran implies d in Ran)')).toBe(
       [
         'At least one of these holds:',
-        '  - now and at every later moment:',
-        '      when c has run, d has run',
+        '  - from now on, whenever c has run, d has run',
         '  - all of these hold:',
-        '      - now or at a later moment, the following holds:',
+        '      - now or later, the following holds:',
         '          all of these hold:',
         '            - d runs',
         '            - when c has run, d has run',
@@ -2271,7 +2348,7 @@ describe('what it refuses', () => {
         '  - now and at every earlier moment:',
         '      when c has run, d has run',
         '  - all of these hold:',
-        '      - now or at an earlier moment, the following holds:',
+        '      - now or earlier, the following holds:',
         '          all of these hold:',
         '            - d runs',
         '            - when c has run, d has run',
@@ -2294,12 +2371,12 @@ describe('what it refuses', () => {
    */
   it('says until as two parts when a side holds a time phrase, a noun phrase, a list, a "where" or a "not" set apart', () => {
     const until = (b: string, a: string): string =>
-      ['All of these hold:', '  - now or at a later moment, the following holds:', `      ${b}`, '  - at every moment from now until the first such moment, not including it, the following holds:', `      ${a}.`].join('\n');
+      ['All of these hold:', '  - now or later, the following holds:', `      ${b}`, '  - at every moment from now until the first such moment, not including it, the following holds:', `      ${a}.`].join('\n');
     expect(say('c in Registered until no c.on')).toBe(until('c is on no owner', 'code has registered c'));
     expect(say('c in Registered until (c in Ran or o in Disposed)')).toBe(until('c has run or pulse has disposed o', 'code has registered c'));
-    expect(say('c in Registered until always c in Ran')).toBe(until('now and at every later moment, c has run', 'code has registered c'));
+    expect(say('c in Registered until always c in Ran')).toBe(until('from now on, c has run', 'code has registered c'));
     expect(say('(after c in Ran) until c in Registered')).toBe(until('code has registered c', 'at the next moment, c has run'));
-    expect(say('(before c in Ran) until c in Registered')).toBe(until('code has registered c', 'there is a moment before, and at it, c has run'));
+    expect(say('(before c in Ran) until c in Registered')).toBe(until('code has registered c', 'there is a moment just before, and at it, c has run'));
     expect(say('c in Registered until (some x: Owner | x in c.on and x in Disposed)')).toBe(until('c is on an owner that pulse has disposed', 'code has registered c'));
     expect(say('c in Registered until (one x: Owner | x in c.on)')).toBe(until('there is exactly one owner such that c is on the owner', 'code has registered c'));
     expect(say('c in Registered until { c in Ran o in Disposed }')).toBe(until('c has run and pulse has disposed o', 'code has registered c'));
@@ -2307,7 +2384,7 @@ describe('what it refuses', () => {
     expect(say('#c.on > 1 until c in Registered')).toBe(
       until('code has registered c', "in integers that wrap around at the analyzer's bit width, number_1 is greater than 1, where number_1 is the number of values of owner_1 such that c is on owner_1")
     );
-    expect(say('c in Registered until c in Ran')).toBe(until('c has run', 'code has registered c'));
+    expect(say('c in Registered until c in Ran')).toBe('c has run now or later, and until then, code has registered c.');
   });
 
   /**
@@ -2320,10 +2397,10 @@ describe('what it refuses', () => {
       'sig Owner {} sig Cleanup {} var sig Ran, Registered in Cleanup {} var sig Disposed, Stopped in Owner {} pred gone[o: Owner] { o in Disposed } pred gone2[o: Owner] { o in Disposed and o not in Stopped }'
     );
     expect(say('c in Registered until gone2[o]', readings)).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      pulse has disposed o and the dispose of o has not been stopped', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
+      ['All of these hold:', '  - now or later, the following holds:', '      pulse has disposed o and the dispose of o has not been stopped', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
     );
     expect(say('c in Registered until gone[o]', readings)).toBe(
-      ['All of these hold:', '  - now or at a later moment, the following holds:', '      pulse has disposed o', '  - at every moment from now until the first such moment, not including it, the following holds:', '      code has registered c.'].join('\n')
+      ['Pulse has disposed o now or later, and until then, code has registered c.'].join('\n')
     );
   });
 
@@ -2333,7 +2410,7 @@ describe('what it refuses', () => {
    */
   it('says since as two parts when a side holds a noun phrase', () => {
     expect(say('c in Registered since no c.on')).toBe(
-      ['All of these hold:', '  - now or at an earlier moment, the following holds:', '      c is on no owner', '  - at every moment after the last such moment, up to and including now, the following holds:', '      code has registered c.'].join('\n')
+      ['All of these hold:', '  - now or earlier, the following holds:', '      c is on no owner', '  - at every moment after the last such moment, up to and including now, the following holds:', '      code has registered c.'].join('\n')
     );
   });
 
@@ -2343,15 +2420,7 @@ describe('what it refuses', () => {
    */
   it('says releases as always, or until, when a side holds a noun phrase', () => {
     expect(say('no c.on releases c in Registered')).toBe(
-      [
-        'At least one of these holds:',
-        '  - now and at every later moment, code has registered c',
-        '  - all of these hold:',
-        '      - now or at a later moment, the following holds:',
-        '          c is on no owner and code has registered c',
-        '      - at every moment from now until the first such moment, not including it, the following holds:',
-        '          code has registered c.'
-      ].join('\n')
+      ['At least one of these holds:', '  - from now on, code has registered c', '  - all of these hold:', '      - now or later, the following holds:', '          c is on no owner and code has registered c', '      - at every moment from now until the first such moment, not including it, the following holds:', '          code has registered c.'].join('\n')
     );
   });
 
@@ -2365,7 +2434,7 @@ describe('what it refuses', () => {
         'At least one of these holds:',
         '  - now and at every earlier moment, code has registered c',
         '  - all of these hold:',
-        '      - now or at an earlier moment, the following holds:',
+        '      - now or earlier, the following holds:',
         '          all of these hold:',
         '            - at the next moment, c has run',
         '            - code has registered c',

@@ -25,16 +25,16 @@ const COMPARED: Record<string, string> = {
 };
 
 const MOMENT: Record<string, string> = {
-  always: 'now and at every later moment',
-  eventually: 'now or at a later moment',
+  always: 'from now on',
+  eventually: 'now or later',
   after: 'at the next moment',
-  before: 'there is a moment before, and at it',
-  once: 'now or at an earlier moment',
+  before: 'there is a moment just before, and at it',
+  once: 'now or earlier',
   historically: 'now and at every earlier moment'
 };
 
 /** What a sentence becomes before it is laid out: a clause, a list that ends in a colon, a block, or a rule. */
-export type Doc = string | { kind: 'list'; intro: string; items: Doc[] } | { kind: 'block'; intro: string; body: Doc } | { kind: 'rule'; when: Doc; then: Doc; otherwise?: Doc };
+export type Doc = string | { kind: 'list'; intro: string; items: Doc[] } | { kind: 'block'; intro: string; body: Doc } | { kind: 'rule'; when: Doc; then: Doc; otherwise?: Doc; lead?: string };
 
 const isList = (doc: Doc): doc is Extract<Doc, { kind: 'list' }> => typeof doc !== 'string' && doc.kind === 'list';
 
@@ -166,7 +166,7 @@ export class Printer {
         suffix = ` that ${negations ? 'is not ' : ''}${coordinate(negations ? rests.map(rest => rest.slice('is not '.length)) : rests, negations ? 'or' : 'and')}`;
       } else suffix = ` that ${(parts[0] as string).slice(0, -hole.length).trim()}`;
     }
-    if (np.det === 'no') return `no ${noun}${suffix}`;
+    if (np.det === 'no') return `no ${np.other === undefined ? '' : 'other '}${noun}${suffix}`;
     if (np.other === undefined) return `${this.article(np.v.type)}${noun}${suffix}`;
     if (np.other.t === 'var' && np.other.v.type === np.v.type) return `another ${noun}${suffix}`;
     return `${this.article(np.v.type)}${noun} other than ${this.term(np.other)}${suffix}`;
@@ -333,6 +333,12 @@ export class Printer {
       case 'quant':
         return this.quantified(s);
       case 'moment': {
+        // "from now on, whenever a, b": the rule's own "when" takes the time phrase.
+        if (s.op === 'always' && s.body.t === 'rule' && s.body.whenever === true) {
+          const rule = this.rule(s.body);
+          if (typeof rule === 'string') return `from now on, whenever ${rule.slice('when '.length)}`;
+          if (rule.kind === 'rule') return { ...rule, lead: 'from now on, whenever' };
+        }
         const body = this.sentence(s.body);
         if (s.inline !== true) return this.apart(`${MOMENT[s.op]}:`, body);
         // In front of the words it covers: "at the next moment, c has run", or of the line that opens them.
@@ -342,10 +348,14 @@ export class Printer {
       }
       case 'until':
       case 'since': {
+        if (s.sentence === true) {
+          const [a, b] = [this.sentence(s.a) as string, this.sentence(s.b) as string];
+          return s.t === 'until' ? `${b} now or later, and until then, ${a}` : `${b} now or earlier, and at every moment after the last such moment, up to and including now, ${a}`;
+        }
         const [first, second] =
           s.t === 'until'
-            ? ['now or at a later moment, the following holds:', 'at every moment from now until the first such moment, not including it, the following holds:']
-            : ['now or at an earlier moment, the following holds:', 'at every moment after the last such moment, up to and including now, the following holds:'];
+            ? ['now or later, the following holds:', 'at every moment from now until the first such moment, not including it, the following holds:']
+            : ['now or earlier, the following holds:', 'at every moment after the last such moment, up to and including now, the following holds:'];
         return { kind: 'list', intro: ALL, items: [this.apart(first, this.sentence(s.b)), this.apart(second, this.sentence(s.a))] };
       }
       case 'pair':
@@ -382,7 +392,7 @@ export class Printer {
     // A time phrase in the second side would reach over the "otherwise".
     if (typeof then === 'string' && third !== undefined && holdsTime(then)) then = apart(then);
     // A series in the second or the last side, "a, and at the next moment, b", could end before its last clause.
-    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replaceAll('there is a moment before, and at it, ', ''));
+    const series = (doc: Doc | undefined): boolean => typeof doc === 'string' && /, (?:and|or) /.test(seen(doc).replace(/there is a moment (?:just )?before, and at it, /g, ''));
     if (series(then)) then = apart(then);
     const otherwise = series(third) ? apart(third as Doc) : third;
     return otherwise === undefined ? { kind: 'rule', when, then } : { kind: 'rule', when, then, otherwise };
@@ -393,8 +403,10 @@ export class Printer {
     const empty = s.body.t === 'and' && s.body.items.length === 0;
     if (s.q === 'all') {
       if (empty) throw new Refusal('this formula says nothing: it always holds, so it claims nothing');
-      return this.apart(`for ${shown.map(name => `every ${name}`).join(' and ')}:`, this.sentence(s.body));
+      return this.apart(`for ${coordinate(shown.map(name => `every ${name}`), 'and')}:`, this.sentence(s.body));
     }
+    // Some of several things reads as "for some", the way all reads as "for every": the things, then what holds of them.
+    if (s.q === 'some' && s.vars.length > 1 && !empty) return this.apart(`for ${coordinate(shown.map(name => `some ${name}`), 'and')}:`, this.sentence(s.body));
     const one = s.vars.length === 1;
     const count = { some: '', no: 'no ', one: 'exactly one ', lone: 'at most one ' }[s.q];
     const article = s.q === 'some' ? (one ? this.article((s.vars[0] as Var).type) : '') : count;
@@ -404,6 +416,19 @@ export class Printer {
       if (!one) throw new Error('naturalloy has no words for several things with no condition');
       // "there is an owner": the noun alone, in place of the name, where nothing more is said of it.
       return `there is ${s.q === 'some' ? this.article((s.vars[0] as Var).type) : count}${this.noun((s.vars[0] as Var).type)}`;
+    }
+    // "there is a unit that is a spec", "no unit is a spec", or bullets after "there is a unit that:": the conditions
+    // said without their subject, the variable, which the noun names.
+    if (s.subject !== undefined && one) {
+      const v = s.vars[0] as Var;
+      const noun = this.noun(v.type);
+      const hole = `${VARIABLE}\u0003${VARIABLE}`;
+      this.names.set(v.id, '\u0003');
+      const rests = (s.body.t === 'and' ? s.body.items : [s.body]).map(part => (this.sentence(part) as string).slice(hole.length).trim());
+      this.names.delete(v.id);
+      if (s.subject === 'list') return { kind: 'list', intro: `there is ${this.article(v.type)}${noun} that:`, items: rests };
+      if (s.q === 'no' && rests.length === 1) return `no ${noun} ${rests[0] as string}`;
+      return `there is ${s.q === 'no' ? 'no ' : this.article(v.type)}${noun} that ${coordinate(rests, 'and')}`;
     }
     const body = this.sentence(s.body);
     if (typeof body === 'string') return `${head} such that ${body}`;
@@ -462,7 +487,7 @@ export class Printer {
       else if (isList(body)) sentence = { ...body, intro: `${head} exactly when ${body.intro}` };
       else sentence = this.apart(`${head} exactly when the following holds:`, body);
     }
-    return shown.length === 0 ? sentence : this.apart(`for ${shown.map(name => `every ${name}`).join(' and ')}:`, sentence);
+    return shown.length === 0 ? sentence : this.apart(`for ${coordinate(shown.map(name => `every ${name}`), 'and')}:`, sentence);
   }
 }
 
@@ -482,7 +507,7 @@ function lines(doc: Doc): string[] {
   const [when, then] = [lines(doc.when), lines(doc.then)];
   const otherwise = doc.otherwise === undefined ? undefined : lines(doc.otherwise);
   return [
-    `when ${when[0]}`,
+    `${doc.lead ?? 'when'} ${when[0]}`,
     ...when.slice(1),
     `then ${then[0]}`,
     ...then.slice(1).map(line => `     ${line}`),
@@ -504,7 +529,7 @@ function markdownLines(doc: Doc): string[] {
   const [when, then] = [markdownLines(doc.when), markdownLines(doc.then)];
   const otherwise = doc.otherwise === undefined ? undefined : markdownLines(doc.otherwise);
   return [
-    `when ${when[0]}${when.length === 1 ? ',' : ''}`,
+    `${doc.lead ?? 'when'} ${when[0]}${when.length === 1 ? ',' : ''}`,
     ...when.slice(1),
     '',
     `then ${then[0]}`,

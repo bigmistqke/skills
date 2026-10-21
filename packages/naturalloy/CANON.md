@@ -58,6 +58,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-refusal-is-told-apart-from-a-fault`](#spec-a-refusal-is-told-apart-from-a-fault) — The verbalizer refuses a formula only with a `Refusal`, and anything else it throws is a fault of the verbalizer.
   - [`@spec a-rewrite-means-what-the-formula-it-replaces-means`](#spec-a-rewrite-means-what-the-formula-it-replaces-means) — Where the verbalizer says a formula through another, the two hold at the same moments, for every value of their free variables.
   - [`@spec a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable`](#spec-a-quantifier-is-said-with-the-noun-of-its-type-for-each-variable) — The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
+  - [`@spec three-things-a-for-every-names-are-a-list`](#spec-three-things-a-for-every-names-are-a-list) — When "for every" or "for some" names three things or more, the verbalizer lists them: "for every cleanup, every owner_1 and every owner_2".
+  - [`@spec some-of-several-things-is-said-as-for-some`](#spec-some-of-several-things-is-said-as-for-some) — The verbalizer says `some` over several variables as "for some" each of them, followed by what holds of them, the way it says `all` as "for every".
   - [`@spec a-for-every-right-inside-a-for-every-is-one-for-every`](#spec-a-for-every-right-inside-a-for-every-is-one-for-every) — The verbalizer says a "for every" whose formula is another "for every" as one, with the variables of both: "for every cleanup and every owner".
   - [`@spec a-variable-is-named-after-its-noun-and-its-number`](#spec-a-variable-is-named-after-its-noun-and-its-number) — Where a variable needs a number, the verbalizer names it after its noun and its number among the variables of that noun.
   - [`@spec a-variable-alone-of-its-noun-is-named-the-noun`](#spec-a-variable-alone-of-its-noun-is-named-the-noun) — The verbalizer names a variable "the" and its noun, with no number, when a quantifier says it first. No other variable may have its noun, and no other word of the statement may say that noun.
@@ -125,7 +127,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec sides-that-alloy-does-not-compare-are-refused`](#spec-sides-that-alloy-does-not-compare-are-refused) — The verbalizer refuses a comparison of sides that hold tuples of different sizes, or things of types that share no member.
   - [`@spec an-equality-with-a-side-of-unknown-type-is-refused`](#spec-an-equality-with-a-side-of-unknown-type-is-refused) — The verbalizer refuses `=` or `!=` between two sets when the vocabulary does not tell the type of a side that is not a variable.
   - [`@spec a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading`](#spec-a-field-of-one-value-equal-to-a-variable-is-said-with-its-reading) — The verbalizer says `x.f = y` and `x.f != y`, for a field `f` that the vocabulary declares `one` or `lone`, with the reading of the field.
-  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+  - [`@spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member`](#spec-a-field-of-many-values-equal-to-a-variable-is-said-member-by-member) — Take a field `f` that can hold more than one value, where its reading with `y` is more than one plain clause. The verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+  - [`@spec a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other`](#spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other) — Take a variable `x`, and a set or a field of many values `s`, where being in `s` is one plain clause. The verbalizer says `s = x` as `x` in `s` "and" no other member of its type in `s`: "the cleanup is on owner_1 and is on no other owner". The second half drops a subject the two share.
   - [`@spec two-values-that-are-equal-are-said-member-by-member`](#spec-two-values-that-are-equal-are-said-member-by-member) — The verbalizer says `y.f = z.g` as "for every" member of the type of `f`, the reading of `f` "exactly when" the reading of `g`. When one side is primed, it says that side "at the next moment" and the other "now". It says `y.f != z.g` as the negation of that.
   - [`@spec an-expression-is-said-through-the-types-of-its-columns`](#spec-an-expression-is-said-through-the-types-of-its-columns) — The verbalizer says a formula about an expression through members of the types of its columns. This holds for an expression that is more than a set or a navigation of a variable.
     - [`@spec a-union-on-the-right-is-said-as-or`](#spec-a-union-on-the-right-is-said-as-or) — The verbalizer says `x in a + b`, for a variable or a pair `x`, as `x in a` or `x in b`.
@@ -183,20 +186,23 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec an-else-is-said-as-otherwise`](#spec-an-else-is-said-as-otherwise) — The verbalizer says `c implies a else b` as the rule "when" `c`, `a`, with "otherwise" before `b`.
   - [`@spec a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words`](#spec-a-sentence-starts-with-a-capital-only-where-it-starts-with-its-own-words) — A statement begins with a capital where it begins with its own words, and with the name unchanged where it begins with a name.
   - [`@spec two-variables-are-said-to-be-different-or-the-same`](#spec-two-variables-are-said-to-be-different-or-the-same) — The verbalizer says a comparison of two variables as "different" or "the same".
-  - [`@spec eventually-is-said-as-now-or-at-a-later-moment`](#spec-eventually-is-said-as-now-or-at-a-later-moment) — The verbalizer says `eventually` as "now or at a later moment".
+  - [`@spec eventually-is-said-as-now-or-later`](#spec-eventually-is-said-as-now-or-later) — The verbalizer says `eventually` as "now or later".
   - [`@spec after-is-said-as-at-the-next-moment`](#spec-after-is-said-as-at-the-next-moment) — The verbalizer says `after` as "at the next moment".
-  - [`@spec always-is-said-as-now-and-at-every-later-moment`](#spec-always-is-said-as-now-and-at-every-later-moment) — The verbalizer says `always` as "now and at every later moment".
-  - [`@spec before-is-said-as-there-is-a-moment-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-before-and-at-it) — The verbalizer says `before` as `there is a moment before, and at it`.
-  - [`@spec once-is-said-as-now-or-at-an-earlier-moment`](#spec-once-is-said-as-now-or-at-an-earlier-moment) — The verbalizer says `once` as "now or at an earlier moment".
+  - [`@spec always-is-said-as-from-now-on`](#spec-always-is-said-as-from-now-on) — The verbalizer says `always` as "from now on", unless what it covers is a rule.
+  - [`@spec a-rule-at-every-later-moment-is-said-from-now-on-whenever`](#spec-a-rule-at-every-later-moment-is-said-from-now-on-whenever) — The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
+  - [`@spec before-is-said-as-there-is-a-moment-just-before-and-at-it`](#spec-before-is-said-as-there-is-a-moment-just-before-and-at-it) — The verbalizer says `before` as `there is a moment just before, and at it`.
+  - [`@spec once-is-said-as-now-or-earlier`](#spec-once-is-said-as-now-or-earlier) — The verbalizer says `once` as "now or earlier".
   - [`@spec historically-is-said-as-now-and-at-every-earlier-moment`](#spec-historically-is-said-as-now-and-at-every-earlier-moment) — The verbalizer says `historically` as "now and at every earlier moment".
   - [`@spec a-sequence-is-said-as-and-at-the-next-moment`](#spec-a-sequence-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b` as "a, and at the next moment, b".
   - [`@spec a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart`](#spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart) — Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
   - [`@spec an-and-or-an-or-below-a-time-phrase-is-a-list`](#spec-an-and-or-an-or-below-a-time-phrase-is-a-list) — The verbalizer says an "and" or an "or" that a time phrase covers as a list below it, and never as one sentence after it.
   - [`@spec the-spellings-of-not-in-and-not-equal-are-said-alike`](#spec-the-spellings-of-not-in-and-not-equal-are-said-alike) — The verbalizer says `!in`, `! in`, `not =` and `! =` as it says `not in` and `!=`.
   - [`@spec text-that-alloy-does-not-read-is-refused`](#spec-text-that-alloy-does-not-read-is-refused) — The verbalizer refuses a formula that Alloy does not read, such as `a == b`, with the reason the parser gives.
-  - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
-    - [`@spec until-is-said-as-two-parts`](#spec-until-is-said-as-two-parts) — The verbalizer says `a until b` in two parts. First comes `b` "now or at a later moment", then `a` "at every moment from now until the first such moment, not including it".
-    - [`@spec since-is-said-as-two-parts`](#spec-since-is-said-as-two-parts) — The verbalizer says `a since b` in two parts. First comes `b` "now or at an earlier moment", then `a` "at every moment after the last such moment, up to and including now".
+  - [`@spec a-binary-temporal-operator-is-said-with-its-sides-set-apart`](#spec-a-binary-temporal-operator-is-said-with-its-sides-set-apart) — The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart when either side is more than one plain clause, and each side of `;` that is. It puts them below the words that place them in time.
+    - [`@spec until-is-said-as-two-parts`](#spec-until-is-said-as-two-parts) — When a side is more than one plain clause, the verbalizer says `a until b` in two parts. First comes `b` "now or later", then `a` "at every moment from now until the first such moment, not including it".
+    - [`@spec since-is-said-as-two-parts`](#spec-since-is-said-as-two-parts) — When a side is more than one plain clause, the verbalizer says `a since b` in two parts. First comes `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
+    - [`@spec until-of-two-plain-clauses-is-one-sentence`](#spec-until-of-two-plain-clauses-is-one-sentence) — The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and until then," `a`.
+    - [`@spec since-of-two-plain-clauses-is-one-sentence`](#spec-since-of-two-plain-clauses-is-one-sentence) — Of two plain clauses, the verbalizer says `a since b` as one sentence. It says `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
     - [`@spec releases-is-said-as-always-or-until`](#spec-releases-is-said-as-always-or-until) — The verbalizer says `a releases b` as `always b or (b until (a and b))`.
     - [`@spec triggered-is-said-as-historically-or-since`](#spec-triggered-is-said-as-historically-or-since) — The verbalizer says `a triggered b` as `historically b or (b since (a and b))`.
     - [`@spec a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment`](#spec-a-sequence-with-a-side-of-more-than-a-clause-is-said-as-and-at-the-next-moment) — The verbalizer says `a ; b`, with a side that is more than one plain clause, as `a and after b`.
@@ -292,7 +298,45 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it`](#spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it) — When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
   - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — The verbalizer says variables of different kinds as nested phrases, when the quantifier fits a noun phrase.
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
-  - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) —
+    > For every [quantifier_1](#term-quantifier):
+    >
+    > when all of these hold:
+    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > - at least one of these holds:
+    >   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
+    >   - all of these hold:
+    >     - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+    >     - quantifier_1 is a quantifier under "no"
+    >   - quantifier_1 is a quantifier under "no" with a condition that says "no"
+    >
+    > then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that`](#spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that) —
+    > For every [quantifier_1](#term-quantifier):
+    >
+    > when all of these hold:
+    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > - quantifier_1 is a quantifier whose variable is the subject of the sentence
+    > - quantifier_1 is a quantifier with three conditions or fewer that fit a line
+    > - quantifier_1 is not a quantifier under "no" with a condition that says "no"
+    > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+    >
+    > then the following holds:
+    >
+    > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
+  - [`@spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that`](#spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that) —
+    > For every [quantifier_1](#term-quantifier):
+    >
+    > when all of these hold:
+    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > - quantifier_1 is a quantifier whose variable is the subject of the sentence
+    > - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+    > - quantifier_1 is not a quantifier under "no"
+    > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+    >
+    > then the following holds:
+    >
+    > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
   - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — For every [quantifier_1](#term-quantifier): when the following holds: quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
   - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
@@ -385,7 +429,8 @@ sig Quantifier {}
 sig VariableOnce, AsNounPhrase, VariableSubject, AsSubjectPhrase, VariableWithCondition, RelativeClause in Quantifier {}
 sig OneNegation, SaysAnother, NestsPhrases in Quantifier {}
 sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, TimedCondition, InFull in Quantifier {}
-fact quantifier_wordings { no AsNounPhrase & InFull and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
+sig ThereIsThat, ThereIsThatList, LongConditions, NoUnderNo, UnderNo in Quantifier {}
+fact quantifier_wordings { no AsNounPhrase & InFull and no ThereIsThat & InFull and no ThereIsThatList & InFull and no ThereIsThat & ThereIsThatList and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
 ```
 
 ```readings
@@ -405,14 +450,19 @@ NoWithAnother: {1} is a quantifier that says no variable differs from another an
 ConditionAside: {1} is a quantifier whose condition is not about its variable | {1} is not a quantifier whose condition is not about its variable
 TimedCondition: {1} is a quantifier with several conditions, one of which begins with a time phrase | {1} is not a quantifier with several conditions, one of which begins with a time phrase
 InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and the numbered name | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and the numbered name
+ThereIsThat: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec" | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec"
+ThereIsThatList: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject
+UnderNo: {1} is a quantifier under "no" | {1} is not a quantifier under "no"
+LongConditions: {1} is a quantifier with more than three conditions, or with conditions longer than a line | {1} is a quantifier with three conditions or fewer that fit a line
+NoUnderNo: {1} is a quantifier under "no" with a condition that says "no" | {1} is not a quantifier under "no" with a condition that says "no"
 ```
 
 <!-- statement-scenario-1-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable the sentence says once
-> - quantifier_1 is a quantifier that says no variable differs from another and holds a condition
+> There is a quantifier that:
+> - is a quantifier whose variable the sentence says once
+> - is a quantifier that says no variable differs from another and holds a condition
 <!-- statement-scenario-1-term-quantifier:end -->
 
 ```alloy scenario
@@ -422,9 +472,9 @@ some f: Quantifier | f in VariableOnce and f in NoWithAnother
 <!-- statement-scenario-2-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable is the subject of the sentence
-> - quantifier_1 is a quantifier whose reading says the variable twice
+> There is a quantifier that:
+> - is a quantifier whose variable is the subject of the sentence
+> - is a quantifier whose reading says the variable twice
 <!-- statement-scenario-2-term-quantifier:end -->
 
 ```alloy scenario
@@ -434,9 +484,9 @@ some f: Quantifier | f in VariableSubject and f in VariableTwice
 <!-- statement-scenario-3-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable the sentence says once
-> - quantifier_1 is a quantifier whose condition is not about its variable
+> There is a quantifier that:
+> - is a quantifier whose variable the sentence says once
+> - is a quantifier whose condition is not about its variable
 <!-- statement-scenario-3-term-quantifier:end -->
 
 ```alloy scenario
@@ -446,9 +496,9 @@ some f: Quantifier | f in VariableOnce and f in ConditionAside
 <!-- statement-scenario-4-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier_1 such that all of these hold:
-> - quantifier_1 is a quantifier whose variable has a further condition
-> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> There is a quantifier that:
+> - is a quantifier whose variable has a further condition
+> - is a quantifier with no fact for its variable beside another thing
 <!-- statement-scenario-4-term-quantifier:end -->
 
 ```alloy scenario
@@ -518,9 +568,9 @@ AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternative
 <!-- statement-scenario-1-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition_1 such that all of these hold:
-> - definition_1 is a definition with two alternatives for one kind
-> - definition_1 is a definition with a run of and beside another alternative of its kind
+> There is a definition that:
+> - is a definition with two alternatives for one kind
+> - is a definition with a run of and beside another alternative of its kind
 <!-- statement-scenario-1-term-definition-passage:end -->
 
 ```alloy scenario
@@ -530,9 +580,9 @@ some f: Definition | f in SameKindTwice and f in AmbiguousAnd
 <!-- statement-scenario-2-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition_1 such that all of these hold:
-> - definition_1 is a definition whose alternatives are of one kind
-> - definition_1 is a definition with an alternative that says something about another unit
+> There is a definition that:
+> - is a definition whose alternatives are of one kind
+> - is a definition with an alternative that says something about another unit
 <!-- statement-scenario-2-term-definition-passage:end -->
 
 ```alloy scenario
@@ -542,9 +592,9 @@ some f: Definition | f in OneKind and f in NotAboutSubject
 <!-- statement-scenario-3-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition_1 such that all of these hold:
-> - definition_1 is a definition with an or inside one kind
-> - definition_1 is a definition with an alternative that does not begin with its kind
+> There is a definition that:
+> - is a definition with an or inside one kind
+> - is a definition with an alternative that does not begin with its kind
 <!-- statement-scenario-3-term-definition-passage:end -->
 
 ```alloy scenario
@@ -635,10 +685,10 @@ ThenOwnLine: [verbalizer](#term-verbalizer) says {1} with "then" at the start of
 <!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that all of these hold:
-> - the list has three clauses or fewer
-> - the list has an item that holds a comma
-> - the list has more than two clauses
+> There is a list that:
+> - has three clauses or fewer
+> - has an item that holds a comma
+> - has more than two clauses
 <!-- statement-scenario-1-term-series:end -->
 
 ```alloy scenario
@@ -648,7 +698,7 @@ some f: Series | f in Few and f in CommaItem and f in MoreThanTwo
 <!-- statement-scenario-2-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that the list has three clauses or fewer and is longer than a line when it is put in a sentence.
+> There is a list that has three clauses or fewer and is longer than a line when it is put in a sentence.
 <!-- statement-scenario-2-term-series:end -->
 
 ```alloy scenario
@@ -658,9 +708,9 @@ some f: Series | f in Few and f in TooLong
 <!-- statement-scenario-3-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that all of these hold:
-> - the list has clauses that begin with the same subject
-> - the list has more than three clauses
+> There is a list that:
+> - has clauses that begin with the same subject
+> - has more than three clauses
 <!-- statement-scenario-3-term-series:end -->
 
 ```alloy scenario
@@ -670,7 +720,7 @@ some f: Series | f in SharedSubject and f in Many
 <!-- statement-scenario-4-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that the list has a clause about a pair of variables and has an item that is more than one clause.
+> There is a list that has a clause about a pair of variables and has an item that is more than one clause.
 <!-- statement-scenario-4-term-series:end -->
 
 ```alloy scenario
@@ -680,9 +730,9 @@ some f: Series | f in PairInList and f in NotClause
 <!-- statement-scenario-5-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that all of these hold:
-> - the list is a rule whose second side begins with a time phrase
-> - the list is not a rule whose two sides are each one clause
+> There is a list that:
+> - is a rule whose second side begins with a time phrase
+> - is not a rule whose two sides are each one clause
 <!-- statement-scenario-5-term-series:end -->
 
 ```alloy scenario
@@ -692,7 +742,9 @@ some f: Series | f in TimeSecond and f not in OneLineRule
 <!-- statement-scenario-6-term-series:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a list such that the list is a rule whose two sides are each one clause and is a rule whose first side begins with a time phrase.
+> There is a list that:
+> - is a rule whose two sides are each one clause
+> - is a rule whose first side begins with a time phrase
 <!-- statement-scenario-6-term-series:end -->
 
 ```alloy scenario
@@ -806,6 +858,18 @@ This follows because the words say the formula the verbalizer rewrote to, and no
 > The verbalizer says each variable of a [quantified formula](#term-quantified-formula) once, with the noun of its type.
 
 This follows because the noun tells the reader what kind of thing the variable stands for, and each variable is a thing of its own.
+
+#### @spec three-things-a-for-every-names-are-a-list
+
+> When "for every" or "for some" names three things or more, the verbalizer lists them: "for every cleanup, every owner_1 and every owner_2".
+
+This follows because English lists three things with commas and one "and". A run of "and … and …" reads as speech, and makes the reader count.
+
+#### @spec some-of-several-things-is-said-as-for-some
+
+> The verbalizer says `some` over several variables as "for some" each of them, followed by what holds of them, the way it says `all` as "for every".
+
+This follows because the old form put a plural verb before a single noun, and "such that" is the language of logic. "For some" reads like "for every", which the reader already knows. Over one variable, the old sentence stays, since it reads as English.
 
 #### @spec a-for-every-right-inside-a-for-every-is-one-for-every
 
@@ -1227,9 +1291,15 @@ This follows because a field of at most one value equals `y` exactly when `y` is
 
 #### @spec a-field-of-many-values-equal-to-a-variable-is-said-member-by-member
 
-> For a field `f` that can hold more than one value, the verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
+> Take a field `f` that can hold more than one value, where its reading with `y` is more than one plain clause. The verbalizer says `x.f = y` member by member. For every member of the type of `f`, it says the reading of `f` "exactly when" the member and `y` are the same. It says `x.f != y` as the negation of that.
 
-This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half.
+This follows because a set equals `y` when `y` is in it and nothing else is. The reading of the field says only the first half. Where the reading is one plain clause, [`spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other`](#spec-a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other) says both halves in a sentence.
+
+#### @spec a-set-equal-to-a-variable-is-said-as-the-variable-and-no-other
+
+> Take a variable `x`, and a set or a field of many values `s`, where being in `s` is one plain clause. The verbalizer says `s = x` as `x` in `s` "and" no other member of its type in `s`: "the cleanup is on owner_1 and is on no other owner". The second half drops a subject the two share.
+
+This follows because a set equals `x` when `x` is in it and nothing else is, and the two halves say just that. "No other" alone hints that `x` is in the set, which [`spec-no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) guards against. Here the first half says it, so the hint is true. A plain clause keeps "no other" at the level of the claim. Inside a noun phrase, as in "an owner that no other owner is the parent of", it would cover less.
 
 #### @spec two-values-that-are-equal-are-said-member-by-member
 
@@ -1557,11 +1627,11 @@ This follows because a name from the formula, such as a variable, stays as it is
 
 This follows because the logic compares two things, and the reader should hear that they are two, or one.
 
-#### @spec eventually-is-said-as-now-or-at-a-later-moment
+#### @spec eventually-is-said-as-now-or-later
 
-> The verbalizer says `eventually` as "now or at a later moment".
+> The verbalizer says `eventually` as "now or later".
 
-This follows because eventually includes the present moment, and "someday" would leave it out.
+This follows because eventually includes the present moment, and "someday" or "sooner or later" would leave it out. "Now or later" names both, in the words people use.
 
 #### @spec after-is-said-as-at-the-next-moment
 
@@ -1569,21 +1639,27 @@ This follows because eventually includes the present moment, and "someday" would
 
 This follows because after looks one step ahead and no further.
 
-#### @spec always-is-said-as-now-and-at-every-later-moment
+#### @spec always-is-said-as-from-now-on
 
-> The verbalizer says `always` as "now and at every later moment".
+> The verbalizer says `always` as "from now on", unless what it covers is a rule.
 
-This follows because always holds from the present on. "At every moment" would also reach back to the moments before it, which historically covers.
+This follows because always holds from the present on, the present included. "At every moment" would also reach back to the moments before it, which historically covers.
 
-#### @spec before-is-said-as-there-is-a-moment-before-and-at-it
+#### @spec a-rule-at-every-later-moment-is-said-from-now-on-whenever
 
-> The verbalizer says `before` as `there is a moment before, and at it`.
+> The verbalizer says `always` over a rule as "from now on, whenever" the rule's condition, followed by its consequence.
 
-This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out.
+This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as `always` alone does. So the words still leave the moments before it out.
 
-#### @spec once-is-said-as-now-or-at-an-earlier-moment
+#### @spec before-is-said-as-there-is-a-moment-just-before-and-at-it
 
-> The verbalizer says `once` as "now or at an earlier moment".
+> The verbalizer says `before` as `there is a moment just before, and at it`.
+
+This follows because before looks one step back, and fails at the first moment, which has no moment before it. "At the moment before" would leave that out, and "a moment before" alone would read as any earlier moment, which once covers.
+
+#### @spec once-is-said-as-now-or-earlier
+
+> The verbalizer says `once` as "now or earlier".
 
 This follows because once is eventually turned to the past, and includes the present moment as eventually does.
 
@@ -1603,7 +1679,7 @@ This follows because the semicolon says that the first side holds now and the se
 
 > Before words with a time phrase of their own, the verbalizer ends a time phrase with a colon and sets the words apart below it.
 
-This follows because two time phrases in a row, such as "now and at every later moment, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
+This follows because two time phrases in a row, such as "from now on, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
 
 #### @spec an-and-or-an-or-below-a-time-phrase-is-a-list
 
@@ -1625,21 +1701,33 @@ This follows because a formula the analyzer cannot read claims nothing, so no wo
 
 #### @spec a-binary-temporal-operator-is-said-with-its-sides-set-apart
 
-> The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart, and each side of `;` that is more than one plain clause. It puts them below the words that place them in time.
+> The verbalizer sets each side of `until`, `since`, `releases` and `triggered` apart when either side is more than one plain clause, and each side of `;` that is. It puts them below the words that place them in time.
 
 This follows because each operator bounds a stretch of moments by a moment where a side holds. On one line, the words name that moment as "the first moment where" or "the last moment where". A reader can count such a moment from the start of the run, or past now. Set apart, the moment is "the first such moment" after one counted from now, and the stretch says where it starts and ends. A longer side set apart also shows where it ends.
 
 ##### @spec until-is-said-as-two-parts
 
-> The verbalizer says `a until b` in two parts. First comes `b` "now or at a later moment", then `a` "at every moment from now until the first such moment, not including it".
+> When a side is more than one plain clause, the verbalizer says `a until b` in two parts. First comes `b` "now or later", then `a` "at every moment from now until the first such moment, not including it".
 
 This follows because until claims that `b` comes, now or later, and that `a` holds at every moment before it first does.
 
 ##### @spec since-is-said-as-two-parts
 
-> The verbalizer says `a since b` in two parts. First comes `b` "now or at an earlier moment", then `a` "at every moment after the last such moment, up to and including now".
+> When a side is more than one plain clause, the verbalizer says `a since b` in two parts. First comes `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
 
 This follows because since is until turned to the past.
+
+##### @spec until-of-two-plain-clauses-is-one-sentence
+
+> The verbalizer says `a until b` of two plain clauses as one sentence: `b` "now or later, and until then," `a`.
+
+This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "then" can only be a moment of `b` counted from now. "Until then" stops before that moment, as until does, and readers of every size took it that way.
+
+##### @spec since-of-two-plain-clauses-is-one-sentence
+
+> Of two plain clauses, the verbalizer says `a since b` as one sentence. It says `b` "now or earlier", then `a` "at every moment after the last such moment, up to and including now".
+
+This follows because since is until turned to the past, and the same plain clauses leave its words one reading. "Ever since" would read as covering the moment of `b` too, so the words name the stretch in full.
 
 ##### @spec releases-is-said-as-always-or-until
 
@@ -1663,7 +1751,7 @@ This follows because `a ; b` claims `a` now and `b` at the next moment, which `a
 
 > A side is one plain clause only when the verbalizer says it by one reading with a variable in each of its places. It holds no time phrase, no comma, no noun phrase, no relative clause, no "where" and no "it is not the case that".
 
-This follows because the words cannot mark the reach of any of these inline. After "c is on no owner", "now or at a later moment" could cover the whole side. It could also cover only "is on", which says that c is on no owner at every later moment. After "c has run or pulse has disposed o", it could cover only the last alternative.
+This follows because the words cannot mark the reach of any of these inline. After "c is on no owner", "now or later" could cover the whole side. It could also cover only "is on", which says that c is on no owner at every later moment. After "c has run or pulse has disposed o", it could cover only the last alternative.
 
 #### @spec this-outside-a-definition-of-a-signature-is-refused
 
@@ -2280,13 +2368,68 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
 > For every [quantifier_1](#term-quantifier):
 >
-> when quantifier_1 is a quantifier with no fact for its variable beside another thing, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> when all of these hold:
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> - at least one of these holds:
+>   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
+>   - all of these hold:
+>     - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+>     - quantifier_1 is a quantifier under "no"
+>   - quantifier_1 is a quantifier under "no" with a condition that says "no"
+>
+> then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
-A noun phrase needs another thing in the sentence to hang from. Sometimes the sentence says only a fact about the variable itself, as in "some unit is a spec". Then the phrase has nothing to attach to. So the verbalizer spells the quantifier out in full, with a numbered name.
+A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or when the conditions under "no" are many or long. Nor can it when a condition under "no" says "no".
 
 ```alloy
-all f: Quantifier | f in NothingToAttach implies f in InFull
+all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or (f in LongConditions and f in UnderNo) or f in NoUnderNo)) implies f in InFull
+```
+
+#### @spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
+
+<!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:begin — generated by `canon generate`; edits are overwritten -->
+> For every [quantifier_1](#term-quantifier):
+>
+> when all of these hold:
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> - quantifier_1 is a quantifier whose variable is the subject of the sentence
+> - quantifier_1 is a quantifier with three conditions or fewer that fit a line
+> - quantifier_1 is not a quantifier under "no" with a condition that says "no"
+> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+>
+> then the following holds:
+>
+> [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
+<!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:end -->
+
+"A unit is a spec" reads as a rule about every unit, and "some unit is a spec" has nothing to hang from. So the verbalizer lets `there is` give the phrase a place, with the conditions as one relative clause: `there is a list that has an item with a comma`. Under "no", one condition reads best as `no unit is a spec`, and several keep `there is no` so that "no" covers each. A condition that says "no" itself stays in full, because `no claim takes no lane` is a double negative.
+
+```alloy
+all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in LongConditions and f not in NoUnderNo and f not in NoWithAnother) implies f in ThereIsThat
+```
+
+#### @spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that
+
+<!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:begin — generated by `canon generate`; edits are overwritten -->
+> For every [quantifier_1](#term-quantifier):
+>
+> when all of these hold:
+> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> - quantifier_1 is a quantifier whose variable is the subject of the sentence
+> - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
+> - quantifier_1 is not a quantifier under "no"
+> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+>
+> then the following holds:
+>
+> [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
+<!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:end -->
+
+Conditions too many or too long for one sentence still share their subject. So the sentence opens with `there is a quantifier that:`, and each condition follows as a bullet that goes on from "that". The numbered name and the repeated subject go. Under "no", such bullets could read as each one denied on its own, so "no" keeps the full form.
+
+```alloy
+all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f in LongConditions and f not in UnderNo and f not in NoWithAnother) implies f in ThereIsThatList
 ```
 
 #### @spec no-with-another-is-said-in-full
@@ -2496,7 +2639,7 @@ This follows because "unit_1 and unit_2 are different" is about both, and cannot
 > then [verbalizer](#term-verbalizer) says the list with "then" before the time phrase.
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
-A short rule can stumble on a time phrase. Without "then", it puts two commas in a row: "when this, now or at a later moment, that". With it, the rule reads cleanly. So the [verbalizer](#term-verbalizer) keeps the "then" when both sides are single clauses and only the second opens with a time phrase.
+A short rule can stumble on a time phrase. Without "then", it puts two commas in a row: "when this, now or later, that". With it, the rule reads cleanly. So the [verbalizer](#term-verbalizer) keeps the "then" when both sides are single clauses and only the second opens with a time phrase.
 
 ```alloy
 all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen

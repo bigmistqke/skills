@@ -88,12 +88,14 @@ export type Sentence =
   /** `untrue` marks the negation of a predicate said by its body, which stays whole. */
   /** `whole` marks a negation with no formula to move into, said whole below "it is not the case that". */
   | { t: 'not'; body: Sentence; exactlyOne?: boolean; untrue?: boolean; whole?: boolean }
+  /** `whenever` says a rule right below "from now on" as "from now on, whenever" its condition. */
   | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; oneLine?: boolean; whenever?: boolean }
   | { t: 'iff'; l: Sentence; r: Sentence; inline?: boolean; nextAndNow?: boolean }
   /** `ofSet` marks `some S` or `no S` of a set whose reading takes the member: "an edge is being delivered". */
-  | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence; ofSet?: boolean }
+  | { t: 'quant'; q: Quantifier; vars: Var[]; body: Sentence; ofSet?: boolean; subject?: 'sentence' | 'list' }
   | { t: 'moment'; op: Moment; body: Sentence; inline?: boolean }
-  | { t: 'until' | 'since'; a: Sentence; b: Sentence }
+  /** `sentence` says `until` or `since` of two plain clauses as one sentence. */
+  | { t: 'until' | 'since'; a: Sentence; b: Sentence; sentence?: boolean }
   /**
    * Two things of one kind, each said as a noun phrase in a clause of its own: "unit_1 names a unit and names another
    * unit". It means that there are two different things of the kind, the first of which the first clause says, and the

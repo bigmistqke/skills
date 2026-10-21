@@ -35,8 +35,8 @@ describe('the words of a statement as the unit reads it', () => {
   it('says the statement as the unit reads it, in words from the readings', () => {
     const { src } = write(doc());
     const [unit] = readUnits(src).filter(u => u.id === 'spec-a-leaf');
-    expect(unit?.statement).toContain('Now and at every later moment, for every node:');
-    expect(unit?.statement).toContain('when the node has started, then now or at a later moment, the node is done.');
+    expect(unit?.statement).toContain('From now on, for every node:');
+    expect(unit?.statement).toContain('when the node has started, then now or later, the node is done.');
   });
 });
 

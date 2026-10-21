@@ -169,7 +169,7 @@ export function absorbed(q: 'some' | 'no', v: Var, body: Sentence, context: Cont
   return chosen.next ? { t: 'moment', op: 'after', body: said, inline: true } : said;
 }
 
-export const nounPhrases = everywhere('noun-phrases', 'spec-a-quantifier-said-once-is-a-noun-phrase', (s, context) => {
+export const nounPhrases = everywhere('noun-phrases', 'spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase', (s, context) => {
   if (s.t !== 'quant' || (s.q !== 'some' && s.q !== 'no')) return undefined;
   // Variables of different kinds are said one inside the other: the last innermost, under "some", then the first.
   const [first, ...later] = s.vars as [Var, ...Var[]];

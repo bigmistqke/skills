@@ -49,6 +49,6 @@ export const negationInward = everywhere('negation-inward', 'spec-not-before-a-c
 );
 
 /** `not (a iff b)` said as exactly one of the two holding. */
-export const exactlyOne = everywhere('exactly-one', 'spec-a-negated-equivalence-is-said-as-exactly-one', s =>
+export const exactlyOne = everywhere('exactly-one', 'spec-not-before-an-equivalence-is-said-as-exactly-one-of-its-sides', s =>
   s.t === 'not' && s.body.t === 'iff' && s.exactlyOne !== true ? { ...s, exactlyOne: true } : undefined
 );

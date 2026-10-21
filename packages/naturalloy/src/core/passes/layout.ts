@@ -58,7 +58,7 @@ function inSentence(s: Sentence, context: Context): Sentence | undefined {
 }
 
 /** A time phrase in front of the words it covers: "at the next moment, c has run", "now and at every later moment, for every cleanup:". */
-export const timePhraseInFront = everywhere('time-phrase-in-front', 'spec-a-time-phrase-is-said-in-front-of-what-it-covers', (s, context) => {
+export const timePhraseInFront = everywhere('time-phrase-in-front', 'spec-a-time-phrase-before-words-that-hold-a-time-phrase-sets-them-apart', (s, context) => {
   if (s.t !== 'moment' || s.inline === true) return undefined;
   // A sequence is said "a, and at the next moment, b": it holds a time phrase of its own.
   if (s.body.t === 'and' && s.body.sequence === true) return undefined;
@@ -82,7 +82,7 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
   // On one line, a comma in either side with no "then" between them would read as where the second side starts.
   if (!timed(then) && (holdsOwnComma(then, context.readings) || seen(when).includes(','))) return undefined;
   // A series in a side, "a, and at the next moment, b", could end before its last clause and leave it outside the rule.
-  const series = (words: string): boolean => /, (?:and|or) /.test(seen(words).replaceAll('there is a moment before, and at it, ', ''));
+  const series = (words: string): boolean => /, (?:and|or) /.test(seen(words).replace(/there is a moment (?:just )?before, and at it, /g, ''));
   if (series(then) || (otherwise !== undefined && (series(otherwise) || holdsTime(then)))) return undefined;
   return { ...s, oneLine: true };
 });
@@ -94,7 +94,7 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
  */
 export const exactlyWhen: Pass = {
   name: 'exactly-when',
-  spec: 'spec-an-equivalence-of-a-plain-clause-is-said-with-exactly-when',
+  spec: 'spec-an-equivalence-of-two-clauses-is-said-with-exactly-when',
   run(top, context) {
     const walk = (s: Sentence, aSide: boolean): Sentence => {
       const isSide = s.t === 'rule' || s.t === 'moment' || s.t === 'until' || s.t === 'since' || s.t === 'define';
