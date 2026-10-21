@@ -26,7 +26,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term by-kind`](#term-by-kind) —
   > A [definition](#term-definition-passage) can be said kind by kind exactly when all of these hold:
   > - the definition has no alternative that does not begin with its kind
-  > - the definition has no run of and beside another alternative of its kind
+  > - the definition has no run of "and" beside another alternative of its kind
   > - the definition has no alternative that says something about another unit
   > - the definition does not have two kinds that can share a member
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
@@ -311,7 +311,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec the-options-of-an-or-inside-a-kind-are-one-coordination`](#spec-the-options-of-an-or-inside-a-kind-are-one-coordination) — When a [definition](#term-definition-passage) has an or inside one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one run of clauses joined by commas and or.
   - [`@spec a-definition-with-one-kind-is-one-sentence`](#spec-a-definition-with-one-kind-is-one-sentence) — When the alternatives of a [definition](#term-definition-passage) are of one kind and the definition can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one sentence.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind) — When a [definition](#term-definition-passage) has an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
-  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — When a [definition](#term-definition-passage) has a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — When a [definition](#term-definition-passage) has a run of "and" beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject) — When a [definition](#term-definition-passage) has an alternative that says something about another unit, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member`](#spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member) — When a [definition](#term-definition-passage) has two kinds that can share a member, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
   - [`@spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown`](#spec-a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown) — In the Markdown layout, the verbalizer links a word whose reading a unit holds to that unit.
@@ -576,7 +576,7 @@ OneCoordination: [verbalizer](#term-verbalizer) says {1} as one run of clauses j
 OneKind: the alternatives of {1} are of one kind | the alternatives of {1} are not of one kind
 OneSentenceKind: [verbalizer](#term-verbalizer) says {1} as one sentence | [verbalizer](#term-verbalizer) does not say {1} as one sentence
 NoKindFirst: {1} has an alternative that does not begin with its kind | {1} has no alternative that does not begin with its kind
-AmbiguousAnd: {1} has a run of and beside another alternative of its kind | {1} has no run of and beside another alternative of its kind
+AmbiguousAnd: {1} has a run of "and" beside another alternative of its kind | {1} has no run of "and" beside another alternative of its kind
 NotAboutSubject: {1} has an alternative that says something about another unit | {1} has no alternative that says something about another unit
 KindsShareAMember: {1} has two kinds that can share a member | {1} does not have two kinds that can share a member
 AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternatives as they stand | [verbalizer](#term-verbalizer) does not say {1} as a list of the alternatives as they stand
@@ -587,7 +587,7 @@ AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternative
 >
 > There is a definition that:
 > - has two alternatives for one kind
-> - has a run of and beside another alternative of its kind
+> - has a run of "and" beside another alternative of its kind
 <!-- statement-scenario-1-term-definition-passage:end -->
 
 ```alloy scenario
@@ -621,7 +621,7 @@ some f: Definition | f in OrInsideKind and f in NoKindFirst
 <!-- statement-term-by-kind:begin — generated by `canon generate`; edits are overwritten -->
 > A [definition](#term-definition-passage) can be said kind by kind exactly when all of these hold:
 > - the definition has no alternative that does not begin with its kind
-> - the definition has no run of and beside another alternative of its kind
+> - the definition has no run of "and" beside another alternative of its kind
 > - the definition has no alternative that says something about another unit
 > - the definition does not have two kinds that can share a member
 <!-- statement-term-by-kind:end -->
@@ -2740,7 +2740,7 @@ all f: Definition | f in NoKindFirst implies f in AsItStands
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways
 
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways:begin — generated by `canon generate`; edits are overwritten -->
-> When a [definition](#term-definition-passage) has a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+> When a [definition](#term-definition-passage) has a run of "and" beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways:end -->
 
 Merged into one phrase for their kind, a run of "and" next to another alternative of that kind could join to the wrong one. The reader should not have to guess which. So when a definition has such a run, the verbalizer lists the alternatives as they stand.
