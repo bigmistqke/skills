@@ -1,6 +1,6 @@
 {
   "name": "@bigmistqke/canon-plugin-alloy",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "The Alloy plugin for @bigmistqke/canon: the logic of a canon said in words, and checked by the Alloy analyzer.",
   "license": "MIT",
   "repository": {
@@ -29,7 +29,7 @@
     "@bigmistqke/parse-alloy": "workspace:*"
   },
   "peerDependencies": {
-    "@bigmistqke/canon": "^0.5.0"
+    "@bigmistqke/canon": "^0.6.0"
   },
   "devDependencies": {
     "@bigmistqke/canon": "workspace:*",

@@ -1,6 +1,6 @@
 {
   "name": "@bigmistqke/parse-alloy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A parser for the whole syntax of Alloy 6: Alloy as a string in, a typed AST out, grouped exactly as the Alloy analyzer groups it.",
   "license": "MIT",
   "repository": {
