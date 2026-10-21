@@ -167,7 +167,8 @@ export class Parser {
   private named(name: string): { name: string; v: Var } | undefined {
     const stem = name.replace(/_\d+$/, '').replace(/_/g, ' ');
     const type = this.types.get(stem);
-    return type === undefined ? undefined : { name, v: this.fresh(type) };
+    // "expected failure" is named expected_failure, as "the expected failure" is looked up.
+    return type === undefined ? undefined : { name: name.replace(/ /g, '_'), v: this.fresh(type) };
   }
 
   /** What a term says: a variable in scope, "the noun" of one, a string, a free name, or a noun phrase. */
@@ -266,6 +267,9 @@ export class Parser {
       let all: Term[][] = [[]];
       for (let slot = 1; slot <= arity; slot++) all = all.flatMap(done => this.terms(filled.get(slot) as string, scope).map(term => [...done, term]));
       const form = arity === 0 ? 'some' : this.form(template.key);
+      // A reader takes words two readings share as the one whose things are of the kinds the words name.
+      const columns = this.columnsOf(template.key);
+      all = all.filter(args => columns === undefined || args.every((arg, i) => this.fits(this.typeOfTerm(arg), columns[i])));
       for (const args of all) {
         // "another unit" in a clause that names a unit before it differs from that unit.
         const resolved = args.map((arg, k) => {
@@ -363,6 +367,30 @@ export class Parser {
     return out;
   }
 
+  /**
+   * One kind of a definition by kinds: "unit_1 is a spec that cites no unit and is not a bug" is the kind, said by a
+   * clause, and what else holds of the subject; "… that cites no unit or is not a bug" is one of several options.
+   */
+  private kinds(words: string, scope: Scope): Sentence[] {
+    const out: Sentence[] = [];
+    for (const [kind, rest] of splits(words, ' that ')) {
+      const subject = /^(.+?) is (an? .+)$/.exec(kind);
+      if (subject === null) continue;
+      for (const guard of this.clauses(kind, scope))
+        for (const word of ['and', 'or'] as const)
+          for (const parts of this.series(rest, word)) {
+            let all: Sentence[][] = [[]];
+            for (const part of parts) all = all.flatMap(done => this.clauses(`${subject[1] as string} ${part}`, scope).map(c => [...done, c as Sentence]));
+            for (const said of all) {
+              const others: Sentence[] = word === 'or' && said.length > 1 ? [{ t: 'or', items: said }] : said;
+              if (word === 'or' && said.length === 1) continue;
+              out.push({ t: 'and', items: [guard, ...others] });
+            }
+          }
+    }
+    return out;
+  }
+
   /** The numbers a "where" names: "number_1 is …", each a line or a block. */
   private where(items: Doc[], scope: Scope): Defs[] {
     let all: Map<string, Num[]>[] = [new Map()];
@@ -373,6 +401,49 @@ export class Parser {
       all = all.map(defs => new Map([...defs, [m[1] as string, this.defined(m[2] as string, scope, defs, body).concat(body === undefined ? this.numbers(m[2] as string, scope, defs) : [])]]));
     }
     return all;
+  }
+
+  /** The types each thing a reading takes may be, in the order of its slots, as the vocabulary declares them. */
+  private columnsOf(key: string): (string[] | undefined)[] | undefined {
+    const bare = key.replace(/'$/, '');
+    if (bare.includes('.')) return this.readings.columns?.get(bare);
+    const field = this.readings.fields.get(bare);
+    if (field !== undefined) return [field.owner === undefined ? undefined : [field.owner], [field.type]];
+    const relation = this.readings.relations?.get(bare);
+    if (relation !== undefined) return [[relation.owner], ...relation.columns.map(c => [c])];
+    if (this.readings.holders.has(bare)) return [[bare]];
+    return this.readings.definitions.get(bare)?.types?.map(t => (t === undefined ? undefined : [t]));
+  }
+
+  private typeOfTerm(term: Term): string | undefined {
+    return term.t === 'var' || term.t === 'np' ? term.v.type : term.t === 'string' ? 'String' : undefined;
+  }
+
+  /** The signatures a signature is declared in, itself first. */
+  private above(type: string): string[] {
+    const out = [type];
+    for (let at = this.readings.holders.get(type); at !== undefined && !out.includes(at); at = this.readings.holders.get(at)) out.push(at);
+    return out;
+  }
+
+  /**
+   * Whether a thing of one type can be a thing of the other, as Alloy has it: one is declared in the other, or they
+   * share a signature that one of them reaches through a signature declared `in`, which may share members with any.
+   */
+  private overlap(a: string, b: string): boolean {
+    if (a === b || a === 'univ' || b === 'univ') return true;
+    // A signature with no one signature above it, such as one declared in a union, may share members with any.
+    if (!this.readings.holders.has(a) || !this.readings.holders.has(b)) return true;
+    const [up, other] = [this.above(a), this.above(b)];
+    if (up.includes(b) || other.includes(a)) return true;
+    const common = up.find(t => other.includes(t));
+    if (common === undefined) return false;
+    const below = (chain: string[]): string[] => chain.slice(0, chain.indexOf(common));
+    return [...below(up), ...below(other)].some(t => this.readings.subsets?.has(t) === true);
+  }
+
+  private fits(a: string | undefined, b: string[] | undefined): boolean {
+    return a === undefined || b === undefined || b.some(t => this.overlap(a, t));
   }
 
   /** How a reading's words relate to the formula, by what the vocabulary declares its key to be. */
@@ -418,6 +489,8 @@ export class Parser {
       if (next !== null) for (const ls of this.sentence(next[1] as string, scope)) for (const rs of this.sentence(now?.[1] ?? r, scope)) out.push({ t: 'iff', l: { t: 'moment', op: 'after', body: ls }, r: rs });
     }
     if (words.startsWith('it is not the case that ')) for (const body of this.sentence(words.slice('it is not the case that '.length), scope)) out.push({ t: 'not', body });
+    // A definition by kinds with one kind: "unit_1 is unfounded exactly when unit_1 is a spec that cites no unit".
+    for (const [head, kind] of splits(words, ' exactly when ')) for (const heads of this.clauses(head, scope)) for (const body of this.kinds(kind, scope)) out.push({ t: 'iff', l: heads, r: body });
     out.push(...this.quantifier(words, scope));
     // "a, and at the next moment, b".
     for (const [a, b] of splits(words, ', and ')) if (b.startsWith('at the next moment, ')) for (const as of this.sentence(a, scope)) for (const bs of this.sentence(b, scope)) out.push({ t: 'and', items: [as, bs] });
@@ -467,7 +540,6 @@ export class Parser {
             const args = item.args.map((arg, k) => (arg.t === 'np' && PENDING.has(arg) && arg.other === undefined && (before.args[k] as Term).t !== 'np' ? { ...arg, other: before.args[k] as Term } : arg));
             return { ...item, args };
           });
-          if (JSON.stringify(fixed).includes('"det"') && fixed.some(item => item.t === 'reading' && item.args.some(arg => arg.t === 'np' && PENDING.has(arg)))) continue;
           out.push({ t: word, items: fixed });
         }
       }
@@ -583,6 +655,19 @@ export class Parser {
       if (intro === 'the following holds' || intro === 'it is not the case that') for (const body of one(scope)) out.push(intro === 'the following holds' ? body : { t: 'not', body });
       for (const [phrase, op] of MOMENTS) if (intro === phrase) for (const body of one(scope)) out.push({ t: 'moment', op, body });
     }
+    // A definition: what it names "exactly when" a list, a block, or the kinds the subject is one of.
+    for (const [head, rest] of splits(intro, ' exactly when ')) {
+      const heads = this.clauses(head, scope);
+      if (heads.length === 0) continue;
+      const of = /^(.+) is one of these$/.exec(rest);
+      const bodies: Sentence[] = [];
+      if (of !== null && doc.kind === 'list') {
+        let all: Sentence[][] = [[]];
+        for (const item of doc.items) all = all.flatMap(done => (typeof item === 'string' ? this.kinds(`${of[1] as string} is ${item}`, scope) : []).map(k => [...done, k]));
+        for (const xs of all) bodies.push(xs.length === 1 ? (xs[0] as Sentence) : { t: 'or', items: xs });
+      } else bodies.push(...this.intro(rest, doc, scope));
+      for (const l of heads) for (const r of bodies) out.push({ t: 'iff', l, r });
+    }
     // A comparison with the numbers it names below "where:".
     if (doc.kind === 'list' && intro.endsWith(', where')) for (const defs of this.where(doc.items, scope)) out.push(...this.compare(intro.slice(0, -', where'.length), scope, defs));
     // An intro after a time phrase: "from now on, for every cleanup:".
@@ -633,6 +718,14 @@ function flat(node: unknown): unknown {
   if (node === null || typeof node !== 'object') return node;
   const o = Object.fromEntries(Object.entries(node).map(([k, v]) => [k, flat(v)])) as Record<string, unknown>;
   if ((o.t === 'and' || o.t === 'or') && Array.isArray(o.items)) o.items = (o.items as Record<string, unknown>[]).flatMap(i => (i.t === o.t ? (i.items as unknown[]) : [i]));
+  // "a spec that cites no axiom or cites no fact" says a kind and options of it, which the IR may hold as one alternative
+  // of the kind with an "or" inside, or as an alternative for each option: the same, made one shape.
+  if (o.t === 'or' && Array.isArray(o.items))
+    o.items = (o.items as Record<string, unknown>[]).flatMap(i => {
+      const items = i.items as Record<string, unknown>[] | undefined;
+      const last = items?.at(-1);
+      return i.t === 'and' && items !== undefined && items.length === 2 && last?.t === 'or' ? (last.items as unknown[]).map(x => ({ t: 'and', items: [items[0], x] })) : [i];
+    });
   return o;
 }
 
@@ -653,4 +746,14 @@ export function readBack(words: string, readings: Readings, free: Iterable<strin
 /** The canonical meaning of an IR, as `readBack` gives it. */
 export function meant(s: Sentence, meaning: (s: Sentence) => string): string {
   return canonical(meaning(flat(s) as Sentence));
+}
+
+/**
+ * What the words of a formula or a definition mean, read back, against what the IR the verbalizer said means: each a
+ * canonical meaning, so that they can be compared as text.
+ */
+export interface ReadBack {
+  words: string;
+  meanings: string[];
+  meant: string;
 }

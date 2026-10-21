@@ -69,6 +69,10 @@ export interface Readings {
   variables: Set<string>;
   /** The signature that holds each signature of the vocabulary: the one it is declared `in` or `extends`, or itself when it stands on its own. One declared in several has none. */
   holders: Map<string, string>;
+  /** The signatures declared `in` another, which may share members with any other signature in it. */
+  subsets?: Set<string>;
+  /** The types of the columns of each field of more than one column, by `Sig.field`: each column a type, or the types of a union. */
+  columns?: Map<string, string[][]>;
   /** The functions of the vocabulary. A call of one that has no reading of its own is said by its body. */
   functions: Map<string, Function>;
   /** The macros of the vocabulary, `let m[x] = …`, whose calls are said by their bodies. */
@@ -162,7 +166,12 @@ export function parseRelations(vocabulary: string): Map<string, { owner: string;
     if (sig.t !== 'sig' || sig.names.length !== 1) continue;
     for (const decl of sig.fields) {
       const columns = decl.defined || decl.type.t !== 'arrow' ? undefined : names(decl.type);
-      if (columns !== undefined) for (const name of decl.names) relations.set(name, { owner: sig.names[0] as string, columns });
+      // Keyed by the field, and by the signature and the field, as a reading of `Sig.rel` names it: two signatures may each declare `rel`.
+      if (columns !== undefined)
+        for (const name of decl.names) {
+          relations.set(name, { owner: sig.names[0] as string, columns });
+          relations.set(`${sig.names[0] as string}.${name}`, { owner: sig.names[0] as string, columns });
+        }
     }
   }
   return relations;
@@ -185,6 +194,33 @@ export function parseHolders(vocabulary: string): Map<string, string> {
   return holders;
 }
 
+/** The signatures a module declares `in` another. */
+export function parseSubsets(vocabulary: string): Set<string> {
+  return new Set(parseModule(vocabulary).paragraphs.flatMap(p => (p.t === 'sig' && p.parent?.kind === 'in' ? p.names : [])));
+}
+
+/** The types of the columns of each field of a signature, by `Sig.field`, where each column is a name or a union of names. */
+export function parseColumns(vocabulary: string): Map<string, string[][]> {
+  const out = new Map<string, string[][]>();
+  const union = (n: Node): string[] | undefined => (n.t === 'name' ? [n.name] : n.t === 'union' ? [...(union(n.l) ?? []), ...(union(n.r) ?? [])] : undefined);
+  const columns = (n: Node): string[][] | undefined => {
+    if (n.t === 'arrow') {
+      const [l, r] = [columns(n.l), columns(n.r)];
+      return l === undefined || r === undefined ? undefined : [...l, ...r];
+    }
+    const u = n.t === 'mult' ? union(n.e) : union(n);
+    return u === undefined ? undefined : [u];
+  };
+  for (const sig of parseModule(vocabulary).paragraphs) {
+    if (sig.t !== 'sig') continue;
+    for (const decl of sig.fields) {
+      const c = decl.defined ? undefined : columns(decl.type);
+      if (c !== undefined) for (const owner of sig.names) for (const name of decl.names) out.set(`${owner}.${name}`, c);
+    }
+  }
+  return out;
+}
+
 /**
  * The readings with what a module declares: its predicates, so that one with
  * no reading of its own can be said by its body, its fields and its `var`
@@ -197,6 +233,8 @@ export const withDefinitions = (readings: Readings, vocabulary: string): Reading
   relations: parseRelations(vocabulary),
   variables: parseVariables(vocabulary),
   holders: parseHolders(vocabulary),
+  subsets: parseSubsets(vocabulary),
+  columns: parseColumns(vocabulary),
   functions: parseFunctions(vocabulary),
   macros: parseMacros(vocabulary)
 });

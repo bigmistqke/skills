@@ -9,6 +9,8 @@ import { Lower, read } from './lower.ts';
 import { type Context, optimize, type Pass, type PrintOptions, type Trace } from './pass.ts';
 import { PASSES } from './passes/index.ts';
 import { finish, Printer } from './print.ts';
+import { meaning } from './ir.ts';
+import { meant, type ReadBack, readBack } from './parse.ts';
 
 export interface Options {
   layout?: 'text' | 'markdown';
@@ -103,4 +105,19 @@ export function verbalize(source: string, readings: Readings, layout: 'text' | '
 /** The words for a definition, `pred name[params] { body }`: what it names, exactly when its body holds. */
 export function verbalizeDefinition(source: string, readings: Readings, layout: 'text' | 'markdown' = 'text', self?: string): string {
   return sayDefinition(source, readings, { layout, self, passes: PASSES });
+}
+
+/** A formula or a definition, said with every pass and read back by the reading rules. */
+export function readsBack(source: string, readings: Readings, free: Iterable<string> = []): ReadBack {
+  const lowered = isDefinition(source) ? lowerDefinition(source, readings) : lower(source, readings);
+  const { ir, print: printing } = optimize(lowered, PASSES, context(readings));
+  const words = print(ir, readings, {}, printing);
+  return { words, meanings: readBack(words, readings, free, meaning), meant: meant(defined(ir), meaning) };
+}
+
+/** A definition as the rule it states: for every value of its parameters, what it names exactly when its body holds. */
+function defined(s: Sentence): Sentence {
+  if (s.t !== 'define') return s;
+  const body: Sentence = s.body.t === 'and' && s.body.items.length === 0 ? s.head : { t: 'iff', l: s.head, r: s.body };
+  return s.params.length === 0 ? body : { t: 'quant', q: 'all', vars: s.params, body };
 }

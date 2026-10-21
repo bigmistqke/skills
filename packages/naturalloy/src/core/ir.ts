@@ -141,7 +141,7 @@ class Meaning {
           ...(x.relative === undefined ? [] : [`(${this.sentence(x.relative)})`])
         ];
         around.push(inner => {
-          const body = [...conditions, `(${inner})`].join(' and ');
+          const body = conditions.length === 0 ? inner : [...conditions, `(${inner})`].join(' and ');
           return x.det === 'no' ? `(no ${name}: ${x.v.type} | ${body})` : `(some ${name}: ${x.v.type} | ${body})`;
         });
         return name;
