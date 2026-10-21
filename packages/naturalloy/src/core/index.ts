@@ -6,7 +6,7 @@ import { parseModule } from '@bigmistqke/parse-alloy';
 import { paramsOf, type Readings, Refusal, unqualified, withDifferences } from '../readings.ts';
 import type { Sentence } from './ir.ts';
 import { Lower, read } from './lower.ts';
-import { optimize, type Pass, type Trace } from './pass.ts';
+import { type Context, optimize, type Pass, type PrintOptions, type Trace } from './pass.ts';
 import { finish, Printer } from './print.ts';
 
 export interface Options {
@@ -24,14 +24,30 @@ export function lower(source: string, readings: Readings): Sentence {
   return new Lower(readings).sentence(read(source));
 }
 
+/** What a pass may consult. */
+export function context(readings: Readings): Context {
+  return {
+    readings,
+    words: s => {
+      try {
+        const doc = new Printer(readings).sentence(s);
+        return typeof doc === 'string' ? doc : undefined;
+      } catch {
+        return undefined;
+      }
+    }
+  };
+}
+
 /** The words for a formula. Throws a Refusal that names what cannot be said. */
 export function say(source: string, readings: Readings, options: Options = {}): string {
-  return print(optimize(lower(source, readings), options.passes ?? [], options.off, options.trace), readings, options);
+  const { ir, print: printing } = optimize(lower(source, readings), options.passes ?? [], context(readings), options.off, options.trace);
+  return print(ir, readings, options, printing);
 }
 
 /** The IR as words. */
-export function print(s: Sentence, readings: Readings, options: Options = {}): string {
-  return finish(new Printer(readings).sentence(s), options.layout ?? 'text', options.self);
+export function print(s: Sentence, readings: Readings, options: Options = {}, printing: PrintOptions = { dropLoneNumbers: false }): string {
+  return finish(new Printer(readings).sentence(s), options.layout ?? 'text', options.self, printing);
 }
 
 /** A definition, `pred name[params] { body }` or `fun name[params]: T { e }`, as the IR. */
@@ -59,5 +75,6 @@ export function lowerDefinition(source: string, readings: Readings): Sentence {
 }
 
 export function sayDefinition(source: string, readings: Readings, options: Options = {}): string {
-  return print(optimize(lowerDefinition(source, readings), options.passes ?? [], options.off, options.trace), readings, options);
+  const { ir, print: printing } = optimize(lowerDefinition(source, readings), options.passes ?? [], context(readings), options.off, options.trace);
+  return print(ir, readings, options, printing);
 }

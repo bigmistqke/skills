@@ -8,6 +8,7 @@
  */
 import { type Readings, LINK, LINK_MARK, mark, plain, Refusal, resolveLinks, unbracketed } from '../readings.ts';
 import type { Clause, Num, Sentence, Term, Var } from './ir.ts';
+import type { PrintOptions } from './pass.ts';
 
 /** Marks a variable in the words, so that a sentence is never started with a capital in place of the variable's own letter. */
 const VARIABLE = '\u0001';
@@ -361,13 +362,44 @@ function markdownLines(doc: Doc): string[] {
 }
 
 /** A doc as text: laid out, with a capital where the sentence starts with its own words and a period where it ends. */
-export function finish(doc: Doc, layout: 'text' | 'markdown', self: string | undefined): string {
+export function finish(doc: Doc, layout: 'text' | 'markdown', self: string | undefined, options: PrintOptions = { dropLoneNumbers: false }): string {
   const raw = layout === 'markdown' ? markdownLines(doc) : lines(doc);
   const out = resolveLinks(raw.join('\n'), layout === 'markdown', self).split('\n');
   if (!(out[0] as string).startsWith(VARIABLE)) out[0] = (out[0] as string).replace(/^(\[?)(.)/, (_, bracket: string, c: string) => bracket + c.toUpperCase());
   const last = out.length - 1;
   if (!/(:|^\s*- .*)$/.test(out[last] as string)) out[last] = `${out[last]}.`;
-  return out.join('\n').replaceAll(VARIABLE, '');
+  const text = out.join('\n').replaceAll(VARIABLE, '');
+  return options.dropLoneNumbers ? unnumbered(text) : text;
+}
+
+/**
+ * The words with the number left off a variable that is the only one of its noun, where the noun says nothing else in
+ * them: "for every unit: when the unit is circular". Where the noun appears elsewhere, "the unit" could mean that, so the
+ * number stays; so does a number of the words' own, `number_1`.
+ */
+function unnumbered(text: string): string {
+  const name = /\b([a-z][a-z_]*?)_(\d+)\b/g;
+  const byNoun = new Map<string, Set<string>>();
+  for (const [whole, stem] of text.matchAll(name)) if (stem !== 'number') byNoun.set(stem as string, (byNoun.get(stem as string) ?? new Set()).add(whole));
+  // A link's target, such as (#term-unit), is not a word the reader sees.
+  const elsewhere = text.replace(/\]\([^)]*\)/g, ']').replace(name, ' ');
+  let out = text;
+  for (const [stem, names] of byNoun) {
+    const noun = stem.replace(/_/g, ' ');
+    if (names.size !== 1 || new RegExp(`\\b${noun}(?:s|es)?\\b`, 'i').test(elsewhere)) continue;
+    const variable = [...names][0] as string;
+    // Only a variable that a quantifier introduces, "every unit_1" or "a unit_1": one that "values of" or "a step from"
+    // introduces stands for each of many, which "the unit" would say as one.
+    const first = text.indexOf(variable);
+    if (!/\b(?:every|an?|no|exactly one|at most one|some) \[?$/.test(text.slice(0, first))) continue;
+    const counted = '(\\b(?:every|an?|no|exactly one|at most one|some) )';
+    out = out
+      .replace(new RegExp(`${counted}\\[${variable}\\]`, 'g'), `$1[${noun}]`)
+      .replace(new RegExp(`\\[${variable}\\]`, 'g'), `the [${noun}]`)
+      .replace(new RegExp(`${counted}${variable}\\b`, 'g'), `$1${noun}`)
+      .replace(new RegExp(`\\b${variable}\\b`, 'g'), `the ${noun}`);
+  }
+  return out.replace(/^(> )?the /, (_, quote: string | undefined) => `${quote ?? ''}The `);
 }
 
 /** The words without the marks of variables and links. */
