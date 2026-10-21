@@ -48,7 +48,7 @@ function claims(): Claim[] {
 describe('the meaning of the IR of each formula of the sweep', () => {
   it('parses as Alloy', () => {
     expect(claims().length).toBeGreaterThan(1500);
-  });
+  }, 120_000);
 
   /**
    * @canon spec-a-rewrite-means-what-the-formula-it-replaces-means

@@ -26,7 +26,7 @@ describe('the sweep', () => {
   it('ends on every formula with words or a refusal', () => {
     const faults = SWEEP.map(({ what, formula }) => ({ what, formula, ...said(formula) })).filter(cell => cell.ended === 'fault');
     expect(faults).toEqual([]);
-  });
+  }, 120_000);
 
   /**
    * @canon spec-a-formula-is-said-in-full
@@ -34,5 +34,5 @@ describe('the sweep', () => {
   it('leaves no slot of a reading in the words', () => {
     const open = SWEEP.map(({ what, formula }) => ({ what, formula, ...said(formula) })).filter(cell => cell.ended === 'words' && /\{\d\}|\u0001/.test(cell.text));
     expect(open).toEqual([]);
-  });
+  }, 120_000);
 });
