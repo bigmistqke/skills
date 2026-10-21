@@ -741,12 +741,6 @@ Term: {1} is a [term] | {1} is not a [term]
 
 The statement of a unit is the blockquote that opens its own text, whole.
 
-```alloy vocabulary
-```
-
-```readings
-```
-
 ### @term sit
 
 > A unit sits in the unit whose heading holds its own heading.
@@ -2035,35 +2029,17 @@ available: {1} is [available] | {1} is not [available]
 
 A heading that gives a kind and a stem, such as `@spec a-leaf`, declares a unit. A heading that does not is a [section](#term-section). A heading inside a fenced block, or inside the index of the document, is no heading at all.
 
-```alloy vocabulary
-```
-
-```readings
-```
-
 ### @term extent
 
 > The extent of a unit is the part of the document from its heading up to the next heading of its level or above.
 
 A plain heading ends the extent of the units above it, because it is a heading of its own level or above.
 
-```alloy vocabulary
-```
-
-```readings
-```
-
 ### @term own-text
 
 > The own text of a unit is the text between its heading and its first nested heading.
 
 The checker takes the statement, the site line and the blocks of a unit from its own text. A unit nested in another keeps what it writes.
-
-```alloy vocabulary
-```
-
-```readings
-```
 
 ### @term fence
 
