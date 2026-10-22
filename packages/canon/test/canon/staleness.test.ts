@@ -82,6 +82,79 @@ describe('a tag outside a test', () => {
   });
 });
 
+describe('a reference from a source', () => {
+  const tag = ['@', 'canon'].join('');
+  /** The file name of the document, spelled apart so this file's comments hold no mention of it. */
+  const doc = ['CANON', 'md'].join('.');
+  const settings = { sources: ['src', 'test'] };
+  const TEST = tagged('spec-a-leaf-says-one-thing');
+
+  /**
+   * @canon spec-a-link-in-any-comment-names-a-target
+   */
+  it('reports no finding for a link in a comment of a source that leads to a unit', () => {
+    const files = { 'src/engine/say.ts': `/**\n * Says [one thing](../../${doc}#spec-a-leaf-says-one-thing).\n */\nexport function say(): void {}\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })).toEqual({});
+  });
+
+  /**
+   * @canon spec-a-link-in-any-comment-names-a-target
+   */
+  it('reports a rotting for a link in a comment of a source whose fragment names no unit', () => {
+    const files = { 'src/say.ts': `// says [one thing](../${doc}#spec-a-leaf-says-nothing)\nexport function say(): void {}\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })['rot']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-link-in-any-comment-names-a-target
+   */
+  it('reports a rotting for a link in a comment of a source whose path leads to no file', () => {
+    const files = { 'src/engine/say.ts': `// says [one thing](../${doc}#spec-a-leaf-says-one-thing)\nexport function say(): void {}\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })['rot']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-link-in-any-comment-names-a-target
+   */
+  it('reads no link in a string of a source', () => {
+    const files = { 'src/say.ts': `export const say = '[one thing](../${doc}#spec-a-leaf-says-nothing)';\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })).toEqual({});
+  });
+
+  /**
+   * @canon spec-a-bare-mention-of-a-document-is-a-rotting
+   */
+  it('reports a rotting for a bare mention of the document in a comment, though its unit lives', () => {
+    const files = { 'src/say.ts': `// a tap is reported (${doc}#spec-a-leaf-says-one-thing).\nexport const a = 1; // \`${doc}#spec-a-leaf-says-one-thing\`\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })['rot']).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-bare-mention-of-a-document-is-a-rotting
+   */
+  it('reports a mention that a tag holds once, as a tag that names a file', () => {
+    const files = { 'src/say.ts': `// ${tag} ${doc}#spec-a-leaf-says-one-thing\nexport const a = 1;\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })['rot']).toBe(1);
+  });
+
+  /**
+   * @canon spec-a-bare-mention-of-a-document-is-a-rotting
+   */
+  it('reads no mention of a file that is no canon document', () => {
+    const files = { 'src/say.ts': `// see README.md#install\nexport const a = 1;\n` };
+    expect(check(canon(LEAF), TEST, { files, settings })).toEqual({});
+  });
+
+  /**
+   * @canon spec-a-comment-makes-no-unit-used
+   */
+  it('reports an orphaning for a fact that only a tag and a link in a source name', () => {
+    const fact = `\n## @fact a-platform-says-one-thing\n\n> A platform says one thing.\n`;
+    const files = { 'src/say.ts': `/**\n * Works around [it](../${doc}#fact-a-platform-says-one-thing).\n *\n * ${tag} fact-a-platform-says-one-thing\n */\nexport function say(): void {}\n` };
+    expect(check(canon(LEAF + fact), TEST, { files, settings })).toEqual({ dead: 1 });
+  });
+});
+
 describe('an adrift test', () => {
   /**
    * @canon spec-a-declared-test-carries-a-tag

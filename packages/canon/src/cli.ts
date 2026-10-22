@@ -1384,6 +1384,42 @@ function analyse(write: boolean): Analysis {
     // the list that says so.
     for (const comment of comments) {
       if (!docs.has(comment.start)) resolveTags(comment.value, comment.start + 2, rel, lineAt);
+      readReferences(file, comment.value, comment.start + 2, lineAt);
+    }
+  }
+
+  /** The file names of the canon documents, which a bare mention spells. */
+  const documentNames = new Set(DOCS.map(doc => basename(doc)));
+
+  /**
+   * Check the references a comment of a suite or a source makes besides its
+   * tags: each link with a fragment must lead to a file that holds the id, and
+   * a canon document named with a fragment outside a link is no form a source
+   * cites with, live or dead. Like a tag outside a test, a reference checks
+   * nothing, so it makes no unit tested or used.
+   */
+  function readReferences(file: string, text: string, offset: number, lineAt: (at: number) => number): void {
+    const rel = relative(ROOT, file);
+    const where = (at: number): string => `${rel}:${lineAt(offset + at)}`;
+    const LINK = /\[[^\]\n]*\]\(([^)\s]+)\)/g;
+    for (const m of text.matchAll(LINK)) {
+      const href = m[1] as string;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(href) || !href.includes('#')) continue;
+      const [path, frag] = href.split('#') as [string, string];
+      const target = path ? join(dirname(file), path) : file;
+      if (!existsSync(target) || !statSync(target).isFile()) {
+        findings.rot.push(`${where(m.index ?? 0)} — link "${href}" leads to no file`);
+      } else if (!idsOf(target).has(frag)) {
+        findings.rot.push(`${where(m.index ?? 0)} — link "${href}" — no id="${frag}" in ${relative(ROOT, target)}`);
+      }
+    }
+    // A link and a tag are read above; what is left of the text is prose.
+    const prose = text.replace(LINK, m => ' '.repeat(m.length)).replace(/@canon\s+\S+/g, m => ' '.repeat(m.length));
+    for (const m of prose.matchAll(/[\w./-]*?([\w.-]+\.md)#([\w-]+)/g)) {
+      if (!documentNames.has(m[1] as string)) continue;
+      findings.rot.push(
+        `${where(m.index ?? 0)} — "${m[0]}" is no link; cite with "@canon ${m[2]}" or a link from this file`
+      );
     }
   }
 
@@ -1845,7 +1881,7 @@ const literally = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, 
 
 /**
  * Give the unit `old` the stem `stem`, and move every name of it to the new
- * id: the pointers whose path leads to its document, the tags in the comments
+ * id: the pointers whose path leads to its document, the tags and links in the comments
  * of the suites and the sources and in the references, the code spans that
  * spell it, and the markers of the regions named after it. Then write the
  * generated regions, as `generate` does. The exit code: 0, or 2 when the
@@ -1957,8 +1993,13 @@ async function rename(old: string, stem: string, dryRun: boolean): Promise<numbe
     }
     let out = '';
     let at = 0;
+    // A link in a comment leads from the file that holds it, as one in a document does.
+    const relink = (text: string): string =>
+      text.replace(new RegExp(`(\\]\\()([^)\\s#]+)#${id}(?=\\))`, 'g'), (m, open: string, path: string) =>
+        join(dirname(file), path) === home ? `${open}${path}#${next}` : m
+      );
     for (const { start, end } of comments) {
-      out += src.slice(at, start) + retag(src.slice(start, end));
+      out += src.slice(at, start) + relink(retag(src.slice(start, end)));
       at = end;
     }
     out += src.slice(at);

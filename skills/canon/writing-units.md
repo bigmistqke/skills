@@ -149,8 +149,22 @@ test('a throwing listener does not stop the next one', () => {
 
 ## 9. Implementation
 
-1. Source code carries no citations and no links to the canon. The project tried a tag on each symbol and dropped the tags as too messy. Only a test credits a unit.
-2. A source file opens with no header. The JSDoc on each declaration says what it is. The canon says why it is that way, and a header that named an axiom would be a citation the checker cannot keep current.
+1. The JSDoc on each declaration says what it is. The canon says why it is that way.
+2. Where the reason for a declaration or a line lives in a unit, the code may point the reader at it. Write a reference in one of two forms. A `@canon <id>` tag names the id alone. A Markdown link such as `[the flush that ended it](../CANON.md#spec-a-release-joins-the-flush)` names the document and the id, with a path from the file that holds the comment.
+3. A reference may name a unit of any kind. It can name a spec the code carries out, or a fact it works around. It can name a bug it works around until the fix, or a thread that keeps a choice provisional.
+4. A reference is no test. It makes no unit tested and no unit used. A leaf stays untested until a test cites it.
+5. The checker reads a reference like any pointer. A tag or a link that names no unit is a rotting, and `rename` moves both. Do not mention a document with a fragment outside these forms, as in `CANON.md#spec-x`. The checker reports such a mention as a rotting even when its unit lives, because no rename could move it.
+6. A source file opens with no header. A reference sits on the declaration or the line whose reason the unit holds, where the reader needs it. A header that named units for the whole file would not say which line answers to which.
+
+```ts
+/**
+ * Releases the claim of a disposer.
+ *
+ * @canon spec-a-release-joins-the-flush-that-ended-its-claim
+ */
+export function release(claim: Claim): void {
+  if (claim.flushed) return; // a closed flush is never reopened: [why](../CANON.md#fact-a-flush-closes-once)
+```
 
 ## 10. Structure
 

@@ -126,6 +126,19 @@ describe('rename', () => {
   });
 
   /**
+   * @canon spec-rename-moves-a-link-in-a-comment
+   */
+  it('moves a link in a comment of a source that leads to the document, and leaves one into another document', () => {
+    const doc = ['CANON', 'md'].join('.');
+    const source = `/**\n * Says [one thing](../../${doc}#spec-a-leaf), unlike [the notes](../../notes/NOTES.md#spec-a-leaf).\n */\nexport function say(): void {}\nexport const text = '[one thing](../../${doc}#spec-a-leaf)';\n`;
+    const dir = scratch(DOCUMENT, TESTS, { ...EXTRA, files: { ...FILES, 'test/helpers/say.ts': source } });
+    expect(run(dir, 'rename', 'spec-a-leaf', 'a-single-leaf').status).toBe(0);
+    const text = read(dir, 'test/helpers/say.ts');
+    expect(text).toContain(`[one thing](../../${doc}#spec-a-single-leaf), unlike [the notes](../../notes/NOTES.md#spec-a-leaf)`);
+    expect(text).toContain(`'[one thing](../../${doc}#spec-a-leaf)'`);
+  });
+
+  /**
    * @canon spec-rename-moves-a-code-span-that-spells-the-old-id
    */
   it('moves a code span whose whole text is the old id', () => {
