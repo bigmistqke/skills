@@ -1,6 +1,6 @@
 # @bigmistqke/canon-plugin-pele
 
-The Pele plugin for [`@bigmistqke/canon`](../canon): the derivations of a canon drawn as a graph. Each axiom, fact, spec, exception and bug is a node, in a colour of its own kind. An edge leads from each unit to the units that follow from it. It is solid from the unit a unit sits in, and dotted from a unit on its "Derives from:" line. The graph draws no term and no conflict, since no derivation reaches them.
+The Pele plugin for [`@bigmistqke/canon`](../canon): the derivations of a canon drawn as a graph. Each axiom, fact, spec, exception and bug is a node, in a colour of its own kind. An edge leads from each unit to the units that follow from it. It is solid from the unit a unit sits in, and dotted from a unit on its "Derives from:" line. The graph draws no term, no conflict and no thread, since no derivation reaches them.
 
 ```bash
 pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-pele

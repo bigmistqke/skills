@@ -422,6 +422,7 @@ const HUE: Record<Kind, string> = {
   'exception-': '33', // yellow — where the shoe does not fit should catch the eye
   'bug-': '1;31', // bold red — a defect to fix
   'conflict-': '1;91', // bold bright red — a defect of the canon itself
+  'thread-': '1;93', // bold bright yellow — a question still open, no defect
   'term-': '1;32' // bold green
 };
 
@@ -441,6 +442,7 @@ const DIM: Record<Kind, string> = {
   'exception-': '2;33',
   'bug-': '2;31',
   'conflict-': '2;91',
+  'thread-': '2;93',
   'term-': '2;32'
 };
 
@@ -657,22 +659,25 @@ function treeOf(
     listGivens('fact-', true);
   }
 
-  // A conflict belongs to no unit and derives from none, so it is no part of
-  // the tree either. It is drawn as what it is, a warning, with its statement.
-  const conflicts = gapsOnly || from !== undefined ? [] : headings.filter(u => kindOf(u.id ?? '') === 'conflict-');
-  if (conflicts.length > 0) out.push('');
-  for (const unit of conflicts) {
-    const [tag, ...word] = prose(unit.id ?? '').split(' ');
-    out.push(`${paint(DIM['conflict-'], tag)} ${paint(HUE['conflict-'], word.join(' '))}`);
-    if (unit.statement) {
-      const sill = ' '.repeat(tag.length + 1);
-      out.push(sill + paint(SAID, clip(unit.statement, sill.length)));
+  // A conflict or a thread belongs to no unit and derives from none, so it is
+  // no part of the tree either. It is drawn as what it is, a warning or an open
+  // question, with its statement.
+  for (const kind of ['conflict-', 'thread-'] as const) {
+    const loose = gapsOnly || from !== undefined ? [] : headings.filter(u => kindOf(u.id ?? '') === kind);
+    if (loose.length > 0) out.push('');
+    for (const unit of loose) {
+      const [tag, ...word] = prose(unit.id ?? '').split(' ');
+      out.push(`${paint(DIM[kind], tag)} ${paint(HUE[kind], word.join(' '))}`);
+      if (unit.statement) {
+        const sill = ' '.repeat(tag.length + 1);
+        out.push(sill + paint(SAID, clip(unit.statement, sill.length)));
+      }
     }
   }
 
   const roots = from === undefined ? headings.filter(u => !u.parent || !byId.has(u.parent)) : headings.filter(u => u.id === from);
   for (const root of roots) {
-    if (from === undefined && ['term-', 'fact-', 'conflict-'].includes(kindOf(root.id ?? '') ?? '')) continue;
+    if (from === undefined && ['term-', 'fact-', 'conflict-', 'thread-'].includes(kindOf(root.id ?? '') ?? '')) continue;
     if (!keep(root)) continue;
     const rootKind = kindOf(root.id ?? '') ?? 'axiom-';
     const [rootTag, ...rootLabel] = prose(root.id ?? '').split(' ');
@@ -1460,9 +1465,10 @@ function analyse(write: boolean): Analysis {
   // dead — a unit nothing cites. Last, after every suite has been read: a spec
   // kept alive by a test it has not reached yet would otherwise report dead,
   // and the list would read as a canon full of unreachable units. A conflict is
-  // no part of the theory, only a record of where it fails, so nothing cites it.
+  // no part of the theory, only a record of where it fails, and a thread only a
+  // question it leaves open, so nothing cites either.
   for (const [key, unit] of units) {
-    if (unit.kind === 'conflict-') continue;
+    if (unit.kind === 'conflict-' || unit.kind === 'thread-') continue;
     if (!citedTargets.has(key))
       findings.dead.push(`${key} (${aNoun(unit.kind)})`);
   }

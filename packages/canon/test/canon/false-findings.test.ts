@@ -3,7 +3,7 @@
  * canon, such as an untesting for a claim that a test checks.
  */
 import { describe, expect, it } from 'vitest';
-import { canon, check, tagged } from './project.ts';
+import { canon, check, checkTracked, tagged } from './project.ts';
 
 const LEAF = `
 ### @spec a-leaf-says-one-thing
@@ -99,6 +99,43 @@ describe('a project with no tracker', () => {
     const found = check(canon(UNTRACKED), tests);
     expect(found['untracked-bug']).toBeUndefined();
     expect(found['untracked-conflict']).toBeUndefined();
+  });
+});
+
+/** A thread, with `issue` as its issue line if one is given. */
+const THREAD = (issue?: string): string => `
+## Open Threads
+
+### @thread the-leaf-may-say-more
+
+> Whether a leaf says more is open.
+${issue === undefined ? '' : `\nIssue: ${issue}\n`}`;
+
+describe('a thread', () => {
+  /**
+   * @canon spec-a-thread-that-names-no-issue-is-not-untracked
+   */
+  it('reports no untracking for a thread that names no issue in a project with a tracker', () => {
+    const found = check(canon(THREAD()), '', { settings: { tracker: { kind: 'github', repo: 'acme/app' } } });
+    expect(Object.keys(found).filter(key => key.startsWith('untracked'))).toEqual([]);
+  });
+
+  /**
+   * @canon spec-a-thread-that-names-an-issue-is-not-held-to-the-tracker
+   */
+  it('asks the tracker nothing about the issues a thread names', async () => {
+    const found = await checkTracked(canon(THREAD('#2, #3')), '', { 2: 'closed' });
+    expect(found['missing-issue']).toBeUndefined();
+    expect(found['closed-issue']).toBeUndefined();
+    expect(found['unreachable-tracker']).toBeUndefined();
+  });
+
+  /**
+   * @canon spec-a-thread-nothing-uses-is-not-orphaned
+   */
+  it('reports no orphaning for a thread that nothing links to', () => {
+    const found = check(canon(`${LEAF}${THREAD()}`), tagged('spec-a-leaf-says-one-thing'));
+    expect(found['dead']).toBeUndefined();
   });
 });
 

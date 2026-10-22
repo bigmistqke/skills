@@ -13,6 +13,7 @@ How to write, place and test the units of the canon. [`SKILL.md`](SKILL.md) hold
 | `@exception` | where a fact keeps a spec from holding fully | `@spec` and `@fact` |
 | `@bug` | where the code breaks the spec it sits in: a known defect, with an issue and a test that fails until it is fixed | `@spec` |
 | `@conflict` | where units of the canon cannot all hold: a known contradiction, with an issue, that waits for the owner of the design to rule which unit holds | nothing |
+| `@thread` | a question the canon does not decide yet, which the owner of the design has parked: a thought outside the derivation graph, kept so that it is not lost | nothing |
 | `@term` | a word of the project's language: what the thing it names is — never what it does | nothing |
 <!-- kinds:end -->
 
@@ -22,6 +23,7 @@ Tell the kinds apart with two questions:
 2. Does the statement still hold if nobody had built the system? Then it is a fact.
 3. A statement that fails both questions is a decision or a behaviour: a spec.
 4. A statement that defines a word is a term.
+5. A question the owner of the design has left open is a thread, not a statement of any other kind ([section 12](#12-threads)).
 
 Axioms state how the world should be. Facts state how the platform is. A spec, together with the facts it cites, must make its axiom hold. The split follows [Zave and Jackson](http://www.pamelazave.com/4dc.pdf).
 
@@ -29,7 +31,7 @@ Axioms state how the world should be. Facts state how the platform is. A spec, t
 
 1. A unit is a heading with the text `@<kind> <stem>` and nothing after the stem. Its id is `<kind>-<stem>`. Text after the stem breaks the anchor (`unreachable`).
 2. Write the stem by hand. You may reword the statement at any time, because citations name the stem.
-3. Open the body with the statement as a blockquote. In a document that keeps readings, the checker writes the statement of a unit with a formula. Write the formula instead, as [units with logic](#12-units-with-logic) describes.
+3. Open the body with the statement as a blockquote. In a document that keeps readings, the checker writes the statement of a unit with a formula. Write the formula instead, as [units with logic](#13-units-with-logic) describes.
 4. Make every claim about the system a unit. Body text explains its unit's claim and adds no new claim.
 5. State a claim as strongly as the project means it. Where the system falls short of it, keep the claim and record the shortfall inside it. Write an exception when a fact forces the shortfall, and a bug when the project means to fix it ([section 5](#5-facts-exceptions-and-bugs)). Never weaken a claim to fit what the code does today: a weaker claim hides the gap and loses the aim. An exception or a bug keeps the aim and shows the gap.
 6. After a change, read each sentence you added to unit bodies and code comments. A sentence that states something the system does needs a unit.
@@ -50,7 +52,7 @@ This follows because …
 2. Nesting is a citation: a unit inside another unit derives from it. Do not link to the unit that holds your unit.
 3. List further parents on one `Derives from:` line, right after the statement. Only links on that line are derivation edges. Every other link is a reference.
 4. The primary parent of a unit is the unit it sits in. Choose it so that the chain of primary parents leads up to the axiom that does most of the forcing. A fact is never a primary parent: a fact holds no units ([section 5](#5-facts-and-exceptions)).
-5. Open a spec's body with its `Derives from:` line, if it has one, then one sentence: "This follows because …". A unit with a formula gives its reason in its intent instead ([section 12](#12-units-with-logic)).
+5. Open a spec's body with its `Derives from:` line, if it has one, then one sentence: "This follows because …". A unit with a formula gives its reason in its intent instead ([section 13](#13-units-with-logic)).
 6. If you cannot write that sentence, an axiom is missing. Ask the owner of the design.
 7. Place a spec under the axiom that forces it, not under an axiom on the same topic.
 8. Never move a spec because an axiom grew large, or to fit the sections of a document.
@@ -185,7 +187,30 @@ Between: [`axiom-the-latest-production-wins`](#axiom-the-latest-production-wins)
 Issue: #61
 ```
 
-## 12. Units with logic
+## 12. Threads
+
+1. A thread records a question that the canon does not decide yet, and that the owner of the design has chosen to leave open. The question is a choice between two designs that both work, or a decision that waits on a condition. It is a thought the owner does not want to deal with now, and does not want to lose.
+2. A thread is no conflict and no bug. A conflict is the canon saying two things at once, and a bug is the code breaking a spec. A thread is the canon not yet saying anything, so it makes no claim and marks no defect.
+3. When the owner defers a question, park it as a thread instead of guessing the answer. Never write a spec or an axiom for a question the owner left open.
+4. Write threads in the `## Open Threads` section of a canon document, as `### @thread <stem>`. A thread sits in no unit, and no unit sits in a thread (`misnested`).
+5. Its statement names the open question. If the question waits on a condition, the body names the condition. A later session can then tell when to bring the question back to the owner.
+6. A thread follows from nothing, and nothing follows from it: no unit derives from a thread, and no test cites one (`missing-spec`).
+7. A thread may link to the units it concerns, and those units may link to it. Each link is a reference, not a derivation. Name no units on a line of their own: the question may concern a unit the canon does not hold yet.
+8. A thread owes no test and no issue. An `Issue:` line in a thread is prose, and the checker does not ask the tracker about it. A thread that nothing links to is not `dead`.
+9. A thread stands outside the derivation graph, so the checker asks little of it, and its text may go stale while the question waits. A link in a thread that names no unit is still `rot`.
+10. When the owner rules, write the answer as the units that fit it, and remove the thread and every link to it.
+
+```md
+## Open Threads
+
+### @thread mipmaps-once-the-camera-tilts
+
+> Tile textures carry no mipmaps until the camera tilts.
+
+The camera has no pitch and no bearing, so a tile is seen close to head-on. Mipmaps would matter once it tilts, which waits on [`spec-the-camera-looks-straight-down`](#spec-the-camera-looks-straight-down) changing.
+```
+
+## 13. Units with logic
 
 A document that lists the Alloy plugin, `@bigmistqke/canon-plugin-alloy`, can state its units as formulas. The plugin writes each statement from its formula, and it asks the Alloy analyzer whether the claims can all hold. [The plugin's README](https://github.com/bigmistqke/skills/blob/main/packages/canon-plugin-alloy/README.md) has the full grammar.
 
