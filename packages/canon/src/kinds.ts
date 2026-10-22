@@ -14,7 +14,7 @@ import { beginMarker } from "./regions.ts";
  * to `OWES` without a matching entry here, or cited by a name that is not one of
  * these, stops compiling instead of silently matching nothing.
  */
-export type Kind = 'axiom-' | 'fact-' | 'spec-' | 'exception-' | 'bug-' | 'conflict-' | 'term-';
+export type Kind = 'axiom-' | 'fact-' | 'spec-' | 'exception-' | 'bug-' | 'conflict-' | 'thread-' | 'term-';
 
 /**
  * kind → what a reader reaches for it for. Generated into `writing-units.md` beside
@@ -32,6 +32,8 @@ export const MEANS: Record<Kind, string> = {
     'where the code breaks the spec it sits in: a known defect, with an issue and a test that fails until it is fixed',
   'conflict-':
     'where units of the canon cannot all hold: a known contradiction, with an issue, that waits for the owner of the design to rule which unit holds',
+  'thread-':
+    'a question the canon does not decide yet, which the owner of the design has parked: a thought outside the derivation graph, kept so that it is not lost',
   'term-':
     'a word of the project\'s language: what the thing it names is — never what it does'
 };
@@ -49,6 +51,7 @@ export const OWES: Record<Kind, Kind[][] | null> = {
   'exception-': [['spec-'], ['fact-']],
   'bug-': [['spec-']],
   'conflict-': null, // names the units it sets against each other on its "Between:" line, which is no citation
+  'thread-': null, // an open question follows from nothing
   'term-': null // a definition, outside the derivation graph — owes nothing
 };
 

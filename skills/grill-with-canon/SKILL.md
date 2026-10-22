@@ -40,7 +40,8 @@ This skill settles a design question that the canon does not yet answer. It runs
    - an axiom for a value;
    - a fact for something the platform imposes;
    - a spec for a decision or a behaviour;
-   - an exception for a fact that keeps a spec from holding fully.
+   - an exception for a fact that keeps a spec from holding fully;
+   - a thread for a question the owner chooses to leave open for now.
 3. When a word was used two ways, record the conflict and how it was settled in the body of its term. List the rejected words on the term's `_Avoid_:` line.
 4. Write a decision record only for a choice that is hard to reverse, surprising without its context, and the result of a real trade-off.
 5. Run `pnpm canon check` after each change to the canon, and keep it clean.
@@ -48,5 +49,5 @@ This skill settles a design question that the canon does not yet answer. It runs
 ## 5. Hand back
 
 1. End the session when every question has an answer written into the canon.
-2. Summarise the units you added or changed, and any question the owner left open.
+2. Summarise the units you added or changed, and the threads that hold any question the owner left open.
 3. Hand the work to the canon skill: its procedures for changing code, adding behaviour and fixing defects take over from here.

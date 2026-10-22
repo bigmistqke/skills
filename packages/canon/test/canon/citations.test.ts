@@ -158,6 +158,17 @@ Issue: #9
   });
 
   /**
+   * @canon spec-a-thread-cites-nothing
+   */
+  it('reports a misnesting for a thread that sits in a spec', () => {
+    expect(check(canon(`${SPEC}
+#### @thread a-thread-under-a-spec
+
+> A thread under a spec.
+`)).misnested).toBe(1);
+  });
+
+  /**
    * @canon spec-a-term-cites-nothing
    */
   it('reports a misnesting for a term that sits in an axiom', () => {

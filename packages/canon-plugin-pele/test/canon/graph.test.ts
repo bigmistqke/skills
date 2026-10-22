@@ -16,6 +16,7 @@ const EXCEPTION = ['@', 'exception'].join('');
 const BUG = ['@', 'bug'].join('');
 const TERM = ['@', 'term'].join('');
 const CONFLICT = ['@', 'conflict'].join('');
+const THREAD = ['@', 'thread'].join('');
 
 const DIRS: string[] = [];
 afterEach(() => {
@@ -110,7 +111,7 @@ function fillOf(text: string, label: string): string {
   return fill[1];
 }
 
-/** One unit of each kind that the graph draws, with a term and a conflict beside them. */
+/** One unit of each kind that the graph draws, with a term, a conflict and a thread beside them. */
 const EVERY_KIND = `# Canon
 
 ## Terms
@@ -148,6 +149,12 @@ Derives from: [\`fact-ground\`](#fact-ground)
 > Two units disagree.
 
 Between: [\`spec-claim\`](#spec-claim), [\`axiom-root\`](#axiom-root)
+
+## Open Threads
+
+### ${THREAD} open
+
+> A question left open.
 `;
 
 /** An axiom with a spec two levels deep, a spec with two further parents, and a link in a body. */
@@ -263,6 +270,13 @@ describe('the nodes of the graph', () => {
     const drawn = labels((await graph({ 'CANON.md': EVERY_KIND })).out);
     expect(drawn).toContain('spec-claim');
     expect(drawn).not.toContain('conflict-clash');
+  });
+
+  /** @canon spec-the-graph-draws-no-thread */
+  it('draws no thread', async () => {
+    const drawn = labels((await graph({ 'CANON.md': EVERY_KIND })).out);
+    expect(drawn).toContain('spec-claim');
+    expect(drawn).not.toContain('thread-open');
   });
 });
 

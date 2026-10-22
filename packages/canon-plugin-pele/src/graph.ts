@@ -8,7 +8,7 @@ import { readUnits } from '@bigmistqke/canon/units';
 import type { Plugin } from '@bigmistqke/canon/plugin';
 
 /** The kinds that no derivation reaches, and that the graph leaves out. */
-const UNDRAWN = new Set(['term', 'conflict']);
+const UNDRAWN = new Set(['term', 'conflict', 'thread']);
 
 /** The fill, border and label colour of each kind, and of a unit no drawn document holds. */
 const CLASSES: Record<string, string> = {

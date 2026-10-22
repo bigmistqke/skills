@@ -46,8 +46,9 @@ This file holds what every session needs. Two files beside it hold the rest:
 5. When the code contradicts the canon, the code has a defect. Follow [section 4](#4-fixing-a-defect).
 6. When a test asserts something other than the spec it cites, the spec decides. Correct the test, unless the owner rules that the spec is wrong.
 7. When two units contradict each other, the canon is wrong. Ask the owner which one holds. If the ruling waits, record the contradiction as a conflict, as [writing units](writing-units.md#11-conflicts) describes.
-8. Change the project in one order: the canon first, then the tests, then the code. This holds when the owner confirms a change, and when you correct a canon that is wrong.
-9. No change enters the project unless the canon accounts for it.
+8. When the owner leaves a question open, park it as a thread, as [writing units](writing-units.md#12-threads) describes. A thread records the question and decides nothing, so no choice may rest on it.
+9. Change the project in one order: the canon first, then the tests, then the code. This holds when the owner confirms a change, and when you correct a canon that is wrong.
+10. No change enters the project unless the canon accounts for it.
 
 ## 2. The session
 

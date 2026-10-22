@@ -15,16 +15,17 @@ How the Pele plugin of the canon checker behaves, and why. It is the canon of th
 - [`@term graph-command`](#term-graph-command) — The graph command is the [command](../canon/CANON.md#term-command) `graph`, which the [Pele plugin](#term-pele-plugin) adds.
 - [`@term graph`](#term-graph) — The graph is the Mermaid text of the derivations between the units of the [drawn documents](#term-drawn-document), from which the [graph command](#term-graph-command) prints its output.
 - [`@term drawn-document`](#term-drawn-document) — A drawn document is a [document](../canon/CANON.md#term-document) that the [Pele plugin](#term-pele-plugin) runs over.
-- [`@term drawn-unit`](#term-drawn-unit) — A drawn unit is a unit of a [drawn document](#term-drawn-document) that is neither a [term](../canon/CANON.md#term-term) nor a [conflict](../canon/CANON.md#term-conflict).
+- [`@term drawn-unit`](#term-drawn-unit) — A drawn unit is a unit of a [drawn document](#term-drawn-document) that is not a [term](../canon/CANON.md#term-term), a [conflict](../canon/CANON.md#term-conflict) or a [thread](../canon/CANON.md#term-thread).
 - [`@term outside-unit`](#term-outside-unit) — An outside unit is a unit that a unit of a [drawn document](#term-drawn-document) [derives from](../canon/CANON.md#term-derive), and that no drawn document [holds](../canon/CANON.md#term-hold).
 - [`@axiom the-graph-shows-what-each-unit-follows-from`](#axiom-the-graph-shows-what-each-unit-follows-from) — A reader of the [graph](#term-graph) sees, for each unit of the [drawn documents](#term-drawn-document), every unit it follows from, and no other relation between units.
   - [`@spec the-graph-is-printed-as-mermaid-text`](#spec-the-graph-is-printed-as-mermaid-text) — A run of the [graph command](#term-graph-command) without `--svg` prints the [graph](#term-graph), a Mermaid flowchart, on standard output. The Pele plugin gives the run code 0.
   - [`@spec the-graph-is-printed-as-svg-with-the-svg-option`](#spec-the-graph-is-printed-as-svg-with-the-svg-option) — A run of the [graph command](#term-graph-command) with `--svg` prints on standard output the SVG that Pele renders from the [graph](#term-graph). The plugin adds to it the style and the background that [`spec-the-svg-is-readable-in-a-light-and-a-dark-scheme`](#spec-the-svg-is-readable-in-a-light-and-a-dark-scheme) claims. This holds while the graph and its SVG are within the default limits of Pele. The Pele plugin gives the run code 0.
-  - [`@spec the-graph-draws-each-drawn-unit`](#spec-the-graph-draws-each-drawn-unit) — The [graph](#term-graph) has one node for each [drawn unit](#term-drawn-unit), labelled with the unit's id, and no node for a [term](../canon/CANON.md#term-term) or a [conflict](../canon/CANON.md#term-conflict).
+  - [`@spec the-graph-draws-each-drawn-unit`](#spec-the-graph-draws-each-drawn-unit) — The [graph](#term-graph) has one node for each [drawn unit](#term-drawn-unit), labelled with the unit's id, and no node for a [term](../canon/CANON.md#term-term), a [conflict](../canon/CANON.md#term-conflict) or a [thread](../canon/CANON.md#term-thread).
     - [`@spec the-graph-draws-each-drawn-unit-of-a-document-once`](#spec-the-graph-draws-each-drawn-unit-of-a-document-once) — When the plugin runs over one document, the [graph](#term-graph) has exactly one node for each [drawn unit](#term-drawn-unit) of that document, labelled with the unit's id.
     - [`@spec the-graph-draws-the-units-of-several-drawn-documents-in-one-graph`](#spec-the-graph-draws-the-units-of-several-drawn-documents-in-one-graph) — When the plugin runs over several documents, one [graph](#term-graph) holds a node for each [drawn unit](#term-drawn-unit) of each of them.
     - [`@spec the-graph-draws-no-term`](#spec-the-graph-draws-no-term) — The [graph](#term-graph) has no node for a [term](../canon/CANON.md#term-term).
     - [`@spec the-graph-draws-no-conflict`](#spec-the-graph-draws-no-conflict) — The [graph](#term-graph) has no node for a [conflict](../canon/CANON.md#term-conflict).
+    - [`@spec the-graph-draws-no-thread`](#spec-the-graph-draws-no-thread) — The [graph](#term-graph) has no node for a [thread](../canon/CANON.md#term-thread).
   - [`@spec the-graph-runs-from-left-to-right`](#spec-the-graph-runs-from-left-to-right) — The Mermaid text of the [graph](#term-graph) declares a flowchart that runs from left to right.
   - [`@spec the-graph-draws-an-edge-for-each-derivation`](#spec-the-graph-draws-an-edge-for-each-derivation) — The [graph](#term-graph) has an edge from a unit to each unit that follows from it, and no other edge.
     - [`@spec a-unit-has-an-edge-from-the-unit-it-sits-in`](#spec-a-unit-has-an-edge-from-the-unit-it-sits-in) — When a unit [sits in](../canon/CANON.md#term-sit) another unit, the [graph](#term-graph) has an edge from the other unit to it.
@@ -77,7 +78,7 @@ How the Pele plugin of the canon checker behaves, and why. It is the canon of th
 
 ### @term drawn-unit
 
-> A drawn unit is a unit of a [drawn document](#term-drawn-document) that is neither a [term](../canon/CANON.md#term-term) nor a [conflict](../canon/CANON.md#term-conflict).
+> A drawn unit is a unit of a [drawn document](#term-drawn-document) that is not a [term](../canon/CANON.md#term-term), a [conflict](../canon/CANON.md#term-conflict) or a [thread](../canon/CANON.md#term-thread).
 
 ### @term outside-unit
 
@@ -109,9 +110,9 @@ The result past Pele's limits is open. The Mermaid text of this repository's lar
 
 #### @spec the-graph-draws-each-drawn-unit
 
-> The [graph](#term-graph) has one node for each [drawn unit](#term-drawn-unit), labelled with the unit's id, and no node for a [term](../canon/CANON.md#term-term) or a [conflict](../canon/CANON.md#term-conflict).
+> The [graph](#term-graph) has one node for each [drawn unit](#term-drawn-unit), labelled with the unit's id, and no node for a [term](../canon/CANON.md#term-term), a [conflict](../canon/CANON.md#term-conflict) or a [thread](../canon/CANON.md#term-thread).
 
-This follows because a term and a conflict sit in no unit and derive from nothing, and no unit derives from them. Each would be a box with no edge, which shows the reader nothing the axiom promises. The cases are a document alone, several documents, a term, and a conflict.
+This follows because a term, a conflict and a thread sit in no unit and derive from nothing, and no unit derives from them. Each would be a box with no edge, which shows the reader nothing the axiom promises. The cases are a document alone, several documents, a term, a conflict and a thread.
 
 ##### @spec the-graph-draws-each-drawn-unit-of-a-document-once
 
@@ -130,6 +131,10 @@ This follows because a derivation can cross from one document to another, and in
 ##### @spec the-graph-draws-no-conflict
 
 > The [graph](#term-graph) has no node for a [conflict](../canon/CANON.md#term-conflict).
+
+##### @spec the-graph-draws-no-thread
+
+> The [graph](#term-graph) has no node for a [thread](../canon/CANON.md#term-thread).
 
 #### @spec the-graph-runs-from-left-to-right
 
