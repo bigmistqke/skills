@@ -260,6 +260,9 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-tag-names-a-unit`](#spec-a-tag-names-a-unit) — For every [tag](#term-tag): when the tag [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for the tag.
     - [`@spec a-tag-in-any-comment-names-a-unit`](#spec-a-tag-in-any-comment-names-a-unit) — When a `@canon` tag in any comment of a suite or a source names no unit, the checker reports a [rotting](#term-rotting) for it.
     - [`@spec a-tag-outside-a-test-tests-nothing`](#spec-a-tag-outside-a-test-tests-nothing) — A `@canon` tag in a comment that is not the documentation comment of a test makes no unit [tested](#term-tested).
+    - [`@spec a-link-in-any-comment-names-a-target`](#spec-a-link-in-any-comment-names-a-target) — When a link with a fragment, in a comment of a source, names no [target](#term-target), the checker reports a [rotting](#term-rotting) for it.
+    - [`@spec a-bare-mention-of-a-document-is-a-rotting`](#spec-a-bare-mention-of-a-document-is-a-rotting) — When a comment of a source spells a canon document and a fragment outside a link and a tag, the checker reports a [rotting](#term-rotting).
+    - [`@spec a-comment-makes-no-unit-used`](#spec-a-comment-makes-no-unit-used) — A link in a comment of a source makes no unit [used](#term-used), and neither does a `@canon` tag outside the comment of a test.
     - [`@spec an-adrift-test-is-reported`](#spec-an-adrift-test-is-reported) — For every [test](#term-test): when the test is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
       - [`@spec a-declared-test-carries-a-tag`](#spec-a-declared-test-carries-a-tag) — For every [test](#term-test): when [project](#term-project) [declares](#term-declare) the test and the test [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for the test.
       - [`@spec a-declared-test-checks-only-claims`](#spec-a-declared-test-checks-only-claims) — For every [test](#term-test): when [project](#term-project) [declares](#term-declare) the test and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for the test.
@@ -557,10 +560,11 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   - [`@spec tree-of-a-unit-draws-the-tree-from-that-unit-down`](#spec-tree-of-a-unit-draws-the-tree-from-that-unit-down) — When the command line of `tree` names a unit, it draws that unit and the units that sit in it, and nothing else.
 - [`@axiom renaming-a-unit-asks-only-for-its-new-stem`](#axiom-renaming-a-unit-asks-only-for-its-new-stem) — Renaming a unit costs the author the choice of its new stem, and nothing else.
   - [`@spec rename-gives-a-unit-a-new-stem-and-keeps-its-kind`](#spec-rename-gives-a-unit-a-new-stem-and-keeps-its-kind) — `rename <id> <stem>` writes the heading of the unit with the id as its own kind and the new stem.
-  - [`@spec rename-moves-every-name-of-the-unit-to-the-new-id`](#spec-rename-moves-every-name-of-the-unit-to-the-new-id) — After `rename`, each tag, pointer, code span and generated region of the project that named the old id names the new id.
+  - [`@spec rename-moves-every-name-of-the-unit-to-the-new-id`](#spec-rename-moves-every-name-of-the-unit-to-the-new-id) — After `rename`, each tag, pointer, link in a comment, code span and generated region of the project that named the old id names the new id.
     - [`@spec rename-moves-a-pointer-in-the-document-that-holds-the-unit`](#spec-rename-moves-a-pointer-in-the-document-that-holds-the-unit) — A pointer whose fragment is the old id, in the document that holds the unit, gets the new id as its fragment.
     - [`@spec rename-moves-a-pointer-from-another-document`](#spec-rename-moves-a-pointer-from-another-document) — A pointer from another document to the document that holds the unit gets the new id in place of the old one. So does such a pointer in a reference.
     - [`@spec rename-moves-a-tag-to-the-new-id`](#spec-rename-moves-a-tag-to-the-new-id) — A tag that names the old id, in a comment of a suite or a source, or in a reference, names the new id.
+    - [`@spec rename-moves-a-link-in-a-comment`](#spec-rename-moves-a-link-in-a-comment) — A link in a comment of a source that leads to the unit gets the new id as its fragment.
     - [`@spec rename-moves-a-code-span-that-spells-the-old-id`](#spec-rename-moves-a-code-span-that-spells-the-old-id) — A [code span](#term-code-span) whose whole text is the old id, in a document or a reference, spells the new id.
     - [`@spec rename-moves-a-generated-region-named-after-the-unit`](#spec-rename-moves-a-generated-region-named-after-the-unit) — The markers of a generated region that end with the old id end with the new id instead. The statement that a plugin writes for the unit is such a region.
   - [`@spec rename-changes-no-name-of-another-unit`](#spec-rename-changes-no-name-of-another-unit) — `rename` changes only the names of the unit it renames.
@@ -2709,6 +2713,24 @@ This follows because such a tag points at a unit, as a [tag](#term-tag) of a tes
 
 This follows because only a test can fail when a claim stops holding. A comment that names a spec checks nothing, so the spec still owes a test.
 
+#### @spec a-link-in-any-comment-names-a-target
+
+> When a link with a fragment, in a comment of a source, names no [target](#term-target), the checker reports a [rotting](#term-rotting) for it.
+
+This follows because source code may point a reader at the unit that holds the reason for a line. It does so with a `@canon` tag, or with a Markdown link the editor can follow. A rename or a removal leaves such a link leading nowhere, as it leaves a [pointer](#term-pointer) in a document. The path of the link leads from the file that holds the comment.
+
+#### @spec a-bare-mention-of-a-document-is-a-rotting
+
+> When a comment of a source spells a canon document and a fragment outside a link and a tag, the checker reports a [rotting](#term-rotting).
+
+This follows because a mention such as `CANON.md#spec-x` is neither form a source cites with. The checker reports it even when its unit lives. Its path reads as one from the root, while a link leads from the file that holds it. So a rename cannot tell which text to move, and the mention would go stale silently. The finding asks for a `@canon` tag or a link.
+
+#### @spec a-comment-makes-no-unit-used
+
+> A link in a comment of a source makes no unit [used](#term-used), and neither does a `@canon` tag outside the comment of a test.
+
+This follows because a unit that nothing in the canon leans on can stop being true unnoticed, and a comment checks nothing. A reference from the code helps the reader find the reason for a line. It keeps no unit alive, just as it makes no unit tested.
+
 #### @spec an-adrift-test-is-reported
 
 <!-- statement-spec-an-adrift-test-is-reported:begin — generated by `canon generate`; edits are overwritten -->
@@ -4285,7 +4307,7 @@ This follows because the stem is the one thing the author chooses. A kind is a c
 
 #### @spec rename-moves-every-name-of-the-unit-to-the-new-id
 
-> After `rename`, each tag, pointer, code span and generated region of the project that named the old id names the new id.
+> After `rename`, each tag, pointer, link in a comment, code span and generated region of the project that named the old id names the new id.
 
 This follows because a name left on the old id is a rotting. The author would have to chase it, and the chase is what the rename spares.
 
@@ -4306,6 +4328,14 @@ This follows because a pointer names its unit by the path and the fragment toget
 > A tag that names the old id, in a comment of a suite or a source, or in a reference, names the new id.
 
 This follows because a test checks the units its tags name, and a rename changes no test.
+
+##### @spec rename-moves-a-link-in-a-comment
+
+> A link in a comment of a source that leads to the unit gets the new id as its fragment.
+
+Its path leads from the file that holds the comment. A link into another document keeps its fragment.
+
+This follows because a source cites a unit with a link as well as with a tag. A link left on the old id is a rotting.
 
 ##### @spec rename-moves-a-code-span-that-spells-the-old-id
 
