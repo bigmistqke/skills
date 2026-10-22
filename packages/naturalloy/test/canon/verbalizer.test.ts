@@ -569,6 +569,16 @@ describe('a definition', () => {
   });
 
   /**
+   * @canon spec-a-definition-whose-body-is-a-series-sets-it-apart
+   */
+  it('sets apart a body that is a series, which could end before its last clause', () => {
+    expect(verbalizeDefinition('pred orphan[u: Unit] { u in Spec ; u in Spec }', readings)).toBe(
+      'For every unit:\n  the unit is an orphan exactly when the following holds:\n    the unit is a spec, and at the next moment, the unit is a spec.'
+    );
+    expect(verbalizeDefinition('pred orphan[u: Unit] { u in Spec until u in Spec }', readings).split('\n')[1]).toBe('  the unit is an orphan exactly when the following holds:');
+  });
+
+  /**
    * @canon spec-a-definition-says-each-parameter-with-the-noun-of-its-type
    */
   it('says each parameter of several, with the noun of its type', () => {
@@ -703,8 +713,37 @@ describe('a definition', () => {
   });
 });
 
+describe('the words several clauses share', () => {
+  const shared = withDefinitions(
+    parseReadings(
+      [
+        'noun Unit: unit', 'noun Spec: spec', 'noun Bug: bug', 'Cite.rel: {1} cites {2} | {1} does not cite {2}', 'kept: {1} is kept | {1} is not kept',
+        'A: {1} is a definition with an alternative A | {1} is not a definition with an alternative A',
+        'B: {1} is a definition with an alternative B | {1} is not a definition with an alternative B'
+      ].join('\n')
+    ),
+    'sig Unit {} sig Spec, Bug extends Unit {} sig A, B in Unit {} sig Cite { rel: Unit -> Unit }'
+  );
+
+  /**
+   * @canon spec-words-said-once-for-several-clauses-hold-no-noun-phrase
+   */
+  it('are said once only up to their first noun phrase: a subject, "is not" and "is"', () => {
+    // Clauses that share more than their subject, "is a definition with", say only the subject once.
+    expect(verbalize('all u: Unit | u in A and u in B', shared)).toBe('For every unit:\n  the unit is a definition with an alternative A and is a definition with an alternative B.');
+    // Negations of a noun phrase's variable share "is not", and each says its own "a definition with".
+    expect(verbalize('all v: Unit | some u: Unit | v->u in Cite.rel and u not in A and u not in B', shared)).toBe(
+      'For every unit_1:\n  unit_1 cites a unit that is not a definition with an alternative A or a definition with an alternative B.'
+    );
+    // The kinds of a definition share "is", and each says what else holds of its kind in full.
+    expect(verbalizeDefinition('pred kept[u: Unit] { (u in Spec and u in A) or (u in Bug and u in B) }', shared)).toBe(
+      'For every unit:\n  the unit is kept exactly when the unit is one of these:\n    - a spec that is a definition with an alternative A\n    - a bug that is a definition with an alternative B'
+    );
+  });
+});
+
 describe('a definition by cases', () => {
-  const readings = parseReadings(
+  const readings = withDefinitions(parseReadings(
     [
       'noun Unit: unit', 'noun Issue: issue',
       'Spec: {1} is a spec | {1} is not a spec', 'Bug: {1} is a bug | {1} is not a bug', 'Axiom: {1} is an axiom | {1} is not an axiom',
@@ -712,7 +751,7 @@ describe('a definition by cases', () => {
       'Tested: {1} is tested | {1} is not tested',
       'unfounded: {1} is unfounded | {1} is not unfounded', 'hidden: {1} is hidden | {1} is not hidden', 'odd: {1} is odd | {1} is not odd'
     ].join('\n')
-  );
+  ), 'sig Issue {} sig Unit {} sig Spec, Bug, Axiom extends Unit {} sig Known in Issue {} sig Tested in Unit {} sig Cite, Name { rel: Unit -> univ }');
   const define = (body: string, name = 'unfounded'): string => verbalizeDefinition(`pred ${name}[u: Unit] { ${body} }`, readings).split('\n').slice(1).join('\n').trim();
 
   /**
@@ -773,6 +812,16 @@ describe('a definition by cases', () => {
     expect(define('(u in Spec and (some a: Unit | a->u in Cite.rel and a in Spec)) or (u in Bug and u not in Spec)').split('\n')[0]).toBe(
       'unit_1 is unfounded exactly when at least one of these holds:'
     );
+  });
+
+  /**
+   * @canon spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member
+   */
+  it('is said as it stands when two of its kinds can share a member', () => {
+    const body = 'pred unfounded[u: Unit] { (u in Spec and u in Tested) or (u in Bug and u not in Tested) }';
+    const kinds = (vocabulary: string): string => verbalizeDefinition(body, withDefinitions(parseReadings(['noun Unit: unit', 'Spec: {1} is a spec | {1} is not a spec', 'Bug: {1} is a bug | {1} is not a bug', 'Tested: {1} is tested | {1} is not tested', 'unfounded: {1} is unfounded | {1} is not unfounded'].join('\n')), vocabulary)).split('\n')[1] as string;
+    expect(kinds('sig Unit {} sig Spec, Bug in Unit {} sig Tested in Unit {}')).toBe('  the unit is unfounded exactly when at least one of these holds:');
+    expect(kinds('sig Unit {} sig Spec, Bug extends Unit {} sig Tested in Unit {}')).toBe('  the unit is unfounded exactly when the unit is one of these:');
   });
 });
 

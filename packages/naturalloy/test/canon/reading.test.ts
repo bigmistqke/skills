@@ -3,11 +3,12 @@
  * IR of those words means in Alloy.
  */
 import { describe, expect, it } from 'vitest';
+import { BINARY, COMPARED, INTRO, MOMENT, RULE, WRAP } from '../../src/core/constructs.ts';
 import { context, lower } from '../../src/core/index.ts';
 import { meaning } from '../../src/core/ir.ts';
 import { optimize } from '../../src/core/pass.ts';
 import { PASSES } from '../../src/core/passes/index.ts';
-import { parseReadings, verbalize, withDefinitions } from '../../src/index.ts';
+import { parseReadings, readsBack, verbalize, verbalizeDefinition, withDefinitions } from '../../src/index.ts';
 import { READINGS, VOCABULARY } from './sweep.ts';
 
 const readings = withDefinitions(parseReadings(READINGS), VOCABULARY);
@@ -93,5 +94,60 @@ describe('the rules of reading', () => {
   it('says an equivalence with "exactly when" and a rule with "when"', () => {
     expect(say('c in Ran iff o in Disposed')).toBe('c has run exactly when pulse has disposed o.');
     expect(say('c in Ran implies o in Disposed')).toBe('When c has run, pulse has disposed o.');
+  });
+
+  /**
+   * @canon spec-one-of-these-names-one-of-kinds-that-share-no-member
+   */
+  it('reads "is one of these" as one of the kinds below it, kinds that share no member', () => {
+    const kinds = 'pred kept[x: univ] { (x in Owner and gone[x]) or (x in Cleanup and x in Ran) }';
+    expect(verbalizeDefinition(kinds, readings)).toBe('For every thing:\n  the thing is kept exactly when the thing is one of these:\n    - an owner that is gone\n    - a cleanup that has run');
+    const back = readsBack(kinds, readings);
+    expect(back.meanings).toEqual([back.meant]);
+  });
+});
+
+/** A statement for each fixed word of the printer, with the words it holds. */
+const CONSTRUCTS: [string, string][] = [
+  [INTRO.all, 'c in Ran and c in Registered and o in Disposed and o in Stopped'],
+  [INTRO.any, 'c in Ran or c in Registered or o in Disposed or o in Stopped'],
+  [INTRO.both, '(c in Ran and c in Registered) iff (o in Disposed and o in Stopped)'],
+  [INTRO.exactlyOne, 'not ((c in Ran and c in Registered) iff (o in Disposed and o in Stopped))'],
+  [INTRO.untrue, 'not one c.on'],
+  [INTRO.apart, 'c in Ran implies (c in Registered implies o in Disposed)'],
+  [`is ${INTRO.oneOf}`, 'pred kept[x: univ] { (x in Owner and gone[x]) or (x in Cleanup and x in Ran) }'],
+  [MOMENT.always, 'always c in Ran'],
+  [MOMENT.eventually, 'eventually c in Ran'],
+  [MOMENT.after, 'after c in Ran'],
+  [MOMENT.before, 'before c in Ran'],
+  [MOMENT.once, 'once c in Ran'],
+  [MOMENT.historically, 'historically c in Ran'],
+  [BINARY.until.joint, 'c in Ran until o in Disposed'],
+  [BINARY.until.first, '(c in Ran and c in Registered) until o in Disposed'],
+  [BINARY.until.second, '(c in Ran and c in Registered) until o in Disposed'],
+  [BINARY.since.joint, 'c in Ran since o in Disposed'],
+  [BINARY.since.first, '(c in Ran and c in Registered) since o in Disposed'],
+  [BINARY.since.second, '(c in Ran and c in Registered) since o in Disposed'],
+  [RULE.when, 'c in Ran implies o in Disposed'],
+  [RULE.whenever, 'always (c in Ran implies o in Disposed)'],
+  [RULE.then, 'c in Ran implies after o in Disposed'],
+  [RULE.otherwise, 'c in Ran implies o in Disposed else o in Stopped'],
+  [WRAP, 'all x, y: Int | x < y'],
+  ...Object.entries(COMPARED).map(([op, words]): [string, string] => [words, op === '=' || op === '!=' ? `all y: Int | #c.on ${op} y` : `all x, y: Int | x ${op} y`])
+];
+
+describe('the fixed words of the printer', () => {
+  /**
+   * @canon spec-each-fixed-word-of-the-printer-reads-back-to-its-meaning
+   */
+  it('each stand in a statement that reads back to its one meaning', () => {
+    const fixed = [...Object.values(INTRO).filter(words => words !== INTRO.oneOf), `is ${INTRO.oneOf}`, ...Object.values(MOMENT), ...Object.values(BINARY).flatMap(b => Object.values(b)), ...Object.values(RULE), WRAP, ...Object.values(COMPARED)];
+    expect(fixed.filter(words => !CONSTRUCTS.some(([held]) => held === words))).toEqual([]);
+    const wrong = CONSTRUCTS.flatMap(([words, formula]) => {
+      const back = readsBack(formula, readings, ['c', 'o', 'p']);
+      const holds = back.words.toLowerCase().includes(words.trim().toLowerCase());
+      return holds && back.meanings.length === 1 && back.meanings[0] === back.meant ? [] : [{ words, formula, said: back.words, meanings: back.meanings }];
+    });
+    expect(wrong).toEqual([]);
   });
 });

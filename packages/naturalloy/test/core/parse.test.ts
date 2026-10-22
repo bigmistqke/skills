@@ -8,7 +8,7 @@ import { meaning } from '../../src/core/ir.ts';
 import { optimize } from '../../src/core/pass.ts';
 import { meant, readBack } from '../../src/core/parse.ts';
 import { PASSES } from '../../src/core/passes/index.ts';
-import { isDefinition, parseReadings, withDefinitions } from '../../src/index.ts';
+import { parseReadings, readsBack, withDefinitions } from '../../src/index.ts';
 import { READINGS, SWEEP, VOCABULARY } from '../canon/sweep.ts';
 
 const readings = withDefinitions(parseReadings(READINGS), VOCABULARY);
@@ -21,16 +21,13 @@ describe('the words, read back', () => {
   it('give each statement of the sweep one meaning, the meaning of what the printer said', () => {
     const wrong: { formula: string; words: string; meanings: string[] }[] = [];
     for (const { formula } of SWEEP) {
-      if (isDefinition(formula)) continue;
-      let ir;
+      let back;
       try {
-        ir = optimize(lower(formula, readings), PASSES, context(readings));
+        back = readsBack(formula, readings, FREE);
       } catch {
         continue;
       }
-      const words = print(ir.ir, readings, {}, ir.print);
-      const meanings = readBack(words, readings, FREE, meaning);
-      if (meanings.length !== 1 || meanings[0] !== meant(ir.ir, meaning)) wrong.push({ formula, words, meanings });
+      if (back.meanings.length !== 1 || back.meanings[0] !== back.meant) wrong.push({ formula, words: back.words, meanings: back.meanings });
     }
     expect(wrong).toEqual([]);
   }, 600_000);
