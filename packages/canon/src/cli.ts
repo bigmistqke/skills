@@ -1681,7 +1681,14 @@ and generate runs under those commands, and no prefixed name asks for it.
   ${COMMAND} alloy:logic --show <scenario>
                                    print a world in which the scenario happens, step by step, in the
                                    document's readings (repeat for more scenarios)
-  ${COMMAND} pele:graph [--svg]    print the derivations of the documents as a Mermaid flowchart, or with
+  ${COMMAND} alloy:intent <unit> … print the intent of each unit with a formula: the prose between its
+                                   statement and its first fenced block, under where the unit starts
+                                   and its id
+  ${COMMAND} alloy:intent <unit> --write
+                                   put the text on standard input in place of the unit's intent; refuse
+                                   (exit 2) text with a fence, a heading, a quote, a comment or a
+                                   "Derives from:" or "Site:" line, and leave the rest of the unit as it is
+  ${COMMAND} pele:graph [--svg]   print the derivations of the documents as a Mermaid flowchart, or with
                                    --svg as the SVG that Pele renders from it
 
 They come from @bigmistqke/canon-plugin-retext, @bigmistqke/canon-plugin-alloy and
@@ -2365,6 +2372,7 @@ async function main(argv: string[]): Promise<void> {
         statement: { type: 'boolean' },
         body: { type: 'boolean' },
         'dry-run': { type: 'boolean' },
+        write: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' }
       }
     });

@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { alloyProgram, checkAlloy, predicateName, type AlloyOptions } from './alloy.ts';
 import { contextOf } from '@bigmistqke/canon/extends';
+import { printIntents, writeIntent } from './intent.ts';
 import { checkMaps, reviewMaps } from './map.ts';
 import type { Plugin } from '@bigmistqke/canon/plugin';
 import * as statements from './statements.ts';
@@ -187,6 +188,8 @@ export const plugin: Plugin = {
   config: 'logic',
   commands: {
     generate: ({ root, documents }) => generateStatements(documents, root),
+    intent: ({ args, root, documents, options }) =>
+      options.write === true ? writeIntent(documents, root, args, readFileSync(0, 'utf8')) : printIntents(documents, root, args),
     check: ({ root, documents }) => Math.max(checkStatements(documents, root), checkDocumentWords(documents, root)),
     logic: ({ args, root, documents, config, options }) => {
       const documentsToRead = args.length > 0 ? args : documents;

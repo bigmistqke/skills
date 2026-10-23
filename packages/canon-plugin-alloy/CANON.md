@@ -19,6 +19,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
 - [`@term group`](#term-group) — A group is a set of units linked through the words they share.
 - [`@term lone-formula`](#term-lone-formula) — A formula is lone on a signature when it uses the signature, no other unit names the signature, and no scenario names it.
 - [`@term world`](#term-world) — A world is what the analyzer finds when a search can hold. It has the things of each signature and the tuples of each field, at each step of a trace.
+- [`@term intent`](#term-intent) — The intent of a unit with a formula is the prose between its statement and its first fenced block. In it, the author says what the unit is for.
 - [`@axiom a-statement-says-what-its-logic-says`](#axiom-a-statement-says-what-its-logic-says) —
   > For every [document](../canon/CANON.md#term-document) and every [unit](../canon/CANON.md#term-unit):
   >
@@ -391,6 +392,25 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     - [`@spec a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in`](#spec-a-thing-of-a-var-signature-is-said-to-exist-at-each-step-it-is-in) — The checker says a thing of a `var` signature with no reading, not declared with `in`, as `<thing> exists` at each step that holds it.
     - [`@spec a-word-with-no-reading-is-said-with-its-alloy-name`](#spec-a-word-with-no-reading-is-said-with-its-alloy-name) — The checker says a tuple of a word with no reading and no noun in Alloy. It gives the name of the word, then its things: `Ended: claim_1`, `Lane.claim: lane_1 -> claim_1`.
   - [`@spec a-world-says-which-thing-each-variable-of-the-scenario-is`](#spec-a-world-says-which-thing-each-variable-of-the-scenario-is) — A world opens with the thing that each variable of its scenario stands for, as `c is claim_1`.
+- [`@axiom the-parts-of-a-unit-with-logic-are-handled-through-commands`](#axiom-the-parts-of-a-unit-with-logic-are-handled-through-commands) — People and sessions read and change the intent and the readings of a canon through the commands of the plugin, by unit and by key. No one has to edit the text around a generated region by hand.
+  - [`@spec intent-prints-the-intent-of-each-unit-it-is-given`](#spec-intent-prints-the-intent-of-each-unit-it-is-given) — `alloy:intent` prints the [intent](#term-intent) of each unit that its command line names by id, in the documents the plugin runs over.
+    - [`@spec intent-heads-each-intent-with-where-its-unit-starts-and-its-id`](#spec-intent-heads-each-intent-with-where-its-unit-starts-and-its-id) — `alloy:intent` prints a line with the document and the line where a unit starts and its id, above the intent of the unit.
+    - [`@spec intent-prints-the-prose-between-the-statement-and-the-first-fenced-block`](#spec-intent-prints-the-prose-between-the-statement-and-the-first-fenced-block) — `alloy:intent` prints the [intent](#term-intent) of a unit as the document writes it. The intent ends before the first fenced block or generated region of the unit.
+    - [`@spec a-derives-from-line-before-the-intent-is-no-part-of-it`](#spec-a-derives-from-line-before-the-intent-is-no-part-of-it) — A "Derives from:" line or a "Site:" line between the statement of a unit and its intent is no part of the [intent](#term-intent).
+    - [`@spec intent-of-a-unit-with-no-intent-says-none`](#spec-intent-of-a-unit-with-no-intent-says-none) — When a unit with a formula has no [intent](#term-intent), `alloy:intent` prints `none` under its line.
+    - [`@spec intent-of-a-unit-that-holds-no-formula-is-refused`](#spec-intent-of-a-unit-that-holds-no-formula-is-refused) — When the command line of `alloy:intent` names a unit that holds no formula, the plugin says so and changes nothing. The run exits with code 2.
+    - [`@spec intent-of-a-name-that-names-no-unit-is-refused`](#spec-intent-of-a-name-that-names-no-unit-is-refused) — When the command line of `alloy:intent` holds a name of no unit of the plugin's documents, the plugin says so. The run exits with code 2.
+  - [`@spec intent-with-write-replaces-the-intent-of-its-unit`](#spec-intent-with-write-replaces-the-intent-of-its-unit) — `alloy:intent <unit> --write` reads a new intent from standard input, and puts it in place of the [intent](#term-intent) of the unit in its document.
+    - [`@spec write-puts-the-text-from-standard-input-in-place-of-the-intent`](#spec-write-puts-the-text-from-standard-input-in-place-of-the-intent) — After `alloy:intent <unit> --write`, the intent of the unit is the text that standard input gave, without the blank lines around it.
+    - [`@spec write-gives-a-unit-with-no-intent-one-after-its-statement-and-its-derivation-line`](#spec-write-gives-a-unit-with-no-intent-one-after-its-statement-and-its-derivation-line) — When the unit has no intent, `alloy:intent --write` puts the text after its statement and its "Derives from:" line, before its first fenced block.
+    - [`@spec write-changes-nothing-but-the-intent-of-its-unit`](#spec-write-changes-nothing-but-the-intent-of-its-unit) — `alloy:intent --write` leaves every line of the document outside the intent of its unit as it was. That holds the heading, the statement, the "Derives from:" line, the formula, the scenarios, the readings and the generated regions.
+    - [`@spec a-write-that-cannot-hold-is-refused`](#spec-a-write-that-cannot-hold-is-refused) — `alloy:intent --write` refuses a write whose text or command line it cannot hold. It says why, changes no file, and the run exits with code 2.
+      - [`@spec a-write-of-text-with-a-fenced-block-is-refused`](#spec-a-write-of-text-with-a-fenced-block-is-refused) — `alloy:intent --write` refuses text that holds a line that opens a fenced block.
+      - [`@spec a-write-of-text-with-a-heading-is-refused`](#spec-a-write-of-text-with-a-heading-is-refused) — `alloy:intent --write` refuses text that holds a heading.
+      - [`@spec a-write-of-text-with-a-line-the-checker-reads-as-structure-is-refused`](#spec-a-write-of-text-with-a-line-the-checker-reads-as-structure-is-refused) — `alloy:intent --write` refuses text that holds a quote, a "Derives from:" line, a "Site:" line or a comment.
+      - [`@spec a-write-of-no-text-is-refused`](#spec-a-write-of-no-text-is-refused) — `alloy:intent --write` refuses text that holds only blank space.
+      - [`@spec a-write-that-names-more-than-one-unit-is-refused`](#spec-a-write-that-names-more-than-one-unit-is-refused) — `alloy:intent --write` refuses a command line that names more than one unit.
+      - [`@spec a-refused-write-changes-no-file`](#spec-a-refused-write-changes-no-file) — When `alloy:intent --write` refuses a write, every document is as it was before the run.
 - [`@fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature`](#fact-only-solving-a-model-decides-whether-a-formula-constrains-a-signature) — Whether the other formulas of a model constrain a signature, or can contradict a formula, depends on what the formulas mean. Only solving the model decides it. The names that a block writes do not.
 <!-- toc:end -->
 
@@ -584,6 +604,12 @@ loneOn: the formula of {1} is [lone](#term-lone-formula) on {2} | the formula of
 > A world is what the analyzer finds when a search can hold. It has the things of each signature and the tuples of each field, at each step of a trace.
 
 A thing is an element of a signature, which the analyzer names after the signature and a number, such as `Claim$0`. A trace has a step for each moment, and ends by looping back to one of its steps, which makes it go on for ever.
+
+### @term intent
+
+> The intent of a unit with a formula is the prose between its statement and its first fenced block. In it, the author says what the unit is for.
+
+The intent measures the formula. When the generated statement says something the intent does not mean, the formula slipped, or the intent did. A "Derives from:" line and a "Site:" line come right after the statement, so they come before the intent. The intent ends early at a generated region, such as the statement of a scenario.
 
 ## @axiom a-statement-says-what-its-logic-says
 
@@ -2047,6 +2073,122 @@ This follows because a tuple that the author cannot see could be the way out. A 
 > A world opens with the thing that each variable of its scenario stands for, as `c is claim_1`.
 
 This follows because a scenario says that some things exist. The author has to know which things of the world they are to follow them.
+
+## @axiom the-parts-of-a-unit-with-logic-are-handled-through-commands
+
+> People and sessions read and change the intent and the readings of a canon through the commands of the plugin, by unit and by key. No one has to edit the text around a generated region by hand.
+
+Derives from: [`axiom-the-document-holds-the-canon-the-commands-handle-it`](../canon/CANON.md#axiom-the-document-holds-the-canon-the-commands-handle-it)
+
+This narrows the commands that handle the canon to the parts that the plugin gives a unit. A unit with a formula holds a generated statement, an intent, a formula and its scenarios, one after another. Its words have readings in a term. An edit by hand among them can break a marker or a fence unseen, or change a statement that the checker owns.
+
+#### @spec intent-prints-the-intent-of-each-unit-it-is-given
+
+> `alloy:intent` prints the [intent](#term-intent) of each unit that its command line names by id, in the documents the plugin runs over.
+
+This follows because a session that changes a formula reads its intent first, to measure the change. The intent sits among generated text, which the session should not have to cut around.
+
+##### @spec intent-heads-each-intent-with-where-its-unit-starts-and-its-id
+
+> `alloy:intent` prints a line with the document and the line where a unit starts and its id, above the intent of the unit.
+
+This follows because `show` heads a unit the same way. A reader can then search the output by id, and open the unit where it starts.
+
+##### @spec intent-prints-the-prose-between-the-statement-and-the-first-fenced-block
+
+> `alloy:intent` prints the [intent](#term-intent) of a unit as the document writes it. The intent ends before the first fenced block or generated region of the unit.
+
+This follows because the intent is the author's own prose, and the reader measures the formula against those exact words.
+
+##### @spec a-derives-from-line-before-the-intent-is-no-part-of-it
+
+> A "Derives from:" line or a "Site:" line between the statement of a unit and its intent is no part of the [intent](#term-intent).
+
+This follows because the checker reads those lines as the derivation and the site of the unit, and a body opens with its derivation line. A command that changed the intent would otherwise change what the unit derives from.
+
+##### @spec intent-of-a-unit-with-no-intent-says-none
+
+> When a unit with a formula has no [intent](#term-intent), `alloy:intent` prints `none` under its line.
+
+This follows because a reader who asked for the intent must not take silence for an empty answer.
+
+##### @spec intent-of-a-unit-that-holds-no-formula-is-refused
+
+> When the command line of `alloy:intent` names a unit that holds no formula, the plugin says so and changes nothing. The run exits with code 2.
+
+This follows because only a unit with a formula has an intent. A unit without one gives its reason in a "This follows because" sentence, which belongs to its own body.
+
+##### @spec intent-of-a-name-that-names-no-unit-is-refused
+
+> When the command line of `alloy:intent` holds a name of no unit of the plugin's documents, the plugin says so. The run exits with code 2.
+
+This follows because a reader who asked for a unit must not take silence for an empty intent.
+
+#### @spec intent-with-write-replaces-the-intent-of-its-unit
+
+> `alloy:intent <unit> --write` reads a new intent from standard input, and puts it in place of the [intent](#term-intent) of the unit in its document.
+
+This follows because a session that rewords an intent would otherwise edit the document by its text, between a generated statement and a fence.
+
+##### @spec write-puts-the-text-from-standard-input-in-place-of-the-intent
+
+> After `alloy:intent <unit> --write`, the intent of the unit is the text that standard input gave, without the blank lines around it.
+
+This follows because the author says what the intent is, and the command only puts it in its place.
+
+##### @spec write-gives-a-unit-with-no-intent-one-after-its-statement-and-its-derivation-line
+
+> When the unit has no intent, `alloy:intent --write` puts the text after its statement and its "Derives from:" line, before its first fenced block.
+
+This follows because that is where an intent sits, so the next read finds it there.
+
+##### @spec write-changes-nothing-but-the-intent-of-its-unit
+
+> `alloy:intent --write` leaves every line of the document outside the intent of its unit as it was. That holds the heading, the statement, the "Derives from:" line, the formula, the scenarios, the readings and the generated regions.
+
+This follows because the command handles one part of one unit. A write that touched another part would change a claim, a derivation or a statement that the checker owns.
+
+##### @spec a-write-that-cannot-hold-is-refused
+
+> `alloy:intent --write` refuses a write whose text or command line it cannot hold. It says why, changes no file, and the run exits with code 2.
+
+This follows because a write that went ahead in part would leave a document that the author did not ask for.
+
+###### @spec a-write-of-text-with-a-fenced-block-is-refused
+
+> `alloy:intent --write` refuses text that holds a line that opens a fenced block.
+
+This follows because the intent ends at the first fenced block. A fence in the text would end it early, and could add a formula to the unit.
+
+###### @spec a-write-of-text-with-a-heading-is-refused
+
+> `alloy:intent --write` refuses text that holds a heading.
+
+This follows because a heading ends the own text of a unit. The rest of the unit would move under the new heading.
+
+###### @spec a-write-of-text-with-a-line-the-checker-reads-as-structure-is-refused
+
+> `alloy:intent --write` refuses text that holds a quote, a "Derives from:" line, a "Site:" line or a comment.
+
+This follows because the checker reads each of them as part of the unit's structure. A quote reads as a statement that a person wrote, and a comment can mark a generated region.
+
+###### @spec a-write-of-no-text-is-refused
+
+> `alloy:intent --write` refuses text that holds only blank space.
+
+This follows because a unit with a formula owes an intent, so a write cannot take it away.
+
+###### @spec a-write-that-names-more-than-one-unit-is-refused
+
+> `alloy:intent --write` refuses a command line that names more than one unit.
+
+This follows because standard input gives one text, and it is the intent of one unit.
+
+###### @spec a-refused-write-changes-no-file
+
+> When `alloy:intent --write` refuses a write, every document is as it was before the run.
+
+This follows because the author fixes the input and runs the command again, and a half-done write would be in the way.
 
 ## @fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature
 
