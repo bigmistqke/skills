@@ -99,16 +99,54 @@ export interface Found {
   run: Command;
 }
 
-/** Every plugin the documents name that adds `command`. Empty when there is none. */
-export async function findCommands(command: string, documents: string[], root: string): Promise<Found[]> {
+/** The commands the core runs itself; a plugin adds to `check` and `generate` among them, and every other command of a plugin is its own. */
+export const CORE_COMMANDS: ReadonlySet<string> = new Set(['check', 'generate', 'tree', 'show', 'find', 'log', 'rename']);
+
+/**
+ * The prefix of a plugin's own commands: the name of its package, without its
+ * scope and without `canon-plugin-` in front. It comes from the package, so a
+ * plugin cannot choose another's and stand in for its checks.
+ */
+export function prefixOf(specifier: string): string {
+  const name = specifier.startsWith('@') ? specifier.slice(specifier.indexOf('/') + 1) : specifier;
+  return name.startsWith('canon-plugin-') ? name.slice('canon-plugin-'.length) : name;
+}
+
+/** Every plugin the documents name, loaded. A name that names no installed package stops the run. */
+async function loadAll(documents: string[], root: string): Promise<{ specifier: string; plugin: Plugin }[]> {
   // A name that matches nothing must not pass for a plugin that is switched off: it would drop its checks without a word.
   const names = installedPlugins(documents, root);
   for (const name of names) resolveInstalled(name, root);
+  const loaded: { specifier: string; plugin: Plugin }[] = [];
+  for (const specifier of names) loaded.push({ specifier, plugin: await loadInstalled(specifier, root) });
+  return loaded;
+}
+
+/** Every plugin the documents name that adds to the core command `command`, such as `check`. Empty when there is none. */
+export async function findCommands(command: string, documents: string[], root: string): Promise<Found[]> {
   const found: Found[] = [];
-  for (const specifier of names) {
-    const plugin = await loadInstalled(specifier, root);
+  for (const { specifier, plugin } of await loadAll(documents, root)) {
     const run = plugin.commands[command];
     if (run !== undefined) found.push({ specifier, plugin, run });
   }
   return found;
+}
+
+/**
+ * The plugin commands a name on the command line asks for. A prefixed name,
+ * `<prefix>:<command>`, asks for the command of each plugin with that prefix. A
+ * bare name asks for the one prefixed name that has it; `names` lists every
+ * prefixed name that has it, and `found` is empty when there is more than one.
+ */
+export async function findNamed(name: string, documents: string[], root: string): Promise<{ found: Found[]; names: string[] }> {
+  const own = (await loadAll(documents, root)).flatMap(({ specifier, plugin }) =>
+    Object.entries(plugin.commands)
+      .filter((entry): entry is [string, Command] => entry[1] !== undefined && !CORE_COMMANDS.has(entry[0]))
+      .map(([command, run]) => ({ specifier, plugin, run, command, prefixed: `${prefixOf(specifier)}:${command}` }))
+  );
+  const colon = name.indexOf(':');
+  const matching = own.filter(c => (colon === -1 ? c.command === name : c.prefixed === name));
+  const names = [...new Set(matching.map(c => c.prefixed))];
+  if (names.length > 1) return { found: [], names };
+  return { found: matching.map(({ specifier, plugin, run }) => ({ specifier, plugin, run })), names };
 }

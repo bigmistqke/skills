@@ -1,5 +1,5 @@
 /**
- * `canon graph`: the derivations of the canon documents as a Mermaid
+ * `canon pele:graph`: the derivations of the canon documents as a Mermaid
  * flowchart, or with `--svg` as the SVG that Pele renders from it.
  */
 import { readFileSync } from 'node:fs';

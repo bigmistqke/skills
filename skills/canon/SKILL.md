@@ -65,7 +65,7 @@ This file holds what every session needs. Two files beside it hold the rest:
    If the canon lacks a claim you need, write the unit. If an answer needs a judgement the canon cannot give, ask the owner of the design.
 7. Before the session ends, write every decision you made into the canon. The next session knows only what the canon holds.
 8. Write each unit for a reader who has none of your context. That reader is the next session.
-9. End the session with `pnpm canon check` clean and `pnpm canon log` clean. If a document lists the Alloy plugin, end it with `pnpm canon logic` clean too. If a document lists the retext plugin, run `pnpm canon lint` on the text you wrote, and fix its findings.
+9. End the session with `pnpm canon check` clean and `pnpm canon log` clean. If a document lists the Alloy plugin, end it with `pnpm canon alloy:logic` clean too. If a document lists the retext plugin, run `pnpm canon retext:lint` on the text you wrote, and fix its findings.
 
 ## 3. Adding or changing behaviour
 
@@ -124,7 +124,7 @@ A project with code and tests but no canon gets its canon written backwards. The
    2. Group the tests by the claim they check. A claim that several tests check is one spec.
    3. Place each spec under the axiom that forces it, and nest a leaf for each case. Write the facts it relies on.
    4. Tag each test with the leaf it checks, as [writing units](writing-units.md#8-tests) describes. A test that checks a parent's basic case needs a leaf for that case.
-   5. Run the tests and `pnpm canon check`, and `pnpm canon lint` and `pnpm canon logic` when the documents list their plugins. Commit the area on its own.
+   5. Run the tests and `pnpm canon check`, and `pnpm canon retext:lint` and `pnpm canon alloy:logic` when the documents list their plugins. Commit the area on its own.
 8. State the code as it behaves now. Where it does not hold an axiom, tell a departure from a defect.
    1. A departure the code makes on purpose is an exception. Write the fact that forces it. If the fact is how a library the project follows behaves, state that behaviour as the fact.
    2. A departure the owner has not ruled on is an exception too, and its question goes in an issue. When the owner rules, change the canon.

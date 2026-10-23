@@ -15,4 +15,4 @@ plugins: ["@bigmistqke/canon-plugin-retext"]
 # Canon
 ```
 
-It adds the command `canon lint`, which runs over the documents that name the plugin. Files named on the command line are checked whatever their frontmatter says: `canon lint docs/notes.md`. The text a tool generated between its markers is not read.
+It adds the command `canon retext:lint` (or `canon lint` while no other plugin has a command of that name), which runs over the documents that name the plugin. Files named on the command line are checked whatever their frontmatter says: `canon retext:lint docs/notes.md`. The text a tool generated between its markers is not read.

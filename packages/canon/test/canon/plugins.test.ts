@@ -139,14 +139,14 @@ const adder = (name: string, command: string, says: string, code: number): Recor
 });
 
 describe('the same command from several plugins', () => {
-  const both = { ...adder('canon-a', 'fake', 'a ran', 0), ...adder('canon-b', 'fake', 'b ran', 1) };
+  const both = { ...adder('canon-a', 'generate', 'a ran', 0), ...adder('canon-b', 'generate', 'b ran', 1) };
 
   /**
    * @canon spec-every-plugin-a-run-calls-runs
    * @canon spec-a-finding-fails-the-run
    */
   it('runs every plugin that adds it, and exits with the worst code', () => {
-    const { out, code } = project({ 'A.md': doc('plugins: ["canon-a", "canon-b"]') }, ['fake'], both);
+    const { out, code } = project({ 'A.md': doc('plugins: ["canon-a", "canon-b"]') }, ['generate'], both);
     expect(out).toContain('a ran');
     expect(out).toContain('b ran');
     expect(code).toBe(1);
@@ -156,11 +156,80 @@ describe('the same command from several plugins', () => {
    * @canon spec-a-plugin-that-could-not-run-stops-the-run
    */
   it('puts a check that could not run above a finding', () => {
-    const three = { ...both, ...adder('canon-c', 'fake', 'c ran', 2) };
-    const { code } = project({ 'A.md': doc('plugins: ["canon-a", "canon-b", "canon-c"]') }, ['fake'], three);
+    const three = { ...both, ...adder('canon-c', 'generate', 'c ran', 2) };
+    const { code } = project({ 'A.md': doc('plugins: ["canon-a", "canon-b", "canon-c"]') }, ['generate'], three);
     expect(code).toBe(2);
   });
 
+});
+
+/** A package named `name` whose plugin calls itself `calls` and adds `commands`, each of which prints its name and the words after it. */
+const named = (name: string, calls: string, commands: string[]): Record<string, string> => ({
+  [`node_modules/${name}/package.json`]: JSON.stringify({ name, version: '1.0.0', main: 'index.js' }),
+  [`node_modules/${name}/index.js`]: `exports.plugin = { name: '${calls}', commands: { ${commands
+    .map(command => `'${command}': (context) => { console.log('${name} ${command} ran ' + context.args.join(' ')); return 0; }`)
+    .join(', ')} } };`
+});
+
+describe('the name a plugin adds a command under', () => {
+  const fake = named('canon-plugin-fake', 'other', ['fake', 'generate']);
+
+  /**
+   * @canon spec-a-run-asks-for-a-command-of-a-plugin-by-its-prefixed-name
+   */
+  it('runs the command of the plugin that the prefix names', () => {
+    const { out, code } = project({ 'A.md': doc('plugins: ["canon-plugin-fake"]') }, ['fake:fake', 'one'], fake);
+    expect(out).toContain('canon-plugin-fake fake ran one');
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-the-prefix-is-the-name-of-the-package-without-its-scope-and-without-canon-plugin
+   */
+  it('takes the prefix from the package, not from the name the plugin gives itself', () => {
+    const scoped = named('@acme/canon-plugin-fake', 'other', ['fake']);
+    const ran = project({ 'A.md': doc('plugins: ["@acme/canon-plugin-fake"]') }, ['fake:fake'], scoped);
+    expect(ran.out).toContain('@acme/canon-plugin-fake fake ran');
+    expect(ran.code).toBe(0);
+    const faked = project({ 'A.md': doc('plugins: ["canon-plugin-fake"]') }, ['other:fake'], fake);
+    expect(faked.out).toContain('unknown command "other:fake"');
+    expect(faked.code).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-plugin-adds-to-check-and-generate-without-a-prefix
+   */
+  it('runs a plugin part of generate under generate, and under no prefixed name', () => {
+    const generate = project({ 'A.md': doc('plugins: ["canon-plugin-fake"]') }, ['generate'], fake);
+    expect(generate.out).toContain('canon-plugin-fake generate ran');
+    const prefixed = project({ 'A.md': doc('plugins: ["canon-plugin-fake"]') }, ['fake:generate'], fake);
+    expect(prefixed.out).not.toContain('canon-plugin-fake generate ran');
+    expect(prefixed.out).toContain('unknown command "fake:generate"');
+    expect(prefixed.code).toBe(2);
+  });
+
+  /**
+   * @canon spec-a-bare-name-runs-the-one-command-that-has-it
+   */
+  it('runs the one command that has a bare name', () => {
+    const { out, code } = project({ 'A.md': doc('plugins: ["canon-plugin-fake"]') }, ['fake', 'one'], fake);
+    expect(out).toContain('canon-plugin-fake fake ran one');
+    expect(code).toBe(0);
+  });
+
+  /**
+   * @canon spec-an-ambiguous-bare-name-is-reported-with-the-commands-that-have-it
+   * @canon spec-an-ambiguous-bare-name-stops-the-run
+   */
+  it('names the commands that share a bare name, runs neither, and fails the run', () => {
+    const two = { ...named('canon-plugin-a', 'a', ['fake']), ...named('canon-plugin-b', 'b', ['fake']) };
+    const { out, code } = project({ 'A.md': doc('plugins: ["canon-plugin-a", "canon-plugin-b"]') }, ['fake'], two);
+    expect(out).toContain('"fake" is the bare name of more than one command');
+    expect(out).toContain('a:fake');
+    expect(out).toContain('b:fake');
+    expect(out).not.toContain('ran');
+    expect(code).toBe(2);
+  });
 });
 
 describe('check over a document with frontmatter', () => {

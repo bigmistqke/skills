@@ -35,7 +35,7 @@ jobs:
             (cd "packages/$p" && node ../canon/src/cli.ts check --offline)
           done
           for p in naturalloy parse-alloy canon-plugin-alloy canon-plugin-pele; do
-            (cd "packages/$p" && node ../canon/src/cli.ts lint CANON.md)
+            (cd "packages/$p" && node ../canon/src/cli.ts retext:lint CANON.md)
           done
 
   test:

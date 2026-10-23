@@ -10,7 +10,7 @@
     "test": "turbo run test && node scripts/kinds.ts --check && node scripts/graph.ts --check",
     "typecheck": "turbo run typecheck",
     "release": "pnpm -r publish",
-    "lint:prose": "cd packages/canon && node src/cli.ts lint ../../skills/canon/SKILL.md ../../skills/canon/writing-units.md ../../skills/canon/checker.md ../../skills/grill-with-canon/SKILL.md",
+    "lint:prose": "cd packages/canon && node src/cli.ts retext:lint ../../skills/canon/SKILL.md ../../skills/canon/writing-units.md ../../skills/canon/checker.md ../../skills/grill-with-canon/SKILL.md",
     "graph": "node scripts/graph.ts"
   },
   "devDependencies": {

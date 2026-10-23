@@ -20,7 +20,7 @@ import { parseArgs } from 'node:util';
 import { aNoun, CLAIMS, citable, type Kind, kindOf, noun, OWES, PREFIXES, REFINES } from './kinds.ts';
 import { issueRefs, lookupIssues, refKey, trackerProblems, type IssueRef, type TrackerConfig } from './tracker.ts';
 import type { PluginContext } from './plugin.ts';
-import { configKeysOf, documentsFor, findCommands } from './plugins.ts';
+import { configKeysOf, CORE_COMMANDS, documentsFor, findCommands, findNamed, type Found } from './plugins.ts';
 import { beginMarker, replaceRegion } from './regions.ts';
 import { contextOf } from './extends.ts';
 import { hasSettings, readFrontmatter } from './frontmatter.ts';
@@ -1652,16 +1652,6 @@ Usage:
   ${COMMAND} find <word> … [--kind <kind>]
                                    list the units whose id or own text holds every word, in any
                                    case, each with where it starts, its id and its statement
-  ${COMMAND} lint [file …]         check the language of the documents' prose; exit 1 on a finding
-  ${COMMAND} logic [file …]        check the alloy blocks of the documents together: whether each
-                                   scenario can happen while every unit holds, and whether each unit's
-                                   map from its statement to its predicate is current; exit 1 if not
-  ${COMMAND} logic --review <unit> mark the unit's map reviewed as it now stands (repeat for more units)
-  ${COMMAND} logic --show <scenario>
-                                   print a world in which the scenario happens, step by step, in the
-                                   document's readings (repeat for more scenarios)
-  ${COMMAND} graph [--svg]         print the derivations of the documents as a Mermaid flowchart, or with
-                                   --svg as the SVG that Pele renders from it
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
   ${COMMAND} rename <id> <stem> [--dry-run]
@@ -1675,18 +1665,49 @@ Options for tree:
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
 
-The commands lint, logic and graph come from plugins:
-@bigmistqke/canon-plugin-retext, @bigmistqke/canon-plugin-alloy and
+Commands of plugins:
+A plugin adds each command of its own under the name of its package: the package
+@bigmistqke/canon-plugin-<name> adds <name>:<command>. The bare name, <command>,
+runs it too while no other plugin that applies has a command of that name; when
+two do, the run names their prefixed names and exits 2. A plugin's part of check
+and generate runs under those commands, and no prefixed name asks for it.
+
+  ${COMMAND} retext:lint [file …]  check the language of the documents' prose; exit 1 on a finding
+  ${COMMAND} alloy:logic [file …]  check the alloy blocks of the documents together: whether each
+                                   scenario can happen while every unit holds, and whether each unit's
+                                   map from its statement to its predicate is current; exit 1 if not
+  ${COMMAND} alloy:logic --review <unit>
+                                   mark the unit's map reviewed as it now stands (repeat for more units)
+  ${COMMAND} alloy:logic --show <scenario>
+                                   print a world in which the scenario happens, step by step, in the
+                                   document's readings (repeat for more scenarios)
+  ${COMMAND} alloy:intent <unit> … print the intent of each unit with a formula: the prose between its
+                                   statement and its first fenced block, under where the unit starts
+                                   and its id
+  ${COMMAND} alloy:intent <unit> --write
+                                   put the text on standard input in place of the unit's intent; refuse
+                                   (exit 2) text with a fence, a heading, a quote, a comment or a
+                                   "Derives from:" or "Site:" line, and leave the rest of the unit as it is
+  ${COMMAND} alloy:readings      list each reading of the documents: where it is, the unit that holds it,
+                                   its key and its positive and negative words
+  ${COMMAND} alloy:readings <key> --write "<positive> | <negative>"
+                                   reword the one reading with the key, in place; refuse (exit 2) a key
+                                   of no reading or of several. The statements that say it are stale
+                                   until generate, and the output names them
+  ${COMMAND} pele:graph [--svg]   print the derivations of the documents as a Mermaid flowchart, or with
+                                   --svg as the SVG that Pele renders from it
+
+They come from @bigmistqke/canon-plugin-retext, @bigmistqke/canon-plugin-alloy and
 @bigmistqke/canon-plugin-pele. The Alloy plugin also adds to generate and check: a
 document with a "readings" block has the statement of each unit with a
 predicate written from the predicate, and check reports one that is stale. It
 also reports the words of such a document that are undeclared, misplaced,
-apart from their declaration or unused. A document's frontmatter chooses which
+apart from their declaration or unused, and each unit with a formula and no intent. A document's frontmatter chooses which
 plugins apply to it, each named by its package ("plugins:
 [\"@bigmistqke/canon-plugin-retext\"]"); with none, none applies. Each is a package
 installed in the project, whose commands are added to these.
 
-logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" setting
+alloy:logic needs the Alloy analyzer's jar and a Java 17 or later: the "logic.alloy" setting
 of the entry document gives their paths ("jar", "java"), or CANON_ALLOY_JAR and CANON_JAVA do.
 
 The protocol is the canon skill. The scope is the frontmatter of the entry
@@ -2248,20 +2269,17 @@ function find(words: string[], kind: string | undefined): void {
   for (const unit of found) console.log(unitLine(unit));
 }
 
-/** The commands the core runs itself; every other command is added by a plugin. */
-const CORE_COMMANDS = new Set(['check', 'generate', 'tree', 'show', 'find', 'log', 'rename']);
-
 /**
- * Run the command that plugins add, each over the documents that apply it, and
- * return the worst of their codes; undefined when no plugin adds it. A plugin
- * that cannot be found or loaded, or a frontmatter that cannot be read, stops
- * the run before anything is checked.
+ * Run the plugin commands that `find` finds, each over the documents that
+ * apply its plugin, and return the worst of their codes; undefined when it
+ * finds none. A plugin that cannot be found or loaded, or a frontmatter that
+ * cannot be read, stops the run before anything is checked.
  */
-async function runCommands(command: string, args: string[], options: PluginContext['options']): Promise<number | undefined> {
-  let found: Awaited<ReturnType<typeof findCommands>>;
+async function runFound(find: () => Promise<Found[]>, args: string[], options: PluginContext['options']): Promise<number | undefined> {
+  let found: Found[];
   let applied: string[][];
   try {
-    found = await findCommands(command, DOCS, ROOT);
+    found = await find();
     applied = found.map(({ specifier }) => documentsFor(specifier, DOCS, ROOT));
   } catch (error) {
     console.error(`canon: ${(error as Error).message}`);
@@ -2283,9 +2301,30 @@ async function runCommands(command: string, args: string[], options: PluginConte
   return code;
 }
 
-/** Run a command that only plugins add, and exit with its code. */
+/** Run what plugins add to the core command `command`, such as `check`; undefined when no plugin adds to it. */
+const runCommands = (command: string, args: string[], options: PluginContext['options']): Promise<number | undefined> =>
+  runFound(() => findCommands(command, DOCS, ROOT), args, options);
+
+/**
+ * Run a command that only plugins add, by its prefixed name or its bare name,
+ * and exit with its code. A bare name that more than one command has runs
+ * none of them, since it cannot say which job was asked for.
+ */
 async function runPlugin(command: string, args: string[], options: PluginContext['options']): Promise<never> {
-  const code = await runCommands(command, args, options);
+  let names: string[] = [];
+  const code = await runFound(
+    async () => {
+      const named = await findNamed(command, DOCS, ROOT);
+      names = named.names;
+      return named.found;
+    },
+    args,
+    options
+  );
+  if (code === undefined && names.length > 1) {
+    console.error(`canon: "${command}" is the bare name of more than one command; ask for one of them by its prefixed name:\n${names.map(name => `  ${COMMAND} ${name}`).join('\n')}`);
+    process.exit(2);
+  }
   if (code === undefined) {
     console.error(`canon: unknown command "${command}"\n\n${HELP}`);
     process.exit(2);
@@ -2339,6 +2378,7 @@ async function main(argv: string[]): Promise<void> {
         statement: { type: 'boolean' },
         body: { type: 'boolean' },
         'dry-run': { type: 'boolean' },
+        write: { type: 'boolean' },
         help: { type: 'boolean', short: 'h' }
       }
     });

@@ -144,14 +144,41 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   > For every [run](#term-run) and every [plugin](#term-plugin):
   >
   > the run calls the plugin exactly when all of these hold:
-  > - the run asks for a [command](#term-command) that the plugin adds
+  > - there is a [command_1](#term-command) such that all of these hold:
+  >   - the run asks for command_1
+  >   - at least one of these holds:
+  >     - the plugin adds command_1
+  >     - command_1 is not [ambiguous](#term-ambiguity) and is the [bare name](#term-bare-name) of a command that the plugin adds
   > - the plugin [applies](#term-apply) to a [document](#term-document)
 - [`@term availability`](#term-availability) —
-  > A [command](#term-command) is available exactly when at least one of these holds:
-  > - the [checker](#term-checker) has the command of its own
+  > For every [command_1](#term-command):
+  >
+  > command_1 is available exactly when at least one of these holds:
+  > - the [checker](#term-checker) has command_1 of its own
   > - for some [installed plugin](#term-plugin) and some [document](#term-document):
   >
-  >   the installed plugin [applies](#term-apply) to the document and adds the command.
+  >   the installed plugin [applies](#term-apply) to the document and adds command_1
+  > - for some installed plugin, some document and some command_2:
+  >
+  >   the installed plugin applies to the document, adds command_2 and command_1 is the [bare name](#term-bare-name) of command_2.
+- [`@term bare-name`](#term-bare-name) — The bare name of a command that a plugin adds is the part of its name after the colon.
+- [`@term ambiguity`](#term-ambiguity) —
+  > For every [command_1](#term-command):
+  >
+  > command_1 is ambiguous exactly when the following holds:
+  >
+  > for some command_2 and some command_3:
+  >
+  > all of these hold:
+  > - command_2 and command_3 are different
+  > - command_1 is the [bare name](#term-bare-name) of command_2
+  > - command_1 is the bare name of command_3
+  > - for some [installed_plugin_1](#term-plugin) and some [document_1](#term-document):
+  >
+  >   installed_plugin_1 [applies](#term-apply) to document_1 and adds command_2
+  > - for some installed_plugin_2 and some document_2:
+  >
+  >   installed_plugin_2 applies to document_2 and adds command_3.
 - [`@term heading`](#term-heading) — A heading is a line of a document that starts with hashes and opens a part of it.
 - [`@term extent`](#term-extent) — The extent of a unit is the part of the document from its heading up to the next heading of its level or above.
 - [`@term own-text`](#term-own-text) — The own text of a unit is the text between its heading and its first nested heading.
@@ -401,6 +428,14 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-command-that-is-not-available-is-reported-as-unknown`](#spec-a-command-that-is-not-available-is-reported-as-unknown) — For every [run](#term-run) and every [command_1](#term-command): when the run asks for command_1 and command_1 is not [available](#term-availability), [checker](#term-checker) reports command_1 as an unknown command.
       - [`@spec a-command-that-is-not-available-stops-the-run`](#spec-a-command-that-is-not-available-stops-the-run) — For every [run](#term-run) and every [command](#term-command): when the run asks for the command and the command is not [available](#term-availability), the run exits with code 2.
       - [`@spec an-available-command-is-not-reported-as-unknown`](#spec-an-available-command-is-not-reported-as-unknown) — For every [command_1](#term-command): when command_1 is [available](#term-availability), [checker](#term-checker) does not report command_1 as an unknown command.
+    - [`@spec a-plugin-adds-its-own-commands-under-the-name-of-its-package`](#spec-a-plugin-adds-its-own-commands-under-the-name-of-its-package) — A plugin adds each command of its own under a prefix that the name of its package gives. The package `@bigmistqke/canon-plugin-<name>` adds `<name>:<command>`.
+      - [`@spec a-run-asks-for-a-command-of-a-plugin-by-its-prefixed-name`](#spec-a-run-asks-for-a-command-of-a-plugin-by-its-prefixed-name) — A run that asks for `<name>:<command>` runs the command `<command>` of the plugin whose package gives the prefix `<name>`.
+      - [`@spec the-prefix-is-the-name-of-the-package-without-its-scope-and-without-canon-plugin`](#spec-the-prefix-is-the-name-of-the-package-without-its-scope-and-without-canon-plugin) — The prefix of a plugin is the name of its package, without its scope and without `canon-plugin-` in front. The name the plugin gives itself plays no part.
+      - [`@spec a-plugin-adds-to-check-and-generate-without-a-prefix`](#spec-a-plugin-adds-to-check-and-generate-without-a-prefix) — A plugin that adds to `check` or `generate` runs when a run asks for that command of the checker. No prefixed name asks for it.
+    - [`@spec a-bare-name-runs-the-one-command-that-has-it`](#spec-a-bare-name-runs-the-one-command-that-has-it) — When a run asks for a [bare name](#term-bare-name) and exactly one command that an applied plugin adds has it, the run runs that command.
+    - [`@spec an-ambiguous-bare-name-fails-the-run`](#spec-an-ambiguous-bare-name-fails-the-run) — For every [run](#term-run) and every [command_1](#term-command): when the run asks for command_1 and command_1 is [ambiguous](#term-ambiguity), [checker](#term-checker) reports command_1 as the [bare name](#term-bare-name) of more than one command and the run exits with code 2.
+      - [`@spec an-ambiguous-bare-name-is-reported-with-the-commands-that-have-it`](#spec-an-ambiguous-bare-name-is-reported-with-the-commands-that-have-it) — For every [run](#term-run) and every [command_1](#term-command): when the run asks for command_1 and command_1 is [ambiguous](#term-ambiguity), [checker](#term-checker) reports command_1 as the [bare name](#term-bare-name) of more than one command.
+      - [`@spec an-ambiguous-bare-name-stops-the-run`](#spec-an-ambiguous-bare-name-stops-the-run) — For every [run](#term-run) and every [command](#term-command): when the run asks for the command and the command is [ambiguous](#term-ambiguity), the run exits with code 2.
     - [`@spec every-plugin-a-run-calls-runs`](#spec-every-plugin-a-run-calls-runs) —
       > For every [run](#term-run) and every [installed plugin](#term-plugin):
       >
@@ -467,7 +502,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-runner-marker-the-settings-do-not-list-is-refused`](#spec-a-runner-marker-the-settings-do-not-list-is-refused) — A runner marker in a project whose setting `runners` does not list `"@runner"` is one the checker cannot read. The checker says to add `"@runner"` to the setting.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
   - [`@spec a-check-with-no-runner-says-it-reads-no-test`](#spec-a-check-with-no-runner-says-it-reads-no-test) — When the project has no runner, the report of `check` says that it reads no tests.
-- [`@axiom the-document-holds-the-canon-the-commands-handle-it`](#axiom-the-document-holds-the-canon-the-commands-handle-it) — The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
+- [`@axiom the-document-holds-the-canon-the-commands-handle-it`](#axiom-the-document-holds-the-canon-the-commands-handle-it) — The documents store the canon. People and sessions read it and change it by its units, through the commands of the checker. So no one has to handle a document by its text.
   - [`@spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it`](#spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it) — `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it. A part named on the command line changes this.
     - [`@spec show-prints-the-own-text-of-a-unit-with-where-it-starts`](#spec-show-prints-the-own-text-of-a-unit-with-where-it-starts) — `show` prints the heading and the [own text](#term-own-text) of a unit, after the document and the line where the unit starts.
     - [`@spec show-lists-the-units-a-unit-sits-in-up-to-its-root`](#spec-show-lists-the-units-a-unit-sits-in-up-to-its-root) — `show` lists the unit that a unit sits in, the unit that one sits in, and so on up to a unit that sits in none.
@@ -1704,11 +1739,11 @@ Unfound: [checker](#term-checker) reports that the project lacks {1} | [checker]
 
 > A command is a word after `canon` on the command line, and asks the checker for one job.
 
-A command is the checker's own, or a [plugin](#term-plugin) adds it.
+A command is the checker's own, or a [plugin](#term-plugin) adds it. The checker has seven commands of its own: `check`, `generate`, `show`, `find`, `tree`, `rename` and `log`. A plugin can add to `check` and `generate`, and it can add commands of its own, such as `alloy:logic`.
 
 ```alloy vocabulary
 sig Command {}
-sig Core, Unknown in Command {}
+sig Core, Unknown, Clashed in Command {}
 one sig Add { rel: Plugin -> Command }
 ```
 
@@ -1716,6 +1751,7 @@ one sig Add { rel: Plugin -> Command }
 noun Command: [command]
 Core: the [checker](#term-checker) has {1} of its own | the [checker](#term-checker) does not have {1} of its own
 Unknown: [checker](#term-checker) reports {1} as an unknown [command] | [checker](#term-checker) does not report {1} as an unknown [command]
+Clashed: [checker](#term-checker) reports {1} as the [bare name](#term-bare-name) of more than one [command] | [checker](#term-checker) does not report {1} as the [bare name](#term-bare-name) of more than one [command]
 Add.rel: {1} adds {2} | {1} does not add {2}
 ```
 
@@ -1914,7 +1950,7 @@ one sig Ask { rel: Run -> Command }
 fact one_command { all r: Run | one r.(Ask.rel) }
 one sig Return { code0: Run -> Plugin, code1: Run -> Plugin, code2: Run -> Plugin }
 fact one_code_per_plugin { no Return.code0 & Return.code1 and no Return.code0 & Return.code2 and no Return.code1 & Return.code2 }
-pred stopped[r: Run] { (some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) }
+pred stopped[r: Run] { (some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some c: Command | r->c in Ask.rel and ambiguous[c]) }
 one sig Over { rel: Plugin -> Document }
 ```
 
@@ -1939,15 +1975,19 @@ Over.rel: [checker](#term-checker) runs {1} over {2} | [checker](#term-checker) 
 > For every [run](#term-run) and every [plugin](#term-plugin):
 >
 > the run calls the plugin exactly when all of these hold:
-> - the run asks for a [command](#term-command) that the plugin adds
+> - there is a [command_1](#term-command) such that all of these hold:
+>   - the run asks for command_1
+>   - at least one of these holds:
+>     - the plugin adds command_1
+>     - command_1 is not [ambiguous](#term-ambiguity) and is the [bare name](#term-bare-name) of a command that the plugin adds
 > - the plugin [applies](#term-apply) to a [document](#term-document)
 <!-- statement-term-call:end -->
 
-A run calls a plugin only when the plugin has work to do. The run asks for a command the plugin adds, and some document asks for the plugin in its frontmatter. A plugin that no document lists stays silent, even when someone asks for its command.
+A run calls a plugin only when the plugin has work to do. The run asks for a command the plugin adds, or for its [bare name](#term-bare-name) when that name is not [ambiguous](#term-ambiguity). Some document also asks for the plugin in its frontmatter. A plugin that no document lists stays silent, even when someone asks for its command.
 
 ```alloy
 pred calls[r: Run, p: Plugin] {
-  (some c: Command | r->c in Ask.rel and p->c in Add.rel)
+  (some c: Command | r->c in Ask.rel and (p->c in Add.rel or (not ambiguous[c] and (some c2: Command | c->c2 in Shorten.rel and p->c2 in Add.rel))))
   and (some d: Document | applies[p, d])
 }
 ```
@@ -1959,24 +1999,79 @@ calls: {1} [calls] {2} | {1} does not [call] {2}
 ### @term availability
 
 <!-- statement-term-availability:begin — generated by `canon generate`; edits are overwritten -->
-> A [command](#term-command) is available exactly when at least one of these holds:
-> - the [checker](#term-checker) has the command of its own
+> For every [command_1](#term-command):
+>
+> command_1 is available exactly when at least one of these holds:
+> - the [checker](#term-checker) has command_1 of its own
 > - for some [installed plugin](#term-plugin) and some [document](#term-document):
 >
->   the installed plugin [applies](#term-apply) to the document and adds the command.
+>   the installed plugin [applies](#term-apply) to the document and adds command_1
+> - for some installed plugin, some document and some command_2:
+>
+>   the installed plugin applies to the document, adds command_2 and command_1 is the [bare name](#term-bare-name) of command_2.
 <!-- statement-term-availability:end -->
 
-A command is available when something can carry it out. The checker's own commands always are. A plugin's command is available only when the project has installed the plugin and some document lists it.
+A command is available when something can carry it out. The checker's own commands always are. A plugin's command is available only when the project has installed the plugin and some document lists it. Its bare name is then available too, since a run can ask for the command by it.
 
 ```alloy
 pred available[c: Command] {
   c in Core
   or (some p: Installed, d: Document | applies[p, d] and p->c in Add.rel)
+  or (some p: Installed, d: Document, c2: Command | applies[p, d] and p->c2 in Add.rel and c->c2 in Shorten.rel)
 }
 ```
 
 ```readings
 available: {1} is [available] | {1} is not [available]
+```
+
+### @term bare-name
+
+> The bare name of a command that a plugin adds is the part of its name after the colon.
+
+A plugin adds each command of its own under a prefix: the name of its package, without its scope and without `canon-plugin-`. The command `alloy:logic` of `@bigmistqke/canon-plugin-alloy` has the bare name `logic`.
+
+```alloy vocabulary
+one sig Shorten { rel: Command -> Command }
+```
+
+```readings
+Shorten.rel: {1} is the [bare name] of {2} | {1} is not the [bare name] of {2}
+```
+
+### @term ambiguity
+
+<!-- statement-term-ambiguity:begin — generated by `canon generate`; edits are overwritten -->
+> For every [command_1](#term-command):
+>
+> command_1 is ambiguous exactly when the following holds:
+>
+> for some command_2 and some command_3:
+>
+> all of these hold:
+> - command_2 and command_3 are different
+> - command_1 is the [bare name](#term-bare-name) of command_2
+> - command_1 is the bare name of command_3
+> - for some [installed_plugin_1](#term-plugin) and some [document_1](#term-document):
+>
+>   installed_plugin_1 [applies](#term-apply) to document_1 and adds command_2
+> - for some installed_plugin_2 and some document_2:
+>
+>   installed_plugin_2 applies to document_2 and adds command_3.
+<!-- statement-term-ambiguity:end -->
+
+A bare name is ambiguous when it is the bare name of two commands that plugins add. It then cannot say which of the two a run asks for. The two commands must be available, so a plugin that no document lists makes no name ambiguous.
+
+```alloy
+pred ambiguous[c: Command] {
+  some disj c2, c3: Command | c->c2 in Shorten.rel and c->c3 in Shorten.rel
+    and (some p: Installed, d: Document | applies[p, d] and p->c2 in Add.rel)
+    and (some p: Installed, d: Document | applies[p, d] and p->c3 in Add.rel)
+}
+```
+
+```readings
+ambiguous: {1} is [ambiguous] | {1} is not [ambiguous]
 ```
 
 ### @term heading
@@ -3772,6 +3867,90 @@ The checker never calls a command unknown when it has a way to run it. Its own c
 all c: Command | available[c] implies c not in Unknown
 ```
 
+#### @spec a-plugin-adds-its-own-commands-under-the-name-of-its-package
+
+> A plugin adds each command of its own under a prefix that the name of its package gives. The package `@bigmistqke/canon-plugin-<name>` adds `<name>:<command>`.
+
+This follows because two plugins can add commands with the same word. Under one name, a run would have to drop one of them or run both. The prefix keeps the commands of each plugin apart, so a run can ask for exactly one.
+
+##### @spec a-run-asks-for-a-command-of-a-plugin-by-its-prefixed-name
+
+> A run that asks for `<name>:<command>` runs the command `<command>` of the plugin whose package gives the prefix `<name>`.
+
+This follows because the prefix and the bare name together name one command of one plugin.
+
+##### @spec the-prefix-is-the-name-of-the-package-without-its-scope-and-without-canon-plugin
+
+> The prefix of a plugin is the name of its package, without its scope and without `canon-plugin-` in front. The name the plugin gives itself plays no part.
+
+This follows because a project installs each package under one name. A plugin that could choose its prefix could take the prefix of another, and stand in for its checks.
+
+##### @spec a-plugin-adds-to-check-and-generate-without-a-prefix
+
+> A plugin that adds to `check` or `generate` runs when a run asks for that command of the checker. No prefixed name asks for it.
+
+This follows because `check` is the one gate of the canon, and `generate` the one writer. A plugin's part of either runs with the rest, or the gate would pass without it.
+
+#### @spec a-bare-name-runs-the-one-command-that-has-it
+
+> When a run asks for a [bare name](#term-bare-name) and exactly one command that an applied plugin adds has it, the run runs that command.
+
+This follows because such a bare name names one command. Running that command drops no check and runs no other.
+
+#### @spec an-ambiguous-bare-name-fails-the-run
+
+<!-- statement-spec-an-ambiguous-bare-name-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run](#term-run) and every [command_1](#term-command):
+>
+> when the run asks for command_1 and command_1 is [ambiguous](#term-ambiguity), [checker](#term-checker) reports command_1 as the [bare name](#term-bare-name) of more than one command and the run exits with code 2.
+<!-- statement-spec-an-ambiguous-bare-name-fails-the-run:end -->
+
+A bare name that two plugins share does not say which job the author wants. Running one would drop the other without a word, and running both would start a job nobody named. So the checker names the commands that share the bare name, and the run exits with code 2, as it does for an unknown command.
+
+```alloy
+all r: Run, c: Command | (r->c in Ask.rel and ambiguous[c]) implies (c in Clashed and r in Exits2)
+```
+
+Two plugins can add commands with the same bare name, so a run must be able to ask for one.
+
+<!-- statement-scenario-1-spec-an-ambiguous-bare-name-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> A [run](#term-run) asks for a [command](#term-command) that is [ambiguous](#term-ambiguity).
+<!-- statement-scenario-1-spec-an-ambiguous-bare-name-fails-the-run:end -->
+
+```alloy scenario
+some r: Run, c: Command | r->c in Ask.rel and ambiguous[c]
+```
+
+##### @spec an-ambiguous-bare-name-is-reported-with-the-commands-that-have-it
+
+<!-- statement-spec-an-ambiguous-bare-name-is-reported-with-the-commands-that-have-it:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run](#term-run) and every [command_1](#term-command):
+>
+> when the run asks for command_1 and command_1 is [ambiguous](#term-ambiguity), [checker](#term-checker) reports command_1 as the [bare name](#term-bare-name) of more than one command.
+<!-- statement-spec-an-ambiguous-bare-name-is-reported-with-the-commands-that-have-it:end -->
+
+The author who typed a bare name needs to know what to type instead. So the checker reports the bare name, with the prefixed name of each command that has it.
+
+```alloy
+all r: Run, c: Command | (r->c in Ask.rel and ambiguous[c]) implies c in Clashed
+```
+
+##### @spec an-ambiguous-bare-name-stops-the-run
+
+<!-- statement-spec-an-ambiguous-bare-name-stops-the-run:begin — generated by `canon generate`; edits are overwritten -->
+> For every [run](#term-run) and every [command](#term-command):
+>
+> when the run asks for the command and the command is [ambiguous](#term-ambiguity), the run exits with code 2.
+<!-- statement-spec-an-ambiguous-bare-name-stops-the-run:end -->
+
+A run that cannot tell which command to run runs none. The job the author asked for did not run, so the run exits with code 2, never with a success.
+
+```alloy
+all r: Run, c: Command | (r->c in Ask.rel and ambiguous[c]) implies r in Exits2
+```
+
 #### @spec every-plugin-a-run-calls-runs
 
 <!-- statement-spec-every-plugin-a-run-calls-runs:begin — generated by `canon generate`; edits are overwritten -->
@@ -3957,11 +4136,13 @@ This follows because a clean check means the canon holds, and in a project with 
 
 ## @axiom the-document-holds-the-canon-the-commands-handle-it
 
-> The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
+> The documents store the canon. People and sessions read it and change it by its units, through the commands of the checker. So no one has to handle a document by its text.
 
-A person reasons in a document, and its structure makes it a canon. A unit [sits in](#term-sit) the unit whose heading holds its heading. It [derives from](#term-derive) the units its "Derives from:" line names. A [test](#term-test) in another file [checks](#term-check) it through a [tag](#term-tag). The lines of the unit show none of that.
+The canon is a structure, and a document is the form it is stored in. A unit [sits in](#term-sit) the unit whose heading holds its heading. It [derives from](#term-derive) the units its "Derives from:" line names. A [test](#term-test) in another file [checks](#term-check) it through a [tag](#term-tag). The lines of the unit show none of that.
 
-A reader who searches a document for a heading gets the text of a unit. The reader misses what the unit follows from, what follows from it and what tests it. A writer who edits the text can break the nesting or the index unseen. The checker reads the structure for `check`, so it hands it to the reader and the writer too.
+A reader who searches a document for a heading gets the text of a unit. The reader misses what the unit follows from, what follows from it and what tests it. A writer who edits the text can break the nesting, the index or a generated region unseen. The checker reads the structure for `check`, so its commands hand that structure to the reader and the writer too.
+
+So the commands are the way a person or a session works with the canon, and the document is what that work leaves behind.
 
 ### @spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it
 

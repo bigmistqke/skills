@@ -23,15 +23,14 @@ export interface PluginContext {
 export type Command = (context: PluginContext) => number | Promise<number>;
 
 /**
- * The commands a plugin adds to, by name. The commands the tool knows are
- * listed so that an editor offers them; any other name is a command of the
- * plugin's own. The same name from several plugins runs them all.
+ * The commands a plugin adds, by name. `generate` and `check` add to the core
+ * commands of those names, and the same one from several plugins runs them
+ * all. Any other name is a command of the plugin's own, which a run asks for
+ * as `<prefix>:<name>`, the prefix being the name of the plugin's package
+ * without its scope and without `canon-plugin-`, or by the bare name while no
+ * other plugin has a command of that name.
  */
 export interface Commands {
-  /** Checks of the prose and of the text of a document, which need nothing outside Node and the plugin's own packages. */
-  lint?: Command;
-  /** Checks of the logic layer, which may need a solver. */
-  logic?: Command;
   /** Writes what the plugin generates into its documents. Runs before the core writes its own regions, so the core sees the result. */
   generate?: Command;
   /** Reports what is wrong that the core cannot see. Runs as part of `canon check`, after the core's own findings. */
