@@ -424,6 +424,15 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
       - [`@spec a-write-of-no-text-is-refused`](#spec-a-write-of-no-text-is-refused) — `alloy:intent --write` refuses text that holds only blank space.
       - [`@spec a-write-that-names-more-than-one-unit-is-refused`](#spec-a-write-that-names-more-than-one-unit-is-refused) — `alloy:intent --write` refuses a command line that names more than one unit.
       - [`@spec a-refused-write-changes-no-file`](#spec-a-refused-write-changes-no-file) — When `alloy:intent --write` refuses a write, every document is as it was before the run.
+  - [`@spec readings-lists-each-reading-of-the-documents`](#spec-readings-lists-each-reading-of-the-documents) — `alloy:readings` prints a line for each reading of the documents the plugin runs over.
+    - [`@spec a-line-of-readings-holds-the-place-the-unit-the-key-and-the-words-of-a-reading`](#spec-a-line-of-readings-holds-the-place-the-unit-the-key-and-the-words-of-a-reading) — Each line of `alloy:readings` holds the document and the line of a reading, and the id of its unit. Then it holds the key and the positive and negative words.
+    - [`@spec a-noun-line-is-no-reading`](#spec-a-noun-line-is-no-reading) — `alloy:readings` lists no `noun` line.
+  - [`@spec readings-with-write-rewords-one-reading-in-place`](#spec-readings-with-write-rewords-one-reading-in-place) — `alloy:readings <key> --write "<positive> | <negative>"` puts the new words in place of the words of the reading with that key, in the unit that holds it.
+    - [`@spec a-reword-changes-only-the-line-of-its-reading`](#spec-a-reword-changes-only-the-line-of-its-reading) — `alloy:readings --write` changes the line of the reading it rewords, keeps the key of that line, and leaves every other line of every document as it was.
+    - [`@spec a-reword-names-the-statements-that-are-stale-until-generate`](#spec-a-reword-names-the-statements-that-are-stale-until-generate) — After a reword, `alloy:readings --write` says that the statements that use the reading are stale until `canon generate` runs. It names each of them in the documents the plugin runs over.
+    - [`@spec a-reword-of-a-key-that-names-no-reading-is-refused`](#spec-a-reword-of-a-key-that-names-no-reading-is-refused) — When no reading of the documents has the key, `alloy:readings --write` says so and changes nothing, and the run exits with code 2.
+    - [`@spec a-reword-of-a-key-that-names-more-than-one-reading-is-refused`](#spec-a-reword-of-a-key-that-names-more-than-one-reading-is-refused) — When more than one reading of the documents has the key, `alloy:readings --write` names them and changes nothing, and the run exits with code 2.
+    - [`@spec a-reword-that-is-not-two-sides-is-refused`](#spec-a-reword-that-is-not-two-sides-is-refused) — When the new words do not part at one bar into two sides that both hold words, `alloy:readings --write` says so and changes nothing. The run exits with code 2.
 - [`@fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature`](#fact-only-solving-a-model-decides-whether-a-formula-constrains-a-signature) — Whether the other formulas of a model constrain a signature, or can contradict a formula, depends on what the formulas mean. Only solving the model decides it. The names that a block writes do not.
 <!-- toc:end -->
 
@@ -2289,6 +2298,60 @@ This follows because standard input gives one text, and it is the intent of one 
 > When `alloy:intent --write` refuses a write, every document is as it was before the run.
 
 This follows because the author fixes the input and runs the command again, and a half-done write would be in the way.
+
+#### @spec readings-lists-each-reading-of-the-documents
+
+> `alloy:readings` prints a line for each reading of the documents the plugin runs over.
+
+This follows because the readings are the words of every generated statement. An author who wants to change how a statement reads looks for the reading first, and the readings sit in many terms.
+
+##### @spec a-line-of-readings-holds-the-place-the-unit-the-key-and-the-words-of-a-reading
+
+> Each line of `alloy:readings` holds the document and the line of a reading, and the id of its unit. Then it holds the key and the positive and negative words.
+
+This follows because the key is what a reword names, and the unit is where the word is defined. The line is the whole reading, so a search of the output by any of them finds it.
+
+##### @spec a-noun-line-is-no-reading
+
+> `alloy:readings` lists no `noun` line.
+
+This follows because a noun names a signature, and has no positive and negative words to reword.
+
+#### @spec readings-with-write-rewords-one-reading-in-place
+
+> `alloy:readings <key> --write "<positive> | <negative>"` puts the new words in place of the words of the reading with that key, in the unit that holds it.
+
+This follows because a reword by hand means finding the line in a table among many, and keeping its key and its bar intact.
+
+##### @spec a-reword-changes-only-the-line-of-its-reading
+
+> `alloy:readings --write` changes the line of the reading it rewords, keeps the key of that line, and leaves every other line of every document as it was.
+
+This follows because the command handles one reading. A statement that uses the reading changes only when `canon generate` runs.
+
+##### @spec a-reword-names-the-statements-that-are-stale-until-generate
+
+> After a reword, `alloy:readings --write` says that the statements that use the reading are stale until `canon generate` runs. It names each of them in the documents the plugin runs over.
+
+This follows because a reword makes the statements that say the reading differ from what their formulas now say. The author must know to run `generate`, and which statements will change.
+
+##### @spec a-reword-of-a-key-that-names-no-reading-is-refused
+
+> When no reading of the documents has the key, `alloy:readings --write` says so and changes nothing, and the run exits with code 2.
+
+This follows because a reword that found nothing to change must not pass for one that did.
+
+##### @spec a-reword-of-a-key-that-names-more-than-one-reading-is-refused
+
+> When more than one reading of the documents has the key, `alloy:readings --write` names them and changes nothing, and the run exits with code 2.
+
+This follows because the command cannot tell which reading the author means. A reword of each would change words the author did not mean to change.
+
+##### @spec a-reword-that-is-not-two-sides-is-refused
+
+> When the new words do not part at one bar into two sides that both hold words, `alloy:readings --write` says so and changes nothing. The run exits with code 2.
+
+This follows because a reading has a positive side and a negative side. A reading that lost one could not say a formula that needs it.
 
 ## @fact only-solving-a-model-decides-whether-a-formula-constrains-a-signature
 

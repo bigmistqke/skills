@@ -61,6 +61,8 @@ pnpm canon retext:lint        # language checks on the prose of the documents
 pnpm canon alloy:logic        # whether the formulas of the units can all hold together
 pnpm canon alloy:intent spec-a-stem            # the intent of a unit with a formula
 pnpm canon alloy:intent spec-a-stem --write    # put standard input in place of that intent
+pnpm canon alloy:readings     # every reading: where it is, its unit, its key and its words
+pnpm canon alloy:readings Key --write "{1} runs | {1} does not run"   # reword one reading in place
 pnpm canon log                # commits that change the implementation without naming a unit
 pnpm canon rename spec-a-leaf a-single-leaf            # give a unit a new stem, and move every name of it
 pnpm canon rename spec-a-leaf a-single-leaf --dry-run  # print each line it would change, and change nothing
@@ -127,7 +129,7 @@ A plugin adds each command of its own under the name of its package: `@bigmistqk
 
 - `@bigmistqke/canon-plugin-retext` adds `retext:lint`.
 - `@bigmistqke/canon-plugin-pele` adds `pele:graph`.
-- `@bigmistqke/canon-plugin-alloy` adds `alloy:logic` and `alloy:intent`, and adds to `generate` and `check`. It writes the statements of units from their formulas and reports the stale ones. It reports a unit with a formula and no intent too. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `alloy:logic` needs Java 17 or later and the jar of the Alloy analyzer:
+- `@bigmistqke/canon-plugin-alloy` adds `alloy:logic`, `alloy:intent` and `alloy:readings`, and adds to `generate` and `check`. It writes the statements of units from their formulas and reports the stale ones. It reports a unit with a formula and no intent too. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `alloy:logic` needs Java 17 or later and the jar of the Alloy analyzer:
 
 ```yaml
 ---

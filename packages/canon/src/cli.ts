@@ -1688,6 +1688,12 @@ and generate runs under those commands, and no prefixed name asks for it.
                                    put the text on standard input in place of the unit's intent; refuse
                                    (exit 2) text with a fence, a heading, a quote, a comment or a
                                    "Derives from:" or "Site:" line, and leave the rest of the unit as it is
+  ${COMMAND} alloy:readings      list each reading of the documents: where it is, the unit that holds it,
+                                   its key and its positive and negative words
+  ${COMMAND} alloy:readings <key> --write "<positive> | <negative>"
+                                   reword the one reading with the key, in place; refuse (exit 2) a key
+                                   of no reading or of several. The statements that say it are stale
+                                   until generate, and the output names them
   ${COMMAND} pele:graph [--svg]   print the derivations of the documents as a Mermaid flowchart, or with
                                    --svg as the SVG that Pele renders from it
 
