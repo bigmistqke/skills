@@ -24,6 +24,13 @@ describe('the order of the passes', () => {
   });
 
   /**
+   * @canon spec-conditions-step-apart-before-noun-phrases-are-said
+   */
+  it('says a condition apart from its quantifier before it says noun phrases', () => {
+    expect(at('conditions-apart')).toBeLessThan(at('noun-phrases'));
+  });
+
+  /**
    * @canon spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said
    */
   it('pairs two things of a kind before it says noun phrases', () => {

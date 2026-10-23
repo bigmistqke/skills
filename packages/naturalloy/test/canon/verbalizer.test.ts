@@ -162,6 +162,13 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
+   */
+  it('says "there is a … that" for a variable beside only another noun phrase', () => {
+    expect(say('some c: Cleanup, o: Owner | o in c.on and o in Disposed')).toBe('There is a cleanup that is on an owner that pulse has disposed.');
+  });
+
+  /**
    * @canon spec-a-variable-is-named-the-same-however-the-formula-names-it
    */
   it('names a variable the same however the formula named it', () => {
@@ -487,11 +494,12 @@ describe('a predicate with no reading of its own', () => {
    */
   it('gives a quantified variable a numbered name when its name is already in use', () => {
     const readings = defined('pred has_pending { some c: Cleanup | c in Registered and c not in Ran }');
-    expect(say('some c: Cleanup | has_pending and c in Ran', readings)).toBe(
+    expect(say('all c: Cleanup | has_pending and c in Ran', readings)).toBe(
       [
-        'There is a cleanup_1 such that all of these hold:',
-        '  - there is a cleanup_2 such that code has registered cleanup_2 and cleanup_2 has not run',
-        '  - cleanup_1 has run'
+        'For every cleanup_1:',
+        '  all of these hold:',
+        '    - there is a cleanup_2 such that code has registered cleanup_2 and cleanup_2 has not run',
+        '    - cleanup_1 has run'
       ].join('\n')
     );
   });
@@ -1092,7 +1100,6 @@ describe('a quantifier said as a noun phrase', () => {
    * @canon spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full
    * @canon spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full
    * @canon spec-no-with-another-is-said-in-full
-   * @canon spec-a-condition-that-is-not-about-the-variable-is-said-in-full
    */
   it('is said in full when it does not fit', () => {
     // no fact for the variable beside another thing, and the variable not the subject of every condition
@@ -1101,8 +1108,20 @@ describe('a quantifier said as a noun phrase', () => {
     expect(said('some v: Unit | u->v in Twice.rel')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and in unit_2.');
     // "no" with "another" says something else than "another"
     expect(said('no v: Unit | v != u and v->u in Sit.rel')).toBe('there is no unit_2 such that all of these hold:\n    - unit_2 and unit_1 are different\n    - unit_2 sits in unit_1');
-    // a condition that is not about the variable
-    expect(said('some v: Unit | u->v in Sit.rel and u in Spec')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and is a spec.');
+  });
+
+  /**
+   * @canon spec-a-condition-that-is-not-about-the-variable-is-said-apart
+   */
+  it('says a condition that is not about the variable beside the quantifier, outside it', () => {
+    expect(said('some v: Unit | u->v in Sit.rel and u in Spec')).toBe('unit_1 sits in a unit and is a spec.');
+  });
+
+  /**
+   * @canon spec-a-condition-under-no-that-is-not-about-the-variable-is-said-in-full
+   */
+  it('keeps the quantifier in full under "no" when a condition is not about its variable', () => {
+    expect(said('no v: Unit | u->v in Sit.rel and u in Spec')).toBe('there is no unit_2 such that unit_1 sits in unit_2 and is a spec.');
   });
 });
 

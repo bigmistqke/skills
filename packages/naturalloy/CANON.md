@@ -17,7 +17,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term fit`](#term-fit) —
   > A [quantifier](#term-quantifier) fits a noun phrase exactly when all of these hold:
   > - the reading of the quantifier does not say the variable twice
-  > - the quantifier has a fact for its variable beside another thing
+  > - the quantifier has a fact that puts its variable beside a thing the sentence names
   > - the quantifier does not both say that no variable differs from another and hold a condition
   > - the condition of the quantifier is about its variable
   > - the quantifier does not have several conditions, one of which begins with a time phrase
@@ -56,6 +56,12 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec every-pass-changes-the-words-of-a-formula-of-the-sweep`](#spec-every-pass-changes-the-words-of-a-formula-of-the-sweep) — Every [pass](#term-pass) changes the words of at least one formula of the sweep.
     - [`@spec a-pass-runs-after-the-passes-whose-shapes-it-reads`](#spec-a-pass-runs-after-the-passes-whose-shapes-it-reads) — Where one pass makes or removes a shape that another reads, the [pipeline](#term-pipeline) runs them in the order the shape needs.
       - [`@spec a-negation-moves-inward-before-noun-phrases-are-said`](#spec-a-negation-moves-inward-before-noun-phrases-are-said) — For every [pass_1](#term-pass) and every pass_2: when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
+      - [`@spec conditions-step-apart-before-noun-phrases-are-said`](#spec-conditions-step-apart-before-noun-phrases-are-said) —
+        > For every [pass_1](#term-pass) and every pass_2:
+        >
+        > pass_1 runs before pass_2 when all of these hold:
+        > - pass_1 says the conditions of a quantifier that are not about its variable apart from it
+        > - pass_2 says a quantifier as a noun phrase
       - [`@spec two-things-of-a-kind-are-paired-before-noun-phrases-are-said`](#spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says two things of a kind as one and another and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
       - [`@spec noun-phrases-are-said-before-there-is-a-that`](#spec-noun-phrases-are-said-before-there-is-a-that) —
         > For every [pass_1](#term-pass) and every pass_2:
@@ -345,7 +351,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) —
     > When all of these hold:
-    > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+    > - a [quantifier](#term-quantifier) has no fact that puts its variable beside a thing the sentence names
     > - at least one of these holds:
     >   - the variable of the quantifier is not the subject of the sentence
     >   - the quantifier has more than three conditions, or conditions longer than a line and is under "no"
@@ -354,7 +360,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that`](#spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that) —
     > When all of these hold:
-    > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+    > - a [quantifier](#term-quantifier) has no fact that puts its variable beside a thing the sentence names
     > - the variable of the quantifier is the subject of the sentence
     > - the quantifier has three conditions or fewer that fit a line
     > - the quantifier is not under "no" with a condition that says "no"
@@ -365,7 +371,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
   - [`@spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that`](#spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that) —
     > When all of these hold:
-    > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+    > - a [quantifier](#term-quantifier) has no fact that puts its variable beside a thing the sentence names
     > - the variable of the quantifier is the subject of the sentence
     > - the quantifier has more than three conditions, or conditions longer than a line
     > - the quantifier is not under "no"
@@ -376,7 +382,21 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
   - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — When the following holds: a [quantifier](#term-quantifier) has several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
-  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
+  - [`@spec a-condition-that-is-not-about-the-variable-is-said-apart`](#spec-a-condition-that-is-not-about-the-variable-is-said-apart) —
+    > When all of these hold:
+    > - the condition of a [quantifier](#term-quantifier) is not about its variable
+    > - the quantifier is not under "no"
+    > - the conditions of the quantifier that are about its variable fit a noun phrase
+    >
+    > then [verbalizer](#term-verbalizer) says the conditions of the quantifier that are not about its variable beside it, outside it.
+  - [`@spec a-condition-under-no-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-under-no-that-is-not-about-the-variable-is-said-in-full) —
+    > When all of these hold:
+    > - the condition of a [quantifier](#term-quantifier) is not about its variable
+    > - at least one of these holds:
+    >   - the quantifier is under "no"
+    >   - the conditions of the quantifier that are about its variable do not fit a noun phrase
+    >
+    > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — When a [list](#term-series) can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list in a sentence.
   - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — When a [list](#term-series) is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — When a [list](#term-series) has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
@@ -478,9 +498,9 @@ for 6
 sig Quantifier {}
 sig VariableOnce, AsNounPhrase, VariableSubject, AsSubjectPhrase, VariableWithCondition, RelativeClause in Quantifier {}
 sig OneNegation, SaysAnother, NestsPhrases in Quantifier {}
-sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, TimedCondition, InFull in Quantifier {}
+sig VariableTwice, NothingToAttach, NoWithAnother, ConditionAside, TimedCondition, InFull, ConditionApart, RestFits in Quantifier {}
 sig ThereIsThat, ThereIsThatList, LongConditions, NoUnderNo, UnderNo in Quantifier {}
-fact quantifier_wordings { no AsNounPhrase & InFull and no ThereIsThat & InFull and no ThereIsThatList & InFull and no ThereIsThat & ThereIsThatList and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
+fact quantifier_wordings { no ConditionApart & InFull and no AsNounPhrase & InFull and no ThereIsThat & InFull and no ThereIsThatList & InFull and no ThereIsThat & ThereIsThatList and AsSubjectPhrase + RelativeClause + OneNegation + SaysAnother + NestsPhrases in AsNounPhrase and no VariableOnce & VariableTwice }
 ```
 
 ```readings
@@ -495,7 +515,7 @@ OneNegation: [verbalizer](#term-verbalizer) says {1} with one negation that list
 SaysAnother: [verbalizer](#term-verbalizer) says {1} with "another" before the noun | [verbalizer](#term-verbalizer) does not say {1} with "another" before the noun
 NestsPhrases: [verbalizer](#term-verbalizer) says {1} as nested phrases, such as "a test checks a bug that sits in unit_1" | [verbalizer](#term-verbalizer) does not say {1} as nested phrases, such as "a test checks a bug that sits in unit_1"
 VariableTwice: the reading of {1} says the variable twice | the reading of {1} does not say the variable twice
-NothingToAttach: {1} has no fact for its variable beside another thing | {1} has a fact for its variable beside another thing
+NothingToAttach: {1} has no fact that puts its variable beside a thing the sentence names | {1} has a fact that puts its variable beside a thing the sentence names
 NoWithAnother: {1} says no variable differs from another and holds a condition | {1} does not both say that no variable differs from another and hold a condition
 ConditionAside: the condition of {1} is not about its variable | the condition of {1} is about its variable
 TimedCondition: {1} has several conditions, one of which begins with a time phrase | {1} does not have several conditions, one of which begins with a time phrase
@@ -503,6 +523,8 @@ InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and a n
 ThereIsThat: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec" | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec"
 ThereIsThatList: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject
 UnderNo: {1} is under "no" | {1} is not under "no"
+RestFits: the conditions of {1} that are about its variable fit a noun phrase | the conditions of {1} that are about its variable do not fit a noun phrase
+ConditionApart: [verbalizer](#term-verbalizer) says the conditions of {1} that are not about its variable beside it, outside it | [verbalizer](#term-verbalizer) does not say the conditions of {1} that are not about its variable beside it, outside it
 LongConditions: {1} has more than three conditions, or conditions longer than a line | {1} has three conditions or fewer that fit a line
 NoUnderNo: {1} is under "no" with a condition that says "no" | {1} is not under "no" with a condition that says "no"
 ```
@@ -548,7 +570,7 @@ some f: Quantifier | f in VariableOnce and f in ConditionAside
 >
 > There is a quantifier such that all of these hold:
 > - the variable of the quantifier has a further condition
-> - the quantifier has no fact for its variable beside another thing
+> - the quantifier has no fact that puts its variable beside a thing the sentence names
 <!-- statement-scenario-4-term-quantifier:end -->
 
 ```alloy scenario
@@ -560,7 +582,7 @@ some f: Quantifier | f in VariableWithCondition and f in NothingToAttach
 <!-- statement-term-fit:begin — generated by `canon generate`; edits are overwritten -->
 > A [quantifier](#term-quantifier) fits a noun phrase exactly when all of these hold:
 > - the reading of the quantifier does not say the variable twice
-> - the quantifier has a fact for its variable beside another thing
+> - the quantifier has a fact that puts its variable beside a thing the sentence names
 > - the quantifier does not both say that no variable differs from another and hold a condition
 > - the condition of the quantifier is about its variable
 > - the quantifier does not have several conditions, one of which begins with a time phrase
@@ -846,10 +868,10 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 ```alloy vocabulary
 sig Pass { ahead: set Pass }
 sig OfIR, OfPrinter in Pass {}
-sig NegationInward, AnotherOfAKind, NounPhrases, ThereIsAThat, XAndNoOther, ForEveryTogether, UntilInASentence, TimePhraseInFront, ClausesInASentence, NoneOfThese, RuleOnOneLine, FromNowOnWhenever, ClaimFirst in Pass {}
+sig NegationInward, ConditionsApart, AnotherOfAKind, NounPhrases, ThereIsAThat, XAndNoOther, ForEveryTogether, UntilInASentence, TimePhraseInFront, ClausesInASentence, NoneOfThese, RuleOnOneLine, FromNowOnWhenever, ClaimFirst in Pass {}
 fact passes {
   Pass = OfIR + OfPrinter and no OfIR & OfPrinter
-  NegationInward + AnotherOfAKind + NounPhrases + ThereIsAThat + XAndNoOther + ForEveryTogether + UntilInASentence + TimePhraseInFront + ClausesInASentence + NoneOfThese + RuleOnOneLine + FromNowOnWhenever + ClaimFirst in OfIR
+  NegationInward + ConditionsApart + AnotherOfAKind + NounPhrases + ThereIsAThat + XAndNoOther + ForEveryTogether + UntilInASentence + TimePhraseInFront + ClausesInASentence + NoneOfThese + RuleOnOneLine + FromNowOnWhenever + ClaimFirst in OfIR
 }
 ```
 
@@ -859,6 +881,7 @@ ahead: {1} runs before {2} | {1} does not run before {2}
 OfIR: {1} changes the IR | {1} does not change the IR
 OfPrinter: {1} changes the options of the printer | {1} does not change the options of the printer
 NegationInward: {1} moves a negation inward | {1} does not move a negation inward
+ConditionsApart: {1} says the conditions of a quantifier that are not about its variable apart from it | {1} does not say the conditions of a quantifier that are not about its variable apart from it
 AnotherOfAKind: {1} says two things of a kind as one and another | {1} does not say two things of a kind as one and another
 NounPhrases: {1} says a quantifier as a noun phrase | {1} does not say a quantifier as a noun phrase
 ThereIsAThat: {1} says a quantifier of its variable alone as "there is a … that" | {1} does not say a quantifier of its variable alone as "there is a … that"
@@ -943,6 +966,22 @@ A noun phrase with "no" comes from a quantifier "no". A negated quantifier "some
 
 ```alloy
 all a: NegationInward, b: NounPhrases | a->b in ahead
+```
+
+###### @spec conditions-step-apart-before-noun-phrases-are-said
+
+<!-- statement-spec-conditions-step-apart-before-noun-phrases-are-said:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> pass_1 runs before pass_2 when all of these hold:
+> - pass_1 says the conditions of a quantifier that are not about its variable apart from it
+> - pass_2 says a quantifier as a noun phrase
+<!-- statement-spec-conditions-step-apart-before-noun-phrases-are-said:end -->
+
+The noun-phrase pass leaves a quantifier in full while one of its conditions is about something else. So the condition must step outside first. Then `there is an owner such that c is on the owner and d has run` can become "c is on an owner and d has run".
+
+```alloy
+all a: ConditionsApart, b: NounPhrases | a->b in ahead
 ```
 
 ###### @spec two-things-of-a-kind-are-paired-before-noun-phrases-are-said
@@ -1150,7 +1189,7 @@ This follows because the old form put a plural verb before a single noun, and "s
 This follows because for every x, for every y, a formula holds exactly when for every x and every y it holds. The second "for every" on a line of its own adds a level of indent and nothing else.
 
 <!-- pass-for-every-together:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `for-every-together` is pass 5 of 19 in the pipeline. It changes 187 of the 1754 formulas of the sweep.
+The pass `for-every-together` is pass 5 of 20 in the pipeline. It changes 187 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1187,7 +1226,7 @@ This follows because a name such as unit_1 tells the reader the kind of the vari
 This follows because "the unit" can then point at one thing only. A number that tells nothing apart is one more thing to read. A variable that a count says first keeps its number: "the values of the owner" would read as the values of one owner.
 
 <!-- pass-lone-numbers-dropped:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `lone-numbers-dropped` is pass 18 of 19 in the pipeline. It changes 1434 of the 1754 formulas of the sweep.
+The pass `lone-numbers-dropped` is pass 19 of 20 in the pipeline. It changes 1434 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1219,7 +1258,7 @@ Derives from: [`spec-a-variable-alone-of-its-noun-is-named-the-noun`](#spec-a-va
 This follows because the reading rules give "a bug" in a "when" the meaning of every bug. A line "for every bug:" above the rule then tells the reader nothing more. A variable named only once would leave "a bug" free to mean one bug or every bug, so the words keep the "for every" there.
 
 <!-- pass-a-noun-for-every:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `a-noun-for-every` is pass 19 of 19 in the pipeline. It changes 12 of the 1754 formulas of the sweep.
+The pass `a-noun-for-every` is pass 20 of 20 in the pipeline. It changes 12 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1426,7 +1465,7 @@ This follows because the table gives each word a positive and a negative reading
 This follows because the negative reading of each clause says the negation in the words of the table. Moving the `not` inward reaches those clauses without changing what the formula claims.
 
 <!-- pass-negation-inward:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `negation-inward` is pass 1 of 19 in the pipeline. It changes 115 of the 1754 formulas of the sweep.
+The pass `negation-inward` is pass 1 of 20 in the pipeline. It changes 115 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1475,7 +1514,7 @@ This follows because a rule fails exactly when its condition holds and its conse
 This follows because an equivalence fails exactly when one side holds and the other does not.
 
 <!-- pass-exactly-one:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `exactly-one` is pass 2 of 19 in the pipeline. It changes 30 of the 1754 formulas of the sweep.
+The pass `exactly-one` is pass 2 of 20 in the pipeline. It changes 30 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1730,7 +1769,7 @@ This follows because a set equals `y` when `y` is in it and nothing else is. The
 This follows because a set equals `x` when `x` is in it and nothing else is, and the two halves say just that. "No other" alone hints that `x` is in the set, which [`spec-no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) guards against. Here the first half says it, so the hint is true. A plain clause keeps "no other" at the level of the claim. Inside a noun phrase, as in "an owner that no other owner is the parent of", it would cover less.
 
 <!-- pass-x-and-no-other:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `x-and-no-other` is pass 4 of 19 in the pipeline. It changes 22 of the 1754 formulas of the sweep.
+The pass `x-and-no-other` is pass 4 of 20 in the pipeline. It changes 22 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2028,7 +2067,7 @@ all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine
 ```
 
 <!-- pass-rule-on-one-line:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `rule-on-one-line` is pass 15 of 19 in the pipeline. It changes 268 of the 1754 formulas of the sweep.
+The pass `rule-on-one-line` is pass 16 of 20 in the pipeline. It changes 268 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2057,7 +2096,7 @@ When a cleanup has run, code has registered the cleanup.
 This follows because "exactly when" says that each side holds when the other does, which is what `iff` claims.
 
 <!-- pass-exactly-when:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `exactly-when` is pass 14 of 19 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
+The pass `exactly-when` is pass 15 of 20 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2155,7 +2194,7 @@ This follows because always holds from the present on, the present included. "At
 This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as `always` alone does. So the words still leave the moments before it out.
 
 <!-- pass-always-inside-for-every:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `always-inside-for-every` is pass 3 of 19 in the pipeline. It changes 7 of the 1754 formulas of the sweep.
+The pass `always-inside-for-every` is pass 3 of 20 in the pipeline. It changes 7 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2179,7 +2218,7 @@ For every cleanup:
 <!-- pass-always-inside-for-every:end -->
 
 <!-- pass-from-now-on-whenever:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `from-now-on-whenever` is pass 16 of 19 in the pipeline. It changes 8 of the 1754 formulas of the sweep.
+The pass `from-now-on-whenever` is pass 17 of 20 in the pipeline. It changes 8 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2238,7 +2277,7 @@ This follows because the semicolon says that the first side holds now and the se
 This follows because two time phrases in a row, such as "from now on, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
 
 <!-- pass-time-phrase-in-front:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `time-phrase-in-front` is pass 11 of 19 in the pipeline. It changes 347 of the 1754 formulas of the sweep.
+The pass `time-phrase-in-front` is pass 12 of 20 in the pipeline. It changes 347 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2305,7 +2344,7 @@ This follows because since is until turned to the past.
 This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "then" can only be a moment of `b` counted from now. "Until then" stops before that moment, as until does, and readers of every size took it that way.
 
 <!-- pass-until-in-a-sentence:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `until-in-a-sentence` is pass 10 of 19 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
+The pass `until-in-a-sentence` is pass 11 of 20 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2763,7 +2802,7 @@ all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKin
 ```
 
 <!-- pass-definition-by-kinds:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `definition-by-kinds` is pass 8 of 19 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
+The pass `definition-by-kinds` is pass 9 of 20 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2957,24 +2996,26 @@ all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase
 ```
 
 <!-- pass-noun-phrases:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `noun-phrases` is pass 7 of 19 in the pipeline. It changes 152 of the 1754 formulas of the sweep.
+The pass `noun-phrases` is pass 8 of 20 in the pipeline. It changes 154 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
 ```text
-some c: Cleanup, o: Owner | o in c.on and o in Disposed
+all c: Cleanup, s: String | some t: String | c.name = t
 ```
 
 Without the pass:
 
 ```text
-There is a cleanup that is on an owner that pulse has disposed.
+For every cleanup and every text_1:
+  there is a text_2 such that the cleanup is named text_2.
 ```
 
 With it:
 
 ```text
-A cleanup is on an owner that pulse has disposed.
+For every cleanup and every text_1:
+  the cleanup is named a text.
 ```
 
 - Rejected: "another" where the formula has no "!=".
@@ -3018,7 +3059,7 @@ This follows because "that is not an axiom, a spec or a fact" is shorter and eas
 This follows because "another unit" says what the logic compares, without a name to follow.
 
 <!-- pass-another-of-a-kind:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `another-of-a-kind` is pass 6 of 19 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
+The pass `another-of-a-kind` is pass 7 of 20 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3073,7 +3114,7 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
 > When all of these hold:
-> - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+> - a [quantifier](#term-quantifier) has no fact that puts its variable beside a thing the sentence names
 > - at least one of these holds:
 >   - the variable of the quantifier is not the subject of the sentence
 >   - the quantifier has more than three conditions, or conditions longer than a line and is under "no"
@@ -3092,7 +3133,7 @@ all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or (f in
 
 <!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:begin — generated by `canon generate`; edits are overwritten -->
 > When all of these hold:
-> - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+> - a [quantifier](#term-quantifier) has no fact that puts its variable beside a thing the sentence names
 > - the variable of the quantifier is the subject of the sentence
 > - the quantifier has three conditions or fewer that fit a line
 > - the quantifier is not under "no" with a condition that says "no"
@@ -3110,7 +3151,7 @@ all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in 
 ```
 
 <!-- pass-there-is-a-that:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `there-is-a-that` is pass 9 of 19 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
+The pass `there-is-a-that` is pass 10 of 20 in the pipeline. It changes 3 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3142,7 +3183,7 @@ No cleanup has run.
 
 <!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:begin — generated by `canon generate`; edits are overwritten -->
 > When all of these hold:
-> - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+> - a [quantifier](#term-quantifier) has no fact that puts its variable beside a thing the sentence names
 > - the variable of the quantifier is the subject of the sentence
 > - the quantifier has more than three conditions, or conditions longer than a line
 > - the quantifier is not under "no"
@@ -3187,16 +3228,65 @@ A time phrase inside a noun phrase seems to cover every condition in that phrase
 all f: Quantifier | f in TimedCondition implies f in InFull
 ```
 
-#### @spec a-condition-that-is-not-about-the-variable-is-said-in-full
+#### @spec a-condition-that-is-not-about-the-variable-is-said-apart
 
-<!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
-<!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:end -->
+<!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-apart:begin — generated by `canon generate`; edits are overwritten -->
+> When all of these hold:
+> - the condition of a [quantifier](#term-quantifier) is not about its variable
+> - the quantifier is not under "no"
+> - the conditions of the quantifier that are about its variable fit a noun phrase
+>
+> then [verbalizer](#term-verbalizer) says the conditions of the quantifier that are not about its variable beside it, outside it.
+<!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-apart:end -->
 
-Whatever sits inside a noun phrase reads as being about the variable. A condition about something else would land in the wrong place. So the verbalizer spells the quantifier out in full, with a numbered name.
+Take `there is an owner such that c is on the owner and d has run`. Its second condition is about d, not about the owner. Which owner c is on does not change whether d has run. So the [verbalizer](#term-verbalizer) says that condition beside the quantifier, outside it: "c is on an owner and d has run".
+
+It does so only where the rest then reads as a noun phrase. Otherwise the words would gain a level of bullets and lose nothing.
 
 ```alloy
-all f: Quantifier | f in ConditionAside implies f in InFull
+all f: Quantifier | (f in ConditionAside and f not in UnderNo and f in RestFits) implies f in ConditionApart
+```
+
+<!-- pass-conditions-apart:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
+The pass `conditions-apart` is pass 6 of 20 in the pipeline. It changes 3 of the 1754 formulas of the sweep.
+
+The shortest of them, as written in Alloy:
+
+```text
+all c: Cleanup, o, p: Owner | some c.(Ran <: on)
+```
+
+Without the pass:
+
+```text
+For every cleanup, every owner_1 and every owner_2:
+  there is an owner_3 such that the cleanup has run and is on owner_3.
+```
+
+With it:
+
+```text
+For every cleanup, every owner_1 and every owner_2:
+  the cleanup is on an owner and has run.
+```
+<!-- pass-conditions-apart:end -->
+
+#### @spec a-condition-under-no-that-is-not-about-the-variable-is-said-in-full
+
+<!-- statement-spec-a-condition-under-no-that-is-not-about-the-variable-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
+> When all of these hold:
+> - the condition of a [quantifier](#term-quantifier) is not about its variable
+> - at least one of these holds:
+>   - the quantifier is under "no"
+>   - the conditions of the quantifier that are about its variable do not fit a noun phrase
+>
+> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
+<!-- statement-spec-a-condition-under-no-that-is-not-about-the-variable-is-said-in-full:end -->
+
+Under "no", a condition about something else cannot step outside. Take `there is no owner such that c is on the owner and d has run`. It holds when c is on no owner, or when d has not run. Said apart, that "or" would come back as a second clause, which reads no lighter. So the [verbalizer](#term-verbalizer) keeps such a quantifier in full.
+
+```alloy
+all f: Quantifier | (f in ConditionAside and (f in UnderNo or f not in RestFits)) implies f in InFull
 ```
 
 #### @spec three-clauses-or-fewer-are-said-in-a-sentence
@@ -3212,7 +3302,7 @@ all f: Series | sentenceable[f] implies f in AsSentence
 ```
 
 <!-- pass-clauses-in-a-sentence:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `clauses-in-a-sentence` is pass 12 of 19 in the pipeline. It changes 388 of the 1754 formulas of the sweep.
+The pass `clauses-in-a-sentence` is pass 13 of 20 in the pipeline. It changes 390 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3360,7 +3450,7 @@ all f: Series | (f in SharedNegatives and f in AsBullets) implies f in SaysNoneO
 ```
 
 <!-- pass-none-of-these:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `none-of-these` is pass 13 of 19 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
+The pass `none-of-these` is pass 14 of 20 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3513,7 +3603,7 @@ all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherw
 ```
 
 <!-- pass-claim-first:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `claim-first` is pass 17 of 19 in the pipeline. It changes 6 of the 1754 formulas of the sweep.
+The pass `claim-first` is pass 18 of 20 in the pipeline. It changes 6 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
