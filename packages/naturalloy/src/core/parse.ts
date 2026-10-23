@@ -360,6 +360,11 @@ export class Parser {
       const [main, otherwiseWords] = body.includes(otherwiseMark) ? (splits(body, otherwiseMark).at(-1) as [string, string]) : [body, undefined];
       for (const [when, rest] of splits(main, ', ')) {
         const then = rest.startsWith(`${RULE.then} `) ? rest.slice(RULE.then.length + 1) : rest;
+        // "when a bug …, … the bug": the rule over every bug.
+        if (lead === RULE.when && otherwiseWords === undefined)
+          for (const every of this.every([when], [then], scope))
+            for (const w of this.sentence(every.docs[0] as string, every.inner))
+              for (const t of this.sentence(then, every.inner)) out.push({ t: 'quant', q: 'all', vars: [every.v], body: { t: 'rule', when: w, then: t } });
         for (const w of this.sentence(when, scope))
           for (const t of this.sentence(then, scope)) {
             const rules: Sentence[] =
@@ -379,6 +384,10 @@ export class Parser {
       if (next !== null) for (const ls of this.sentence(next[1] as string, scope)) for (const rs of this.sentence(now?.[1] ?? r, scope)) out.push({ t: 'iff', l: { t: 'moment', op: 'after', body: ls }, r: rs });
     }
     if (words.startsWith(`${INTRO.untrue} `)) for (const body of this.sentence(words.slice(INTRO.untrue.length + 1), scope)) out.push({ t: 'not', body });
+    // "a unit is unfounded exactly when the unit …": the definition for every unit.
+    if (words.includes(' exactly when '))
+      for (const every of this.every([words], [], scope, true))
+        for (const body of this.sentence(every.docs[0] as string, every.inner)) if (body.t === 'iff') out.push({ t: 'quant', q: 'all', vars: [every.v], body });
     // A definition by kinds with one kind: "unit_1 is unfounded exactly when unit_1 is a spec that cites no unit".
     for (const [head, kind] of splits(words, ' exactly when ')) for (const heads of this.clauses(head, scope)) for (const body of this.kinds(kind, scope)) out.push({ t: 'iff', l: heads, r: body });
     out.push(...this.quantifier(words, scope));
@@ -488,6 +497,29 @@ export class Parser {
     return out;
   }
 
+  /**
+   * "A bug" in the first of `first`, the words of the first side of a rule or the opening of a definition, where the
+   * words say "the bug" after it: each reading of it as every bug, with that "a bug" said "the bug", and the bug in
+   * scope by its noun. `opening` asks for "a bug" at the start of the words, as the subject of a definition.
+   */
+  private every(first: Doc[], after: Doc[], scope: Scope, opening = false): { docs: Doc[]; inner: Scope; v: Var }[] {
+    const out: { docs: Doc[]; inner: Scope; v: Var }[] = [];
+    for (const [noun, type] of this.types) {
+      const key = noun.replace(/ /g, '_');
+      if (scope.has(key)) continue;
+      const a = new RegExp(`${opening ? '^' : '(?<=^|[ (])'}an? ${escape(noun)}(?=$|[ ,])`);
+      const the = new RegExp(`(?<=^|[ (])the ${escape(noun)}(?=$|[ ,.])`, 'g');
+      const replaced = replaceFirst(first, a, `the ${noun}`);
+      if (replaced === undefined) continue;
+      const said = (docs: Doc[]): number => docs.flatMap(texts).reduce((n, text) => n + (text.match(the)?.length ?? 0), 0);
+      // The "the bug" the replacement made is one; the words must say it again.
+      if (said(replaced) + said(after) < 2) continue;
+      const v = this.fresh(type);
+      out.push({ docs: replaced, inner: new Map([...scope, [key, { t: 'var', v } as Term]]), v });
+    }
+    return out;
+  }
+
   /** The variables a quantifier introduces, by the names the words give them. */
   private introduced(names: string[]): { name: string; v: Var }[] | undefined {
     const out = names.map(name => this.named(name.replace(/^(?:every|some) /, '').trim()));
@@ -500,6 +532,10 @@ export class Parser {
     if (typeof doc === 'string') return this.sentence(doc, scope);
     if (doc.kind === 'rule') {
       const out: Sentence[] = [];
+      if (doc.lead === RULE.when && doc.otherwise === undefined)
+        for (const every of this.every([doc.when], [doc.then], scope))
+          for (const when of this.doc(every.docs[0] as Doc, every.inner))
+            for (const then of this.doc(doc.then, every.inner)) out.push({ t: 'quant', q: 'all', vars: [every.v], body: { t: 'rule', when, then } });
       for (const when of this.doc(doc.when, scope))
         for (const then of this.doc(doc.then, scope)) {
           const rules: Sentence[] = doc.otherwise === undefined ? [{ t: 'rule', when, then }] : this.doc(doc.otherwise, scope).map(o => ({ t: 'rule', when, then, otherwise: o }) as Sentence);
@@ -513,6 +549,10 @@ export class Parser {
   /** The intro of a list or a block, with what it opens. */
   private intro(intro: string, doc: Exclude<Doc, string | { kind: 'rule' }>, scope: Scope): Sentence[] {
     const out: Sentence[] = [];
+    // "a unit is unfounded exactly when at least one of these holds:", for every unit.
+    if (intro.includes(' exactly when '))
+      for (const every of this.every([intro], [doc.kind === 'list' ? { ...doc, intro: '' } : doc.body], scope, true))
+        for (const body of this.intro(every.docs[0] as string, doc, every.inner)) if (body.t === 'iff') out.push({ t: 'quant', q: 'all', vars: [every.v], body });
     const items = (inner: Scope): Sentence[][] => {
       if (doc.kind !== 'list') return this.doc(doc.body, inner).map(s => [s]);
       let all: Sentence[][] = [[]];
@@ -598,6 +638,40 @@ export class Parser {
     }
     return out;
   }
+}
+
+/** Each line of words a doc holds, in the order a reader meets them. */
+function texts(doc: Doc): string[] {
+  if (typeof doc === 'string') return [doc];
+  if (doc.kind === 'list') return [doc.intro, ...doc.items.flatMap(texts)];
+  if (doc.kind === 'block') return [doc.intro, ...texts(doc.body)];
+  return [...texts(doc.when), ...texts(doc.then), ...(doc.otherwise === undefined ? [] : texts(doc.otherwise))];
+}
+
+/** The docs with the first words that match `pattern`, in the order a reader meets them, said as `to`; undefined where none match. */
+function replaceFirst(docs: Doc[], pattern: RegExp, to: string): Doc[] | undefined {
+  // The parts with the first that `one` changes changed; undefined where it changes none.
+  const parts = (ds: Doc[]): Doc[] | undefined => {
+    for (const [i, d] of ds.entries()) {
+      const done = one(d);
+      if (done !== undefined) return ds.map((x, k) => (k === i ? done : x));
+    }
+    return undefined;
+  };
+  const one = (doc: Doc): Doc | undefined => {
+    if (typeof doc === 'string') return pattern.test(doc) ? doc.replace(pattern, to) : undefined;
+    if (doc.kind === 'list') {
+      const done = parts([doc.intro, ...doc.items]);
+      return done === undefined ? undefined : { ...doc, intro: done[0] as string, items: done.slice(1) };
+    }
+    if (doc.kind === 'block') {
+      const done = parts([doc.intro, doc.body]);
+      return done === undefined ? undefined : { ...doc, intro: done[0] as string, body: done[1] as Doc };
+    }
+    const done = parts(doc.otherwise === undefined ? [doc.when, doc.then] : [doc.when, doc.then, doc.otherwise]);
+    return done === undefined ? undefined : { ...doc, when: done[0] as Doc, then: done[1] as Doc, ...(doc.otherwise === undefined ? {} : { otherwise: done[2] as Doc }) };
+  };
+  return parts(docs);
 }
 
 /** The IR with nested lists of one kind made one, as the printer says them. */

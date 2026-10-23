@@ -29,9 +29,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term freelancing`](#term-freelancing) — A freelancing is a finding for a unit that makes a claim and cites nothing it derives from.
 - [`@term misnesting`](#term-misnesting) — A misnesting is a finding for a unit that cites a kind of unit it may not cite.
 - [`@term unfounded`](#term-unfounded) —
-  > For every [unit](#term-unit):
-  >
-  > the unit is unfounded exactly when the unit is one of these:
+  > A [unit](#term-unit) is unfounded exactly when the unit is one of these:
   > - a [spec](#term-spec) that [cites](#term-cite) no [axiom](#term-axiom) and cites no spec
   > - an [exception](#term-exception) that cites no spec or cites no [fact](#term-fact)
   > - a [bug](#term-bug) that cites no spec
@@ -66,12 +64,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term misindexing`](#term-misindexing) — A misindexing is a finding for a document with no index, or with an index that does not match it.
 - [`@term mislocation`](#term-mislocation) — A mislocation is a finding for a claim that names a site no source holds.
 - [`@term claim`](#term-claim) — A claim is a spec, an exception or a bug.
-- [`@term refined`](#term-refined) — For every [claim](#term-claim): the claim is refined exactly when a [spec](#term-spec) [sits in](#term-sit) the claim or an [exception](#term-exception) sits in the claim.
-- [`@term unguarded`](#term-unguarded) — For every [claim](#term-claim): the claim is unguarded exactly when the claim is not [refined](#term-refined) and is not [tested](#term-tested).
+- [`@term refined`](#term-refined) — A [claim](#term-claim) is refined exactly when a [spec](#term-spec) [sits in](#term-sit) the claim or an [exception](#term-exception) sits in the claim.
+- [`@term unguarded`](#term-unguarded) — A [claim](#term-claim) is unguarded exactly when the claim is not [refined](#term-refined) and is not [tested](#term-tested).
 - [`@term adrift`](#term-adrift) —
-  > For every [test](#term-test):
-  >
-  > the test is adrift exactly when at least one of these holds:
+  > A [test](#term-test) is adrift exactly when at least one of these holds:
   > - [project](#term-project) [declares](#term-declare) the test and the test [carries](#term-carry) no [tag](#term-tag)
   > - project declares the test and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim)
   > - the test checks a claim that is [refined](#term-refined)
@@ -106,16 +102,12 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@term tracker`](#term-tracker) — Tracker is the issue tracker the scope of the project names.
 - [`@term name`](#term-name) — A bug names each issue that the issue line of the bug names.
 - [`@term tested`](#term-tested) —
-  > For every [unit](#term-unit):
-  >
-  > the unit is tested exactly when at least one of these holds:
+  > A [unit](#term-unit) is tested exactly when at least one of these holds:
   > - a [test](#term-test) [checks](#term-check) the unit
   > - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [cites](#term-cite) the unit
-- [`@term paired`](#term-paired) — For every [conflict](#term-conflict): the conflict is paired exactly when the conflict [names](#term-name) a [unit](#term-unit) and names another unit.
+- [`@term paired`](#term-paired) — A [conflict](#term-conflict) is paired exactly when the conflict [names](#term-name) a [unit](#term-unit) and names another unit.
 - [`@term hidden`](#term-hidden) —
-  > For every [unit](#term-unit):
-  >
-  > the unit is hidden exactly when at least one of these holds:
+  > A [unit](#term-unit) is hidden exactly when at least one of these holds:
   > - all of these hold:
   >   - the unit is a [bug](#term-bug)
   >   - at least one of these holds:
@@ -173,118 +165,90 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
 - [`@fact a-runner-takes-the-body-of-a-test-after-its-title`](#fact-a-runner-takes-the-body-of-a-test-after-its-title) — Vitest, Jest, Playwright and Node's test runner take the body of a test as a function after its title.
 - [`@axiom every-claim-says-what-it-follows-from`](#axiom-every-claim-says-what-it-follows-from) —
   > All of these hold:
-  > - for every [unit](#term-unit):
-  >
-  >   when the unit is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for the unit
-  > - for every unit:
-  >
-  >   when the unit is [miscited](#term-miscited), checker reports a finding for the unit
-  > - for every unit:
-  >
-  >   when the unit is [circular](#term-circular), checker reports a finding for the unit.
-  - [`@spec an-unfounded-unit-is-freelancing`](#spec-an-unfounded-unit-is-freelancing) — For every [unit](#term-unit): when the unit is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the unit.
+  > - when a [unit](#term-unit) is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for the unit
+  > - when a unit is [miscited](#term-miscited), checker reports a finding for the unit
+  > - when a unit is [circular](#term-circular), checker reports a finding for the unit
+  - [`@spec an-unfounded-unit-is-freelancing`](#spec-an-unfounded-unit-is-freelancing) — When a [unit](#term-unit) is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the unit.
     - [`@spec a-spec-cites-an-axiom-or-a-spec`](#spec-a-spec-cites-an-axiom-or-a-spec) — For every [spec_1](#term-spec): when spec_1 [cites](#term-cite) no [axiom](#term-axiom) and cites no spec, [checker](#term-checker) reports a [freelancing](#term-freelancing) for spec_1.
-    - [`@spec an-exception-cites-a-spec`](#spec-an-exception-cites-a-spec) — For every [exception](#term-exception): when the exception [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
-    - [`@spec an-exception-cites-a-fact`](#spec-an-exception-cites-a-fact) — For every [exception](#term-exception): when the exception [cites](#term-cite) no [fact](#term-fact), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
-    - [`@spec a-bug-cites-a-spec`](#spec-a-bug-cites-a-spec) — For every [bug](#term-bug): when the bug [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the bug.
+    - [`@spec an-exception-cites-a-spec`](#spec-an-exception-cites-a-spec) — When an [exception](#term-exception) [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
+    - [`@spec an-exception-cites-a-fact`](#spec-an-exception-cites-a-fact) — When an [exception](#term-exception) [cites](#term-cite) no [fact](#term-fact), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
+    - [`@spec a-bug-cites-a-spec`](#spec-a-bug-cites-a-spec) — When a [bug](#term-bug) [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the bug.
     - [`@bug a-link-in-the-body-counts-as-a-citation`](#bug-a-link-in-the-body-counts-as-a-citation) — When a spec links to an axiom, and the spec cites no axiom, and the spec cites no spec, checker reports no freelancing for the spec.
-  - [`@spec a-miscited-unit-is-misnested`](#spec-a-miscited-unit-is-misnested) — For every [unit](#term-unit): when the unit is [miscited](#term-miscited), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the unit.
+  - [`@spec a-miscited-unit-is-misnested`](#spec-a-miscited-unit-is-misnested) — When a [unit](#term-unit) is [miscited](#term-miscited), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the unit.
     - [`@spec an-axiom-cites-only-axioms`](#spec-an-axiom-cites-only-axioms) — For every [axiom_1](#term-axiom): when axiom_1 [cites](#term-cite) a [unit](#term-unit) that is not an axiom, [checker](#term-checker) reports a [misnesting](#term-misnesting) for axiom_1.
-    - [`@spec a-fact-cites-nothing`](#spec-a-fact-cites-nothing) — For every [fact](#term-fact): when the fact [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the fact.
+    - [`@spec a-fact-cites-nothing`](#spec-a-fact-cites-nothing) — When a [fact](#term-fact) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the fact.
     - [`@spec a-spec-cites-only-axioms-specs-and-facts`](#spec-a-spec-cites-only-axioms-specs-and-facts) — For every [spec_1](#term-spec): when the following holds: spec_1 [cites](#term-cite) a [unit](#term-unit) that is not an [axiom](#term-axiom), a spec or a [fact](#term-fact) then [checker](#term-checker) reports a [misnesting](#term-misnesting) for spec_1.
-    - [`@spec an-exception-cites-only-specs-and-facts`](#spec-an-exception-cites-only-specs-and-facts) — For every [exception](#term-exception): when the exception [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec) or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the exception.
-    - [`@spec a-bug-cites-only-specs`](#spec-a-bug-cites-only-specs) — For every [bug](#term-bug): when the bug [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the bug.
-    - [`@spec a-conflict-cites-nothing`](#spec-a-conflict-cites-nothing) — For every [conflict](#term-conflict): when the conflict [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the conflict.
-    - [`@spec a-thread-cites-nothing`](#spec-a-thread-cites-nothing) — For every [thread](#term-thread): when the thread [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the thread.
-    - [`@spec a-term-cites-nothing`](#spec-a-term-cites-nothing) — For every [term](#term-term): when the term [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the term.
+    - [`@spec an-exception-cites-only-specs-and-facts`](#spec-an-exception-cites-only-specs-and-facts) — When an [exception](#term-exception) [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec) or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the exception.
+    - [`@spec a-bug-cites-only-specs`](#spec-a-bug-cites-only-specs) — When a [bug](#term-bug) [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the bug.
+    - [`@spec a-conflict-cites-nothing`](#spec-a-conflict-cites-nothing) — When a [conflict](#term-conflict) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the conflict.
+    - [`@spec a-thread-cites-nothing`](#spec-a-thread-cites-nothing) — When a [thread](#term-thread) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the thread.
+    - [`@spec a-term-cites-nothing`](#spec-a-term-cites-nothing) — When a [term](#term-term) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the term.
     - [`@bug a-derives-from-line-is-not-checked-for-its-kind`](#bug-a-derives-from-line-is-not-checked-for-its-kind) — When a fact derives from a unit, and the fact sits in no unit, checker reports no misnesting for the fact.
-  - [`@spec a-unit-does-not-depend-on-itself`](#spec-a-unit-does-not-depend-on-itself) — For every [unit](#term-unit): when the unit is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for the unit.
+  - [`@spec a-unit-does-not-depend-on-itself`](#spec-a-unit-does-not-depend-on-itself) — When a [unit](#term-unit) is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for the unit.
 - [`@axiom a-known-defect-stays-in-sight`](#axiom-a-known-defect-stays-in-sight) —
   > All of these hold:
-  > - for every [bug](#term-bug):
-  >
-  >   when the bug is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug
-  > - for every [conflict](#term-conflict):
-  >
-  >   when the conflict is hidden, checker reports a finding for the conflict
-  > - for every [test](#term-test):
-  >
-  >   when the test is [misleading](#term-misleading), checker reports a finding for the test.
-  - [`@spec a-hidden-bug-is-reported`](#spec-a-hidden-bug-is-reported) — For every [bug](#term-bug): when the bug is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug.
-    - [`@spec a-bug-names-an-issue`](#spec-a-bug-names-an-issue) — For every [bug](#term-bug): when [project](#term-project) has a [tracker](#term-tracker) and the bug [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the bug.
-    - [`@spec a-bug-names-an-issue-the-tracker-knows`](#spec-a-bug-names-an-issue-the-tracker-knows) — For every [bug](#term-bug): when the bug [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the bug.
-    - [`@spec a-bug-names-an-open-issue`](#spec-a-bug-names-an-open-issue) — For every [bug](#term-bug): when the bug [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the bug.
-    - [`@spec a-bug-is-tested`](#spec-a-bug-is-tested) — For every [bug](#term-bug): when [project](#term-project) has a [runner](#term-runner) and the bug is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for the bug.
-  - [`@spec a-hidden-conflict-is-reported`](#spec-a-hidden-conflict-is-reported) — For every [conflict](#term-conflict): when the conflict is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the conflict.
-    - [`@spec a-conflict-names-an-issue`](#spec-a-conflict-names-an-issue) — For every [conflict](#term-conflict): when [project](#term-project) has a [tracker](#term-tracker) and the conflict [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the conflict.
-    - [`@spec a-conflict-names-an-issue-the-tracker-knows`](#spec-a-conflict-names-an-issue-the-tracker-knows) — For every [conflict](#term-conflict): when the conflict [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the conflict.
-    - [`@spec a-conflict-names-an-open-issue`](#spec-a-conflict-names-an-open-issue) — For every [conflict](#term-conflict): when the conflict [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the conflict.
-    - [`@spec a-conflict-names-two-units`](#spec-a-conflict-names-two-units) — For every [conflict](#term-conflict): when the conflict is not [paired](#term-paired), [checker](#term-checker) reports an [unpairing](#term-unpairing) for the conflict.
-  - [`@spec a-misleading-test-is-reported`](#spec-a-misleading-test-is-reported) — For every [test](#term-test): when the test is [misleading](#term-misleading), [checker](#term-checker) reports a [finding](#term-finding) for the test.
-    - [`@spec an-expected-failure-checks-a-bug-or-an-exception`](#spec-an-expected-failure-checks-a-bug-or-an-exception) — For every [expected failure](#term-expected-failure): when the expected failure [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for the expected failure.
-    - [`@spec a-plain-test-does-not-check-a-bug`](#spec-a-plain-test-does-not-check-a-bug) — For every [plain test](#term-plain-test): when the plain test [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for the plain test.
+  > - when a [bug](#term-bug) is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug
+  > - when a [conflict](#term-conflict) is hidden, checker reports a finding for the conflict
+  > - when a [test](#term-test) is [misleading](#term-misleading), checker reports a finding for the test
+  - [`@spec a-hidden-bug-is-reported`](#spec-a-hidden-bug-is-reported) — When a [bug](#term-bug) is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug.
+    - [`@spec a-bug-names-an-issue`](#spec-a-bug-names-an-issue) — When [project](#term-project) has a [tracker](#term-tracker) and a [bug](#term-bug) [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the bug.
+    - [`@spec a-bug-names-an-issue-the-tracker-knows`](#spec-a-bug-names-an-issue-the-tracker-knows) — When a [bug](#term-bug) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the bug.
+    - [`@spec a-bug-names-an-open-issue`](#spec-a-bug-names-an-open-issue) — When a [bug](#term-bug) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the bug.
+    - [`@spec a-bug-is-tested`](#spec-a-bug-is-tested) — When [project](#term-project) has a [runner](#term-runner) and a [bug](#term-bug) is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for the bug.
+  - [`@spec a-hidden-conflict-is-reported`](#spec-a-hidden-conflict-is-reported) — When a [conflict](#term-conflict) is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the conflict.
+    - [`@spec a-conflict-names-an-issue`](#spec-a-conflict-names-an-issue) — When [project](#term-project) has a [tracker](#term-tracker) and a [conflict](#term-conflict) [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the conflict.
+    - [`@spec a-conflict-names-an-issue-the-tracker-knows`](#spec-a-conflict-names-an-issue-the-tracker-knows) — When a [conflict](#term-conflict) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the conflict.
+    - [`@spec a-conflict-names-an-open-issue`](#spec-a-conflict-names-an-open-issue) — When a [conflict](#term-conflict) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the conflict.
+    - [`@spec a-conflict-names-two-units`](#spec-a-conflict-names-two-units) — When a [conflict](#term-conflict) is not [paired](#term-paired), [checker](#term-checker) reports an [unpairing](#term-unpairing) for the conflict.
+  - [`@spec a-misleading-test-is-reported`](#spec-a-misleading-test-is-reported) — When a [test](#term-test) is [misleading](#term-misleading), [checker](#term-checker) reports a [finding](#term-finding) for the test.
+    - [`@spec an-expected-failure-checks-a-bug-or-an-exception`](#spec-an-expected-failure-checks-a-bug-or-an-exception) — When an [expected failure](#term-expected-failure) [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for the expected failure.
+    - [`@spec a-plain-test-does-not-check-a-bug`](#spec-a-plain-test-does-not-check-a-bug) — When a [plain test](#term-plain-test) [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for the plain test.
 - [`@axiom the-check-can-be-taken-at-its-word`](#axiom-the-check-can-be-taken-at-its-word) — The author can act on what the checker reports: a clean check means the canon holds, and a finding means it does not.
   - [`@axiom a-canon-cannot-go-out-of-date-unnoticed`](#axiom-a-canon-cannot-go-out-of-date-unnoticed) —
     > All of these hold:
-    > - for every [claim](#term-claim):
-    >
-    >   when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for the claim
-    > - for every [tag](#term-tag):
-    >
-    >   when the tag [names](#term-name) no [unit](#term-unit), checker reports a finding for the tag
-    > - for every [test](#term-test):
-    >
-    >   when the test is [adrift](#term-adrift), checker reports a finding for the test
-    > - for every [pointer](#term-pointer):
-    >
-    >   when the pointer names no [target](#term-target), checker reports a finding for the pointer
+    > - when [project](#term-project) has a [runner](#term-runner) and a [claim](#term-claim) is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for the claim
+    > - when a [tag](#term-tag) [names](#term-name) no [unit](#term-unit), checker reports a finding for the tag
+    > - when a [test](#term-test) is [adrift](#term-adrift), checker reports a finding for the test
+    > - when a [pointer](#term-pointer) names no [target](#term-target), checker reports a finding for the pointer
     > - for every unit_1:
     >
     >   when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1
     > - for every unit_1:
     >
     >   when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1
-    > - for every [document](#term-document):
-    >
-    >   when the document [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for the document
-    > - for every document:
-    >
-    >   when the document holds an index that does not [match](#term-match) the document, checker reports a finding for the document
-    > - for every claim:
-    >
-    >   when the claim names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for the claim
+    > - when a [document](#term-document) [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for the document
+    > - when a document holds an index that does not [match](#term-match) the document, checker reports a finding for the document
+    > - when a claim names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for the claim
     > - for every unit_1:
     >
     >   when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.
-    - [`@spec an-unguarded-claim-is-untested`](#spec-an-unguarded-claim-is-untested) — For every [claim](#term-claim): when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
-    - [`@spec a-tag-names-a-unit`](#spec-a-tag-names-a-unit) — For every [tag](#term-tag): when the tag [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for the tag.
+    - [`@spec an-unguarded-claim-is-untested`](#spec-an-unguarded-claim-is-untested) — When [project](#term-project) has a [runner](#term-runner) and a [claim](#term-claim) is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
+    - [`@spec a-tag-names-a-unit`](#spec-a-tag-names-a-unit) — When a [tag](#term-tag) [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for the tag.
     - [`@spec a-tag-in-any-comment-names-a-unit`](#spec-a-tag-in-any-comment-names-a-unit) — When a `@canon` tag in any comment of a suite or a source names no unit, the checker reports a [rotting](#term-rotting) for it.
     - [`@spec a-tag-outside-a-test-tests-nothing`](#spec-a-tag-outside-a-test-tests-nothing) — A `@canon` tag in a comment that is not the documentation comment of a test makes no unit [tested](#term-tested).
     - [`@spec a-link-in-any-comment-names-a-target`](#spec-a-link-in-any-comment-names-a-target) — When a link with a fragment, in a comment of a source, names no [target](#term-target), the checker reports a [rotting](#term-rotting) for it.
     - [`@spec a-bare-mention-of-a-document-is-a-rotting`](#spec-a-bare-mention-of-a-document-is-a-rotting) — When a comment of a source spells a canon document and a fragment outside a link and a tag, the checker reports a [rotting](#term-rotting).
     - [`@spec a-comment-makes-no-unit-used`](#spec-a-comment-makes-no-unit-used) — A link in a comment of a source makes no unit [used](#term-used), and neither does a `@canon` tag outside the comment of a test.
-    - [`@spec an-adrift-test-is-reported`](#spec-an-adrift-test-is-reported) — For every [test](#term-test): when the test is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
-      - [`@spec a-declared-test-carries-a-tag`](#spec-a-declared-test-carries-a-tag) — For every [test](#term-test): when [project](#term-project) [declares](#term-declare) the test and the test [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for the test.
-      - [`@spec a-declared-test-checks-only-claims`](#spec-a-declared-test-checks-only-claims) — For every [test](#term-test): when [project](#term-project) [declares](#term-declare) the test and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for the test.
-      - [`@spec a-test-checks-only-leaves`](#spec-a-test-checks-only-leaves) — For every [test](#term-test): when the test [checks](#term-check) a [claim](#term-claim) that is [refined](#term-refined), [checker](#term-checker) reports an [overreach](#term-overreach) for the test.
-    - [`@spec a-pointer-names-a-target`](#spec-a-pointer-names-a-target) — For every [pointer](#term-pointer): when the pointer [names](#term-name) no [target](#term-target), [checker](#term-checker) reports a [rotting](#term-rotting) for the pointer.
+    - [`@spec an-adrift-test-is-reported`](#spec-an-adrift-test-is-reported) — When a [test](#term-test) is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
+      - [`@spec a-declared-test-carries-a-tag`](#spec-a-declared-test-carries-a-tag) — When [project](#term-project) [declares](#term-declare) a [test](#term-test) and the test [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for the test.
+      - [`@spec a-declared-test-checks-only-claims`](#spec-a-declared-test-checks-only-claims) — When [project](#term-project) [declares](#term-declare) a [test](#term-test) and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for the test.
+      - [`@spec a-test-checks-only-leaves`](#spec-a-test-checks-only-leaves) — When a [test](#term-test) [checks](#term-check) a [claim](#term-claim) that is [refined](#term-refined), [checker](#term-checker) reports an [overreach](#term-overreach) for the test.
+    - [`@spec a-pointer-names-a-target`](#spec-a-pointer-names-a-target) — When a [pointer](#term-pointer) [names](#term-name) no [target](#term-target), [checker](#term-checker) reports a [rotting](#term-rotting) for the pointer.
       - [`@bug a-file-pointer-is-not-checked`](#bug-a-file-pointer-is-not-checked) — When a file pointer names no target, checker reports no rotting for the file pointer.
     - [`@spec a-unit-is-declared-once`](#spec-a-unit-is-declared-once) — For every [unit_1](#term-unit): when unit_1 [repeats](#term-repeat) a unit, [checker](#term-checker) reports a [rotting](#term-rotting) for unit_1.
       - [`@bug a-unit-repeated-in-one-document-is-not-reported`](#bug-a-unit-repeated-in-one-document-is-not-reported) — When a document holds a unit, and the document holds another unit that the unit repeats, checker reports no rotting for the unit.
     - [`@spec a-unit-is-used`](#spec-a-unit-is-used) —
-      > For every [unit](#term-unit):
-      >
-      > when all of these hold:
-      > - the unit is not [used](#term-used)
+      > When all of these hold:
+      > - a [unit](#term-unit) is not [used](#term-used)
       > - the unit is not a [conflict](#term-conflict)
       > - the unit is not a [thread](#term-thread)
       >
       > then [checker](#term-checker) reports an [orphaning](#term-orphaning) for the unit.
       - [`@bug a-link-in-a-code-span-uses-a-unit`](#bug-a-link-in-a-code-span-uses-a-unit) — When a unit is not used, and a code span names the unit, checker reports no orphaning for the unit.
-    - [`@spec a-heading-ends-with-its-id`](#spec-a-heading-ends-with-its-id) — For every [unit](#term-unit): when a [trailer](#term-trailer) [follows](#term-follow) the unit, [checker](#term-checker) reports a [misanchoring](#term-misanchoring) for the unit.
-    - [`@spec a-document-holds-an-index`](#spec-a-document-holds-an-index) — For every [document](#term-document): when the document [holds](#term-hold) a [unit](#term-unit) and holds no [index](#term-index), [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
-    - [`@spec an-index-matches-its-document`](#spec-an-index-matches-its-document) — For every [document](#term-document): when the document [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) the document, [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
-    - [`@spec a-site-is-held-by-a-source`](#spec-a-site-is-held-by-a-source) — For every [claim](#term-claim): when the claim [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for the claim.
+    - [`@spec a-heading-ends-with-its-id`](#spec-a-heading-ends-with-its-id) — When a [trailer](#term-trailer) [follows](#term-follow) a [unit](#term-unit), [checker](#term-checker) reports a [misanchoring](#term-misanchoring) for the unit.
+    - [`@spec a-document-holds-an-index`](#spec-a-document-holds-an-index) — When a [document](#term-document) [holds](#term-hold) a [unit](#term-unit) and holds no [index](#term-index), [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
+    - [`@spec an-index-matches-its-document`](#spec-an-index-matches-its-document) — When a [document](#term-document) [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) the document, [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
+    - [`@spec a-site-is-held-by-a-source`](#spec-a-site-is-held-by-a-source) — When a [claim](#term-claim) [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for the claim.
       - [`@bug a-site-named-in-a-comment-is-held`](#bug-a-site-named-in-a-comment-is-held) — When a claim names a site that no source holds, and a comment names the site, checker reports no mislocation for the claim.
     - [`@spec a-heading-with-a-kind-and-a-stem-declares-a-unit`](#spec-a-heading-with-a-kind-and-a-stem-declares-a-unit) — A [heading](#term-heading) that gives a kind and a stem declares a [unit](#term-unit), unless it lies inside a fenced block or inside the index.
     - [`@spec a-heading-in-a-fenced-block-declares-no-unit`](#spec-a-heading-in-a-fenced-block-declares-no-unit) — A heading inside a fenced block declares no unit.
@@ -316,9 +280,9 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       >
       > then [checker](#term-checker) reads fence_1 as a block of the unit.
     - [`@spec a-fence-with-no-language-is-prose`](#spec-a-fence-with-no-language-is-prose) — For every [fence_1](#term-fence): when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
-    - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — For every [fence](#term-fence): when the second word of the fence is vocabulary, the fence has the role of vocabulary.
-    - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — For every [fence](#term-fence): when the second word of the fence is bounds, the fence has the role of bounds.
-    - [`@spec a-block-whose-second-word-is-scenario-has-the-role-of-scenario`](#spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario) — For every [fence](#term-fence): when the second word of the fence is scenario, the fence has the role of scenario.
+    - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — When the second word of a [fence](#term-fence) is vocabulary, the fence has the role of vocabulary.
+    - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — When the second word of a [fence](#term-fence) is bounds, the fence has the role of bounds.
+    - [`@spec a-block-whose-second-word-is-scenario-has-the-role-of-scenario`](#spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario) — When the second word of a [fence](#term-fence) is scenario, the fence has the role of scenario.
     - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) —
       > For every [fence_1](#term-fence):
       >
@@ -338,10 +302,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       > - unit_2 and unit_1 are different
       > - [checker](#term-checker) reads the fence as a block of unit_2
   - [`@axiom a-finding-is-never-false`](#axiom-a-finding-is-never-false) — The checker reports a finding only for what breaks the canon.
-    - [`@spec a-tested-claim-is-not-untested`](#spec-a-tested-claim-is-not-untested) — For every [claim](#term-claim): when the claim is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
-      - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — For every [claim](#term-claim): when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
-      - [`@spec a-claim-an-undeclared-test-checks-is-not-untested`](#spec-a-claim-an-undeclared-test-checks-is-not-untested) — For every [claim](#term-claim): when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
-      - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — For every [spec](#term-spec): when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
+    - [`@spec a-tested-claim-is-not-untested`](#spec-a-tested-claim-is-not-untested) — When a [claim](#term-claim) is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
+      - [`@spec a-claim-a-declared-test-checks-is-not-untested`](#spec-a-claim-a-declared-test-checks-is-not-untested) — When a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) a [claim](#term-claim), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
+      - [`@spec a-claim-an-undeclared-test-checks-is-not-untested`](#spec-a-claim-an-undeclared-test-checks-is-not-untested) — When a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) a [claim](#term-claim), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
+      - [`@spec a-spec-whose-bug-a-test-checks-is-not-untested`](#spec-a-spec-whose-bug-a-test-checks-is-not-untested) — When a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) a [spec](#term-spec), [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
     - [`@spec a-project-with-no-runner-reports-no-untesting`](#spec-a-project-with-no-runner-reports-no-untesting) — For every [unit](#term-unit): when [project](#term-project) has no [runner](#term-runner), [checker](#term-checker) reports no [untesting](#term-untesting) for the unit.
     - [`@spec a-project-with-no-tracker-reports-no-untracking`](#spec-a-project-with-no-tracker-reports-no-untracking) — For every [unit](#term-unit): when [project](#term-project) has no [tracker](#term-tracker), [checker](#term-checker) reports no [untracking](#term-untracking) for the unit.
     - [`@spec a-thread-owes-no-issue`](#spec-a-thread-owes-no-issue) —
@@ -373,12 +337,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-call-of-a-function-marked-fails-is-an-expected-failure`](#spec-a-call-of-a-function-marked-fails-is-an-expected-failure) — A test made by a call of a function that the marker `@runner fails` marks is an [expected failure](#term-expected-failure).
       - [`@spec a-call-inside-a-marked-function-is-no-test`](#spec-a-call-inside-a-marked-function-is-no-test) — A call inside the body of a function that a runner marker marks is no test.
   - [`@axiom a-check-the-project-asked-for-is-never-dropped-silently`](#axiom-a-check-the-project-asked-for-is-never-dropped-silently) —
-    > For every [run](#term-run):
-    >
-    > when at least one of these holds:
+    > When at least one of these holds:
     > - there is a [frontmatter](#term-frontmatter) that [lists](#term-list) a [missing plugin](#term-plugin)
     > - there is a [document](#term-document) such that [checker](#term-checker) reports that the document has a frontmatter it cannot read
-    > - the run asks for a [command](#term-command) that is not [available](#term-availability)
+    > - a [run](#term-run) asks for a [command](#term-command) that is not [available](#term-availability)
     > - the run gets code 2 from a plugin
     >
     > then the run exits with code 2.
@@ -487,21 +449,17 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       >   - [checker](#term-checker) does not stop the run itself
       >
       >   then the run exits with code 1.
-      - [`@spec a-plugin-that-could-not-run-stops-the-run`](#spec-a-plugin-that-could-not-run-stops-the-run) — For every [run](#term-run): when the run gets code 2 from a [plugin](#term-plugin), the run exits with code 2.
+      - [`@spec a-plugin-that-could-not-run-stops-the-run`](#spec-a-plugin-that-could-not-run-stops-the-run) — When a [run](#term-run) gets code 2 from a [plugin](#term-plugin), the run exits with code 2.
       - [`@spec a-finding-fails-the-run`](#spec-a-finding-fails-the-run) —
-        > For every [run](#term-run):
-        >
-        > when all of these hold:
-        > - the run gets code 1 from a [plugin](#term-plugin)
+        > When all of these hold:
+        > - a [run](#term-run) gets code 1 from a [plugin](#term-plugin)
         > - the run gets code 2 from no plugin
         > - [checker](#term-checker) does not stop the run itself
         >
         > then the run exits with code 1.
       - [`@spec a-run-with-no-finding-succeeds`](#spec-a-run-with-no-finding-succeeds) —
-        > For every [run](#term-run):
-        >
-        > when all of these hold:
-        > - there is no [plugin](#term-plugin) such that the run gets code 1 from the plugin or gets code 2 from the plugin
+        > When all of these hold:
+        > - there is no [plugin](#term-plugin) such that a [run](#term-run) gets code 1 from the plugin or gets code 2 from the plugin
         > - [checker](#term-checker) does not stop the run itself
         >
         > then the run exits with code 0.
@@ -887,9 +845,7 @@ Misnesting: [checker](#term-checker) reports a [misnesting] for {1} | [checker](
 ### @term unfounded
 
 <!-- statement-term-unfounded:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> the unit is unfounded exactly when the unit is one of these:
+> A [unit](#term-unit) is unfounded exactly when the unit is one of these:
 > - a [spec](#term-spec) that [cites](#term-cite) no [axiom](#term-axiom) and cites no spec
 > - an [exception](#term-exception) that cites no spec or cites no [fact](#term-fact)
 > - a [bug](#term-bug) that cites no spec
@@ -1220,9 +1176,7 @@ Claim: {1} is a [claim] | {1} is not a [claim]
 ### @term refined
 
 <!-- statement-term-refined:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> the claim is refined exactly when a [spec](#term-spec) [sits in](#term-sit) the claim or an [exception](#term-exception) sits in the claim.
+> A [claim](#term-claim) is refined exactly when a [spec](#term-spec) [sits in](#term-sit) the claim or an [exception](#term-exception) sits in the claim.
 <!-- statement-term-refined:end -->
 
 A claim is refined when a spec or an exception sits in it and works it out further. A bug in a spec only marks where the code breaks that spec. So a spec with nothing but bugs beneath it is still a leaf. Deriving does not refine either: only nesting does.
@@ -1238,9 +1192,7 @@ refined: {1} is [refined] | {1} is not [refined]
 ### @term unguarded
 
 <!-- statement-term-unguarded:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> the claim is unguarded exactly when the claim is not [refined](#term-refined) and is not [tested](#term-tested).
+> A [claim](#term-claim) is unguarded exactly when the claim is not [refined](#term-refined) and is not [tested](#term-tested).
 <!-- statement-term-unguarded:end -->
 
 A leaf states what the code does, and only a test holds the code to it. A leaf is unguarded when nothing tests it, so the code could stop doing what it says and no test would fail. A test of a bug also guards each spec that bug cites. A refined claim is never unguarded, because the claims beneath it carry its tests.
@@ -1256,9 +1208,7 @@ unguarded: {1} is [unguarded] | {1} is not [unguarded]
 ### @term adrift
 
 <!-- statement-term-adrift:begin — generated by `canon generate`; edits are overwritten -->
-> For every [test](#term-test):
->
-> the test is adrift exactly when at least one of these holds:
+> A [test](#term-test) is adrift exactly when at least one of these holds:
 > - [project](#term-project) [declares](#term-declare) the test and the test [carries](#term-carry) no [tag](#term-tag)
 > - project declares the test and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim)
 > - the test checks a claim that is [refined](#term-refined)
@@ -1673,9 +1623,7 @@ Name.site: {1} [names] {2} | {1} does not [name] {2}
 ### @term tested
 
 <!-- statement-term-tested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> the unit is tested exactly when at least one of these holds:
+> A [unit](#term-unit) is tested exactly when at least one of these holds:
 > - a [test](#term-test) [checks](#term-check) the unit
 > - the unit is a [spec](#term-spec) and a test checks a [bug](#term-bug) that [cites](#term-cite) the unit
 <!-- statement-term-tested:end -->
@@ -1696,9 +1644,7 @@ tested: {1} is [tested] | {1} is not [tested]
 ### @term paired
 
 <!-- statement-term-paired:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> the conflict is paired exactly when the conflict [names](#term-name) a [unit](#term-unit) and names another unit.
+> A [conflict](#term-conflict) is paired exactly when the conflict [names](#term-name) a [unit](#term-unit) and names another unit.
 <!-- statement-term-paired:end -->
 
 A conflict sets units against each other, so it needs two sides. It must name at least two different units, and naming one unit twice does not count.
@@ -1714,9 +1660,7 @@ paired: {1} is [paired] | {1} is not [paired]
 ### @term hidden
 
 <!-- statement-term-hidden:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> the unit is hidden exactly when at least one of these holds:
+> A [unit](#term-unit) is hidden exactly when at least one of these holds:
 > - all of these hold:
 >   - the unit is a [bug](#term-bug)
 >   - at least one of these holds:
@@ -2158,15 +2102,9 @@ The body can follow an options object, as in Vitest's `test(name, options, fn)`.
 
 <!-- statement-axiom-every-claim-says-what-it-follows-from:begin — generated by `canon generate`; edits are overwritten -->
 > All of these hold:
-> - for every [unit](#term-unit):
->
->   when the unit is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for the unit
-> - for every unit:
->
->   when the unit is [miscited](#term-miscited), checker reports a finding for the unit
-> - for every unit:
->
->   when the unit is [circular](#term-circular), checker reports a finding for the unit.
+> - when a [unit](#term-unit) is [unfounded](#term-unfounded), [checker](#term-checker) reports a [finding](#term-finding) for the unit
+> - when a unit is [miscited](#term-miscited), checker reports a finding for the unit
+> - when a unit is [circular](#term-circular), checker reports a finding for the unit
 <!-- statement-axiom-every-claim-says-what-it-follows-from:end -->
 
 A claim that cannot say why it holds gives the next reader no reason to keep it, or to change it with care. So a canon passes the check only when every claim [cites](#term-cite) what it follows from, and only what its kind may follow from. A unit that does not is [unfounded](#term-unfounded) or [miscited](#term-miscited), and the checker reports a [finding](#term-finding) for it.
@@ -2182,9 +2120,7 @@ and (all u: Unit | circular[u] implies u in Finding)
 #### @spec an-unfounded-unit-is-freelancing
 
 <!-- statement-spec-an-unfounded-unit-is-freelancing:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> when the unit is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the unit.
+> When a [unit](#term-unit) is [unfounded](#term-unfounded), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the unit.
 <!-- statement-spec-an-unfounded-unit-is-freelancing:end -->
 
 Units tie into the theory through what they cite. When a unit lacks a citation its kind owes, it floats free, and the checker reports it as a [freelancing](#term-freelancing).
@@ -2210,9 +2146,7 @@ all s: Spec | ((no a: Axiom | cites[s, a]) and (no t: Spec | cites[s, t])) impli
 ##### @spec an-exception-cites-a-spec
 
 <!-- statement-spec-an-exception-cites-a-spec:begin — generated by `canon generate`; edits are overwritten -->
-> For every [exception](#term-exception):
->
-> when the exception [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
+> When an [exception](#term-exception) [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
 <!-- statement-spec-an-exception-cites-a-spec:end -->
 
 An exception departs from a spec, so it says which spec it departs from. Without that, nobody can tell which rule it bends, and the checker reports a freelancing.
@@ -2224,9 +2158,7 @@ all e: Exception | (no s: Spec | cites[e, s]) implies e in Freelancing
 ##### @spec an-exception-cites-a-fact
 
 <!-- statement-spec-an-exception-cites-a-fact:begin — generated by `canon generate`; edits are overwritten -->
-> For every [exception](#term-exception):
->
-> when the exception [cites](#term-cite) no [fact](#term-fact), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
+> When an [exception](#term-exception) [cites](#term-cite) no [fact](#term-fact), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the exception.
 <!-- statement-spec-an-exception-cites-a-fact:end -->
 
 An exception exists because some fact about the world makes the rule give way. An exception that cites no fact gives no reason for bending the rule, so the checker reports a freelancing.
@@ -2238,9 +2170,7 @@ all e: Exception | (no f: Fact | cites[e, f]) implies e in Freelancing
 ##### @spec a-bug-cites-a-spec
 
 <!-- statement-spec-a-bug-cites-a-spec:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when the bug [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the bug.
+> When a [bug](#term-bug) [cites](#term-cite) no [spec](#term-spec), [checker](#term-checker) reports a [freelancing](#term-freelancing) for the bug.
 <!-- statement-spec-a-bug-cites-a-spec:end -->
 
 A bug marks where the code breaks a spec, so it names the spec it breaks. A bug that cites no spec says nothing about what goes wrong, so the checker reports a freelancing.
@@ -2260,9 +2190,7 @@ Issue: #1
 #### @spec a-miscited-unit-is-misnested
 
 <!-- statement-spec-a-miscited-unit-is-misnested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> when the unit is [miscited](#term-miscited), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the unit.
+> When a [unit](#term-unit) is [miscited](#term-miscited), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the unit.
 <!-- statement-spec-a-miscited-unit-is-misnested:end -->
 
 Each kind of unit may follow only from certain kinds. Citing any other kind puts a unit in the wrong place in the derivation graph, and the checker reports a [misnesting](#term-misnesting) for it.
@@ -2288,9 +2216,7 @@ all a: Axiom | (some u: Unit | cites[a, u] and u not in Axiom) implies a in Misn
 ##### @spec a-fact-cites-nothing
 
 <!-- statement-spec-a-fact-cites-nothing:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fact](#term-fact):
->
-> when the fact [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the fact.
+> When a [fact](#term-fact) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the fact.
 <!-- statement-spec-a-fact-cites-nothing:end -->
 
 A fact states how the world is, so it follows from nothing in the theory. The checker reports a misnesting for a fact that cites any unit, even another fact.
@@ -2320,9 +2246,7 @@ all s: Spec | (some u: Unit | cites[s, u] and u not in Axiom and u not in Spec a
 ##### @spec an-exception-cites-only-specs-and-facts
 
 <!-- statement-spec-an-exception-cites-only-specs-and-facts:begin — generated by `canon generate`; edits are overwritten -->
-> For every [exception](#term-exception):
->
-> when the exception [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec) or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the exception.
+> When an [exception](#term-exception) [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec) or a [fact](#term-fact), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the exception.
 <!-- statement-spec-an-exception-cites-only-specs-and-facts:end -->
 
 An exception rests on the specs and facts behind it, so those are the only units it may cite. Citing anything else, such as an axiom, a bug or a term, puts it in the wrong place in the graph. The checker flags that as a misnesting.
@@ -2334,9 +2258,7 @@ all e: Exception | (some u: Unit | cites[e, u] and u not in Spec and u not in Fa
 ##### @spec a-bug-cites-only-specs
 
 <!-- statement-spec-a-bug-cites-only-specs:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when the bug [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the bug.
+> When a [bug](#term-bug) [cites](#term-cite) a [unit](#term-unit) that is not a [spec](#term-spec), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the bug.
 <!-- statement-spec-a-bug-cites-only-specs:end -->
 
 A bug records where the code breaks a spec, so it hangs under the spec it breaks. A spec is the only unit a bug may cite. Citing anything else, such as an axiom, a fact or another bug, puts the bug in the wrong place, and the checker reports a misnesting.
@@ -2348,9 +2270,7 @@ all b: Bug | (some u: Unit | cites[b, u] and u not in Spec) implies b in Misnest
 ##### @spec a-conflict-cites-nothing
 
 <!-- statement-spec-a-conflict-cites-nothing:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> when the conflict [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the conflict.
+> When a [conflict](#term-conflict) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the conflict.
 <!-- statement-spec-a-conflict-cites-nothing:end -->
 
 A conflict records that two units disagree. It names the pair, but it neither follows from them nor refines them. So a conflict has no reason to cite anything, and the checker reports a misnesting for one that cites any unit.
@@ -2362,9 +2282,7 @@ all c: Conflict | (some u: Unit | cites[c, u]) implies c in Misnesting
 ##### @spec a-thread-cites-nothing
 
 <!-- statement-spec-a-thread-cites-nothing:begin — generated by `canon generate`; edits are overwritten -->
-> For every [thread](#term-thread):
->
-> when the thread [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the thread.
+> When a [thread](#term-thread) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the thread.
 <!-- statement-spec-a-thread-cites-nothing:end -->
 
 A thread records a question the owner of the design has left open. It follows from no unit, because the question may concern a unit that the canon does not hold yet, or several units at once. So a thread has no reason to cite anything, and the checker reports a misnesting for one that cites any unit.
@@ -2376,9 +2294,7 @@ all t: Thread | (some u: Unit | cites[t, u]) implies t in Misnesting
 ##### @spec a-term-cites-nothing
 
 <!-- statement-spec-a-term-cites-nothing:begin — generated by `canon generate`; edits are overwritten -->
-> For every [term](#term-term):
->
-> when the term [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the term.
+> When a [term](#term-term) [cites](#term-cite) a [unit](#term-unit), [checker](#term-checker) reports a [misnesting](#term-misnesting) for the term.
 <!-- statement-spec-a-term-cites-nothing:end -->
 
 A term defines a word the canon uses. It makes no claim, so it has nothing to stand on and nothing to refine. If a term cites any unit, the checker reports a misnesting for it.
@@ -2398,9 +2314,7 @@ Issue: #2
 #### @spec a-unit-does-not-depend-on-itself
 
 <!-- statement-spec-a-unit-does-not-depend-on-itself:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> when the unit is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for the unit.
+> When a [unit](#term-unit) is [circular](#term-circular), [checker](#term-checker) reports a [cycle](#term-cycle) for the unit.
 <!-- statement-spec-a-unit-does-not-depend-on-itself:end -->
 
 A unit should rest on ground outside itself. When its citations, followed far enough, lead back to the unit, it [depends](#term-depend) on itself and gives no reason why it holds. The checker reports that loop as a [cycle](#term-cycle).
@@ -2413,15 +2327,9 @@ all u: Unit | circular[u] implies u in Cycle
 
 <!-- statement-axiom-a-known-defect-stays-in-sight:begin — generated by `canon generate`; edits are overwritten -->
 > All of these hold:
-> - for every [bug](#term-bug):
->
->   when the bug is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug
-> - for every [conflict](#term-conflict):
->
->   when the conflict is hidden, checker reports a finding for the conflict
-> - for every [test](#term-test):
->
->   when the test is [misleading](#term-misleading), checker reports a finding for the test.
+> - when a [bug](#term-bug) is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug
+> - when a [conflict](#term-conflict) is hidden, checker reports a finding for the conflict
+> - when a [test](#term-test) is [misleading](#term-misleading), checker reports a finding for the test
 <!-- statement-axiom-a-known-defect-stays-in-sight:end -->
 
 A defect the canon knows of must stay where the next reader sees it, until it is fixed or the owner of the design rules on it. A bug or a conflict out of sight is [hidden](#term-hidden), and a [test](#term-test) whose outcome says nothing true about a defect is [misleading](#term-misleading). The checker reports a [finding](#term-finding) for each.
@@ -2435,9 +2343,7 @@ and (all t: Test | misleading[t] implies t in Finding)
 #### @spec a-hidden-bug-is-reported
 
 <!-- statement-spec-a-hidden-bug-is-reported:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when the bug is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug.
+> When a [bug](#term-bug) is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the bug.
 <!-- statement-spec-a-hidden-bug-is-reported:end -->
 
 A known bug must stay in sight until someone fixes it. It needs an [issue](#term-issue) in the [tracker](#term-tracker), and every issue it names must be one the tracker knows and has not closed. It must also be [tested](#term-tested). A project owes the issue only when it has a tracker, and the test only when it has a runner. The checker reports a bug that falls short, and the specs below name each finding: an [untracking](#term-untracking), a [mistracking](#term-mistracking), an [outdated tracking](#term-outdated-tracking) and an [untesting](#term-untesting).
@@ -2449,9 +2355,7 @@ all b: Bug | hidden[b] implies b in Finding
 ##### @spec a-bug-names-an-issue
 
 <!-- statement-spec-a-bug-names-an-issue:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when [project](#term-project) has a [tracker](#term-tracker) and the bug [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the bug.
+> When [project](#term-project) has a [tracker](#term-tracker) and a [bug](#term-bug) [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the bug.
 <!-- statement-spec-a-bug-names-an-issue:end -->
 
 A bug stays in sight through its issue in the tracker, where people see and plan the work. When the project has a tracker, the checker reports an untracking for a bug that names no issue. A project without a tracker has nowhere to file one, so its bugs need none.
@@ -2463,9 +2367,7 @@ all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in 
 ##### @spec a-bug-names-an-issue-the-tracker-knows
 
 <!-- statement-spec-a-bug-names-an-issue-the-tracker-knows:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when the bug [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the bug.
+> When a [bug](#term-bug) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the bug.
 <!-- statement-spec-a-bug-names-an-issue-the-tracker-knows:end -->
 
 An issue reference only helps if it leads somewhere. A bug that names an issue the tracker has never heard of points at nothing, often through a typo or a deleted issue. The checker reports a mistracking for it.
@@ -2477,9 +2379,7 @@ all b: Bug | (some i: Issue | b->i in Name.issue and i not in Known) implies b i
 ##### @spec a-bug-names-an-open-issue
 
 <!-- statement-spec-a-bug-names-an-open-issue:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when the bug [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the bug.
+> When a [bug](#term-bug) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the bug.
 <!-- statement-spec-a-bug-names-an-open-issue:end -->
 
 A closed issue says the work is over. A bug that still names one has fallen out of step with the tracker. The bug got fixed and should go, or the issue closed too early. The checker reports an outdated tracking for it.
@@ -2491,9 +2391,7 @@ all b: Bug | (some i: Issue | b->i in Name.issue and i in Closed) implies b in O
 ##### @spec a-bug-is-tested
 
 <!-- statement-spec-a-bug-is-tested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [bug](#term-bug):
->
-> when [project](#term-project) has a [runner](#term-runner) and the bug is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for the bug.
+> When [project](#term-project) has a [runner](#term-runner) and a [bug](#term-bug) is not [tested](#term-tested), [checker](#term-checker) reports an [untesting](#term-untesting) for the bug.
 <!-- statement-spec-a-bug-is-tested:end -->
 
 A bug needs a test that shows it, so that someone notices the day it gets fixed. When the project has a runner, the checker reports an untesting for any bug that no test checks. Without a runner the project has no tests to ask for.
@@ -2505,9 +2403,7 @@ all b: Bug | (some Runner and not tested[b]) implies b in Untesting
 #### @spec a-hidden-conflict-is-reported
 
 <!-- statement-spec-a-hidden-conflict-is-reported:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> when the conflict is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the conflict.
+> When a [conflict](#term-conflict) is [hidden](#term-hidden), [checker](#term-checker) reports a [finding](#term-finding) for the conflict.
 <!-- statement-spec-a-hidden-conflict-is-reported:end -->
 
 A known conflict must stay in sight until someone resolves it. Like a bug, it needs an issue in the tracker when the project has one. Every issue it names must be one the tracker knows and has not closed. It must also name the two units that disagree, or nobody can tell what to resolve. The checker reports a conflict that falls short, and the specs below give the missing pair its own finding, an [unpairing](#term-unpairing).
@@ -2519,9 +2415,7 @@ all c: Conflict | hidden[c] implies c in Finding
 ##### @spec a-conflict-names-an-issue
 
 <!-- statement-spec-a-conflict-names-an-issue:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> when [project](#term-project) has a [tracker](#term-tracker) and the conflict [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the conflict.
+> When [project](#term-project) has a [tracker](#term-tracker) and a [conflict](#term-conflict) [names](#term-name) no [issue](#term-issue), [checker](#term-checker) reports an [untracking](#term-untracking) for the conflict.
 <!-- statement-spec-a-conflict-names-an-issue:end -->
 
 A conflict stays in sight through its issue in the tracker, where people see and plan the work. When the project has a tracker, the checker reports an untracking for a conflict that names no issue. A project without a tracker has nowhere to file one, so its conflicts need none.
@@ -2533,9 +2427,7 @@ all c: Conflict | (some Tracker and (no i: Issue | c->i in Name.issue)) implies 
 ##### @spec a-conflict-names-an-issue-the-tracker-knows
 
 <!-- statement-spec-a-conflict-names-an-issue-the-tracker-knows:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> when the conflict [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the conflict.
+> When a [conflict](#term-conflict) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) does not know, [checker](#term-checker) reports a [mistracking](#term-mistracking) for the conflict.
 <!-- statement-spec-a-conflict-names-an-issue-the-tracker-knows:end -->
 
 An issue reference only helps if it leads somewhere. A conflict that names an issue the tracker has never heard of points at nothing, often through a typo or a deleted issue. The checker reports a mistracking for it.
@@ -2547,9 +2439,7 @@ all c: Conflict | (some i: Issue | c->i in Name.issue and i not in Known) implie
 ##### @spec a-conflict-names-an-open-issue
 
 <!-- statement-spec-a-conflict-names-an-open-issue:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> when the conflict [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the conflict.
+> When a [conflict](#term-conflict) [names](#term-name) an [issue](#term-issue) that [tracker](#term-tracker) has closed, [checker](#term-checker) reports an [outdated tracking](#term-outdated-tracking) for the conflict.
 <!-- statement-spec-a-conflict-names-an-open-issue:end -->
 
 A closed issue says the work is over. A conflict that still names one has fallen out of step with the tracker. It got resolved and should go, or the issue closed too early. The checker reports an outdated tracking for it.
@@ -2561,9 +2451,7 @@ all c: Conflict | (some i: Issue | c->i in Name.issue and i in Closed) implies c
 ##### @spec a-conflict-names-two-units
 
 <!-- statement-spec-a-conflict-names-two-units:begin — generated by `canon generate`; edits are overwritten -->
-> For every [conflict](#term-conflict):
->
-> when the conflict is not [paired](#term-paired), [checker](#term-checker) reports an [unpairing](#term-unpairing) for the conflict.
+> When a [conflict](#term-conflict) is not [paired](#term-paired), [checker](#term-checker) reports an [unpairing](#term-unpairing) for the conflict.
 <!-- statement-spec-a-conflict-names-two-units:end -->
 
 A conflict says that two units disagree, so it must name both of them. A conflict that names no unit, or only one, leaves the reader unable to see what clashes. The checker reports an unpairing for it.
@@ -2575,9 +2463,7 @@ all c: Conflict | not paired[c] implies c in Unpairing
 #### @spec a-misleading-test-is-reported
 
 <!-- statement-spec-a-misleading-test-is-reported:begin — generated by `canon generate`; edits are overwritten -->
-> For every [test](#term-test):
->
-> when the test is [misleading](#term-misleading), [checker](#term-checker) reports a [finding](#term-finding) for the test.
+> When a [test](#term-test) is [misleading](#term-misleading), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-a-misleading-test-is-reported:end -->
 
 A test should tell the truth about the code, so the checker reports every test that misleads. An [expected failure](#term-expected-failure) that [checks](#term-check) no bug and no exception announces a failure that nothing explains. A [plain test](#term-plain-test) that checks a bug claims the code works while the bug says it does not. The specs below name the two findings: an [unexplained failure](#term-unexplained-failure) and an [unpinning](#term-unpinning).
@@ -2589,9 +2475,7 @@ all t: Test | misleading[t] implies t in Finding
 ##### @spec an-expected-failure-checks-a-bug-or-an-exception
 
 <!-- statement-spec-an-expected-failure-checks-a-bug-or-an-exception:begin — generated by `canon generate`; edits are overwritten -->
-> For every [expected failure](#term-expected-failure):
->
-> when the expected failure [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for the expected failure.
+> When an [expected failure](#term-expected-failure) [checks](#term-check) no [bug](#term-bug) and checks no [exception](#term-exception), [checker](#term-checker) reports an [unexplained failure](#term-unexplained-failure) for the expected failure.
 <!-- statement-spec-an-expected-failure-checks-a-bug-or-an-exception:end -->
 
 A test that expects to fail needs a reason. The reason is a known bug, or an exception the canon states. An expected failure that checks neither has no stated cause, and the checker reports an unexplained failure.
@@ -2603,9 +2487,7 @@ all x: ExpectedFailure | ((no b: Bug | checks[x, b]) and (no e: Exception | chec
 ##### @spec a-plain-test-does-not-check-a-bug
 
 <!-- statement-spec-a-plain-test-does-not-check-a-bug:begin — generated by `canon generate`; edits are overwritten -->
-> For every [plain test](#term-plain-test):
->
-> when the plain test [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for the plain test.
+> When a [plain test](#term-plain-test) [checks](#term-check) a [bug](#term-bug), [checker](#term-checker) reports an [unpinning](#term-unpinning) for the plain test.
 <!-- statement-spec-a-plain-test-does-not-check-a-bug:end -->
 
 A bug's test expects to fail while the bug lasts, which pins the bug in place. A plain test that checks a bug claims the code works, so it misleads. The checker reports an unpinning for it.
@@ -2624,33 +2506,19 @@ A checker can act as an advisor, whose findings are hints the author weighs. It 
 
 <!-- statement-axiom-a-canon-cannot-go-out-of-date-unnoticed:begin — generated by `canon generate`; edits are overwritten -->
 > All of these hold:
-> - for every [claim](#term-claim):
->
->   when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for the claim
-> - for every [tag](#term-tag):
->
->   when the tag [names](#term-name) no [unit](#term-unit), checker reports a finding for the tag
-> - for every [test](#term-test):
->
->   when the test is [adrift](#term-adrift), checker reports a finding for the test
-> - for every [pointer](#term-pointer):
->
->   when the pointer names no [target](#term-target), checker reports a finding for the pointer
+> - when [project](#term-project) has a [runner](#term-runner) and a [claim](#term-claim) is [unguarded](#term-unguarded), [checker](#term-checker) reports a [finding](#term-finding) for the claim
+> - when a [tag](#term-tag) [names](#term-name) no [unit](#term-unit), checker reports a finding for the tag
+> - when a [test](#term-test) is [adrift](#term-adrift), checker reports a finding for the test
+> - when a [pointer](#term-pointer) names no [target](#term-target), checker reports a finding for the pointer
 > - for every unit_1:
 >
 >   when unit_1 is not [used](#term-used) and is not a [conflict](#term-conflict), checker reports a finding for unit_1
 > - for every unit_1:
 >
 >   when a [trailer](#term-trailer) [follows](#term-follow) unit_1, checker reports a finding for unit_1
-> - for every [document](#term-document):
->
->   when the document [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for the document
-> - for every document:
->
->   when the document holds an index that does not [match](#term-match) the document, checker reports a finding for the document
-> - for every claim:
->
->   when the claim names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for the claim
+> - when a [document](#term-document) [holds](#term-hold) a unit and holds no [index](#term-index), checker reports a finding for the document
+> - when a document holds an index that does not [match](#term-match) the document, checker reports a finding for the document
+> - when a claim names a [site](#term-site) that no [source](#term-source) holds, checker reports a finding for the claim
 > - for every unit_1:
 >
 >   when unit_1 [repeats](#term-repeat) a unit, checker reports a finding for unit_1.
@@ -2680,9 +2548,7 @@ and (all u: Unit | (some v: Unit | u->v in Repeat.rel) implies u in Finding)
 #### @spec an-unguarded-claim-is-untested
 
 <!-- statement-spec-an-unguarded-claim-is-untested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> when [project](#term-project) has a [runner](#term-runner) and the claim is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
+> When [project](#term-project) has a [runner](#term-runner) and a [claim](#term-claim) is [unguarded](#term-unguarded), [checker](#term-checker) reports an [untesting](#term-untesting) for the claim.
 <!-- statement-spec-an-unguarded-claim-is-untested:end -->
 
 Every claim needs a guard, so that a code change that breaks it gets noticed. A test guards the claim it checks, and a test of a bug also guards the spec the bug sits in or derives from. A claim that a spec or exception sits in leaves its guard to those narrower claims. When the project has a runner, the checker reports an [untesting](#term-untesting) for a claim with no guard.
@@ -2694,9 +2560,7 @@ all c: Claim | (some Runner and unguarded[c]) implies c in Untesting
 #### @spec a-tag-names-a-unit
 
 <!-- statement-spec-a-tag-names-a-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [tag](#term-tag):
->
-> when the tag [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for the tag.
+> When a [tag](#term-tag) [names](#term-name) no [unit](#term-unit), [checker](#term-checker) reports a [rotting](#term-rotting) for the tag.
 <!-- statement-spec-a-tag-names-a-unit:end -->
 
 A tag ties a test to the unit it checks. A tag that names no unit checks nothing, which usually means someone renamed or removed the unit. The checker reports a [rotting](#term-rotting), so the broken link gets fixed instead of lost.
@@ -2738,9 +2602,7 @@ This follows because a unit that nothing in the canon leans on can stop being tr
 #### @spec an-adrift-test-is-reported
 
 <!-- statement-spec-an-adrift-test-is-reported:begin — generated by `canon generate`; edits are overwritten -->
-> For every [test](#term-test):
->
-> when the test is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
+> When a [test](#term-test) is [adrift](#term-adrift), [checker](#term-checker) reports a [finding](#term-finding) for the test.
 <!-- statement-spec-an-adrift-test-is-reported:end -->
 
 A test exists to hold the code to a [claim](#term-claim) of the canon, so the checker reports every test that drifts from that job. A declared test needs a tag, or it aims at nothing. Its tags should name only claims, since axioms, facts, terms and conflicts give code nothing to pass or fail. No test, declared or not, should check a [refined](#term-refined) claim, because its narrower claims carry the tests. The specs below name the three findings: an [uncitation](#term-uncitation), a [misaiming](#term-misaiming) and an [overreach](#term-overreach).
@@ -2752,9 +2614,7 @@ all t: Test | adrift[t] implies t in Finding
 ##### @spec a-declared-test-carries-a-tag
 
 <!-- statement-spec-a-declared-test-carries-a-tag:begin — generated by `canon generate`; edits are overwritten -->
-> For every [test](#term-test):
->
-> when [project](#term-project) [declares](#term-declare) the test and the test [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for the test.
+> When [project](#term-project) [declares](#term-declare) a [test](#term-test) and the test [carries](#term-carry) no [tag](#term-tag), [checker](#term-checker) reports an [uncitation](#term-uncitation) for the test.
 <!-- statement-spec-a-declared-test-carries-a-tag:end -->
 
 A test links to the canon through the tags it carries. A declared test with no tag links to nothing, so nobody can tell what it guards. The checker reports an uncitation for it. Tests the project does not declare need no tag.
@@ -2766,9 +2626,7 @@ all t: Test | (t in Declared and (no g: Tag | t->g in Carry.rel)) implies t in U
 ##### @spec a-declared-test-checks-only-claims
 
 <!-- statement-spec-a-declared-test-checks-only-claims:begin — generated by `canon generate`; edits are overwritten -->
-> For every [test](#term-test):
->
-> when [project](#term-project) [declares](#term-declare) the test and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for the test.
+> When [project](#term-project) [declares](#term-declare) a [test](#term-test) and the test [checks](#term-check) a [unit](#term-unit) that is not a [claim](#term-claim), [checker](#term-checker) reports a [misaiming](#term-misaiming) for the test.
 <!-- statement-spec-a-declared-test-checks-only-claims:end -->
 
 Tests guard claims: specs, exceptions and bugs. Axioms, facts, terms, conflicts and threads say nothing that code can pass or fail. So a declared test that checks one of them misses its aim, and the checker reports a misaiming.
@@ -2780,9 +2638,7 @@ all t: Test | (t in Declared and (some u: Unit | checks[t, u] and u not in Claim
 ##### @spec a-test-checks-only-leaves
 
 <!-- statement-spec-a-test-checks-only-leaves:begin — generated by `canon generate`; edits are overwritten -->
-> For every [test](#term-test):
->
-> when the test [checks](#term-check) a [claim](#term-claim) that is [refined](#term-refined), [checker](#term-checker) reports an [overreach](#term-overreach) for the test.
+> When a [test](#term-test) [checks](#term-check) a [claim](#term-claim) that is [refined](#term-refined), [checker](#term-checker) reports an [overreach](#term-overreach) for the test.
 <!-- statement-spec-a-test-checks-only-leaves:end -->
 
 A refined claim gets its guard from the narrower claims beneath it. Tests belong on those leaves, where each states exactly what it checks. Any test that checks a refined claim, declared or not, reaches too high, and the checker reports an overreach.
@@ -2794,9 +2650,7 @@ all t: Test | (some c: Claim | checks[t, c] and refined[c]) implies t in Overrea
 #### @spec a-pointer-names-a-target
 
 <!-- statement-spec-a-pointer-names-a-target:begin — generated by `canon generate`; edits are overwritten -->
-> For every [pointer](#term-pointer):
->
-> when the pointer [names](#term-name) no [target](#term-target), [checker](#term-checker) reports a [rotting](#term-rotting) for the pointer.
+> When a [pointer](#term-pointer) [names](#term-name) no [target](#term-target), [checker](#term-checker) reports a [rotting](#term-rotting) for the pointer.
 <!-- statement-spec-a-pointer-names-a-target:end -->
 
 A pointer in the prose leads the reader to a unit, a section or a file. When nothing goes by the name it gives, the pointer leads nowhere, usually because someone renamed or removed its [target](#term-target). The checker reports a [rotting](#term-rotting) for it.
@@ -2838,10 +2692,8 @@ Issue: #7
 #### @spec a-unit-is-used
 
 <!-- statement-spec-a-unit-is-used:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> when all of these hold:
-> - the unit is not [used](#term-used)
+> When all of these hold:
+> - a [unit](#term-unit) is not [used](#term-used)
 > - the unit is not a [conflict](#term-conflict)
 > - the unit is not a [thread](#term-thread)
 >
@@ -2865,9 +2717,7 @@ Issue: #5
 #### @spec a-heading-ends-with-its-id
 
 <!-- statement-spec-a-heading-ends-with-its-id:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit](#term-unit):
->
-> when a [trailer](#term-trailer) [follows](#term-follow) the unit, [checker](#term-checker) reports a [misanchoring](#term-misanchoring) for the unit.
+> When a [trailer](#term-trailer) [follows](#term-follow) a [unit](#term-unit), [checker](#term-checker) reports a [misanchoring](#term-misanchoring) for the unit.
 <!-- statement-spec-a-heading-ends-with-its-id:end -->
 
 A unit's heading must end with its id. Any text after the id, a [trailer](#term-trailer), changes the anchor the page renders. A link to the unit's id then lands nowhere, so the checker flags the unit as a [misanchoring](#term-misanchoring).
@@ -2879,9 +2729,7 @@ all u: Unit | (some t: Trailer | t->u in Follow.rel) implies u in Misanchoring
 #### @spec a-document-holds-an-index
 
 <!-- statement-spec-a-document-holds-an-index:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document](#term-document):
->
-> when the document [holds](#term-hold) a [unit](#term-unit) and holds no [index](#term-index), [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
+> When a [document](#term-document) [holds](#term-hold) a [unit](#term-unit) and holds no [index](#term-index), [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
 <!-- statement-spec-a-document-holds-an-index:end -->
 
 A [document](#term-document) with units needs an [index](#term-index), the generated list of what it holds. Without one the checker has nothing to compare against, so it flags the document as a [misindexing](#term-misindexing). A document with no units needs no index.
@@ -2893,9 +2741,7 @@ all d: Document | ((some u: Unit | d->u in Hold.units) and (no i: Index | d->i i
 #### @spec an-index-matches-its-document
 
 <!-- statement-spec-an-index-matches-its-document:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document](#term-document):
->
-> when the document [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) the document, [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
+> When a [document](#term-document) [holds](#term-hold) an [index](#term-index) that does not [match](#term-match) the document, [checker](#term-checker) reports a [misindexing](#term-misindexing) for the document.
 <!-- statement-spec-an-index-matches-its-document:end -->
 
 An index lists what its document holds, so it must [match](#term-match) that document. A stale index names units or statements the document no longer has, or misses new ones. When a document's index has drifted, the checker reports a [misindexing](#term-misindexing) for the document, so the author regenerates the list.
@@ -2907,9 +2753,7 @@ all d: Document | (some i: Index | d->i in Hold.indexes and i->d not in Match.re
 #### @spec a-site-is-held-by-a-source
 
 <!-- statement-spec-a-site-is-held-by-a-source:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> when the claim [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for the claim.
+> When a [claim](#term-claim) [names](#term-name) a [site](#term-site) that no [source](#term-source) [holds](#term-hold), [checker](#term-checker) reports a [mislocation](#term-mislocation) for the claim.
 <!-- statement-spec-a-site-is-held-by-a-source:end -->
 
 A claim can point at a [site](#term-site): a symbol in the code it speaks about. Once no [source](#term-source) [holds](#term-hold) that symbol, someone has renamed or removed it, and the pointer misleads. The checker then reports a [mislocation](#term-mislocation) for the claim.
@@ -3083,9 +2927,7 @@ all f: Fence | f not in Languaged implies (no u: Unit | u->f in Blocks.rel)
 #### @spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary
 
 <!-- statement-spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence](#term-fence):
->
-> when the second word of the fence is vocabulary, the fence has the role of vocabulary.
+> When the second word of a [fence](#term-fence) is vocabulary, the fence has the role of vocabulary.
 <!-- statement-spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary:end -->
 
 The author says what a block is for in the second word of its fence. A reader then knows the block's job before reading a line of it. When that word is vocabulary, the block holds vocabulary.
@@ -3097,9 +2939,7 @@ all f: Fence | f in VocabularyWord implies f in VocabularyBlock
 #### @spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds
 
 <!-- statement-spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence](#term-fence):
->
-> when the second word of the fence is bounds, the fence has the role of bounds.
+> When the second word of a [fence](#term-fence) is bounds, the fence has the role of bounds.
 <!-- statement-spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds:end -->
 
 The author says what a block is for in the second word of its fence. A reader then knows the block's job before reading a line of it. When that word is bounds, the block gives the bounds.
@@ -3111,9 +2951,7 @@ all f: Fence | f in BoundsWord implies f in BoundsBlock
 #### @spec a-block-whose-second-word-is-scenario-has-the-role-of-scenario
 
 <!-- statement-spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence](#term-fence):
->
-> when the second word of the fence is scenario, the fence has the role of scenario.
+> When the second word of a [fence](#term-fence) is scenario, the fence has the role of scenario.
 <!-- statement-spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario:end -->
 
 The author says what a block is for in the second word of its fence. A reader then knows the block's job before reading a line of it. When that word is scenario, the block gives a scenario.
@@ -3179,9 +3017,7 @@ This narrows taking the check at its word to a finding: each finding names somet
 #### @spec a-tested-claim-is-not-untested
 
 <!-- statement-spec-a-tested-claim-is-not-untested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> when the claim is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
+> When a [claim](#term-claim) is [tested](#term-tested), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
 <!-- statement-spec-a-tested-claim-is-not-untested:end -->
 
 An [untesting](#term-untesting) says that no test checks a claim. For a [tested](#term-tested) claim that would be false, so the checker never reports one there.
@@ -3193,9 +3029,7 @@ all c: Claim | tested[c] implies c not in Untesting
 ##### @spec a-claim-a-declared-test-checks-is-not-untested
 
 <!-- statement-spec-a-claim-a-declared-test-checks-is-not-untested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> when a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
+> When a [test](#term-test) that [project](#term-project) [declares](#term-declare) [checks](#term-check) a [claim](#term-claim), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
 <!-- statement-spec-a-claim-a-declared-test-checks-is-not-untested:end -->
 
 A claim needs a test that would fail if the code stopped doing what it says. A test in a suite the project [declares](#term-declare) is just that kind of guard, so a claim it checks is tested. The checker reports no untesting for it.
@@ -3207,9 +3041,7 @@ all c: Claim | (some t: Test | t in Declared and checks[t, c]) implies c not in 
 ##### @spec a-claim-an-undeclared-test-checks-is-not-untested
 
 <!-- statement-spec-a-claim-an-undeclared-test-checks-is-not-untested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [claim](#term-claim):
->
-> when a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) the claim, [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
+> When a [test](#term-test) that [project](#term-project) does not [declare](#term-declare) [checks](#term-check) a [claim](#term-claim), [checker](#term-checker) reports no [untesting](#term-untesting) for the claim.
 <!-- statement-spec-a-claim-an-undeclared-test-checks-is-not-untested:end -->
 
 A test checks the units its tags name, wherever it lives in the sources. Its tags hold just as true in a suite the project does not declare, or in a module building tests from a table of cases. So the checker reports no untesting for a claim that such a test checks.
@@ -3221,9 +3053,7 @@ all c: Claim | (some t: Test | t not in Declared and checks[t, c]) implies c not
 ##### @spec a-spec-whose-bug-a-test-checks-is-not-untested
 
 <!-- statement-spec-a-spec-whose-bug-a-test-checks-is-not-untested:begin — generated by `canon generate`; edits are overwritten -->
-> For every [spec](#term-spec):
->
-> when a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) the spec, [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
+> When a [test](#term-test) [checks](#term-check) a [bug](#term-bug) that [cites](#term-cite) a [spec](#term-spec), [checker](#term-checker) reports no [untesting](#term-untesting) for the spec.
 <!-- statement-spec-a-spec-whose-bug-a-test-checks-is-not-untested:end -->
 
 A [bug](#term-bug) cites the specs it breaks, by sitting in them or by deriving from them. A test of the bug asserts what those specs claim. So when a test checks a bug, each spec the bug cites is tested too, and the checker reports no untesting for that spec.
@@ -3438,12 +3268,10 @@ This follows because the test is declared where the function is called. The call
 ### @axiom a-check-the-project-asked-for-is-never-dropped-silently
 
 <!-- statement-axiom-a-check-the-project-asked-for-is-never-dropped-silently:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run):
->
-> when at least one of these holds:
+> When at least one of these holds:
 > - there is a [frontmatter](#term-frontmatter) that [lists](#term-list) a [missing plugin](#term-plugin)
 > - there is a [document](#term-document) such that [checker](#term-checker) reports that the document has a frontmatter it cannot read
-> - the run asks for a [command](#term-command) that is not [available](#term-availability)
+> - a [run](#term-run) asks for a [command](#term-command) that is not [available](#term-availability)
 > - the run gets code 2 from a plugin
 >
 > then the run exits with code 2.
@@ -4049,9 +3877,7 @@ all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (
 ##### @spec a-plugin-that-could-not-run-stops-the-run
 
 <!-- statement-spec-a-plugin-that-could-not-run-stops-the-run:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run):
->
-> when the run gets code 2 from a [plugin](#term-plugin), the run exits with code 2.
+> When a [run](#term-run) gets code 2 from a [plugin](#term-plugin), the run exits with code 2.
 <!-- statement-spec-a-plugin-that-could-not-run-stops-the-run:end -->
 
 Code 2 means a check could not run, and that outranks every other outcome. So one plugin that returns code 2 makes the whole run exit with code 2, whatever the others found.
@@ -4063,10 +3889,8 @@ all r: Run | (some p: Plugin | r->p in Return.code2) implies r in Exits2
 ##### @spec a-finding-fails-the-run
 
 <!-- statement-spec-a-finding-fails-the-run:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run):
->
-> when all of these hold:
-> - the run gets code 1 from a [plugin](#term-plugin)
+> When all of these hold:
+> - a [run](#term-run) gets code 1 from a [plugin](#term-plugin)
 > - the run gets code 2 from no plugin
 > - [checker](#term-checker) does not stop the run itself
 >
@@ -4082,10 +3906,8 @@ all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p i
 ##### @spec a-run-with-no-finding-succeeds
 
 <!-- statement-spec-a-run-with-no-finding-succeeds:begin — generated by `canon generate`; edits are overwritten -->
-> For every [run](#term-run):
->
-> when all of these hold:
-> - there is no [plugin](#term-plugin) such that the run gets code 1 from the plugin or gets code 2 from the plugin
+> When all of these hold:
+> - there is no [plugin](#term-plugin) such that a [run](#term-run) gets code 1 from the plugin or gets code 2 from the plugin
 > - [checker](#term-checker) does not stop the run itself
 >
 > then the run exits with code 0.

@@ -59,7 +59,7 @@ export function say(source: string, readings: Readings, options: Options = {}): 
 }
 
 /** The IR as words. */
-export function print(s: Sentence, readings: Readings, options: Options = {}, printing: PrintOptions = { dropLoneNumbers: false }): string {
+export function print(s: Sentence, readings: Readings, options: Options = {}, printing: PrintOptions = { dropLoneNumbers: false, aNounForEvery: false }): string {
   return finish(new Printer(readings).statement(s), options.layout ?? 'text', options.self, printing);
 }
 

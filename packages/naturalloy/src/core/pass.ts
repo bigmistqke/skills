@@ -14,6 +14,8 @@ import type { Num, Sentence } from './ir.ts';
 export interface PrintOptions {
   /** Leave the number off a variable that is the only one of its noun, where the noun says nothing else: "the unit". */
   dropLoneNumbers: boolean;
+  /** Leave out a "for every" over a variable named "the" and its noun, and name it "a" and its noun where the words first do. */
+  aNounForEvery: boolean;
 }
 
 /** What a pass of the IR may consult. */
@@ -51,7 +53,7 @@ export type Trace = { pass: string; after: Sentence }[];
 /** The passes in order, over the lowered IR, leaving out those `off` names: the IR, and the options for the printer. */
 export function optimize(s: Sentence, passes: readonly Pass[], context: Context, off: ReadonlySet<string> = new Set(), trace?: Trace): { ir: Sentence; print: PrintOptions } {
   let at = s;
-  const print: PrintOptions = { dropLoneNumbers: false };
+  const print: PrintOptions = { dropLoneNumbers: false, aNounForEvery: false };
   for (const pass of passes) {
     if (off.has(pass.name)) continue;
     if ('print' in pass) Object.assign(print, pass.print);

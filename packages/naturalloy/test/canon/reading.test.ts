@@ -51,6 +51,22 @@ describe('the rules of reading', () => {
   });
 
   /**
+   * @canon spec-a-noun-the-words-name-again-in-a-when-is-every-thing-of-its-kind
+   */
+  it('reads "a cleanup" in a "when", or as the subject of "exactly when", as every cleanup where "the cleanup" follows', () => {
+    const rule = readsBack('all c: Cleanup | c in Ran implies c in Registered', readings);
+    expect(rule.words).toBe('When a cleanup has run, code has registered the cleanup.');
+    expect(rule.meanings).toEqual([rule.meant]);
+    const quiet = withDefinitions(
+      parseReadings('noun Cleanup: cleanup\nRan: {1} has run | {1} has not run\nquiet: {1} is quiet | {1} is not quiet'),
+      'sig Cleanup {} var sig Ran in Cleanup {} pred quiet[c: Cleanup] { c in Ran }'
+    );
+    const definition = readsBack('pred quiet[c: Cleanup] { c in Ran }', quiet);
+    expect(definition.words).toBe('A cleanup is quiet exactly when the cleanup has run.');
+    expect(definition.meanings).toEqual([definition.meant]);
+  });
+
+  /**
    * @canon spec-now-is-the-moment-a-statement-is-read-at
    */
   it('reads "now" below a time phrase at each moment the phrase picks', () => {
@@ -101,7 +117,7 @@ describe('the rules of reading', () => {
    */
   it('reads "is one of these" as one of the kinds below it, kinds that share no member', () => {
     const kinds = 'pred kept[x: univ] { (x in Owner and gone[x]) or (x in Cleanup and x in Ran) }';
-    expect(verbalizeDefinition(kinds, readings)).toBe('For every thing:\n  the thing is kept exactly when the thing is one of these:\n    - an owner that is gone\n    - a cleanup that has run');
+    expect(verbalizeDefinition(kinds, readings)).toBe('A thing is kept exactly when the thing is one of these:\n  - an owner that is gone\n  - a cleanup that has run');
     const back = readsBack(kinds, readings);
     expect(back.meanings).toEqual([back.meant]);
   });
