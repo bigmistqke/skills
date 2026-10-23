@@ -5,6 +5,7 @@
   "packageManager": "pnpm@11.3.0",
   "scripts": {
     "build": "turbo run build",
+    "canon": "node scripts/canon.ts",
     "generate": "node scripts/kinds.ts",
     "test": "turbo run test && node scripts/kinds.ts --check && node scripts/graph.ts --check",
     "typecheck": "turbo run typecheck",
