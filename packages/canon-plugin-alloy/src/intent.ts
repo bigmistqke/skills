@@ -44,10 +44,10 @@ export function placeOf(src: string, unit: Unit): Place {
     while (at < end && (lines[at] as string).trim() === '') at++;
   };
   skipBlank();
-  const region = regionName(unit.id);
-  if (at < end && (lines[at] as string).includes(`<!-- ${region}:begin`)) {
-    while (at < end && !(lines[at] as string).includes(`<!-- ${region}:end -->`)) at++;
-    at++;
+  // The generated statement is the unit's own region, wherever it sits among other regions; a handwritten one is the quote the own text opens with.
+  const regionEnd = lines.slice(at, end).findIndex(l => l.includes(`<!-- ${regionName(unit.id)}:end -->`));
+  if (regionEnd !== -1) {
+    at += regionEnd + 1;
   } else if (at < end && QUOTE.test(lines[at] as string)) {
     while (at < end && QUOTE.test(lines[at] as string)) at++;
   }
@@ -155,4 +155,27 @@ export function writeIntent(documents: string[], root: string, ids: string[], te
   writeFileSync(file, withIntent(place, text));
   console.log(`${doc}:${place.line}  ${unit.id}  wrote its intent`);
   return 0;
+}
+
+/**
+ * Report each unit with a formula and no intent, in each document that keeps
+ * readings, its own or those of a document it extends; the exit code: 0, or 1
+ * when there is one. A document that keeps none has statements a person wrote,
+ * and asks no intent.
+ */
+export function checkIntents(documents: string[], root: string, contextOf: (file: string) => string[]): number {
+  let code = 0;
+  for (const doc of documents) {
+    const file = resolve(root, doc);
+    if (!existsSync(file)) continue;
+    const src = readFileSync(file, 'utf8');
+    if (![src, ...contextOf(file)].some(text => readBlocks(text).some(b => b.lang === 'readings'))) continue;
+    const units = readUnits(src);
+    for (const unit of units) {
+      if (!holdsFormula(src, unit, units) || textOf(placeOf(src, unit)).trim() !== '') continue;
+      code = 1;
+      console.log(`${doc}: ${unit.id}: intentless: holds a formula and no intent; write what the unit is for with \`canon alloy:intent ${unit.id} --write\``);
+    }
+  }
+  return code;
 }

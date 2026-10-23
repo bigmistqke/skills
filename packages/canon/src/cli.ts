@@ -1696,7 +1696,7 @@ They come from @bigmistqke/canon-plugin-retext, @bigmistqke/canon-plugin-alloy a
 document with a "readings" block has the statement of each unit with a
 predicate written from the predicate, and check reports one that is stale. It
 also reports the words of such a document that are undeclared, misplaced,
-apart from their declaration or unused. A document's frontmatter chooses which
+apart from their declaration or unused, and each unit with a formula and no intent. A document's frontmatter chooses which
 plugins apply to it, each named by its package ("plugins:
 [\"@bigmistqke/canon-plugin-retext\"]"); with none, none applies. Each is a package
 installed in the project, whose commands are added to these.

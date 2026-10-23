@@ -127,7 +127,7 @@ A plugin adds each command of its own under the name of its package: `@bigmistqk
 
 - `@bigmistqke/canon-plugin-retext` adds `retext:lint`.
 - `@bigmistqke/canon-plugin-pele` adds `pele:graph`.
-- `@bigmistqke/canon-plugin-alloy` adds `alloy:logic` and `alloy:intent`, and adds to `generate` and `check`: it writes the statements of units from their formulas and reports the stale ones. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `alloy:logic` needs Java 17 or later and the jar of the Alloy analyzer:
+- `@bigmistqke/canon-plugin-alloy` adds `alloy:logic` and `alloy:intent`, and adds to `generate` and `check`. It writes the statements of units from their formulas and reports the stale ones. It reports a unit with a formula and no intent too. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `alloy:logic` needs Java 17 or later and the jar of the Alloy analyzer:
 
 ```yaml
 ---

@@ -7,6 +7,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { checkIntents } from '../../src/intent.ts';
 import { CLI, install, named } from './cli.ts';
 
 /** The tag of an axiom, spelled apart so the checker does not read this file's templates as citations. */
@@ -81,13 +82,13 @@ This follows because it is plain.
 `;
 
 /** A project of the document, whose statements `generate` writes; it runs the command lines in turn, each with its standard input. */
-function project(...commands: { args: string[]; input?: string }[]) {
+function projectOf(document: string, ...commands: { args: string[]; input?: string }[]) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-intent-'));
   DIRS.push(dir);
   mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ canon: { documents: ['CANON.md'], suites: 'test/canon', sources: ['test'], command: 'canon' } }));
   install(dir);
-  writeFileSync(join(dir, 'CANON.md'), named(DOC));
+  writeFileSync(join(dir, 'CANON.md'), named(document));
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir, encoding: 'utf8' });
   const before = readFileSync(join(dir, 'CANON.md'), 'utf8');
   const runs = commands.map(({ args, input }) => {
@@ -96,6 +97,9 @@ function project(...commands: { args: string[]; input?: string }[]) {
   });
   return { runs, before, after: readFileSync(join(dir, 'CANON.md'), 'utf8') };
 }
+
+/** A project of the document with every kind of unit the tests need. */
+const project = (...commands: { args: string[]; input?: string }[]) => projectOf(DOC, ...commands);
 
 /** The line a unit's heading is on, counted from 1. */
 const lineOf = (document: string, id: string): number => document.split('\n').indexOf(`### @spec ${id.replace(/^spec-/, '')}`) + 1;
@@ -251,5 +255,49 @@ describe('alloy:intent --write', () => {
     expect(run.err).toContain('exactly one unit');
     expect(run.code).toBe(2);
     expect(run.changed).toBe(false);
+  });
+});
+
+describe('check', () => {
+  /**
+   * @canon spec-check-reports-a-unit-with-a-formula-and-no-intent
+   */
+  it('reports a unit with a formula and no intent, in a document that keeps readings', () => {
+    const { runs } = project({ args: ['check', '--offline'] });
+    expect(runs[0]?.out).toContain('CANON.md: spec-a-bare-leaf: intentless:');
+  });
+
+  /**
+   * @canon spec-check-does-not-report-a-unit-with-an-intent
+   */
+  it('does not report a unit with an intent, nor one with no formula', () => {
+    const { runs } = project({ args: ['check', '--offline'] });
+    expect(runs[0]?.out).not.toContain('spec-a-leaf: intentless');
+    expect(runs[0]?.out).not.toContain('spec-a-scenario-first: intentless');
+    expect(runs[0]?.out).not.toContain('spec-a-plain-leaf: intentless');
+  });
+
+  /**
+   * @canon spec-a-document-that-keeps-no-readings-has-no-missing-intent-reported
+   */
+  it('reports no missing intent in a document that keeps no readings', () => {
+    const wordless = DOC.replace(/```readings[^]*?```\n/, '');
+    expect(wordless).not.toContain('```readings');
+    const { runs } = projectOf(wordless, { args: ['check', '--offline'] });
+    expect(runs[0]?.out).not.toContain('intentless');
+  });
+
+  /**
+   * @canon spec-a-report-of-a-missing-intent-fails-check
+   */
+  it('fails the plugin part of check, and the run, on a missing intent', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'canon-intent-'));
+    DIRS.push(dir);
+    writeFileSync(join(dir, 'CANON.md'), DOC);
+    expect(checkIntents(['CANON.md'], dir, () => [])).toBe(1);
+    writeFileSync(join(dir, 'CANON.md'), DOC.replace('### @spec a-bare-leaf\n', '### @spec a-bare-leaf\n\nEvery node is done.\n'));
+    expect(checkIntents(['CANON.md'], dir, () => [])).toBe(0);
+    const { runs } = project({ args: ['check', '--offline'] });
+    expect(runs[0]?.code).not.toBe(0);
   });
 });

@@ -40,7 +40,9 @@ ${readings}
 
 ### @spec a-leaf
 
-${statement}\`\`\`alloy
+${statement}A node that starts ends up done.
+
+\`\`\`alloy
 ${predicate}
 \`\`\`
 `;
@@ -72,7 +74,7 @@ describe('the states of the statements', () => {
     const { src, written } = write(doc());
     expect(written).toEqual(['spec-a-leaf']);
     expect(src).toContain(`### @spec a-leaf\n\n<!-- ${REGION}:begin`);
-    expect(src).toContain(`<!-- ${REGION}:end -->\n\n\`\`\`alloy`);
+    expect(src).toContain(`<!-- ${REGION}:end -->\n\nA node that starts ends up done.\n\n\`\`\`alloy`);
     expect(states(src)).toMatchObject([{ kind: 'current' }]);
     expect(write(src)).toEqual({ src, written: [] });
   });
