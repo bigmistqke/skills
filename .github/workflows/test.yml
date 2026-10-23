@@ -65,6 +65,16 @@ jobs:
           curl -fsSL -o "$CANON_ALLOY_JAR" https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar
           echo "6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d  $CANON_ALLOY_JAR" | sha256sum -c -
 
+      # The analyzer's answers that `alloy:logic` kept in earlier runs, under each package that a test runs it in. The
+      # key is new on each run, so each run saves what it kept; a run restores the latest save of its package. The
+      # plugin removes an answer that no run used for 30 days, so the save stays the size of what recent runs asked.
+      - name: Restore the analyzer's kept answers
+        uses: actions/cache@v4
+        with:
+          path: packages/*/.cache/canon-alloy
+          key: canon-alloy-${{ matrix.package }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: canon-alloy-${{ matrix.package }}-
+
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       # --only: the other packages' suites run in jobs of their own.

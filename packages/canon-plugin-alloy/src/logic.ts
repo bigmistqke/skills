@@ -179,9 +179,9 @@ export function checkDocumentWords(documents: string[], root: string): number {
   return code;
 }
 
-/** The `logic` field of the scope: where the Alloy analyzer is. Paths are relative to the project root. */
+/** The `logic` field of the scope: where the Alloy analyzer is, and the folder that keeps its answers. Paths are relative to the project root. */
 interface LogicConfig {
-  alloy?: { jar?: string; java?: string };
+  alloy?: { jar?: string; java?: string; cache?: string };
 }
 
 export const plugin: Plugin = {
@@ -207,7 +207,9 @@ export const plugin: Plugin = {
         root,
         {
           jar: alloy?.jar === undefined ? undefined : resolve(root, alloy.jar),
-          java: alloy?.java === undefined ? undefined : resolve(root, alloy.java)
+          java: alloy?.java === undefined ? undefined : resolve(root, alloy.java),
+          // [Why the answers are kept](../CANON.md#spec-a-search-whose-program-and-analyzer-are-unchanged-keeps-its-earlier-answer), and [why under the project](../CANON.md#spec-answers-are-kept-under-the-project-by-default).
+          cache: process.env.CANON_ALLOY_CACHE === '0' ? undefined : resolve(root, alloy?.cache ?? '.cache/canon-alloy')
         },
         (options.show as string[] | undefined) ?? []
       );

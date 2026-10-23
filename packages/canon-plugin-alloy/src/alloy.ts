@@ -4,9 +4,10 @@
  * one question — can all the units hold at once, within the bounds — and, when
  * they cannot, which units a repair has to touch.
  */
-import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
-import { availableParallelism, tmpdir } from 'node:os';
+import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { availableParallelism, tmpdir, totalmem } from 'node:os';
 import { join } from 'node:path';
 import { readBlocks, type Block } from '@bigmistqke/canon/blocks';
 import { readUnits } from '@bigmistqke/canon/units';
@@ -29,6 +30,8 @@ export interface AlloyOptions {
   context?: string[];
   /** The names of the scenario predicates whose world to keep, for the scenarios that can happen. */
   show?: string[];
+  /** The folder that keeps the analyzer's answers from one run for the next; none is kept or read without it. */
+  cache?: string;
 }
 
 /** Which runs a program holds: the units together and each scenario with them, the units left out one by one, or both. */
@@ -195,11 +198,178 @@ type Solved = { found: Map<string, boolean>; traces: Map<string, string> };
 /** The name of a run: `run <name> { … }`. */
 const runName = (command: string): string => /^run\s+(\w+)/.exec(command)?.[1] ?? '';
 
+/** The largest heap of each analyzer process, in gigabytes. */
+const HEAP_GB = 1;
+
 /**
- * Run the analyzer over a model and one of its runs, and say whether the run
+ * The options of Java for each analyzer process. One collector thread: several
+ * processes run at once, and a collector with a thread for every core makes them
+ * wait for each other. A heap with a limit, so that the processes that memory
+ * holds can be counted.
+ *
+ * @canon spec-each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte
+ */
+const JAVA_OPTIONS = ['-XX:+UseSerialGC', `-Xmx${HEAP_GB}g`];
+
+/** The options of the analyzer's `exec`, besides the folder it writes to and the file it reads. */
+const EXEC_OPTIONS = ['exec', '-f', '-t', 'text'];
+
+/** What a machine has for the analyzer: its processors, and its memory in bytes. */
+export interface Machine {
+  processors: number;
+  memory: number;
+}
+
+/**
+ * How many analyzer processes run at once: `CANON_ALLOY_JOBS` when it holds a
+ * number above zero; otherwise no more than the machine has processors, no more
+ * than half of its memory holds at the largest heap of each, and at least one.
+ *
+ * @canon spec-the-analyzer-runs-no-more-processes-at-once-than-the-machine-holds
+ */
+export function jobs(env: Record<string, string | undefined> = process.env, machine: Machine = { processors: availableParallelism(), memory: totalmem() }): number {
+  const asked = Math.floor(Number(env.CANON_ALLOY_JOBS));
+  if (asked >= 1) return asked;
+  return Math.max(1, Math.min(machine.processors, Math.floor(machine.memory / 2 / (HEAP_GB * 2 ** 30))));
+}
+
+/** The major version of each Java, by its path, as it says it with `-version`; none when it does not say. */
+const majors = new Map<string, number | undefined>();
+
+function javaMajor(java: string): number | undefined {
+  if (!majors.has(java)) {
+    const said = spawnSync(java, ['-version'], { encoding: 'utf8' });
+    // `openjdk version "21.0.2"`, or `java version "1.8.0_391"` before Java 9.
+    const m = /version "(\d+)(?:\.(\d+))?/.exec(`${said.stderr ?? ''}${said.stdout ?? ''}`);
+    majors.set(java, m === null ? undefined : Number(m[1] === '1' ? m[2] : m[1]));
+  }
+  return majors.get(java);
+}
+
+/** The hash of each jar's content, by its path, with the size and the time of change it was read at. */
+const jars = new Map<string, { stamp: string; hash: string }>();
+
+function jarHash(jar: string): string | undefined {
+  try {
+    const { size, mtimeMs } = statSync(jar);
+    const stamp = `${size}:${mtimeMs}`;
+    const known = jars.get(jar);
+    if (known?.stamp === stamp) return known.hash;
+    const hash = createHash('sha256').update(readFileSync(jar)).digest('hex');
+    jars.set(jar, { stamp, hash });
+    return hash;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The key of a search's answer: the program the analyzer reads, the content of
+ * its jar, its options and the major version of Java. Nothing else decides the
+ * answer. None when the jar cannot be read or the Java does not say its version:
+ * such a search keeps no answer.
+ *
+ * @canon spec-a-search-whose-program-and-analyzer-are-unchanged-keeps-its-earlier-answer
+ */
+function answerKey(program: string, java: string, jar: string, keep: boolean): string | undefined {
+  const hash = jarHash(jar);
+  const major = javaMajor(java);
+  if (hash === undefined || major === undefined) return undefined;
+  return createHash('sha256')
+    .update(JSON.stringify({ program, jar: hash, options: [...JAVA_OPTIONS, ...EXEC_OPTIONS, keep ? 'keep' : 'no-keep'], java: major }))
+    .digest('hex');
+}
+
+/** An answer as it is kept: whether each run found an instance, and the text of each instance that was kept. */
+interface Kept {
+  found: Record<string, boolean>;
+  traces: Record<string, string>;
+}
+
+/** How long a kept answer that no run uses stays: thirty days. */
+const KEPT_FOR_MS = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * Remove each kept answer that no run used in the time a kept answer stays. A
+ * file's time of change is the last time a run used it.
+ *
+ * @canon spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days
+ */
+function sweep(cache: string, now = Date.now()): void {
+  let names: string[];
+  try {
+    names = readdirSync(cache);
+  } catch {
+    return;
+  }
+  for (const name of names) {
+    if (!/^[0-9a-f]{64}\.json/.test(name)) continue;
+    const file = join(cache, name);
+    try {
+      if (now - statSync(file).mtimeMs > KEPT_FOR_MS) rmSync(file, { force: true });
+    } catch {
+      // Another run removed it first.
+    }
+  }
+}
+
+/** The answer kept in `file`, or none when there is none or it cannot be read; one that is read counts as used now. */
+function readKept(file: string): Solved | undefined {
+  let kept: Kept;
+  try {
+    kept = JSON.parse(readFileSync(file, 'utf8')) as Kept;
+  } catch {
+    return undefined;
+  }
+  try {
+    const now = new Date();
+    utimesSync(file, now, now);
+  } catch {
+    // A folder that cannot be written still answers; its answers only age.
+  }
+  return { found: new Map(Object.entries(kept.found)), traces: new Map(Object.entries(kept.traces)) };
+}
+
+/** Keep an answer in `file`. Several processes may write at once, so each writes a file of its own and moves it in place. A cache that cannot be written only costs time. */
+function writeKept(file: string, { found, traces }: Solved): void {
+  const kept: Kept = { found: Object.fromEntries(found), traces: Object.fromEntries(traces) };
+  const part = `${file}.${process.pid}.${Math.random().toString(36).slice(2)}`;
+  try {
+    mkdirSync(join(file, '..'), { recursive: true });
+    writeFileSync(part, JSON.stringify(kept));
+    renameSync(part, file);
+  } catch {
+    rmSync(part, { force: true });
+  }
+}
+
+/** Where the analyzer is, and the folder that keeps its answers, if any. */
+interface Analyzer {
+  java: string;
+  jar: string;
+  cache?: string;
+}
+
+/**
+ * Answer one run of a model: the answer kept for it, or else the analyzer's,
+ * which is then kept. An error is never kept: it says nothing about the model.
+ */
+async function solveOne(model: string, command: string, analyzer: Analyzer, keep = false): Promise<Solved | { error: string }> {
+  const program = `${model}\n${command}\n`;
+  const key = analyzer.cache === undefined ? undefined : answerKey(program, analyzer.java, analyzer.jar, keep);
+  const file = key === undefined ? undefined : join(analyzer.cache as string, `${key}.json`);
+  const kept = file === undefined ? undefined : readKept(file);
+  if (kept !== undefined) return kept;
+  const answer = await analyze(program, command, analyzer, keep);
+  if (file !== undefined && !('error' in answer)) writeKept(file, answer);
+  return answer;
+}
+
+/**
+ * Run the analyzer over a program that holds one run, and say whether the run
  * found an instance; with `keep`, the analyzer's text of the instance it found.
  */
-function solveOne(model: string, command: string, java: string, jar: string, keep = false): Promise<Solved | { error: string }> {
+function analyze(program: string, command: string, { java, jar }: Analyzer, keep: boolean): Promise<Solved | { error: string }> {
   return new Promise(resolve => {
     const dir = mkdtempSync(join(tmpdir(), 'canon-alloy-'));
     const done = (result: Solved | { error: string }): void => {
@@ -207,9 +377,8 @@ function solveOne(model: string, command: string, java: string, jar: string, kee
       resolve(result);
     };
     const file = join(dir, 'model.als');
-    writeFileSync(file, `${model}\n${command}\n`);
-    // One collector thread for each process: several processes run at once, and a collector with a thread for every core makes them wait for each other.
-    const child = spawn(java, ['-XX:+UseSerialGC', '-jar', jar, 'exec', '-f', '-o', join(dir, 'out'), '-t', 'text', file]);
+    writeFileSync(file, program);
+    const child = spawn(java, [...JAVA_OPTIONS, '-jar', jar, ...EXEC_OPTIONS, '-o', join(dir, 'out'), file]);
     let log = '';
     child.stdout.on('data', chunk => (log += chunk));
     child.stderr.on('data', chunk => (log += chunk));
@@ -249,10 +418,9 @@ async function pool<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]>
  * process of its own; whether each run of each program found an instance, or
  * the first error. The runs named in `keep` keep the text of their instance.
  */
-async function solveAll(programs: Program[], java: string, jar: string, keep: Set<string> = new Set()): Promise<{ found: Map<string, boolean>[]; traces: Map<string, string>[] } | { error: string }> {
-  const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, java, jar, keep.has(runName(command))).then(result => ({ i, result }))));
-  // As many processes as there are processors, unless `CANON_ALLOY_JOBS` says fewer: a test runner that asks about several documents at once should not start them all.
-  const answers = await pool(tasks, Number(process.env.CANON_ALLOY_JOBS) || availableParallelism());
+async function solveAll(programs: Program[], analyzer: Analyzer, keep: Set<string> = new Set()): Promise<{ found: Map<string, boolean>[]; traces: Map<string, string>[] } | { error: string }> {
+  const tasks = programs.flatMap((p, i) => p.commands.map(command => () => solveOne(p.model, command, analyzer, keep.has(runName(command))).then(result => ({ i, result }))));
+  const answers = await pool(tasks, jobs());
   const found: Map<string, boolean>[] = programs.map(() => new Map());
   const traces: Map<string, string>[] = programs.map(() => new Map());
   for (const { i, result } of answers) {
@@ -275,6 +443,7 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   const java = options.java ?? process.env.CANON_JAVA ?? 'java';
   const jar = options.jar ?? process.env.CANON_ALLOY_JAR;
   if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
+  const analyzer: Analyzer = { java, jar, cache: options.cache };
   const context = options.context ?? [];
   const bounds = boundsOf([...alloyBlocks(src), ...context.flatMap(alloyBlocks)]);
   const document = blocksOf(src, context);
@@ -283,7 +452,7 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
   // Only the document's own scenarios are shown: one of a document it extends is shown where that document is checked.
   const ownNames = new Set([...document.named].filter(([block]) => document.own.has(block)).map(([, name]) => name));
   const shown = new Set((options.show ?? []).filter(name => ownNames.has(name)));
-  const first = await solveAll(asked, java, jar, new Set([...shown].map(name => `${name}_with_all`)));
+  const first = await solveAll(asked, analyzer, new Set([...shown].map(name => `${name}_with_all`)));
   if ('error' in first) return { ok: false, error: first.error };
   const worlds: World[] = asked.flatMap((a, index) =>
     a.scenarios
@@ -307,8 +476,7 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
     blamed.map(({ index, cannot }) =>
       build((parts[index] as (typeof parts)[number]).group, (parts[index] as (typeof parts)[number]).scope, 'blame', { scenarios: cannot.map(c => c.name), leave: options.leave }, document.named)
     ),
-    java,
-    jar
+    analyzer
   );
   if ('error' in second) return { ok: false, error: second.error };
   blamed.forEach(({ index, cannot }, k) => {
@@ -318,5 +486,6 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
       failures.push({ scenario: name, unit, conflict: (asked[index] as Program).units.filter(other => found.get(`${name}_without_${predicateName(other)}`)) });
     }
   });
+  if (analyzer.cache !== undefined) sweep(analyzer.cache);
   return failures.length === 0 ? { ok: true, units, scenarios, worlds } : { ok: false, units, scenarios, failures, worlds };
 }
