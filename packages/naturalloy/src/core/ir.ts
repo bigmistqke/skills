@@ -92,7 +92,8 @@ export type Sentence =
    * its body; or for `not (a iff b)`, as exactly one of the two holding.
    */
   | { t: 'not'; body: Sentence; form?: 'whole' | 'untrue' | 'exactly-one' }
-  | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; form?: 'line' }
+  /** On one line; or with its second side first, then "when" and the bullets of its first side. */
+  | { t: 'rule'; when: Sentence; then: Sentence; otherwise?: Sentence; form?: 'line' | 'claim-first' }
   | { t: 'iff'; l: Sentence; r: Sentence; form?: 'exactly-when' | 'next-and-now' }
   /**
    * "there is a unit that is a spec", or with its conditions as bullets after "that:". `origin` marks `some S` or `no S`

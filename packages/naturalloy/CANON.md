@@ -57,37 +57,36 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
       - [`@spec noun-phrases-are-said-before-there-is-a-that`](#spec-noun-phrases-are-said-before-there-is-a-that) —
         > For every [pass_1](#term-pass) and every pass_2:
         >
-        > when all of these hold:
+        > pass_1 runs before pass_2 when all of these hold:
         > - pass_1 says a quantifier as a noun phrase
         > - pass_2 says a quantifier of its variable alone as "there is a … that"
-        >
-        > then pass_1 runs before pass_2.
       - [`@spec a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one`](#spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one) —
         > For every [pass_1](#term-pass) and every pass_2:
         >
-        > when all of these hold:
+        > pass_1 runs before pass_2 when all of these hold:
         > - pass_1 says a set equal to a variable as that variable and no other
         > - pass_2 makes nested quantifiers of "for every" one
-        >
-        > then pass_1 runs before pass_2.
       - [`@spec until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front`](#spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front) —
         > For every [pass_1](#term-pass) and every pass_2:
         >
-        > when all of these hold:
+        > pass_1 runs before pass_2 when all of these hold:
         > - pass_1 says until and since of two clauses as one sentence
         > - pass_2 puts a time phrase in front of the words it covers
-        >
-        > then pass_1 runs before pass_2.
       - [`@spec a-time-phrase-goes-in-front-before-clauses-become-a-sentence`](#spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence) — For every [pass_1](#term-pass) and every pass_2: when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.
       - [`@spec clauses-become-a-sentence-before-a-rule-goes-on-one-line`](#spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says a few clauses as one sentence and pass_2 says a rule on one line, pass_1 runs before pass_2.
       - [`@spec clauses-become-a-sentence-before-their-shared-words-are-said-once`](#spec-clauses-become-a-sentence-before-their-shared-words-are-said-once) —
         > For every [pass_1](#term-pass) and every pass_2:
         >
-        > when all of these hold:
+        > pass_1 runs before pass_2 when all of these hold:
         > - pass_1 says a few clauses as one sentence
         > - pass_2 says the subject and the verb that negative clauses share once, before "none of these"
+      - [`@spec clauses-become-a-sentence-before-a-second-side-goes-first`](#spec-clauses-become-a-sentence-before-a-second-side-goes-first) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says a few clauses as one sentence and pass_2 says the second side of a rule before its first side, pass_1 runs before pass_2.
+      - [`@spec a-rule-is-said-whenever-before-a-second-side-goes-first`](#spec-a-rule-is-said-whenever-before-a-second-side-goes-first) —
+        > For every [pass_1](#term-pass) and every pass_2:
         >
-        > then pass_1 runs before pass_2.
+        > pass_1 runs before pass_2 when all of these hold:
+        > - pass_1 says a rule at every later moment as "from now on, whenever"
+        > - pass_2 says the second side of a rule before its first side
     - [`@spec a-pass-weighs-only-words-that-no-later-pass-changes`](#spec-a-pass-weighs-only-words-that-no-later-pass-changes) — The words a [pass](#term-pass) weighs to choose how to say a part are the words that part ends with: no pass after it changes them.
       - [`@bug a-time-phrase-weighs-a-part-that-a-later-pass-changes`](#bug-a-time-phrase-weighs-a-part-that-a-later-pass-changes) — The verbalizer weighs whether a time phrase goes in front before it lays out the rule or the list the phrase covers. So a time phrase can stay above a rule that ends on one line.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
@@ -377,11 +376,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — When a [list](#term-series) is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — When a [list](#term-series) has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets`](#spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets) —
-      > When all of these hold:
-      > - a [list](#term-series) has an item that holds a comma
+      > [Verbalizer](#term-verbalizer) says a [list](#term-series) as bullets when all of these hold:
+      > - the list has an item that holds a comma
       > - the list has more than two clauses
-      >
-      > then [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-too-long-for-a-line-is-bullets`](#spec-a-list-too-long-for-a-line-is-bullets) — When a [list](#term-series) is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — When a [list](#term-series) has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-relative-clause-before-its-last-clause-is-bullets`](#spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets) — When a [list](#term-series) has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says the list as bullets.
@@ -398,21 +395,28 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
   - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
   - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) —
-    > When all of these hold:
-    > - a [list](#term-series) is a rule whose two sides are each one clause
+    > [Verbalizer](#term-verbalizer) says a [list](#term-series) with "then" before the time phrase when all of these hold:
+    > - the list is a rule whose two sides are each one clause
     > - the list is not a rule whose first side begins with a time phrase
     > - the list is a rule whose second side begins with a time phrase
-    >
-    > then [verbalizer](#term-verbalizer) says the list with "then" before the time phrase.
   - [`@spec a-rule-drops-its-then-before-anything-else`](#spec-a-rule-drops-its-then-before-anything-else) —
-    > When all of these hold:
-    > - a [list](#term-series) is a rule whose two sides are each one clause
+    > [Verbalizer](#term-verbalizer) says a [list](#term-series) without "then" when all of these hold:
+    > - the list is a rule whose two sides are each one clause
     > - the list is not a rule whose first side begins with a time phrase
     > - the list is not a rule whose second side begins with a time phrase
-    >
-    > then [verbalizer](#term-verbalizer) says the list without "then".
   - [`@spec a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own) — When a [list](#term-series) is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
-  - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) — When a [list](#term-series) is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
+  - [`@spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own`](#spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own) —
+    > When all of these hold:
+    > - a [list](#term-series) is a rule with a first side and a second
+    > - the list is not a rule whose two sides are each one clause
+    > - [verbalizer](#term-verbalizer) does not say the second side of the list before its first side
+    >
+    > then verbalizer says the list with "then" at the start of the second side, on a line of its own.
+  - [`@spec a-rule-whose-first-side-is-bullets-says-its-second-side-first`](#spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first) —
+    > [Verbalizer](#term-verbalizer) says the second side of a [list](#term-series) before its first side when all of these hold:
+    > - the list is a rule whose first side is a run of clauses said as bullets
+    > - the list is a rule whose second side is one line with no time phrase, relative clause, comma or "when"
+    > - the list is not a rule with an "otherwise"
   - [`@spec a-rule-that-is-a-side-of-a-rule-is-set-apart`](#spec-a-rule-that-is-a-side-of-a-rule-is-set-apart) — The verbalizer sets a rule that is a side of another rule apart, below "the following holds".
   - [`@spec a-first-side-that-holds-a-time-phrase-is-set-apart`](#spec-a-first-side-that-holds-a-time-phrase-is-set-apart) — The verbalizer sets the first side of a rule apart, below "when the following holds", when the side holds a time phrase.
   - [`@spec a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side`](#spec-a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side) — When a rule would stand on one line with no "then", the verbalizer sets apart a side with a comma of its own. When both sides hold one, it sets the second side apart.
@@ -434,6 +438,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec another-differs-from-the-thing-of-its-kind-named-last`](#spec-another-differs-from-the-thing-of-its-kind-named-last) — "Another unit" and "no other unit" differ from the unit the words named last before them. That unit is in the same clause, in the clause before it, or where a quantifier introduced it.
   - [`@spec one-of-these-names-one-of-kinds-that-share-no-member`](#spec-one-of-these-names-one-of-kinds-that-share-no-member) — "x is one of these:" says that x is what one of the phrases below it names. The phrases name kinds that share no member, so x is never two of them.
   - [`@spec a-noun-the-words-name-again-in-a-when-is-every-thing-of-its-kind`](#spec-a-noun-the-words-name-again-in-a-when-is-every-thing-of-its-kind) — "A bug" stands for every bug where "the bug" follows it, in the first side of a rule or as the subject of "exactly when". "When a bug has run, code has registered the bug" says that of each bug.
+  - [`@spec a-claim-before-when-holds-where-the-bullets-after-it-hold`](#spec-a-claim-before-when-holds-where-the-bullets-after-it-hold) — "Code has registered a cleanup when …", followed by bullets, says what "when …, then code has registered the cleanup" says. "A cleanup" in the claim stands for every cleanup where "the cleanup" follows it in the bullets.
   - [`@spec each-statement-reads-back-to-its-meaning`](#spec-each-statement-reads-back-to-its-meaning) — Read by these rules, the words of each statement have one meaning, and it is the meaning of what the verbalizer said.
   - [`@spec each-fixed-word-of-the-printer-reads-back-to-its-meaning`](#spec-each-fixed-word-of-the-printer-reads-back-to-its-meaning) — Each fixed word of the printer stands in a statement that reads back to its one meaning. These are the intros of its lists, its time phrases, the parts of `until` and `since`, and the words of rules and of comparisons.
 <!-- toc:end -->
@@ -674,7 +679,8 @@ sig Series {}
 sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr, TimeBeforeLast, RelativeBeforeLast in Series {}
 sig AsSentence, AsBullets, KeepsAndApart, SharedSubject, PairInList, SharedNegatives, SaysNoneOfThese in Series {}
 sig OneLineRule, TimeFirst, TimeSecond, OneLine, KeepsThen, DropsThen, ThenOwnLine in Series {}
-fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + TimeBeforeLast + RelativeBeforeLast + SharedSubject + PairInList) in Items and (OneLineRule + TimeFirst + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule and SharedNegatives in Items and SaysNoneOfThese in AsBullets }
+sig ListFirstSide, PlainSecondSide, Otherwise, SecondSideFirst in Series {}
+fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + TimeBeforeLast + RelativeBeforeLast + SharedSubject + PairInList) in Items and (OneLineRule + TimeFirst + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule and SharedNegatives in Items and SaysNoneOfThese in AsBullets and (ListFirstSide + PlainSecondSide + Otherwise + SecondSideFirst) in Rule and no ListFirstSide & OneLineRule and no SecondSideFirst & (OneLine + ThenOwnLine) }
 ```
 
 ```readings
@@ -704,6 +710,10 @@ OneLine: [verbalizer](#term-verbalizer) says {1} on one line, as "when" the firs
 KeepsThen: [verbalizer](#term-verbalizer) says {1} with "then" before the time phrase | [verbalizer](#term-verbalizer) does not say {1} with "then" before the time phrase
 DropsThen: [verbalizer](#term-verbalizer) says {1} without "then" | [verbalizer](#term-verbalizer) does not say {1} without "then"
 ThenOwnLine: [verbalizer](#term-verbalizer) says {1} with "then" at the start of the second side, on a line of its own | [verbalizer](#term-verbalizer) does not say {1} with "then" at the start of the second side, on a line of its own
+ListFirstSide: {1} is a rule whose first side is a run of clauses said as bullets | {1} is not a rule whose first side is a run of clauses said as bullets
+PlainSecondSide: {1} is a rule whose second side is one line with no time phrase, relative clause, comma or "when" | {1} is not a rule whose second side is one line with no time phrase, relative clause, comma or "when"
+Otherwise: {1} is a rule with an "otherwise" | {1} is not a rule with an "otherwise"
+SecondSideFirst: [verbalizer](#term-verbalizer) says the second side of {1} before its first side | [verbalizer](#term-verbalizer) does not say the second side of {1} before its first side
 ```
 
 <!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
@@ -774,6 +784,15 @@ some f: Series | f in TimeSecond and f not in OneLineRule
 ```alloy scenario
 some f: Series | f in OneLineRule and f in TimeFirst
 ```
+<!-- statement-scenario-7-term-series:begin — generated by `canon generate`; edits are overwritten -->
+> It must be possible that:
+>
+> There is a list such that [verbalizer](#term-verbalizer) says the second side of the list before its first side.
+<!-- statement-scenario-7-term-series:end -->
+
+```alloy scenario
+some f: Series | f in SecondSideFirst
+```
 
 ### @term sentenceable
 
@@ -810,10 +829,10 @@ sentenceable: {1} can be put in a [sentence] | {1} cannot be put in a [sentence]
 ```alloy vocabulary
 sig Pass { ahead: set Pass }
 sig OfIR, OfPrinter in Pass {}
-sig NegationInward, AnotherOfAKind, NounPhrases, ThereIsAThat, XAndNoOther, ForEveryTogether, UntilInASentence, TimePhraseInFront, ClausesInASentence, NoneOfThese, RuleOnOneLine in Pass {}
+sig NegationInward, AnotherOfAKind, NounPhrases, ThereIsAThat, XAndNoOther, ForEveryTogether, UntilInASentence, TimePhraseInFront, ClausesInASentence, NoneOfThese, RuleOnOneLine, FromNowOnWhenever, ClaimFirst in Pass {}
 fact passes {
   Pass = OfIR + OfPrinter and no OfIR & OfPrinter
-  NegationInward + AnotherOfAKind + NounPhrases + ThereIsAThat + XAndNoOther + ForEveryTogether + UntilInASentence + TimePhraseInFront + ClausesInASentence + NoneOfThese + RuleOnOneLine in OfIR
+  NegationInward + AnotherOfAKind + NounPhrases + ThereIsAThat + XAndNoOther + ForEveryTogether + UntilInASentence + TimePhraseInFront + ClausesInASentence + NoneOfThese + RuleOnOneLine + FromNowOnWhenever + ClaimFirst in OfIR
 }
 ```
 
@@ -833,6 +852,8 @@ TimePhraseInFront: {1} puts a time phrase in front of the words it covers | {1} 
 ClausesInASentence: {1} says a few clauses as one sentence | {1} does not say a few clauses as one sentence
 NoneOfThese: {1} says the subject and the verb that negative clauses share once, before "none of these" | {1} does not say the subject and the verb that negative clauses share once, before "none of these"
 RuleOnOneLine: {1} says a rule on one line | {1} does not say a rule on one line
+FromNowOnWhenever: {1} says a rule at every later moment as "from now on, whenever" | {1} does not say a rule at every later moment as "from now on, whenever"
+ClaimFirst: {1} says the second side of a rule before its first side | {1} does not say the second side of a rule before its first side
 ```
 
 ### @term pipeline
@@ -926,11 +947,9 @@ all a: AnotherOfAKind, b: NounPhrases | a->b in ahead
 <!-- statement-spec-noun-phrases-are-said-before-there-is-a-that:begin — generated by `canon generate`; edits are overwritten -->
 > For every [pass_1](#term-pass) and every pass_2:
 >
-> when all of these hold:
+> pass_1 runs before pass_2 when all of these hold:
 > - pass_1 says a quantifier as a noun phrase
 > - pass_2 says a quantifier of its variable alone as "there is a … that"
->
-> then pass_1 runs before pass_2.
 <!-- statement-spec-noun-phrases-are-said-before-there-is-a-that:end -->
 
 A noun phrase hangs the variable from something the sentence already names, and reads better than a sentence of its own. The form with "that" is for a variable with nothing to hang from, so it takes what the noun phrases leave.
@@ -944,11 +963,9 @@ all a: NounPhrases, b: ThereIsAThat | a->b in ahead
 <!-- statement-spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one:begin — generated by `canon generate`; edits are overwritten -->
 > For every [pass_1](#term-pass) and every pass_2:
 >
-> when all of these hold:
+> pass_1 runs before pass_2 when all of these hold:
 > - pass_1 says a set equal to a variable as that variable and no other
 > - pass_2 makes nested quantifiers of "for every" one
->
-> then pass_1 runs before pass_2.
 <!-- statement-spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one:end -->
 
 "The cleanup is on owner_1 and is on no other owner" comes from a "for every" over the members of the set. It sits right inside the "for every" that names the cleanup, and once the two become one, the pass cannot find it.
@@ -962,11 +979,9 @@ all a: XAndNoOther, b: ForEveryTogether | a->b in ahead
 <!-- statement-spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front:begin — generated by `canon generate`; edits are overwritten -->
 > For every [pass_1](#term-pass) and every pass_2:
 >
-> when all of these hold:
+> pass_1 runs before pass_2 when all of these hold:
 > - pass_1 says until and since of two clauses as one sentence
 > - pass_2 puts a time phrase in front of the words it covers
->
-> then pass_1 runs before pass_2.
 <!-- statement-spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front:end -->
 
 "b now or later, and until then, a" holds a time phrase of its own. A time phrase in front of it would read as one moment with it. So the pass that puts one there must see the sentence the `until` became.
@@ -1008,17 +1023,45 @@ all a: ClausesInASentence, b: RuleOnOneLine | a->b in ahead
 <!-- statement-spec-clauses-become-a-sentence-before-their-shared-words-are-said-once:begin — generated by `canon generate`; edits are overwritten -->
 > For every [pass_1](#term-pass) and every pass_2:
 >
-> when all of these hold:
+> pass_1 runs before pass_2 when all of these hold:
 > - pass_1 says a few clauses as one sentence
 > - pass_2 says the subject and the verb that negative clauses share once, before "none of these"
->
-> then pass_1 runs before pass_2.
 <!-- statement-spec-clauses-become-a-sentence-before-their-shared-words-are-said-once:end -->
 
 A list of a few clauses reads best as a sentence, and "none of these" only shortens the bullets of a list that stays bullets. So the clauses that can become a sentence do so first, and only the lists left as bullets say their shared words once.
 
 ```alloy
 all a: ClausesInASentence, b: NoneOfThese | a->b in ahead
+```
+
+###### @spec clauses-become-a-sentence-before-a-second-side-goes-first
+
+<!-- statement-spec-clauses-become-a-sentence-before-a-second-side-goes-first:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> when pass_1 says a few clauses as one sentence and pass_2 says the second side of a rule before its first side, pass_1 runs before pass_2.
+<!-- statement-spec-clauses-become-a-sentence-before-a-second-side-goes-first:end -->
+
+A rule says its second side first only where its first side stays bullets. A first side of a few short clauses becomes a sentence, and the rule then fits a line. So the pass that puts the second side first must see the sentence those clauses became.
+
+```alloy
+all a: ClausesInASentence, b: ClaimFirst | a->b in ahead
+```
+
+###### @spec a-rule-is-said-whenever-before-a-second-side-goes-first
+
+<!-- statement-spec-a-rule-is-said-whenever-before-a-second-side-goes-first:begin — generated by `canon generate`; edits are overwritten -->
+> For every [pass_1](#term-pass) and every pass_2:
+>
+> pass_1 runs before pass_2 when all of these hold:
+> - pass_1 says a rule at every later moment as "from now on, whenever"
+> - pass_2 says the second side of a rule before its first side
+<!-- statement-spec-a-rule-is-said-whenever-before-a-second-side-goes-first:end -->
+
+Under "from now on, whenever", a rule keeps its first side first: "whenever" takes the place of its "when". So the pass that puts a second side first must see which rules "whenever" took.
+
+```alloy
+all a: FromNowOnWhenever, b: ClaimFirst | a->b in ahead
 ```
 
 ##### @spec a-pass-weighs-only-words-that-no-later-pass-changes
@@ -1090,7 +1133,7 @@ This follows because the old form put a plural verb before a single noun, and "s
 This follows because for every x, for every y, a formula holds exactly when for every x and every y it holds. The second "for every" on a line of its own adds a level of indent and nothing else.
 
 <!-- pass-for-every-together:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `for-every-together` is pass 5 of 18 in the pipeline. It changes 187 of the 1754 formulas of the sweep.
+The pass `for-every-together` is pass 5 of 19 in the pipeline. It changes 187 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1127,7 +1170,7 @@ This follows because a name such as unit_1 tells the reader the kind of the vari
 This follows because "the unit" can then point at one thing only. A number that tells nothing apart is one more thing to read. A variable that a count says first keeps its number: "the values of the owner" would read as the values of one owner.
 
 <!-- pass-lone-numbers-dropped:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `lone-numbers-dropped` is pass 17 of 18 in the pipeline. It changes 1434 of the 1754 formulas of the sweep.
+The pass `lone-numbers-dropped` is pass 18 of 19 in the pipeline. It changes 1434 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1159,7 +1202,7 @@ Derives from: [`spec-a-variable-alone-of-its-noun-is-named-the-noun`](#spec-a-va
 This follows because the reading rules give "a bug" in a "when" the meaning of every bug. A line "for every bug:" above the rule then tells the reader nothing more. A variable named only once would leave "a bug" free to mean one bug or every bug, so the words keep the "for every" there.
 
 <!-- pass-a-noun-for-every:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `a-noun-for-every` is pass 18 of 18 in the pipeline. It changes 12 of the 1754 formulas of the sweep.
+The pass `a-noun-for-every` is pass 19 of 19 in the pipeline. It changes 12 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1366,7 +1409,7 @@ This follows because the table gives each word a positive and a negative reading
 This follows because the negative reading of each clause says the negation in the words of the table. Moving the `not` inward reaches those clauses without changing what the formula claims.
 
 <!-- pass-negation-inward:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `negation-inward` is pass 1 of 18 in the pipeline. It changes 115 of the 1754 formulas of the sweep.
+The pass `negation-inward` is pass 1 of 19 in the pipeline. It changes 115 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1415,7 +1458,7 @@ This follows because a rule fails exactly when its condition holds and its conse
 This follows because an equivalence fails exactly when one side holds and the other does not.
 
 <!-- pass-exactly-one:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `exactly-one` is pass 2 of 18 in the pipeline. It changes 30 of the 1754 formulas of the sweep.
+The pass `exactly-one` is pass 2 of 19 in the pipeline. It changes 30 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1670,7 +1713,7 @@ This follows because a set equals `y` when `y` is in it and nothing else is. The
 This follows because a set equals `x` when `x` is in it and nothing else is, and the two halves say just that. "No other" alone hints that `x` is in the set, which [`spec-no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) guards against. Here the first half says it, so the hint is true. A plain clause keeps "no other" at the level of the claim. Inside a noun phrase, as in "an owner that no other owner is the parent of", it would cover less.
 
 <!-- pass-x-and-no-other:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `x-and-no-other` is pass 4 of 18 in the pipeline. It changes 22 of the 1754 formulas of the sweep.
+The pass `x-and-no-other` is pass 4 of 19 in the pipeline. It changes 22 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1968,7 +2011,7 @@ all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine
 ```
 
 <!-- pass-rule-on-one-line:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `rule-on-one-line` is pass 15 of 18 in the pipeline. It changes 268 of the 1754 formulas of the sweep.
+The pass `rule-on-one-line` is pass 15 of 19 in the pipeline. It changes 268 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1997,7 +2040,7 @@ When a cleanup has run, code has registered the cleanup.
 This follows because "exactly when" says that each side holds when the other does, which is what `iff` claims.
 
 <!-- pass-exactly-when:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `exactly-when` is pass 14 of 18 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
+The pass `exactly-when` is pass 14 of 19 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2095,7 +2138,7 @@ This follows because always holds from the present on, the present included. "At
 This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as `always` alone does. So the words still leave the moments before it out.
 
 <!-- pass-always-inside-for-every:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `always-inside-for-every` is pass 3 of 18 in the pipeline. It changes 7 of the 1754 formulas of the sweep.
+The pass `always-inside-for-every` is pass 3 of 19 in the pipeline. It changes 7 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2119,7 +2162,7 @@ For every cleanup:
 <!-- pass-always-inside-for-every:end -->
 
 <!-- pass-from-now-on-whenever:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `from-now-on-whenever` is pass 16 of 18 in the pipeline. It changes 8 of the 1754 formulas of the sweep.
+The pass `from-now-on-whenever` is pass 16 of 19 in the pipeline. It changes 8 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2178,7 +2221,7 @@ This follows because the semicolon says that the first side holds now and the se
 This follows because two time phrases in a row, such as "from now on, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
 
 <!-- pass-time-phrase-in-front:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `time-phrase-in-front` is pass 11 of 18 in the pipeline. It changes 347 of the 1754 formulas of the sweep.
+The pass `time-phrase-in-front` is pass 11 of 19 in the pipeline. It changes 347 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2245,7 +2288,7 @@ This follows because since is until turned to the past.
 This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "then" can only be a moment of `b` counted from now. "Until then" stops before that moment, as until does, and readers of every size took it that way.
 
 <!-- pass-until-in-a-sentence:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `until-in-a-sentence` is pass 10 of 18 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
+The pass `until-in-a-sentence` is pass 10 of 19 in the pipeline. It changes 40 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2703,7 +2746,7 @@ all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKin
 ```
 
 <!-- pass-definition-by-kinds:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `definition-by-kinds` is pass 8 of 18 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
+The pass `definition-by-kinds` is pass 8 of 19 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2875,7 +2918,7 @@ all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase
 ```
 
 <!-- pass-noun-phrases:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `noun-phrases` is pass 7 of 18 in the pipeline. It changes 152 of the 1754 formulas of the sweep.
+The pass `noun-phrases` is pass 7 of 19 in the pipeline. It changes 152 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2936,7 +2979,7 @@ This follows because "that is not an axiom, a spec or a fact" is shorter and eas
 This follows because "another unit" says what the logic compares, without a name to follow.
 
 <!-- pass-another-of-a-kind:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `another-of-a-kind` is pass 6 of 18 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
+The pass `another-of-a-kind` is pass 6 of 19 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3028,7 +3071,7 @@ all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in 
 ```
 
 <!-- pass-there-is-a-that:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `there-is-a-that` is pass 9 of 18 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
+The pass `there-is-a-that` is pass 9 of 19 in the pipeline. It changes 2 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3130,7 +3173,7 @@ all f: Series | sentenceable[f] implies f in AsSentence
 ```
 
 <!-- pass-clauses-in-a-sentence:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `clauses-in-a-sentence` is pass 12 of 18 in the pipeline. It changes 388 of the 1754 formulas of the sweep.
+The pass `clauses-in-a-sentence` is pass 12 of 19 in the pipeline. It changes 388 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3182,11 +3225,9 @@ all f: Series | f in Many implies f in AsBullets
 ##### @spec a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets
 
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
-> When all of these hold:
-> - a [list](#term-series) has an item that holds a comma
+> [Verbalizer](#term-verbalizer) says a [list](#term-series) as bullets when all of these hold:
+> - the list has an item that holds a comma
 > - the list has more than two clauses
->
-> then [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:end -->
 
 A comma inside an item makes a list of three read as a list of more. So once a list has such a comma and more than two clauses, it is bullets.
@@ -3268,7 +3309,7 @@ all f: Series | (f in SharedNegatives and f in AsBullets) implies f in SaysNoneO
 ```
 
 <!-- pass-none-of-these:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `none-of-these` is pass 13 of 18 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
+The pass `none-of-these` is pass 13 of 19 in the pipeline. It changes 1 of the 1754 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3338,12 +3379,10 @@ This follows because "unit_1 and unit_2 are different" is about both, and cannot
 #### @spec a-rule-keeps-its-then-before-a-time-phrase
 
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:begin — generated by `canon generate`; edits are overwritten -->
-> When all of these hold:
-> - a [list](#term-series) is a rule whose two sides are each one clause
+> [Verbalizer](#term-verbalizer) says a [list](#term-series) with "then" before the time phrase when all of these hold:
+> - the list is a rule whose two sides are each one clause
 > - the list is not a rule whose first side begins with a time phrase
 > - the list is a rule whose second side begins with a time phrase
->
-> then [verbalizer](#term-verbalizer) says the list with "then" before the time phrase.
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
 A short rule can stumble on a time phrase. Without "then", it puts two commas in a row: "when this, now or later, that". With it, the rule reads cleanly. So the [verbalizer](#term-verbalizer) keeps the "then" when both sides are single clauses and only the second opens with a time phrase.
@@ -3355,12 +3394,10 @@ all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) im
 #### @spec a-rule-drops-its-then-before-anything-else
 
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:begin — generated by `canon generate`; edits are overwritten -->
-> When all of these hold:
-> - a [list](#term-series) is a rule whose two sides are each one clause
+> [Verbalizer](#term-verbalizer) says a [list](#term-series) without "then" when all of these hold:
+> - the list is a rule whose two sides are each one clause
 > - the list is not a rule whose first side begins with a time phrase
 > - the list is not a rule whose second side begins with a time phrase
->
-> then [verbalizer](#term-verbalizer) says the list without "then".
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:end -->
 
 When both sides of a rule are single clauses, the comma in "when this, that" already shows where the second side starts. A "then" after every "when" would add words and nothing else. So the [verbalizer](#term-verbalizer) leaves it out, unless a time phrase opens either side.
@@ -3384,14 +3421,79 @@ all f: Series | f in TimeFirst implies f in ThenOwnLine
 #### @spec a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own
 
 <!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:begin — generated by `canon generate`; edits are overwritten -->
-> When a [list](#term-series) is a rule with a first side and a second and is not a rule whose two sides are each one clause, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
+> When all of these hold:
+> - a [list](#term-series) is a rule with a first side and a second
+> - the list is not a rule whose two sides are each one clause
+> - [verbalizer](#term-verbalizer) does not say the second side of the list before its first side
+>
+> then verbalizer says the list with "then" at the start of the second side, on a line of its own.
 <!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:end -->
 
-A rule with a side longer than one clause cannot fit on a line. So its second side starts on a line of its own, and "then" tells the reader where it begins.
+A rule with a side longer than one clause cannot fit on a line. So its second side starts on a line of its own, and "then" tells the reader where it begins. A rule said with its second side first needs no "then": nothing follows its bullets.
 
 ```alloy
-all f: Series | (f in Rule and f not in OneLineRule) implies f in ThenOwnLine
+all f: Series | (f in Rule and f not in OneLineRule and f not in SecondSideFirst) implies f in ThenOwnLine
 ```
+
+#### @spec a-rule-whose-first-side-is-bullets-says-its-second-side-first
+
+<!-- statement-spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first:begin — generated by `canon generate`; edits are overwritten -->
+> [Verbalizer](#term-verbalizer) says the second side of a [list](#term-series) before its first side when all of these hold:
+> - the list is a rule whose first side is a run of clauses said as bullets
+> - the list is a rule whose second side is one line with no time phrase, relative clause, comma or "when"
+> - the list is not a rule with an "otherwise"
+<!-- statement-spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first:end -->
+
+Derives from: [`spec-a-claim-before-when-holds-where-the-bullets-after-it-hold`](#spec-a-claim-before-when-holds-where-the-bullets-after-it-hold)
+
+A rule whose first side is bullets and whose second side is one line says its second side first. Then come "when", the line that opens the bullets, and the bullets. The reader meets the claim before the conditions it rests on. The bullets end the statement, so no "then" has to show where they stop.
+
+A time phrase, a relative clause, a comma or a "when" in the second side could reach over the "when" after it. An "otherwise" speaks of what the first side does not hold of. So those rules keep their first side first.
+
+```alloy
+all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise) implies f in SecondSideFirst
+```
+
+<!-- pass-claim-first:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
+The pass `claim-first` is pass 17 of 19 in the pipeline. It changes 6 of the 1754 formulas of the sweep.
+
+The shortest of them, as written in Alloy:
+
+```text
+all c: Cleanup, o, p: Owner | c.(on ++ (Cleanup -> p)) in Disposed
+```
+
+Without the pass:
+
+```text
+For every cleanup_1, every owner_1, every owner_2 and every owner_3:
+  when at least one of these holds:
+    - all of these hold:
+        - cleanup_1 is a cleanup
+        - owner_3 and owner_2 are the same
+    - all of these hold:
+        - cleanup_1 is on owner_3
+        - there is no owner_4 such that all of these hold:
+            - cleanup_1 is a cleanup
+            - owner_4 and owner_2 are the same
+  then pulse has disposed owner_3.
+```
+
+With it:
+
+```text
+For every cleanup_1, every owner_1, every owner_2 and every owner_3:
+  pulse has disposed owner_3 when at least one of these holds:
+    - all of these hold:
+        - cleanup_1 is a cleanup
+        - owner_3 and owner_2 are the same
+    - all of these hold:
+        - cleanup_1 is on owner_3
+        - there is no owner_4 such that all of these hold:
+            - cleanup_1 is a cleanup
+            - owner_4 and owner_2 are the same
+```
+<!-- pass-claim-first:end -->
 
 #### @spec a-rule-that-is-a-side-of-a-rule-is-set-apart
 
@@ -3518,6 +3620,12 @@ This follows because "one of these" leaves open whether x may be more than one o
 > "A bug" stands for every bug where "the bug" follows it, in the first side of a rule or as the subject of "exactly when". "When a bug has run, code has registered the bug" says that of each bug.
 
 This follows because in English, "a" in a "when" speaks of whichever thing meets the condition. "The bug" after it points back at that thing, so the rule holds of each bug.
+
+#### @spec a-claim-before-when-holds-where-the-bullets-after-it-hold
+
+> "Code has registered a cleanup when …", followed by bullets, says what "when …, then code has registered the cleanup" says. "A cleanup" in the claim stands for every cleanup where "the cleanup" follows it in the bullets.
+
+This follows because in English, a claim before "when" holds wherever what follows "when" holds. The bullets end the statement, so the "when" covers each of them. "A cleanup" there speaks of whichever cleanup the bullets go on to describe, as "a" in the first side of a rule does.
 
 #### @spec each-statement-reads-back-to-its-meaning
 

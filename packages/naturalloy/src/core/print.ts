@@ -370,6 +370,12 @@ export class Printer {
     };
     let when = side(s.when);
     let then = side(s.then);
+    // Second side first: "pulse has disposed p when all of these hold:", then the bullets of the first side.
+    if (s.form === 'claim-first' && (s.when.t === 'and' || s.when.t === 'or') && s.when.form === 'sentence') when = this.sentence({ ...s.when, form: 'list' });
+    if (s.form === 'claim-first' && isList(when) && typeof then === 'string') {
+      this.whens.set(s, when);
+      return { ...when, intro: own`${then} ${RULE.when} ${when.intro}` };
+    }
     const third = s.otherwise === undefined ? undefined : side(s.otherwise);
     this.whens.set(s, when);
     // On one line: "when a, b", with "then" before a second side that begins with a time phrase.

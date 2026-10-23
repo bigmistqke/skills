@@ -143,6 +143,23 @@ describe('the words', () => {
   });
 
   /**
+   * @canon spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first
+   */
+  it('says the second side of a rule first when its first side is bullets and its second side one plain line', () => {
+    const conditions = 'c in Ran and c in Registered and o in Disposed and o in Stopped';
+    expect(say(`(${conditions}) implies p in Disposed`)).toBe(
+      'Pulse has disposed p when all of these hold:\n  - c has run\n  - code has registered c\n  - pulse has disposed o\n  - the dispose of o has been stopped'
+    );
+    // The first mention of a thing every one of whose kind the rule is about is in the second side, now said first.
+    expect(say('all x: Owner | (x in Disposed and x in Stopped and c in Ran and c in Registered) implies dispose[x]')).toBe(
+      'Pulse disposes an owner when all of these hold:\n  - pulse has disposed the owner\n  - the dispose of the owner has been stopped\n  - c has run\n  - code has registered c'
+    );
+    // A time phrase in the second side, or an "otherwise", keeps the first side first.
+    expect(say(`(${conditions}) implies after p in Disposed`).split('\n')[0]).toBe('When all of these hold:');
+    expect(say(`(${conditions}) implies p in Disposed else p in Stopped`).split('\n')[0]).toBe('When all of these hold:');
+  });
+
+  /**
    * @canon spec-a-variable-is-named-the-same-however-the-formula-names-it
    */
   it('names a variable the same however the formula named it', () => {
@@ -188,7 +205,7 @@ describe('the words', () => {
    */
   it('says a "disj" quantifier with the condition that its variables are different', () => {
     expect(say('all disj c, d: Cleanup | c in Ran implies d in Ran')).toBe(
-      'For every cleanup_1 and every cleanup_2:\n  when all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n  then cleanup_2 has run.'
+      'For every cleanup_1 and every cleanup_2:\n  cleanup_2 has run when all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run'
     );
     expect(say('all disj c, d: Cleanup | d in Ran')).toBe('For every cleanup_1 and every cleanup_2:\n  when cleanup_1 and cleanup_2 are different, cleanup_2 has run.');
     expect(say('some disj c, d: Cleanup | c in Ran and d in Ran')).toBe('For some cleanup_1 and some cleanup_2:\n  all of these hold:\n    - cleanup_1 and cleanup_2 are different\n    - cleanup_1 has run\n    - cleanup_2 has run');
@@ -1231,7 +1248,7 @@ describe('the items of a list said in a sentence', () => {
    */
   it('set apart a side of a rule that holds a comma, where no "then" shows where the second side starts', () => {
     expect(say('c in Registered implies (c in Ran ; o in Disposed)')).toBe('When code has registered c\nthen the following holds:\n       c has run, and at the next moment, pulse has disposed o.');
-    expect(say('(c in Ran and d in Ran and c in Registered) implies o in Disposed')).toBe('When all of these hold:\n  - c has run\n  - d has run\n  - code has registered c\nthen pulse has disposed o.');
+    expect(say('(c in Ran and d in Ran and c in Registered) implies o in Disposed')).toBe('Pulse has disposed o when all of these hold:\n  - c has run\n  - d has run\n  - code has registered c');
     expect(say('(c in Ran and d in Ran and c in Registered) implies always o in Disposed')).toBe(
       'When c has run, d has run and code has registered c, then from now on, pulse has disposed o.'
     );
@@ -1292,9 +1309,10 @@ describe('the items of a list said in a sentence', () => {
    * @canon spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own
    */
   it('put the "then" of a rule on a line of its own when a side is a list, whatever follows it', () => {
-    const rule = said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies u in Axiom');
+    // A second side of one plain line goes first; one with a time phrase keeps its "then".
+    const rule = said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies after u in Axiom');
     expect(rule.split('\n')[0]).toBe('When all of these hold:');
-    expect(rule.split('\n').at(-1)?.trim()).toBe('then the unit is an axiom.');
+    expect(rule.split('\n').at(-1)?.trim()).toBe('then at the next moment, the unit is an axiom.');
     expect(said('(u in Spec and u in Axiom and u in Fact and u not in Spec) implies eventually u in Axiom').split('\n').at(-1)?.trim()).toBe('then now or later, the unit is an axiom.');
   });
 
@@ -1316,7 +1334,7 @@ describe('the items of a list said in a sentence', () => {
    * @canon spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
    */
   it('say a pair of variables as it is, and not as a subject', () => {
-    expect(said('all v: Unit | (u != v and u in Spec) implies v in Spec')).toContain('when all of these hold:\n    - unit_1 and unit_2 are different\n    - unit_1 is a spec\n  then unit_2 is a spec');
+    expect(said('all v: Unit | (u != v and u in Spec) implies v in Spec')).toContain('unit_2 is a spec when all of these hold:\n    - unit_1 and unit_2 are different\n    - unit_1 is a spec');
   });
 
   /**
@@ -2240,7 +2258,7 @@ describe('lighter words', () => {
       'sig Unit {} sig Logical, Stated, Sayable, Unwritten in Unit {}'
     );
     expect(say('all u: Unit | (u in Logical and u not in Stated and u in Sayable) implies u in Unwritten', units)).toBe(
-      ['When all of these hold:', '  - a unit holds a formula', '  - the unit has no statement', '  - the formula of the unit can be said in words', 'then the statement of the unit is unwritten.'].join('\n')
+      ['The statement of a unit is unwritten when all of these hold:', '  - the unit holds a formula', '  - the unit has no statement', '  - the formula of the unit can be said in words'].join('\n')
     );
   });
 
