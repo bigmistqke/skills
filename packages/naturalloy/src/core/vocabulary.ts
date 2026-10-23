@@ -14,6 +14,9 @@ export function articleFor(phrase: string): string {
   return /^[aeiou]/i.test(phrase) ? 'an ' : 'a ';
 }
 
+/** The words that open a noun phrase. */
+const DETERMINERS = new Set(['a', 'an', 'the', 'no', 'another', 'every', 'some', 'one', 'two', 'three', 'four']);
+
 export class Vocabulary {
   readonly readings: Readings;
 
@@ -53,6 +56,30 @@ export class Vocabulary {
     let at = name;
     for (let holder = this.readings.holders.get(at); !this.readings.nouns.has(at) && holder !== undefined && holder !== at; holder = this.readings.holders.get(at)) at = holder;
     return at;
+  }
+
+  /**
+   * The subject and the verb the positive readings of the keys share, "{1} has", and the noun phrase each goes on
+   * with, "an alternative that …". Undefined unless the shared words begin with the first slot, name no other, and stop
+   * before the first word of a noun phrase, and each reading goes on with a noun phrase of its own. Then "has none of
+   * these" says every negative reading at once: "has none of these: X" is "does not have X", for each X.
+   */
+  shared(keys: string[]): { head: string; rests: string[] } | undefined {
+    const readings = keys.map(key => this.readings.atoms.get(key));
+    if (readings.some(r => r === undefined)) return undefined;
+    const positives = readings.map(r => (r as { positive: string }).positive.trim().split(' '));
+    const first = positives[0] as string[];
+    let at = 0;
+    while (positives.every(words => at < words.length - 1 && words[at] === first[at])) at++;
+    // The shared words stop before the first word that opens a noun phrase, so that they hold none.
+    const opens = first.slice(0, at).findIndex(word => DETERMINERS.has(word));
+    if (opens !== -1) at = opens;
+    if (at < 2 || !positives.every(words => DETERMINERS.has(words[at] as string))) return undefined;
+    const head = first.slice(0, at).join(' ');
+    const rests = positives.map(words => words.slice(at).join(' '));
+    const balanced = (text: string): boolean => (text.match(/\[/g) ?? []).length === (text.match(/\]/g) ?? []).length;
+    if (!head.startsWith('{1} ') || /\{[2-9]\}/.test(head) || !balanced(head) || new Set(rests).size !== rests.length) return undefined;
+    return { head, rests };
   }
 
   /** The types each thing a reading takes may be, in the order of its slots, as the vocabulary declares them. */

@@ -6,6 +6,7 @@ import { exactlyOne, negationInward } from './negate.ts';
 import { alwaysInsideForEvery, fromNowOnWhenever, untilInASentence } from './time.ts';
 import { thereIsAThat, xAndNoOther } from './subject.ts';
 import { anotherOfAKind, definitionByKinds, nounPhrases } from './phrases.ts';
+import { noneOfThese } from './shared.ts';
 
 export const PASSES: readonly Pass[] = [
   negationInward,
@@ -20,6 +21,7 @@ export const PASSES: readonly Pass[] = [
   untilInASentence,
   timePhraseInFront,
   clausesInASentence,
+  noneOfThese,
   exactlyWhen,
   ruleOnOneLine,
   fromNowOnWhenever,

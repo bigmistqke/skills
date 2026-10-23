@@ -59,6 +59,13 @@ describe('the order of the passes', () => {
   });
 
   /**
+   * @canon spec-clauses-become-a-sentence-before-their-shared-words-are-said-once
+   */
+  it('makes clauses a sentence before it says the words negative clauses share once', () => {
+    expect(at('clauses-in-a-sentence')).toBeLessThan(at('none-of-these'));
+  });
+
+  /**
    * @canon spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line
    */
   it('makes clauses a sentence before a rule goes on one line', () => {

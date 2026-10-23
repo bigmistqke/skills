@@ -567,6 +567,16 @@ export class Parser {
         [INTRO.both, xs => (xs.length === 2 ? { t: 'iff', l: xs[0] as Sentence, r: xs[1] as Sentence } : undefined)],
         [INTRO.exactlyOne, xs => (xs.length === 2 ? { t: 'not', body: { t: 'iff', l: xs[0] as Sentence, r: xs[1] as Sentence } } : undefined)]
       ];
+      // "definition_1 is a definition with none of these:": each item, after the shared words, is a clause the subject is not.
+      if (intro.endsWith(` ${INTRO.noneOf}`)) {
+        const head = intro.slice(0, -INTRO.noneOf.length - 1);
+        let all: Sentence[][] = [[]];
+        for (const item of doc.items) {
+          const said = typeof item === 'string' ? this.clauses(`${head} ${item}`, scope).flatMap(c => (c.t === 'reading' && !c.negative ? [{ ...c, negative: true }] : [])) : [];
+          all = all.flatMap(done => said.map(c => [...done, c]));
+        }
+        for (const xs of all) if (xs.length > 1) out.push({ t: 'and', items: xs });
+      }
       for (const [words, make] of lists) if (intro === words) for (const xs of items(scope)) {
         const made = make(xs);
         if (made !== undefined) out.push(made);

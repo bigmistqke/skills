@@ -130,6 +130,7 @@ const CONSTRUCTS: [string, string][] = [
   [INTRO.both, '(c in Ran and c in Registered) iff (o in Disposed and o in Stopped)'],
   [INTRO.exactlyOne, 'not ((c in Ran and c in Registered) iff (o in Disposed and o in Stopped))'],
   [INTRO.untrue, 'not one c.on'],
+  [INTRO.noneOf, 'all d: Cleanup | d not in Labelled and d not in Flagged and d not in Pinned and d not in Marked'],
   [INTRO.apart, 'c in Ran implies (c in Registered implies o in Disposed)'],
   [`is ${INTRO.oneOf}`, 'pred kept[x: univ] { (x in Owner and gone[x]) or (x in Cleanup and x in Ran) }'],
   [MOMENT.always, 'always c in Ran'],
