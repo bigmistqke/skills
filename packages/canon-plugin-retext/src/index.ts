@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * `canon lint` — language checks on the prose of the canon documents.
+ * `canon retext:lint` — language checks on the prose of the canon documents.
  * Reports passive voice, wordy phrasing, repeated
  * words, wrong indefinite articles, and sentences and paragraphs longer than
  * the limits below.
  *
  * A plugin of the checker: a document names it in its frontmatter, as
- * `plugins: ["@bigmistqke/canon-plugin-retext"]`, and `canon lint` runs over the
+ * `plugins: ["@bigmistqke/canon-plugin-retext"]`, and `canon retext:lint` runs over the
  * documents that name it, or over the files named on the command line.
  */
 import { readFileSync } from 'node:fs'

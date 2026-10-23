@@ -15,7 +15,7 @@ plugins: ["@bigmistqke/canon-plugin-alloy"]
 # Canon
 ```
 
-It adds the command `logic`, writes the statements when you run `canon generate`, and reports the statements and the words that are not in order when you run `canon check`. A canon that extends another (`extends: ["../canon/CANON.md"]` in its frontmatter) says its statements with the readings of the other canon, and its model holds the claims of the other.
+It adds the command `alloy:logic` (or `logic` while no other plugin has a command of that name), writes the statements when you run `canon generate`, and reports the statements and the words that are not in order when you run `canon check`. A canon that extends another (`extends: ["../canon/CANON.md"]` in its frontmatter) says its statements with the readings of the other canon, and its model holds the claims of the other.
 
 ## Statements said from predicates
 
@@ -43,7 +43,7 @@ The statement is the plugin's to write: `generate` never overwrites one that a p
 
 ## The logic layer
 
-A unit can hold fenced blocks next to its statement. `canon logic` hands the `alloy` blocks of the documents to the [Alloy analyzer](https://github.com/AlloyTools/org.alloytools.alloy) and asks whether each scenario can happen while every unit holds. When one cannot, it names the units a repair has to touch.
+A unit can hold fenced blocks next to its statement. `canon alloy:logic` hands the `alloy` blocks of the documents to the [Alloy analyzer](https://github.com/AlloyTools/org.alloytools.alloy) and asks whether each scenario can happen while every unit holds. When one cannot, it names the units a repair has to touch.
 
 The claims of the documents a document extends join its model, so a claim of the document that contradicts one of theirs is found, and the report names both. A group of units that holds no block of the checked document is left to the document that holds it. The analyzer is started once for each run, as many at a time as the machine has processors; `CANON_ALLOY_JOBS` sets another number.
 
@@ -63,7 +63,7 @@ In a document without a `readings` block, a person writes each statement. A unit
 ```
 ````
 
-`canon logic` reports a map that is missing or malformed, a fragment that is not in the statement, a part that is not in the predicate, and a sentence of the statement that no line covers. It also reports a map that is unreviewed, or stale: the mark is a hash of the statement, the predicate and the map, so a change to any of them needs a new review. `canon logic --review <unit>` writes the mark, as the reviewer's word that the map is right. These checks read text only and need no Java.
+`canon alloy:logic` reports a map that is missing or malformed, a fragment that is not in the statement, a part that is not in the predicate, and a sentence of the statement that no line covers. It also reports a map that is unreviewed, or stale: the mark is a hash of the statement, the predicate and the map, so a change to any of them needs a new review. `canon alloy:logic --review <unit>` writes the mark, as the reviewer's word that the map is right. These checks read text only and need no Java.
 
 The logic checks need the analyzer's jar and a Java 17 or later, which `canon` does not install:
 
@@ -74,7 +74,7 @@ logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/jav
 ---
 ```
 
-A scenario that cannot happen is a strong result: no world within the bounds has it. A scenario that can happen is a weak one. The model may reach it through a way out that the system does not have. So `canon logic --show <scenario>` prints, after the report, the world the analyzer found, and you can see which way it took. Name the scenario by the id of its statement, and repeat `--show` for more:
+A scenario that cannot happen is a strong result: no world within the bounds has it. A scenario that can happen is a weak one. The model may reach it through a way out that the system does not have. So `canon alloy:logic --show <scenario>` prints, after the report, the world the analyzer found, and you can see which way it took. Name the scenario by the id of its statement, and repeat `--show` for more:
 
 ```
   the world of scenario-1-spec-a-claim-ends:

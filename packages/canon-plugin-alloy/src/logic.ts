@@ -1,5 +1,5 @@
 /**
- * `canon logic`: the logic layer of the documents, checked. A document with
+ * `canon alloy:logic`: the logic layer of the documents, checked. A document with
  * fenced blocks of a language is handed to that language's backend, and what
  * the backend finds is reported in the units' own words.
  */

@@ -10,7 +10,7 @@ The checker is the npm package `@bigmistqke/canon`. Install it as a dev dependen
 pnpm add -D @bigmistqke/canon @bigmistqke/canon-plugin-retext
 ```
 
-The package `@bigmistqke/canon-plugin-retext` adds the command `lint`. A project that does not check its prose can leave it out. `@bigmistqke/canon-plugin-alloy` adds `logic` and the generated statements.
+The package `@bigmistqke/canon-plugin-retext` adds the command `retext:lint`. A project that does not check its prose can leave it out. `@bigmistqke/canon-plugin-alloy` adds `alloy:logic` and the generated statements.
 
 Then declare the scope in the frontmatter of the entry document: the nearest `CANON.md`, from the folder where you run the command upwards. The project needs no script, because `pnpm canon` runs the package's own command:
 
@@ -57,8 +57,8 @@ pnpm canon show spec-a-stem   # a unit, what it follows from, what follows from 
 pnpm canon show spec-a-stem --statement   # only its statement, as it reads; --body for the rest of its own text
 pnpm canon find word word     # the units whose id or own text holds every word
 pnpm canon find word --kind spec   # the same, for one kind of unit
-pnpm canon lint               # language checks on the prose of the documents
-pnpm canon logic              # whether the formulas of the units can all hold together
+pnpm canon retext:lint        # language checks on the prose of the documents
+pnpm canon alloy:logic        # whether the formulas of the units can all hold together
 pnpm canon log                # commits that change the implementation without naming a unit
 pnpm canon rename spec-a-leaf a-single-leaf            # give a unit a new stem, and move every name of it
 pnpm canon rename spec-a-leaf a-single-leaf --dry-run  # print each line it would change, and change nothing
@@ -69,8 +69,8 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 1. `pnpm canon --help` lists every finding `check` reports.
 2. `check` fails when a generated region is stale. To fix it, run `generate`. The generated regions are the index of each document and the kinds table in [`writing-units.md`](writing-units.md).
 3. Add the `toc:begin` and `toc:end` markers to each new canon document, once.
-4. `lint` comes from `@bigmistqke/canon-plugin-retext`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
-5. `graph` comes from `@bigmistqke/canon-plugin-pele`. It prints the derivations of the documents as a Mermaid flowchart, or with `--svg` as an SVG that Pele renders.
+4. `retext:lint` comes from `@bigmistqke/canon-plugin-retext`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
+5. `pele:graph` comes from `@bigmistqke/canon-plugin-pele`. It prints the derivations of the documents as a Mermaid flowchart, or with `--svg` as an SVG that Pele renders.
 6. Read a unit with `show`, and find it with `find`, not with a search of the document. A search finds the heading of a unit. It misses the units above it, the units that derive from it and the tests that check it. The commands `show` and `tree` take a unit as its id, as `@spec a-stem`, or in words as the tree writes it.
 7. The checker needs Node 22 or later.
 
@@ -92,7 +92,7 @@ Then it writes the generated regions, as `generate` does. A rename of a clean pr
 3. A unit of an extended document belongs to another project, so `rename` refuses it. Rename it in that project. A document of another project that points into this one is outside the scope, and its own check reports the pointers that rot.
 4. `--dry-run` prints the file and the number of each line it would change, with the line before and after, and changes no file.
 5. The Alloy plugin names the predicate of a unit after its id, with underscores for hyphens, and a scenario after the unit that holds it. Nothing stores those names, so they follow the rename.
-6. A reviewed map is different: it holds a hash of the statement, the predicate and the map. When a statement that a person wrote links to the renamed unit, its text changes, and `logic` reports the map stale. Read it again and mark it with `logic --review`. The rename does not mark a review that nobody made.
+6. A reviewed map is different: it holds a hash of the statement, the predicate and the map. When a statement that a person wrote links to the renamed unit, its text changes, and `alloy:logic` reports the map stale. Read it again and mark it with `alloy:logic --review`. The rename does not mark a review that nobody made.
 
 ## 3. Issues
 
@@ -121,8 +121,11 @@ tracker: {kind: gitlab, project: group/subgroup/project, host: gitlab.example.co
 
 A plugin adds commands to the checker. A document names the plugins it asks for under `plugins` in its frontmatter, each by its package, and the project installs each one. A document with no `plugins` key asks for none. A command that no listed plugin adds exits with code 2 as unknown.
 
-- `@bigmistqke/canon-plugin-retext` adds `lint`.
-- `@bigmistqke/canon-plugin-alloy` adds `logic`, and adds to `generate` and `check`: it writes the statements of units from their formulas and reports the stale ones. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `logic` needs Java 17 or later and the jar of the Alloy analyzer:
+A plugin adds each command of its own under the name of its package: `@bigmistqke/canon-plugin-<name>` adds `<name>:<command>`. The bare name `<command>` runs it too, while no other listed plugin has a command of that name. When two do, the bare name exits with code 2 and names the prefixed commands. A plugin's part of `check` and `generate` runs under those commands, with no prefix.
+
+- `@bigmistqke/canon-plugin-retext` adds `retext:lint`.
+- `@bigmistqke/canon-plugin-pele` adds `pele:graph`.
+- `@bigmistqke/canon-plugin-alloy` adds `alloy:logic`, and adds to `generate` and `check`: it writes the statements of units from their formulas and reports the stale ones. [Writing units](writing-units.md#12-units-with-logic) says how to write such units. `alloy:logic` needs Java 17 or later and the jar of the Alloy analyzer:
 
 ```yaml
 ---
@@ -131,6 +134,6 @@ logic: {alloy: {jar: tools/alloy.jar, java: /opt/homebrew/opt/openjdk@21/bin/jav
 ---
 ```
 
-`CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths, and a path in the frontmatter wins. `canon logic --review <unit>` marks a map reviewed, for a unit whose statement a person wrote in a document that keeps no readings.
+`CANON_ALLOY_JAR` and `CANON_JAVA` give the same paths, and a path in the frontmatter wins. `canon alloy:logic --review <unit>` marks a map reviewed, for a unit whose statement a person wrote in a document that keeps no readings.
 
-`canon logic --show <scenario>` prints a world in which a scenario happens, step by step, in the readings of the document. A scenario that can happen shows only that the model allows it, so read its world when the result looks too easy.
+`canon alloy:logic --show <scenario>` prints a world in which a scenario happens, step by step, in the readings of the document. A scenario that can happen shows only that the model allows it, so read its world when the result looks too easy.

@@ -16,7 +16,7 @@ pnpm add -D @bigmistqke/canon
 
 ## Plugins
 
-The command `lint` comes from [`@bigmistqke/canon-plugin-retext`](../canon-plugin-retext), and `logic` from [`@bigmistqke/canon-plugin-alloy`](../canon-plugin-alloy), so `canon` itself depends only on [acorn](https://github.com/acornjs/acorn) and its TypeScript plugin, which read the tests and comments of a suite: `lint` brings the packages that read prose, and `logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
+The command `retext:lint` comes from [`@bigmistqke/canon-plugin-retext`](../canon-plugin-retext), and `alloy:logic` from [`@bigmistqke/canon-plugin-alloy`](../canon-plugin-alloy), so `canon` itself depends only on [acorn](https://github.com/acornjs/acorn) and its TypeScript plugin, which read the tests and comments of a suite: `retext:lint` brings the packages that read prose, and `alloy:logic` needs a Java and the Alloy analyzer. A document chooses its plugins in its frontmatter, a block between two lines of `---` at the very top, and names each by the package that holds it:
 
 ```md
 ---
@@ -35,13 +35,13 @@ import type { Plugin } from '@bigmistqke/canon/plugin';
 export const plugin: Plugin = {
   name: 'example',
   commands: {
-    lint: ({ documents }) => 0, // adds to `canon lint`
-    explain: ({ args }) => 0 // a command of its own: `canon explain`
+    check: ({ documents }) => 0, // adds to `canon check`
+    explain: ({ args }) => 0 // a command of its own: `canon example:explain` from the package `canon-plugin-example`
   }
 };
 ```
 
-A command gets the arguments, the project root, the documents that name the plugin and the plugin's own options, and returns an exit code: 0 when everything holds, 1 when there is a finding, 2 when a check could not run. The same command from several plugins runs them all, and the exit code is the highest. Its entry has to be reachable by `require`, through `main` or an `exports` entry with a `default` condition.
+A command gets the arguments, the project root, the documents that name the plugin and the plugin's own options, and returns an exit code: 0 when everything holds, 1 when there is a finding, 2 when a check could not run. A plugin adds to `check` and `generate` under those names, and the same one from several plugins runs them all, with the highest exit code. Every other command is the plugin's own, under the name of its package: `@bigmistqke/canon-plugin-<name>` adds `<name>:<command>`. Its bare name, `<command>`, runs it too while no other plugin has a command of that name; when two do, the run names both and exits with code 2. Its entry has to be reachable by `require`, through `main` or an `exports` entry with a `default` condition.
 
 The frontmatter reads a small part of YAML, all of it valid YAML: the keys `plugins` and `extends`, with a list of strings, inline (`["a", "b"]`) or as lines that start with a dash. A name that starts with `@` must be quoted. Any other key is an error, so a misspelled key cannot silently drop a check.
 

@@ -15,10 +15,10 @@ plugins: ["@bigmistqke/canon-plugin-pele"]
 # Canon
 ```
 
-`canon graph` prints the graph of the documents that name the plugin as a Mermaid flowchart. `canon graph --svg` prints the SVG that [Pele](https://github.com/obsidianmd/pele) renders from it instead. The SVG carries its own colours for a light and a dark page. It stays readable where a page shows it as an image, as GitHub shows a committed one.
+`canon pele:graph` (or `canon graph` while no other plugin has a command of that name) prints the graph of the documents that name the plugin as a Mermaid flowchart. `canon pele:graph --svg` prints the SVG that [Pele](https://github.com/obsidianmd/pele) renders from it instead. The SVG carries its own colours for a light and a dark page. It stays readable where a page shows it as an image, as GitHub shows a committed one.
 
 ```bash
-pnpm canon graph --svg > GRAPH.svg
+pnpm canon pele:graph --svg > GRAPH.svg
 ```
 
 A unit that a drawn document derives from, in a document the plugin does not run over, ends at a node that names it.

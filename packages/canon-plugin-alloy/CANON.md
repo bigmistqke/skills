@@ -299,7 +299,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     > - at least one of these holds:
     >   - there is a [scenario](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that the scenario cannot happen
     >   - there is a [unit](../canon/CANON.md#term-unit) that is held with units that cannot all hold
-  - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — A run of `logic` exits with code 2 when the Alloy analyzer cannot run.
+  - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — A run of `alloy:logic` exits with code 2 when the Alloy analyzer cannot run.
   - [`@spec the-claims-of-an-extended-document-join-the-model`](#spec-the-claims-of-an-extended-document-join-the-model) —
     > For every [document_1](../canon/CANON.md#term-document), every document_2 and every [unit](../canon/CANON.md#term-unit):
     >
@@ -363,15 +363,15 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     - [`@bug a-signature-that-its-declaration-constrains-is-reported`](#bug-a-signature-that-its-declaration-constrains-is-reported) — The checker reports a formula on a signature that only it names, even when the declaration of the signature lets another formula contradict it.
     - [`@exception a-formula-whose-other-words-can-be-contradicted-is-reported`](#exception-a-formula-whose-other-words-can-be-contradicted-is-reported) — The checker reports a formula that is lone on a signature, even when the other words of the formula let another formula contradict it.
   - [`@spec a-lone-formula-fails-check`](#spec-a-lone-formula-fails-check) — For every [run](../canon/CANON.md#term-run), every [check command](#term-alloy-plugin), every [unit](../canon/CANON.md#term-unit) and every [word](#term-word): when the run asks for the check command and [checker](../canon/CANON.md#term-checker) reports the formula of the unit as lone on the word, the run does not exit with code 0.
-- [`@axiom check-runs-wherever-node-runs`](#axiom-check-runs-wherever-node-runs) — Every check of `canon check` runs with Node alone. Only `canon logic` needs Java and the Alloy analyzer.
+- [`@axiom check-runs-wherever-node-runs`](#axiom-check-runs-wherever-node-runs) — Every check of `canon check` runs with Node alone. Only `canon alloy:logic` needs Java and the Alloy analyzer.
   - [`@spec the-lone-check-reads-text-only`](#spec-the-lone-check-reads-text-only) — The checker finds the formulas that are [lone](#term-lone-formula) on a signature by reading the text of the blocks, without the Alloy analyzer.
 - [`@axiom a-scenario-that-can-happen-can-be-read`](#axiom-a-scenario-that-can-happen-can-be-read) — The author can read a [world](#term-world) in which a scenario happens while every held unit holds, in the words of the canon.
-  - [`@spec show-prints-the-world-of-each-scenario-it-names`](#spec-show-prints-the-world-of-each-scenario-it-names) — `canon logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
-  - [`@spec show-of-a-scenario-that-cannot-happen-prints-no-world`](#spec-show-of-a-scenario-that-cannot-happen-prints-no-world) — `canon logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
-  - [`@spec show-of-a-name-that-is-no-scenario-stops-logic`](#spec-show-of-a-name-that-is-no-scenario-stops-logic) — A run of `logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
+  - [`@spec show-prints-the-world-of-each-scenario-it-names`](#spec-show-prints-the-world-of-each-scenario-it-names) — `canon alloy:logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
+  - [`@spec show-of-a-scenario-that-cannot-happen-prints-no-world`](#spec-show-of-a-scenario-that-cannot-happen-prints-no-world) — `canon alloy:logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
+  - [`@spec show-of-a-name-that-is-no-scenario-stops-logic`](#spec-show-of-a-name-that-is-no-scenario-stops-logic) — A run of `alloy:logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
   - [`@spec show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit`](#spec-show-names-a-scenario-by-its-place-among-the-scenarios-of-its-unit) — `--show scenario-<n>-<unit>` shows the `n`th scenario of the unit in the document, whichever [group](#term-group) the analyzer asks about it in.
-  - [`@spec show-prints-a-world-once-under-the-document-that-holds-its-scenario`](#spec-show-prints-a-world-once-under-the-document-that-holds-its-scenario) — `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
-  - [`@spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands`](#spec-a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands) — When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
+  - [`@spec show-prints-a-world-once-under-the-document-that-holds-its-scenario`](#spec-show-prints-a-world-once-under-the-document-that-holds-its-scenario) — `canon alloy:logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
+  - [`@spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands`](#spec-a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands) — When the analyzer writes no world for a scenario that can happen, `canon alloy:logic --show` says so under the scenario. The report and the exit code stay as they are.
   - [`@spec a-world-is-said-step-by-step`](#spec-a-world-is-said-step-by-step) — The checker says a world as its steps in order, each under `step <n>:`, counted from 0.
     - [`@spec a-tuple-true-at-every-step-is-said-under-throughout`](#spec-a-tuple-true-at-every-step-is-said-under-throughout) — A world says each tuple that is true at every step of its trace once, under `throughout:`, before its first step.
     - [`@spec the-first-step-says-everything-else-that-is-true`](#spec-the-first-step-says-everything-else-that-is-true) — The first step says every tuple that is true at it and not at every step. A first step with no such tuple says `nothing else is true`, or `nothing is true` when the world has no tuple under `throughout:`.
@@ -400,7 +400,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
 
 > The Alloy plugin is the plugin that writes the statements of a document from its formulas and checks its logic with the Alloy analyzer.
 
-A document asks for it in its frontmatter. The commands `generate`, `check` and `logic` have a part in its work.
+A document asks for it in its frontmatter. The commands `generate`, `check` and `alloy:logic` have a part in its work.
 
 ```alloy vocabulary
 one sig GenerateCommand, CheckCommand, LogicCommand in Command {}
@@ -410,7 +410,7 @@ one sig GenerateCommand, CheckCommand, LogicCommand in Command {}
 noun GenerateCommand: [generate command]
 noun CheckCommand: [check command]
 noun LogicCommand: [logic command]
-LogicCommand: {1} is the [command] `logic` | {1} is not the [command] `logic`
+LogicCommand: {1} is the [command] `alloy:logic` | {1} is not the [command] `alloy:logic`
 GenerateCommand: {1} is the [command] `generate` | {1} is not the [command] `generate`
 CheckCommand: {1} is the [command] `check` | {1} is not the [command] `check`
 ```
@@ -1590,7 +1590,7 @@ This follows because the analyzer refuses a scope for a signature it does not kn
 > - no [unit](../canon/CANON.md#term-unit) is held with units that cannot all hold
 <!-- statement-spec-logic-succeeds-when-nothing-is-reported:end -->
 
-A canon that holds together has nothing to fix. So a run of `logic` exits with code 0 when the checker reports no impossible scenario and no held units contradict each other.
+A canon that holds together has nothing to fix. So a run of `alloy:logic` exits with code 0 when the checker reports no impossible scenario and no held units contradict each other.
 
 ```alloy
 all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0
@@ -1608,7 +1608,7 @@ all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised
 >   - there is a [unit](../canon/CANON.md#term-unit) that is held with units that cannot all hold
 <!-- statement-spec-a-reported-scenario-or-contradiction-fails-logic:end -->
 
-A canon that contradicts itself must not pass. So a run of `logic` never exits with code 0 once the checker reports an impossible scenario, or any held units contradict each other.
+A canon that contradicts itself must not pass. So a run of `alloy:logic` never exits with code 0 once the checker reports an impossible scenario, or any held units contradict each other.
 
 ```alloy
 all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0
@@ -1616,7 +1616,7 @@ all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Rai
 
 #### @spec logic-stops-when-the-analyzer-cannot-run
 
-> A run of `logic` exits with code 2 when the Alloy analyzer cannot run.
+> A run of `alloy:logic` exits with code 2 when the Alloy analyzer cannot run.
 
 This follows because a check that did not run found nothing, and the author must not mistake that for a canon that holds together.
 
@@ -1876,7 +1876,7 @@ all r: Run, c: CheckCommand, u: Unit, w: Word | (r->c in Ask.rel and u->w in Exp
 
 ## @axiom check-runs-wherever-node-runs
 
-> Every check of `canon check` runs with Node alone. Only `canon logic` needs Java and the Alloy analyzer.
+> Every check of `canon check` runs with Node alone. Only `canon alloy:logic` needs Java and the Alloy analyzer.
 
 A project runs `canon check` on every change, in its continuous integration too. A check that needs Java and a jar of the analyzer would fail wherever they are missing, or the project would turn it off. So the checks of `check` read text, and the analyzer belongs to `logic`, which a project sets up on purpose.
 
@@ -1898,7 +1898,7 @@ The report cannot tell these apart. Only the world shows which path the analyzer
 
 #### @spec show-prints-the-world-of-each-scenario-it-names
 
-> `canon logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
+> `canon alloy:logic --show <scenario>` prints, after the report, a world in which the named scenario happens while every held unit holds. The author can give `--show` more than once.
 
 This follows because the author asks about the scenarios whose result they doubt, and a world for every scenario would bury them.
 
@@ -1906,13 +1906,13 @@ The author names a scenario by the id of its statement, such as `scenario-1-spec
 
 #### @spec show-of-a-scenario-that-cannot-happen-prints-no-world
 
-> `canon logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
+> `canon alloy:logic --show` of a scenario that cannot happen prints no world, and the report says that the scenario cannot happen.
 
 This follows because no world has the scenario, and the units the report names are where the author looks instead.
 
 #### @spec show-of-a-name-that-is-no-scenario-stops-logic
 
-> A run of `logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
+> A run of `alloy:logic` exits with code 2 and prints no report when `--show` names no scenario that it checks in the documents.
 
 This follows because a misspelt name would otherwise show nothing, and the author would take the silence for an answer.
 
@@ -1924,13 +1924,13 @@ This follows because the author reads the name off the statement of the scenario
 
 #### @spec show-prints-a-world-once-under-the-document-that-holds-its-scenario
 
-> `canon logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
+> `canon alloy:logic --show` prints the world of a scenario once, under the document that holds the scenario, and not under a document that extends it.
 
 This follows because a document that extends another asks about its scenarios again. A second copy of the world would read as a second scenario.
 
 #### @spec a-world-the-analyzer-did-not-write-is-reported-and-the-report-stands
 
-> When the analyzer writes no world for a scenario that can happen, `canon logic --show` says so under the scenario. The report and the exit code stay as they are.
+> When the analyzer writes no world for a scenario that can happen, `canon alloy:logic --show` says so under the scenario. The report and the exit code stay as they are.
 
 This follows because the world is a view that the author asked for. The check ran, and its result does not depend on the view.
 

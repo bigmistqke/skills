@@ -11,16 +11,16 @@ describe('the type of a plugin', () => {
     const plugin: Plugin = {
       name: 'example',
       commands: {
-        lint: () => 0,
+        check: () => 0,
         explain: ({ args }) => args.length
       }
     };
-    expect(Object.keys(plugin.commands)).toEqual(['lint', 'explain']);
+    expect(Object.keys(plugin.commands)).toEqual(['check', 'explain']);
   });
 
   it('refuses a known command that is not a function, and an unknown one that is not either', () => {
     // @ts-expect-error a command is a function
-    const known: Plugin = { name: 'x', commands: { lint: 'no' } };
+    const known: Plugin = { name: 'x', commands: { check: 'no' } };
     // @ts-expect-error a command is a function
     const other: Plugin = { name: 'x', commands: { explain: 1 } };
     expect([known, other]).toHaveLength(2);
