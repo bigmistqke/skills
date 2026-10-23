@@ -467,7 +467,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec a-runner-marker-the-settings-do-not-list-is-refused`](#spec-a-runner-marker-the-settings-do-not-list-is-refused) — A runner marker in a project whose setting `runners` does not list `"@runner"` is one the checker cannot read. The checker says to add `"@runner"` to the setting.
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
   - [`@spec a-check-with-no-runner-says-it-reads-no-test`](#spec-a-check-with-no-runner-says-it-reads-no-test) — When the project has no runner, the report of `check` says that it reads no tests.
-- [`@axiom the-document-holds-the-canon-the-commands-handle-it`](#axiom-the-document-holds-the-canon-the-commands-handle-it) — The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
+- [`@axiom the-document-holds-the-canon-the-commands-handle-it`](#axiom-the-document-holds-the-canon-the-commands-handle-it) — The documents store the canon. People and sessions read it and change it by its units, through the commands of the checker. So no one has to handle a document by its text.
   - [`@spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it`](#spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it) — `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it. A part named on the command line changes this.
     - [`@spec show-prints-the-own-text-of-a-unit-with-where-it-starts`](#spec-show-prints-the-own-text-of-a-unit-with-where-it-starts) — `show` prints the heading and the [own text](#term-own-text) of a unit, after the document and the line where the unit starts.
     - [`@spec show-lists-the-units-a-unit-sits-in-up-to-its-root`](#spec-show-lists-the-units-a-unit-sits-in-up-to-its-root) — `show` lists the unit that a unit sits in, the unit that one sits in, and so on up to a unit that sits in none.
@@ -3957,11 +3957,13 @@ This follows because a clean check means the canon holds, and in a project with 
 
 ## @axiom the-document-holds-the-canon-the-commands-handle-it
 
-> The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
+> The documents store the canon. People and sessions read it and change it by its units, through the commands of the checker. So no one has to handle a document by its text.
 
-A person reasons in a document, and its structure makes it a canon. A unit [sits in](#term-sit) the unit whose heading holds its heading. It [derives from](#term-derive) the units its "Derives from:" line names. A [test](#term-test) in another file [checks](#term-check) it through a [tag](#term-tag). The lines of the unit show none of that.
+The canon is a structure, and a document is the form it is stored in. A unit [sits in](#term-sit) the unit whose heading holds its heading. It [derives from](#term-derive) the units its "Derives from:" line names. A [test](#term-test) in another file [checks](#term-check) it through a [tag](#term-tag). The lines of the unit show none of that.
 
-A reader who searches a document for a heading gets the text of a unit. The reader misses what the unit follows from, what follows from it and what tests it. A writer who edits the text can break the nesting or the index unseen. The checker reads the structure for `check`, so it hands it to the reader and the writer too.
+A reader who searches a document for a heading gets the text of a unit. The reader misses what the unit follows from, what follows from it and what tests it. A writer who edits the text can break the nesting, the index or a generated region unseen. The checker reads the structure for `check`, so its commands hand that structure to the reader and the writer too.
+
+So the commands are the way a person or a session works with the canon, and the document is what that work leaves behind.
 
 ### @spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it
 
