@@ -123,31 +123,27 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
   - [`@spec generate-fails-on-an-unsayable-formula-and-says-why`](#spec-generate-fails-on-an-unsayable-formula-and-says-why) — For every [run](../canon/CANON.md#term-run), every [generate command](#term-alloy-plugin) and every [unit](../canon/CANON.md#term-unit): when the run asks for the generate command and the formula of the unit cannot be said in words, [checker](../canon/CANON.md#term-checker) says why the formula of the unit cannot be said and the run does not exit with code 0.
   - [`@spec the-prose-check-does-not-read-a-generated-statement`](#spec-the-prose-check-does-not-read-a-generated-statement) — The prose check does not read a [generated statement](#term-generated-statement).
   - [`@spec a-word-that-a-reading-says-and-nothing-declares-is-undeclared`](#spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared) —
-    > For every [word_1](#term-word):
+    > When all of these hold:
+    > - there is a [unit_1](../canon/CANON.md#term-unit) such that a reading in unit_1 says a [word](#term-word)
+    > - no unit declares the word
     >
-    > when all of these hold:
-    > - there is a [unit_1](../canon/CANON.md#term-unit) such that a reading in unit_1 says word_1
-    > - no unit declares word_1
-    >
-    > then word_1 is a word that a reading says and nothing declares.
-  - [`@spec a-word-declared-outside-a-term-is-misplaced`](#spec-a-word-declared-outside-a-term-is-misplaced) — For every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word): when unit_1 declares word_1 and is not a [term](../canon/CANON.md#term-term), word_1 is a word declared in a unit that is not a term.
+    > then the word is said by a reading and declared by nothing.
+  - [`@spec a-word-declared-outside-a-term-is-misplaced`](#spec-a-word-declared-outside-a-term-is-misplaced) — For every [unit_1](../canon/CANON.md#term-unit) and every [word](#term-word): when unit_1 declares the word and is not a [term](../canon/CANON.md#term-term), the word is declared in a unit that is not a term.
   - [`@spec a-reading-apart-from-the-declaration-it-says-is-apart`](#spec-a-reading-apart-from-the-declaration-it-says-is-apart) —
-    > For every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word):
+    > For every [unit_1](../canon/CANON.md#term-unit) and every [word](#term-word):
     >
     > when all of these hold:
-    > - a reading in unit_1 says word_1
-    > - a unit declares word_1
-    > - unit_1 does not declare word_1
+    > - a reading in unit_1 says the word
+    > - a unit declares the word
+    > - unit_1 does not declare the word
     >
-    > then word_1 is a word whose reading is in another unit than its declaration.
+    > then the reading of the word is in another unit than its declaration.
   - [`@spec a-declared-word-that-no-claim-uses-is-unused`](#spec-a-declared-word-that-no-claim-uses-is-unused) —
-    > For every [word_1](#term-word):
+    > When all of these hold:
+    > - a [unit](../canon/CANON.md#term-unit) declares a [word](#term-word)
+    > - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses the word
     >
-    > when all of these hold:
-    > - a [unit](../canon/CANON.md#term-unit) declares word_1
-    > - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1
-    >
-    > then word_1 is a word that no claim, definition or fact uses.
+    > then no claim, definition or fact uses the word.
   - [`@spec a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used`](#spec-a-word-that-a-fact-a-parent-signature-or-a-predicate-names-is-used) — A word that a fact, a parent signature or a predicate names counts as used.
   - [`@spec a-word-that-a-scenario-names-is-used`](#spec-a-word-that-a-scenario-names-is-used) — A word that a [scenario](#term-scenario) names counts as used.
   - [`@spec a-field-that-another-signature-shares-is-used-only-through-its-own-signature`](#spec-a-field-that-another-signature-shares-is-used-only-through-its-own-signature) — When two signatures give a field the same name, a unit uses the field only through its own signature.
@@ -165,10 +161,10 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     > - there is a [unit_1](../canon/CANON.md#term-unit) such that a claim, a definition or a fact of unit_1 uses word_1
     >
     > then all of these hold:
-    > - word_1 is not a word that a reading says and nothing declares
-    > - word_1 is not a word declared in a unit that is not a term
-    > - word_1 is not a word whose reading is in another unit than its declaration
-    > - word_1 is not a word that no claim, definition or fact uses
+    > - word_1 is said by no reading or is declared
+    > - word_1 is not declared in a unit that is not a term
+    > - the reading of word_1 is in the unit of its declaration
+    > - a claim, a definition or a fact uses word_1
     > - [checker](../canon/CANON.md#term-checker) does not report the word word_1
   - [`@spec a-document-that-keeps-no-readings-has-no-word-reported`](#spec-a-document-that-keeps-no-readings-has-no-word-reported) —
     > For every [document](../canon/CANON.md#term-document), every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word):
@@ -176,10 +172,10 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     > when the document keeps no readings, [holds](../canon/CANON.md#term-hold) unit_1 and unit_1 declares word_1,
     >
     > then all of these hold:
-    > - word_1 is not a word that a reading says and nothing declares
-    > - word_1 is not a word declared in a unit that is not a term
-    > - word_1 is not a word whose reading is in another unit than its declaration
-    > - word_1 is not a word that no claim, definition or fact uses
+    > - word_1 is said by no reading or is declared
+    > - word_1 is not declared in a unit that is not a term
+    > - the reading of word_1 is in the unit of its declaration
+    > - a claim, a definition or a fact uses word_1
     > - [checker](../canon/CANON.md#term-checker) does not report the word word_1
   - [`@spec a-signature-a-field-and-a-predicate-are-declared-words`](#spec-a-signature-a-field-and-a-predicate-are-declared-words) — A unit declares each signature, field and predicate that a model block of it writes.
   - [`@spec a-declaration-in-a-comment-declares-nothing`](#spec-a-declaration-in-a-comment-declares-nothing) — A declaration that only a comment writes declares no [word](#term-word).
@@ -189,20 +185,20 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     > For every [word_1](#term-word):
     >
     > when all of these hold:
-    > - word_1 is not a word that a reading says and nothing declares
-    > - word_1 is not a word declared in a unit that is not a term
-    > - word_1 is not a word whose reading is in another unit than its declaration
-    > - word_1 is not a word that no claim, definition or fact uses
+    > - word_1 is said by no reading or is declared
+    > - word_1 is not declared in a unit that is not a term
+    > - the reading of word_1 is in the unit of its declaration
+    > - a claim, a definition or a fact uses word_1
     >
     > then [checker](../canon/CANON.md#term-checker) does not report the word word_1.
   - [`@spec check-reports-a-word-that-is-not-in-order`](#spec-check-reports-a-word-that-is-not-in-order) —
     > For every [word_1](#term-word):
     >
     > when at least one of these holds:
-    > - word_1 is a word that a reading says and nothing declares
-    > - word_1 is a word declared in a unit that is not a term
-    > - word_1 is a word whose reading is in another unit than its declaration
-    > - word_1 is a word that no claim, definition or fact uses
+    > - word_1 is said by a reading and declared by nothing
+    > - word_1 is declared in a unit that is not a term
+    > - the reading of word_1 is in another unit than its declaration
+    > - no claim, definition or fact uses word_1
     >
     > then [checker](../canon/CANON.md#term-checker) reports the word word_1.
   - [`@spec a-scenario-gets-a-statement-that-says-it-must-be-possible`](#spec-a-scenario-gets-a-statement-that-says-it-must-be-possible) — When the checker can say the formula of a [scenario](#term-scenario), its statement opens with "It must be possible that:".
@@ -224,16 +220,16 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     >
     > then [checker](../canon/CANON.md#term-checker) does not write the [statement](#term-generated-statement) of the unit when it generates.
   - [`@spec a-word-declared-in-an-extended-document-is-declared`](#spec-a-word-declared-in-an-extended-document-is-declared) —
-    > For every [document_1](../canon/CANON.md#term-document), every document_2, every [unit_1](../canon/CANON.md#term-unit), every unit_2 and every [word_1](#term-word):
+    > For every [document_1](../canon/CANON.md#term-document), every document_2, every [unit_1](../canon/CANON.md#term-unit), every unit_2 and every [word](#term-word):
     >
     > when all of these hold:
     > - document_2 is [context](../canon/CANON.md#term-extension) for document_1
     > - document_1 [holds](../canon/CANON.md#term-hold) unit_1
-    > - a reading in unit_1 says word_1
+    > - a reading in unit_1 says the word
     > - document_2 holds unit_2
-    > - unit_2 declares word_1
+    > - unit_2 declares the word
     >
-    > then word_1 is not a word that a reading says and nothing declares.
+    > then the word is said by no reading or is declared.
 - [`@axiom the-claims-of-a-canon-never-contradict-each-other`](#axiom-the-claims-of-a-canon-never-contradict-each-other) —
   > All of these hold:
   > - for every [unit_1](../canon/CANON.md#term-unit):
@@ -522,10 +518,10 @@ noun Signature: signature
 Signature: {1} is a signature | {1} is not a signature
 Field: {1} is a field of a signature | {1} is not a field of a signature
 Predicate: {1} is a predicate | {1} is not a predicate
-Undeclared: {1} is a [word] that a reading says and nothing declares | {1} is not a [word] that a reading says and nothing declares
-Misplaced: {1} is a [word] declared in a unit that is not a term | {1} is not a [word] declared in a unit that is not a term
-Apart: {1} is a [word] whose reading is in another unit than its declaration | {1} is not a [word] whose reading is in another unit than its declaration
-Unused: {1} is a [word] that no claim, definition or fact uses | {1} is not a [word] that no claim, definition or fact uses
+Undeclared: {1} is said by a reading and declared by nothing | {1} is said by no reading or is declared
+Misplaced: {1} is declared in a unit that is not a term | {1} is not declared in a unit that is not a term
+Apart: the reading of {1} is in another unit than its declaration | the reading of {1} is in the unit of its declaration
+Unused: no claim, definition or fact uses {1} | a claim, a definition or a fact uses {1}
 Flagged: [checker](../canon/CANON.md#term-checker) reports the [word] {1} | [checker](../canon/CANON.md#term-checker) does not report the [word] {1}
 Introduce.rel: {1} declares {2} | {1} does not declare {2}
 Voice.rel: a reading in {1} says {2} | no reading in {1} says {2}
@@ -1035,13 +1031,11 @@ This follows because the words of a generated statement are the words of the rea
 #### @spec a-word-that-a-reading-says-and-nothing-declares-is-undeclared
 
 <!-- statement-spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared:begin — generated by `canon generate`; edits are overwritten -->
-> For every [word_1](#term-word):
+> When all of these hold:
+> - there is a [unit_1](../canon/CANON.md#term-unit) such that a reading in unit_1 says a [word](#term-word)
+> - no unit declares the word
 >
-> when all of these hold:
-> - there is a [unit_1](../canon/CANON.md#term-unit) such that a reading in unit_1 says word_1
-> - no unit declares word_1
->
-> then word_1 is a word that a reading says and nothing declares.
+> then the word is said by a reading and declared by nothing.
 <!-- statement-spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared:end -->
 
 A reading gives English to a word of the logic, so the word has to exist there first. When a reading says a word that no unit declares, it speaks about nothing, and that word is undeclared.
@@ -1053,9 +1047,9 @@ all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Intr
 #### @spec a-word-declared-outside-a-term-is-misplaced
 
 <!-- statement-spec-a-word-declared-outside-a-term-is-misplaced:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word):
+> For every [unit_1](../canon/CANON.md#term-unit) and every [word](#term-word):
 >
-> when unit_1 declares word_1 and is not a [term](../canon/CANON.md#term-term), word_1 is a word declared in a unit that is not a term.
+> when unit_1 declares the word and is not a [term](../canon/CANON.md#term-term), the word is declared in a unit that is not a term.
 <!-- statement-spec-a-word-declared-outside-a-term-is-misplaced:end -->
 
 A reader looks up a word in the term that names it, with its reading beside it. A word declared in any other kind of unit is not where the reader will look, so it is misplaced.
@@ -1067,14 +1061,14 @@ all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Mi
 #### @spec a-reading-apart-from-the-declaration-it-says-is-apart
 
 <!-- statement-spec-a-reading-apart-from-the-declaration-it-says-is-apart:begin — generated by `canon generate`; edits are overwritten -->
-> For every [unit_1](../canon/CANON.md#term-unit) and every [word_1](#term-word):
+> For every [unit_1](../canon/CANON.md#term-unit) and every [word](#term-word):
 >
 > when all of these hold:
-> - a reading in unit_1 says word_1
-> - a unit declares word_1
-> - unit_1 does not declare word_1
+> - a reading in unit_1 says the word
+> - a unit declares the word
+> - unit_1 does not declare the word
 >
-> then word_1 is a word whose reading is in another unit than its declaration.
+> then the reading of the word is in another unit than its declaration.
 <!-- statement-spec-a-reading-apart-from-the-declaration-it-says-is-apart:end -->
 
 A reading and its declaration belong together, so a reader finds both in one unit. When a unit declares a word but a reading in another unit says it, the word is apart.
@@ -1086,13 +1080,11 @@ all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.
 #### @spec a-declared-word-that-no-claim-uses-is-unused
 
 <!-- statement-spec-a-declared-word-that-no-claim-uses-is-unused:begin — generated by `canon generate`; edits are overwritten -->
-> For every [word_1](#term-word):
+> When all of these hold:
+> - a [unit](../canon/CANON.md#term-unit) declares a [word](#term-word)
+> - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses the word
 >
-> when all of these hold:
-> - a [unit](../canon/CANON.md#term-unit) declares word_1
-> - there is no unit_1 such that a claim, a definition or a fact of unit_1 uses word_1
->
-> then word_1 is a word that no claim, definition or fact uses.
+> then no claim, definition or fact uses the word.
 <!-- statement-spec-a-declared-word-that-no-claim-uses-is-unused:end -->
 
 A word is declared so that claims, definitions and facts can use it. A declared word that none of them uses adds nothing to the model, and no statement will ever say it, so it is unused.
@@ -1160,10 +1152,10 @@ This follows because a declaration makes the field and says nothing of it, so no
 > - there is a [unit_1](../canon/CANON.md#term-unit) such that a claim, a definition or a fact of unit_1 uses word_1
 >
 > then all of these hold:
-> - word_1 is not a word that a reading says and nothing declares
-> - word_1 is not a word declared in a unit that is not a term
-> - word_1 is not a word whose reading is in another unit than its declaration
-> - word_1 is not a word that no claim, definition or fact uses
+> - word_1 is said by no reading or is declared
+> - word_1 is not declared in a unit that is not a term
+> - the reading of word_1 is in the unit of its declaration
+> - a claim, a definition or a fact uses word_1
 > - [checker](../canon/CANON.md#term-checker) does not report the word word_1
 <!-- statement-spec-a-word-declared-in-a-term-said-beside-it-and-used-is-not-reported:end -->
 
@@ -1181,10 +1173,10 @@ all u: Term, w: Word | (u->w in Introduce.rel and u->w in Voice.rel and (some v:
 > when the document keeps no readings, [holds](../canon/CANON.md#term-hold) unit_1 and unit_1 declares word_1,
 >
 > then all of these hold:
-> - word_1 is not a word that a reading says and nothing declares
-> - word_1 is not a word declared in a unit that is not a term
-> - word_1 is not a word whose reading is in another unit than its declaration
-> - word_1 is not a word that no claim, definition or fact uses
+> - word_1 is said by no reading or is declared
+> - word_1 is not declared in a unit that is not a term
+> - the reading of word_1 is in the unit of its declaration
+> - a claim, a definition or a fact uses word_1
 > - [checker](../canon/CANON.md#term-checker) does not report the word word_1
 <!-- statement-spec-a-document-that-keeps-no-readings-has-no-word-reported:end -->
 
@@ -1232,10 +1224,10 @@ all r: Run, c: CheckCommand, w: Word | (r->c in Ask.rel and w in Flagged) implie
 > For every [word_1](#term-word):
 >
 > when all of these hold:
-> - word_1 is not a word that a reading says and nothing declares
-> - word_1 is not a word declared in a unit that is not a term
-> - word_1 is not a word whose reading is in another unit than its declaration
-> - word_1 is not a word that no claim, definition or fact uses
+> - word_1 is said by no reading or is declared
+> - word_1 is not declared in a unit that is not a term
+> - the reading of word_1 is in the unit of its declaration
+> - a claim, a definition or a fact uses word_1
 >
 > then [checker](../canon/CANON.md#term-checker) does not report the word word_1.
 <!-- statement-spec-check-reports-nothing-about-a-word-that-is-in-order:end -->
@@ -1252,10 +1244,10 @@ all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and
 > For every [word_1](#term-word):
 >
 > when at least one of these holds:
-> - word_1 is a word that a reading says and nothing declares
-> - word_1 is a word declared in a unit that is not a term
-> - word_1 is a word whose reading is in another unit than its declaration
-> - word_1 is a word that no claim, definition or fact uses
+> - word_1 is said by a reading and declared by nothing
+> - word_1 is declared in a unit that is not a term
+> - the reading of word_1 is in another unit than its declaration
+> - no claim, definition or fact uses word_1
 >
 > then [checker](../canon/CANON.md#term-checker) reports the word word_1.
 <!-- statement-spec-check-reports-a-word-that-is-not-in-order:end -->
@@ -1337,16 +1329,16 @@ all d: Document, e: Document, u: Unit | (d in Checked and e not in Checked and d
 #### @spec a-word-declared-in-an-extended-document-is-declared
 
 <!-- statement-spec-a-word-declared-in-an-extended-document-is-declared:begin — generated by `canon generate`; edits are overwritten -->
-> For every [document_1](../canon/CANON.md#term-document), every document_2, every [unit_1](../canon/CANON.md#term-unit), every unit_2 and every [word_1](#term-word):
+> For every [document_1](../canon/CANON.md#term-document), every document_2, every [unit_1](../canon/CANON.md#term-unit), every unit_2 and every [word](#term-word):
 >
 > when all of these hold:
 > - document_2 is [context](../canon/CANON.md#term-extension) for document_1
 > - document_1 [holds](../canon/CANON.md#term-hold) unit_1
-> - a reading in unit_1 says word_1
+> - a reading in unit_1 says the word
 > - document_2 holds unit_2
-> - unit_2 declares word_1
+> - unit_2 declares the word
 >
-> then word_1 is not a word that a reading says and nothing declares.
+> then the word is said by no reading or is declared.
 <!-- statement-spec-a-word-declared-in-an-extended-document-is-declared:end -->
 
 The checker reads a document together with its context: the documents it extends, and the ones those extend in turn. So a declaration anywhere in the context covers a word that a reading in the document says, and that word does not count as undeclared.

@@ -147,13 +147,11 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
   > - the run asks for a [command](#term-command) that the plugin adds
   > - the plugin [applies](#term-apply) to a [document](#term-document)
 - [`@term availability`](#term-availability) —
-  > For every [command_1](#term-command):
-  >
-  > command_1 is available exactly when at least one of these holds:
-  > - command_1 is a command that the [checker](#term-checker) has of its own
+  > A [command](#term-command) is available exactly when at least one of these holds:
+  > - the [checker](#term-checker) has the command of its own
   > - for some [installed plugin](#term-plugin) and some [document](#term-document):
   >
-  >   the installed plugin [applies](#term-apply) to the document and adds command_1.
+  >   the installed plugin [applies](#term-apply) to the document and adds the command.
 - [`@term heading`](#term-heading) — A heading is a line of a document that starts with hashes and opens a part of it.
 - [`@term extent`](#term-extent) — The extent of a unit is the part of the document from its heading up to the next heading of its level or above.
 - [`@term own-text`](#term-own-text) — The own text of a unit is the text between its heading and its first nested heading.
@@ -271,26 +269,12 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text`](#spec-the-statement-of-a-unit-is-the-blockquote-that-opens-its-own-text) — A unit whose own text opens with a blockquote has that blockquote as its statement.
     - [`@spec every-line-of-the-blockquote-is-part-of-the-statement`](#spec-every-line-of-the-blockquote-is-part-of-the-statement) — The [statement](#term-statement) of a unit holds every line of its blockquote, joined by a space unless the blockquote holds a list.
     - [`@spec a-statement-with-a-list-keeps-its-lines`](#spec-a-statement-with-a-list-keeps-its-lines) — A statement whose blockquote holds a list keeps the lines of the blockquote, and the index shows them under its entry.
-    - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) —
-      > For every [fence_1](#term-fence) and every [unit](#term-unit):
-      >
-      > when all of these hold:
-      > - fence_1 is a fence that names a language
-      > - fence_1 lies in the own text of the unit
-      >
-      > then [checker](#term-checker) reads fence_1 as a block of the unit.
-    - [`@spec a-fence-with-no-language-is-prose`](#spec-a-fence-with-no-language-is-prose) — For every [fence_1](#term-fence): when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
+    - [`@spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it`](#spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it) — For every [fence](#term-fence) and every [unit](#term-unit): when the fence names a language and lies in the own text of the unit, [checker](#term-checker) reads the fence as a block of the unit.
+    - [`@spec a-fence-with-no-language-is-prose`](#spec-a-fence-with-no-language-is-prose) — When a [fence](#term-fence) names no language, [checker](#term-checker) reads the fence as a block of no [unit](#term-unit).
     - [`@spec a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary`](#spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary) — When the second word of a [fence](#term-fence) is vocabulary, the fence has the role of vocabulary.
     - [`@spec a-block-whose-second-word-is-bounds-has-the-role-of-bounds`](#spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds) — When the second word of a [fence](#term-fence) is bounds, the fence has the role of bounds.
     - [`@spec a-block-whose-second-word-is-scenario-has-the-role-of-scenario`](#spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario) — When the second word of a [fence](#term-fence) is scenario, the fence has the role of scenario.
-    - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) —
-      > For every [fence_1](#term-fence):
-      >
-      > when all of these hold:
-      > - fence_1 is a fence that names a language
-      > - fence_1 has no second word that names a role
-      >
-      > then fence_1 has the role of the formula of its unit.
+    - [`@spec a-block-with-no-role-word-is-the-formula-of-its-unit`](#spec-a-block-with-no-role-word-is-the-formula-of-its-unit) — When a [fence](#term-fence) names a language and has no second word that names a role, the fence has the role of the formula of its unit.
     - [`@spec the-body-of-a-block-is-the-lines-between-its-fences`](#spec-the-body-of-a-block-is-the-lines-between-its-fences) — The checker reads the body of a fence that names a language as the lines between its fences.
     - [`@spec the-offset-of-a-block-is-where-its-body-starts-in-the-document`](#spec-the-offset-of-a-block-is-where-its-body-starts-in-the-document) — The checker says where the body of a fence that names a language starts in the document.
     - [`@spec a-nested-units-block-is-its-own`](#spec-a-nested-units-block-is-its-own) —
@@ -375,32 +359,30 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
       - [`@spec an-inline-list-holds-the-entries-between-its-brackets`](#spec-an-inline-list-holds-the-entries-between-its-brackets) — A list written between brackets holds each entry between its brackets.
       - [`@spec a-dashed-list-holds-the-entries-after-its-dashes`](#spec-a-dashed-list-holds-the-entries-after-its-dashes) — A list written as lines holds the entry after each of its dashes.
       - [`@spec a-comma-inside-quotes-ends-no-entry`](#spec-a-comma-inside-quotes-ends-no-entry) — A comma inside quotes does not end an entry.
-      - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — For every [frontmatter_1](#term-frontmatter): when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
+      - [`@spec a-frontmatter-with-no-plugins-key-holds-no-entry`](#spec-a-frontmatter-with-no-plugins-key-holds-no-entry) — When a [frontmatter](#term-frontmatter) has no plugins key, the frontmatter holds no [entry](#term-entry).
     - [`@spec only-a-block-at-the-top-is-a-frontmatter`](#spec-only-a-block-at-the-top-is-a-frontmatter) — Only a block that starts its document is a frontmatter.
     - [`@spec a-flawed-frontmatter-is-refused`](#spec-a-flawed-frontmatter-is-refused) —
-      > For every [frontmatter_1](#term-frontmatter):
+      > When at least one of these holds:
+      > - a [frontmatter](#term-frontmatter) has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
+      > - the frontmatter has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that the frontmatter lists defines
+      > - the frontmatter has the flaw of a list that is not closed
+      > - the frontmatter has the flaw of a string that is not closed
+      > - the frontmatter has the flaw of a key that appears twice
+      > - the frontmatter has the flaw of a path that names no document
+      > - the frontmatter has the flaw of an extension that leads back to its own document
+      > - the frontmatter has the flaw of a setting in a document that is not the entry document
       >
-      > when at least one of these holds:
-      > - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
-      > - frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines
-      > - frontmatter_1 has the flaw of a list that is not closed
-      > - frontmatter_1 has the flaw of a string that is not closed
-      > - frontmatter_1 has the flaw of a key that appears twice
-      > - frontmatter_1 has the flaw of a path that names no document
-      > - frontmatter_1 has the flaw of an extension that leads back to its own document
-      > - frontmatter_1 has the flaw of a setting in a document that is not the entry document
-      >
-      > then frontmatter_1 is a frontmatter that the checker cannot read.
-      - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted frontmatter](#term-flaw): the misquoted frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+      > then the checker cannot read the frontmatter.
+      - [`@spec a-misquoted-entry-is-refused`](#spec-a-misquoted-entry-is-refused) — For every [misquoted frontmatter](#term-flaw): the [checker](#term-checker) cannot read the misquoted frontmatter.
       - [`@spec the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes`](#spec-the-refusal-of-a-misquoted-entry-says-to-write-it-in-quotes) — When the checker refuses a misquoted entry, it tells the author to write the name in quotes.
-      - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign frontmatter](#term-flaw): the foreign frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed frontmatter](#term-flaw): the unclosed frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated frontmatter](#term-flaw): the unterminated frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled frontmatter](#term-flaw): the doubled frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+      - [`@spec a-key-the-checker-does-not-know-is-refused`](#spec-a-key-the-checker-does-not-know-is-refused) — For every [foreign frontmatter](#term-flaw): the [checker](#term-checker) cannot read the foreign frontmatter.
+      - [`@spec a-list-that-is-not-closed-is-refused`](#spec-a-list-that-is-not-closed-is-refused) — For every [unclosed frontmatter](#term-flaw): the [checker](#term-checker) cannot read the unclosed frontmatter.
+      - [`@spec a-string-that-is-not-closed-is-refused`](#spec-a-string-that-is-not-closed-is-refused) — For every [unterminated frontmatter](#term-flaw): the [checker](#term-checker) cannot read the unterminated frontmatter.
+      - [`@spec a-key-written-twice-is-refused`](#spec-a-key-written-twice-is-refused) — For every [doubled frontmatter](#term-flaw): the [checker](#term-checker) cannot read the doubled frontmatter.
       - [`@spec a-runner-the-checker-does-not-know-is-refused`](#spec-a-runner-the-checker-does-not-know-is-refused) — A frontmatter is one the checker cannot read when `runners` names neither a preset nor `"@runner"`, or holds a map with a key other than `calls`, `modifiers`, `fails`, `from` and `globals`.
-      - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling frontmatter](#term-flaw): the dangling frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular frontmatter](#term-flaw): the circular frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
-      - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray frontmatter](#term-setting): the stray frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+      - [`@spec a-path-that-names-no-document-is-refused`](#spec-a-path-that-names-no-document-is-refused) — For every [dangling frontmatter](#term-flaw): the [checker](#term-checker) cannot read the dangling frontmatter.
+      - [`@spec an-extension-that-leads-back-is-refused`](#spec-an-extension-that-leads-back-is-refused) — For every [circular frontmatter](#term-flaw): the [checker](#term-checker) cannot read the circular frontmatter.
+      - [`@spec a-setting-outside-the-entry-document-is-refused`](#spec-a-setting-outside-the-entry-document-is-refused) — For every [stray frontmatter](#term-setting): the [checker](#term-checker) cannot read the stray frontmatter.
     - [`@spec a-run-takes-its-settings-from-its-entry-document`](#spec-a-run-takes-its-settings-from-its-entry-document) — A [run](#term-run) takes each [setting](#term-setting) that the frontmatter of the document it [enters](#term-enter) sets.
     - [`@spec a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document`](#spec-a-path-of-a-setting-is-read-from-the-folder-of-the-entry-document) — The checker reads a path that a setting names from the folder of the entry document.
     - [`@spec a-key-that-a-listed-plugin-defines-is-known`](#spec-a-key-that-a-listed-plugin-defines-is-known) — The checker does not refuse a key that a plugin in the list of the frontmatter defines.
@@ -1728,9 +1710,9 @@ fact plugin_kinds { Plugin = Installed + Missing and no Installed & Missing }
 ```readings
 noun Plugin: [plugin]
 noun Installed: [installed plugin]
-Installed: {1} is a [plugin] that the project has installed | {1} is not a [plugin] that the project has installed
+Installed: the project has installed {1} | the project has not installed {1}
 noun Missing: [missing plugin]
-Missing: {1} is a [plugin] that the project lacks | {1} is not a [plugin] that the project lacks
+Missing: the project lacks {1} | the project does not lack {1}
 Unfound: [checker](#term-checker) reports that the project lacks {1} | [checker](#term-checker) does not report that the project lacks {1}
 ```
 
@@ -1748,7 +1730,7 @@ one sig Add { rel: Plugin -> Command }
 
 ```readings
 noun Command: [command]
-Core: {1} is a [command] that the [checker](#term-checker) has of its own | {1} is not a [command] that the [checker](#term-checker) has of its own
+Core: the [checker](#term-checker) has {1} of its own | the [checker](#term-checker) does not have {1} of its own
 Unknown: [checker](#term-checker) reports {1} as an unknown [command] | [checker](#term-checker) does not report {1} as an unknown [command]
 Add.rel: {1} adds {2} | {1} does not add {2}
 ```
@@ -1773,9 +1755,9 @@ noun Block: [block]
 noun Frontmatter: [frontmatter]
 Frontmatter: {1} is a [frontmatter] | {1} is not a [frontmatter]
 noun Listing: [listing frontmatter]
-Listing: {1} is a [frontmatter] with a plugins key | {1} is not a [frontmatter] with a plugins key
+Listing: {1} has a plugins key | {1} has no plugins key
 noun Refused: [refused frontmatter]
-Refused: {1} is a [frontmatter] that the [checker](#term-checker) cannot read | {1} is not a [frontmatter] that the [checker](#term-checker) cannot read
+Refused: the [checker](#term-checker) cannot read {1} | the [checker](#term-checker) can read {1}
 Unreadable: [checker](#term-checker) reports that {1} has a [frontmatter] it cannot read | [checker](#term-checker) does not report that {1} has a [frontmatter] it cannot read
 Head.rel: {1} starts with {2} | {1} does not start with {2}
 Bare.rel: {1} is {2} without its [frontmatter] | {1} is not {2} without its [frontmatter]
@@ -1993,13 +1975,11 @@ calls: {1} [calls] {2} | {1} does not [call] {2}
 ### @term availability
 
 <!-- statement-term-availability:begin — generated by `canon generate`; edits are overwritten -->
-> For every [command_1](#term-command):
->
-> command_1 is available exactly when at least one of these holds:
-> - command_1 is a command that the [checker](#term-checker) has of its own
+> A [command](#term-command) is available exactly when at least one of these holds:
+> - the [checker](#term-checker) has the command of its own
 > - for some [installed plugin](#term-plugin) and some [document](#term-document):
 >
->   the installed plugin [applies](#term-apply) to the document and adds command_1.
+>   the installed plugin [applies](#term-apply) to the document and adds the command.
 <!-- statement-term-availability:end -->
 
 A command is available when something can carry it out. The checker's own commands always are. A plugin's command is available only when the project has installed the plugin and some document lists it.
@@ -2049,7 +2029,7 @@ one sig Blocks { rel: Unit -> Fence }
 
 ```readings
 noun Fence: [fence]
-Languaged: {1} is a [fence] that names a language | {1} is a [fence] that names no language
+Languaged: {1} names a language | {1} names no language
 VocabularyWord: the second word of {1} is vocabulary | the second word of {1} is not vocabulary
 BoundsWord: the second word of {1} is bounds | the second word of {1} is not bounds
 ScenarioWord: the second word of {1} is scenario | the second word of {1} is not scenario
@@ -2895,13 +2875,9 @@ This follows because the indentation of a list says where each item ends, and wh
 #### @spec a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it
 
 <!-- statement-spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence_1](#term-fence) and every [unit](#term-unit):
+> For every [fence](#term-fence) and every [unit](#term-unit):
 >
-> when all of these hold:
-> - fence_1 is a fence that names a language
-> - fence_1 lies in the own text of the unit
->
-> then [checker](#term-checker) reads fence_1 as a block of the unit.
+> when the fence names a language and lies in the own text of the unit, [checker](#term-checker) reads the fence as a block of the unit.
 <!-- statement-spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it:end -->
 
 A unit carries its logic in its own text. The checker reads any fence there that names a language, such as alloy, as a block of that unit.
@@ -2913,9 +2889,7 @@ all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in 
 #### @spec a-fence-with-no-language-is-prose
 
 <!-- statement-spec-a-fence-with-no-language-is-prose:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence_1](#term-fence):
->
-> when fence_1 is a fence that names no language, [checker](#term-checker) reads fence_1 as a block of no [unit](#term-unit).
+> When a [fence](#term-fence) names no language, [checker](#term-checker) reads the fence as a block of no [unit](#term-unit).
 <!-- statement-spec-a-fence-with-no-language-is-prose:end -->
 
 A fence that names no language just shows text, like a sample of output. No backend could check it, so the checker never reads it as a block of any unit. To the checker it is prose.
@@ -2963,13 +2937,7 @@ all f: Fence | f in ScenarioWord implies f in ScenarioBlock
 #### @spec a-block-with-no-role-word-is-the-formula-of-its-unit
 
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [fence_1](#term-fence):
->
-> when all of these hold:
-> - fence_1 is a fence that names a language
-> - fence_1 has no second word that names a role
->
-> then fence_1 has the role of the formula of its unit.
+> When a [fence](#term-fence) names a language and has no second word that names a role, the fence has the role of the formula of its unit.
 <!-- statement-spec-a-block-with-no-role-word-is-the-formula-of-its-unit:end -->
 
 Most blocks are the formula of their unit, so the common case needs no word. A block that names a language and no role is the unit's formula.
@@ -3495,9 +3463,7 @@ This follows because a name in quotes is one string, whatever it holds.
 ##### @spec a-frontmatter-with-no-plugins-key-holds-no-entry
 
 <!-- statement-spec-a-frontmatter-with-no-plugins-key-holds-no-entry:begin — generated by `canon generate`; edits are overwritten -->
-> For every [frontmatter_1](#term-frontmatter):
->
-> when frontmatter_1 is not a frontmatter with a plugins key, frontmatter_1 holds no [entry](#term-entry).
+> When a [frontmatter](#term-frontmatter) has no plugins key, the frontmatter holds no [entry](#term-entry).
 <!-- statement-spec-a-frontmatter-with-no-plugins-key-holds-no-entry:end -->
 
 A frontmatter without a plugins key asks for nothing. It has no entries, so it lists no plugin.
@@ -3515,19 +3481,17 @@ This follows because a block lower in a document is part of its text, and a docu
 #### @spec a-flawed-frontmatter-is-refused
 
 <!-- statement-spec-a-flawed-frontmatter-is-refused:begin — generated by `canon generate`; edits are overwritten -->
-> For every [frontmatter_1](#term-frontmatter):
+> When at least one of these holds:
+> - a [frontmatter](#term-frontmatter) has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
+> - the frontmatter has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that the frontmatter lists defines
+> - the frontmatter has the flaw of a list that is not closed
+> - the frontmatter has the flaw of a string that is not closed
+> - the frontmatter has the flaw of a key that appears twice
+> - the frontmatter has the flaw of a path that names no document
+> - the frontmatter has the flaw of an extension that leads back to its own document
+> - the frontmatter has the flaw of a setting in a document that is not the entry document
 >
-> when at least one of these holds:
-> - frontmatter_1 has the [flaw](#term-flaw) of an entry that starts with an at sign outside quotes
-> - frontmatter_1 has the flaw of a key that neither the [checker](#term-checker) nor a [plugin](#term-plugin) that frontmatter_1 lists defines
-> - frontmatter_1 has the flaw of a list that is not closed
-> - frontmatter_1 has the flaw of a string that is not closed
-> - frontmatter_1 has the flaw of a key that appears twice
-> - frontmatter_1 has the flaw of a path that names no document
-> - frontmatter_1 has the flaw of an extension that leads back to its own document
-> - frontmatter_1 has the flaw of a setting in a document that is not the entry document
->
-> then frontmatter_1 is a frontmatter that the checker cannot read.
+> then the checker cannot read the frontmatter.
 <!-- statement-spec-a-flawed-frontmatter-is-refused:end -->
 
 The checker reads only a small part of YAML, and a block it misread would drop a check without a word. So it never guesses: each flaw it knows makes it refuse the block. Some flaws break the syntax, like a bad quote, an open list or string, or a doubled key. Others break the meaning, like an unknown key, a dead path, a looping extension or a setting outside the entry document.
@@ -3541,7 +3505,7 @@ all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Un
 <!-- statement-spec-a-misquoted-entry-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [misquoted frontmatter](#term-flaw):
 >
-> the misquoted frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the misquoted frontmatter.
 <!-- statement-spec-a-misquoted-entry-is-refused:end -->
 
 A plugin name that starts with an at sign, like @scope/plugin, must sit in quotes. YAML does not read the bare form as the package the author meant. So the checker refuses it rather than guess.
@@ -3561,7 +3525,7 @@ This follows because the author needs only the quotes, and the checker knows it.
 <!-- statement-spec-a-key-the-checker-does-not-know-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [foreign frontmatter](#term-flaw):
 >
-> the foreign frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the foreign frontmatter.
 <!-- statement-spec-a-key-the-checker-does-not-know-is-refused:end -->
 
 A misspelled key, such as plugin for plugins, would otherwise drop a setting or a list of plugins without a word. So the checker refuses a key it does not know. A plugin can define keys of its own, and the checker knows them once the document lists that plugin.
@@ -3575,7 +3539,7 @@ all f: Foreign | f in Refused
 <!-- statement-spec-a-list-that-is-not-closed-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [unclosed frontmatter](#term-flaw):
 >
-> the unclosed frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the unclosed frontmatter.
 <!-- statement-spec-a-list-that-is-not-closed-is-refused:end -->
 
 A list that never closes has no known end. The checker cannot tell which plugins it names, so it refuses the block rather than guess.
@@ -3589,7 +3553,7 @@ all f: Unclosed | f in Refused
 <!-- statement-spec-a-string-that-is-not-closed-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [unterminated frontmatter](#term-flaw):
 >
-> the unterminated frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the unterminated frontmatter.
 <!-- statement-spec-a-string-that-is-not-closed-is-refused:end -->
 
 A string that never closes has no known end, so the plugin it names is unknown too. The checker refuses the block rather than guess.
@@ -3603,7 +3567,7 @@ all f: Unterminated | f in Refused
 <!-- statement-spec-a-key-written-twice-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [doubled frontmatter](#term-flaw):
 >
-> the doubled frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the doubled frontmatter.
 <!-- statement-spec-a-key-written-twice-is-refused:end -->
 
 A key written twice gives two values that may differ, such as two plugins lists. The checker cannot tell which one the author meant, so it refuses the block.
@@ -3623,7 +3587,7 @@ This follows because a misspelled runner, such as `vitset`, would change which c
 <!-- statement-spec-a-path-that-names-no-document-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [dangling frontmatter](#term-flaw):
 >
-> the dangling frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the dangling frontmatter.
 <!-- statement-spec-a-path-that-names-no-document-is-refused:end -->
 
 Every path in a frontmatter must lead to a real document. A path that leads nowhere quietly drops context, and the author would trust a canon missing part of what it names. So the checker refuses a frontmatter with a path to nowhere.
@@ -3637,7 +3601,7 @@ all f: Dangling | f in Refused
 <!-- statement-spec-an-extension-that-leads-back-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [circular frontmatter](#term-flaw):
 >
-> the circular frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the circular frontmatter.
 <!-- statement-spec-an-extension-that-leads-back-is-refused:end -->
 
 A chain of extensions needs a place to start. When a document's extensions lead back to the document itself, it becomes its own context, and the chain has no first reading. Rather than guess where to begin, the checker refuses the frontmatter.
@@ -3651,7 +3615,7 @@ all f: Looping | f in Refused
 <!-- statement-spec-a-setting-outside-the-entry-document-is-refused:begin — generated by `canon generate`; edits are overwritten -->
 > For every [stray frontmatter](#term-setting):
 >
-> the stray frontmatter is a [frontmatter](#term-frontmatter) that the [checker](#term-checker) cannot read.
+> the [checker](#term-checker) cannot read the stray frontmatter.
 <!-- statement-spec-a-setting-outside-the-entry-document-is-refused:end -->
 
 A project takes its settings from its entry document alone. A setting anywhere else would silently do nothing, and the author would trust a check the project never asked for. So the checker refuses a frontmatter that puts a setting in any other document.

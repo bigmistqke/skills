@@ -15,24 +15,20 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@term quantified-formula`](#term-quantified-formula) — A quantified formula is a formula that declares variables, and the verbalizer names them and says their types.
 - [`@term quantifier`](#term-quantifier) — A quantifier is a formula that declares a variable and says something of it, which the verbalizer may say as a noun phrase.
 - [`@term fit`](#term-fit) —
-  > For every [quantifier_1](#term-quantifier):
-  >
-  > quantifier_1 fits a noun phrase exactly when all of these hold:
-  > - quantifier_1 is not a quantifier whose reading says the variable twice
-  > - quantifier_1 is not a quantifier with no fact for its variable beside another thing
-  > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
-  > - quantifier_1 is not a quantifier whose condition is not about its variable
-  > - quantifier_1 is not a quantifier with several conditions, one of which begins with a time phrase
+  > A [quantifier](#term-quantifier) fits a noun phrase exactly when all of these hold:
+  > - the reading of the quantifier does not say the variable twice
+  > - the quantifier has a fact for its variable beside another thing
+  > - the quantifier does not both say that no variable differs from another and hold a condition
+  > - the condition of the quantifier is about its variable
+  > - the quantifier does not have several conditions, one of which begins with a time phrase
 - [`@term predicate-call`](#term-predicate-call) — A predicate call is a formula that names a predicate and gives its arguments.
 - [`@term definition-passage`](#term-definition-passage) — A definition is a predicate with a body that the verbalizer says as what its name means exactly when the body holds.
 - [`@term by-kind`](#term-by-kind) —
-  > For every [definition_1](#term-definition-passage):
-  >
-  > definition_1 can be said kind by kind exactly when all of these hold:
-  > - definition_1 is not a definition with an alternative that does not begin with its kind
-  > - definition_1 is not a definition with a run of and beside another alternative of its kind
-  > - definition_1 is not a definition with an alternative that says something about another unit
-  > - definition_1 is not a definition with two kinds that can share a member
+  > A [definition](#term-definition-passage) can be said kind by kind exactly when all of these hold:
+  > - the definition has no alternative that does not begin with its kind
+  > - the definition has no run of and beside another alternative of its kind
+  > - the definition has no alternative that says something about another unit
+  > - the definition does not have two kinds that can share a member
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 - [`@term sentenceable`](#term-sentenceable) —
@@ -306,20 +302,18 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-definition-says-each-parameter-with-the-noun-of-its-type`](#spec-a-definition-says-each-parameter-with-the-noun-of-its-type) — The verbalizer says each parameter of a definition with the noun of its type.
   - [`@spec a-definition-is-said-in-markdown-the-way-a-formula-is`](#spec-a-definition-is-said-in-markdown-the-way-a-formula-is) — In the Markdown layout, the verbalizer says a definition with a blank line between its paragraphs.
   - [`@spec a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind`](#spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind) —
-    > For every [definition_1](#term-definition-passage):
+    > When all of these hold:
+    > - the alternatives of a [definition](#term-definition-passage) each begin with the kind of the subject
+    > - the definition can be said [kind by kind](#term-by-kind)
     >
-    > when all of these hold:
-    > - definition_1 is a definition whose alternatives each begin with the kind of the subject
-    > - definition_1 can be said [kind by kind](#term-by-kind)
-    >
-    > then [verbalizer](#term-verbalizer) says definition_1 as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
-  - [`@spec the-alternatives-of-one-kind-are-put-together-with-or`](#spec-the-alternatives-of-one-kind-are-put-together-with-or) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with two alternatives for one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says definition_1 as one noun phrase for that kind, with the alternatives joined by or.
-  - [`@spec the-options-of-an-or-inside-a-kind-are-one-coordination`](#spec-the-options-of-an-or-inside-a-kind-are-one-coordination) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an or inside one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says definition_1 as one run of clauses joined by commas and or.
-  - [`@spec a-definition-with-one-kind-is-one-sentence`](#spec-a-definition-with-one-kind-is-one-sentence) — For every [definition_1](#term-definition-passage): when definition_1 is a definition whose alternatives are of one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says definition_1 as one sentence.
-  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
-  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
-  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an alternative that says something about another unit, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
-  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member`](#spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with two kinds that can share a member, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+    > then [verbalizer](#term-verbalizer) says the definition as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
+  - [`@spec the-alternatives-of-one-kind-are-put-together-with-or`](#spec-the-alternatives-of-one-kind-are-put-together-with-or) — When a [definition](#term-definition-passage) has two alternatives for one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one noun phrase for that kind, with the alternatives joined by or.
+  - [`@spec the-options-of-an-or-inside-a-kind-are-one-coordination`](#spec-the-options-of-an-or-inside-a-kind-are-one-coordination) — When a [definition](#term-definition-passage) has an or inside one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one run of clauses joined by commas and or.
+  - [`@spec a-definition-with-one-kind-is-one-sentence`](#spec-a-definition-with-one-kind-is-one-sentence) — When the alternatives of a [definition](#term-definition-passage) are of one kind and the definition can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one sentence.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind) — When a [definition](#term-definition-passage) has an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — When a [definition](#term-definition-passage) has a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject) — When a [definition](#term-definition-passage) has an alternative that says something about another unit, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member`](#spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member) — When a [definition](#term-definition-passage) has two kinds that can share a member, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
   - [`@spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown`](#spec-a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown) — In the Markdown layout, the verbalizer links a word whose reading a unit holds to that unit.
   - [`@spec a-word-that-names-a-term-is-plain-in-the-text-layout`](#spec-a-word-that-names-a-term-is-plain-in-the-text-layout) — In the text layout, the verbalizer says a word whose reading a unit holds in plain words.
   - [`@spec only-the-first-mention-of-a-term-links`](#spec-only-the-first-mention-of-a-term-links) — In a [linked formula](#term-linked-formula), the verbalizer links only the first mention of a term, in reading order.
@@ -329,56 +323,48 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec the-nouns-of-a-quantifier-link-and-the-article-follows-the-word`](#spec-the-nouns-of-a-quantifier-link-and-the-article-follows-the-word) — The verbalizer links the noun of a quantified type whose reading a unit holds, and chooses the article by the word, not the bracket.
   - [`@spec a-sentence-starts-with-a-capital-on-the-word-and-not-on-the-bracket`](#spec-a-sentence-starts-with-a-capital-on-the-word-and-not-on-the-bracket) — When a statement begins with a linked word, the verbalizer puts the capital on the first letter of the word, inside the link.
   - [`@spec a-reading-held-by-no-unit-has-plain-words`](#spec-a-reading-held-by-no-unit-has-plain-words) — The verbalizer says a word whose reading no unit holds in plain words, even in the Markdown layout.
-  - [`@spec a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase`](#spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable the sentence says once and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 as a noun phrase in the place of the variable, such as "sits in no unit".
-  - [`@spec a-noun-phrase-can-be-the-subject-of-a-sentence`](#spec-a-noun-phrase-can-be-the-subject-of-a-sentence) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable is the subject of the sentence and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 with the noun phrase as the subject, such as "a tag names unit_1".
-  - [`@spec what-else-is-true-of-the-variable-is-a-relative-clause`](#spec-what-else-is-true-of-the-variable-is-a-relative-clause) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose variable has a further condition and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 with a relative clause, such as "a unit that is a spec".
+  - [`@spec a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase`](#spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase) — When the sentence says the variable of a [quantifier](#term-quantifier) once and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier as a noun phrase in the place of the variable, such as "sits in no unit".
+  - [`@spec a-noun-phrase-can-be-the-subject-of-a-sentence`](#spec-a-noun-phrase-can-be-the-subject-of-a-sentence) — When the variable of a [quantifier](#term-quantifier) is the subject of the sentence and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier with the noun phrase as the subject, such as "a tag names unit_1".
+  - [`@spec what-else-is-true-of-the-variable-is-a-relative-clause`](#spec-what-else-is-true-of-the-variable-is-a-relative-clause) — When the variable of a [quantifier](#term-quantifier) has a further condition and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier with a relative clause, such as "a unit that is a spec".
   - [`@spec several-negations-of-a-variable-are-one-negation`](#spec-several-negations-of-a-variable-are-one-negation) — The verbalizer says several negations of a variable as one negation that lists the kinds, when the quantifier fits a noun phrase.
   - [`@spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another`](#spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another) — The verbalizer says a variable that must differ from another of its kind as "another" before the noun, when the [quantifier](#term-quantifier) fits a noun phrase.
   - [`@spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it`](#spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it) — When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
   - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — The verbalizer says variables of different kinds as nested phrases, when the quantifier fits a noun phrase.
-  - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) —
-    > For every [quantifier_1](#term-quantifier):
-    >
-    > when all of these hold:
-    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
+    > When all of these hold:
+    > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
     > - at least one of these holds:
-    >   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
-    >   - all of these hold:
-    >     - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
-    >     - quantifier_1 is a quantifier under "no"
-    >   - quantifier_1 is a quantifier under "no" with a condition that says "no"
+    >   - the variable of the quantifier is not the subject of the sentence
+    >   - the quantifier has more than three conditions, or conditions longer than a line and is under "no"
+    >   - the quantifier is under "no" with a condition that says "no"
     >
-    > then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+    > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
   - [`@spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that`](#spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that) —
-    > For every [quantifier_1](#term-quantifier):
-    >
-    > when all of these hold:
-    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
-    > - quantifier_1 is a quantifier whose variable is the subject of the sentence
-    > - quantifier_1 is a quantifier with three conditions or fewer that fit a line
-    > - quantifier_1 is not a quantifier under "no" with a condition that says "no"
-    > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+    > When all of these hold:
+    > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+    > - the variable of the quantifier is the subject of the sentence
+    > - the quantifier has three conditions or fewer that fit a line
+    > - the quantifier is not under "no" with a condition that says "no"
+    > - the quantifier does not both say that no variable differs from another and hold a condition
     >
     > then the following holds:
     >
-    > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
+    > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
   - [`@spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that`](#spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that) —
-    > For every [quantifier_1](#term-quantifier):
-    >
-    > when all of these hold:
-    > - quantifier_1 is a quantifier with no fact for its variable beside another thing
-    > - quantifier_1 is a quantifier whose variable is the subject of the sentence
-    > - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
-    > - quantifier_1 is not a quantifier under "no"
-    > - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+    > When all of these hold:
+    > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+    > - the variable of the quantifier is the subject of the sentence
+    > - the quantifier has more than three conditions, or conditions longer than a line
+    > - the quantifier is not under "no"
+    > - the quantifier does not both say that no variable differs from another and hold a condition
     >
     > then the following holds:
     >
-    > [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
-  - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
-  - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — For every [quantifier_1](#term-quantifier): when the following holds: quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
-  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — For every [quantifier_1](#term-quantifier): when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+    > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
+  - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — When the following holds: a [quantifier](#term-quantifier) has several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
   - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — When a [list](#term-series) can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list in a sentence.
   - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — When a [list](#term-series) is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — When a [list](#term-series) has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
@@ -473,34 +459,34 @@ fact quantifier_wordings { no AsNounPhrase & InFull and no ThereIsThat & InFull 
 
 ```readings
 noun Quantifier: [quantifier]
-VariableOnce: {1} is a quantifier whose variable the sentence says once | {1} is not a quantifier whose variable the sentence says once
+VariableOnce: the sentence says the variable of {1} once | the sentence does not say the variable of {1} once
 AsNounPhrase: [verbalizer](#term-verbalizer) says {1} as a noun phrase in the place of the variable, such as "sits in no unit" | [verbalizer](#term-verbalizer) does not say {1} as a noun phrase in the place of the variable, such as "sits in no unit"
-VariableSubject: {1} is a quantifier whose variable is the subject of the sentence | {1} is not a quantifier whose variable is the subject of the sentence
+VariableSubject: the variable of {1} is the subject of the sentence | the variable of {1} is not the subject of the sentence
 AsSubjectPhrase: [verbalizer](#term-verbalizer) says {1} with the noun phrase as the subject, such as "a tag names unit_1" | [verbalizer](#term-verbalizer) does not say {1} with the noun phrase as the subject, such as "a tag names unit_1"
-VariableWithCondition: {1} is a quantifier whose variable has a further condition | {1} is not a quantifier whose variable has a further condition
+VariableWithCondition: the variable of {1} has a further condition | the variable of {1} has no further condition
 RelativeClause: [verbalizer](#term-verbalizer) says {1} with a relative clause, such as "a unit that is a spec" | [verbalizer](#term-verbalizer) does not say {1} with a relative clause, such as "a unit that is a spec"
 OneNegation: [verbalizer](#term-verbalizer) says {1} with one negation that lists the kinds | [verbalizer](#term-verbalizer) does not say {1} with one negation that lists the kinds
 SaysAnother: [verbalizer](#term-verbalizer) says {1} with "another" before the noun | [verbalizer](#term-verbalizer) does not say {1} with "another" before the noun
 NestsPhrases: [verbalizer](#term-verbalizer) says {1} as nested phrases, such as "a test checks a bug that sits in unit_1" | [verbalizer](#term-verbalizer) does not say {1} as nested phrases, such as "a test checks a bug that sits in unit_1"
-VariableTwice: {1} is a quantifier whose reading says the variable twice | {1} is not a quantifier whose reading says the variable twice
-NothingToAttach: {1} is a quantifier with no fact for its variable beside another thing | {1} is not a quantifier with no fact for its variable beside another thing
-NoWithAnother: {1} is a quantifier that says no variable differs from another and holds a condition | {1} is not a quantifier that says no variable differs from another and holds a condition
-ConditionAside: {1} is a quantifier whose condition is not about its variable | {1} is not a quantifier whose condition is not about its variable
-TimedCondition: {1} is a quantifier with several conditions, one of which begins with a time phrase | {1} is not a quantifier with several conditions, one of which begins with a time phrase
+VariableTwice: the reading of {1} says the variable twice | the reading of {1} does not say the variable twice
+NothingToAttach: {1} has no fact for its variable beside another thing | {1} has a fact for its variable beside another thing
+NoWithAnother: {1} says no variable differs from another and holds a condition | {1} does not both say that no variable differs from another and hold a condition
+ConditionAside: the condition of {1} is not about its variable | the condition of {1} is about its variable
+TimedCondition: {1} has several conditions, one of which begins with a time phrase | {1} does not have several conditions, one of which begins with a time phrase
 InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and the numbered name | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and the numbered name
 ThereIsThat: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec" | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec"
 ThereIsThatList: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject
-UnderNo: {1} is a quantifier under "no" | {1} is not a quantifier under "no"
-LongConditions: {1} is a quantifier with more than three conditions, or with conditions longer than a line | {1} is a quantifier with three conditions or fewer that fit a line
-NoUnderNo: {1} is a quantifier under "no" with a condition that says "no" | {1} is not a quantifier under "no" with a condition that says "no"
+UnderNo: {1} is under "no" | {1} is not under "no"
+LongConditions: {1} has more than three conditions, or conditions longer than a line | {1} has three conditions or fewer that fit a line
+NoUnderNo: {1} is under "no" with a condition that says "no" | {1} is not under "no" with a condition that says "no"
 ```
 
 <!-- statement-scenario-1-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier that:
-> - is a quantifier whose variable the sentence says once
-> - is a quantifier that says no variable differs from another and holds a condition
+> There is a quantifier such that all of these hold:
+> - the sentence says the variable of the quantifier once
+> - the quantifier says no variable differs from another and holds a condition
 <!-- statement-scenario-1-term-quantifier:end -->
 
 ```alloy scenario
@@ -510,9 +496,9 @@ some f: Quantifier | f in VariableOnce and f in NoWithAnother
 <!-- statement-scenario-2-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier that:
-> - is a quantifier whose variable is the subject of the sentence
-> - is a quantifier whose reading says the variable twice
+> There is a quantifier such that all of these hold:
+> - the variable of the quantifier is the subject of the sentence
+> - the reading of the quantifier says the variable twice
 <!-- statement-scenario-2-term-quantifier:end -->
 
 ```alloy scenario
@@ -522,9 +508,9 @@ some f: Quantifier | f in VariableSubject and f in VariableTwice
 <!-- statement-scenario-3-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier that:
-> - is a quantifier whose variable the sentence says once
-> - is a quantifier whose condition is not about its variable
+> There is a quantifier such that all of these hold:
+> - the sentence says the variable of the quantifier once
+> - the condition of the quantifier is not about its variable
 <!-- statement-scenario-3-term-quantifier:end -->
 
 ```alloy scenario
@@ -534,9 +520,9 @@ some f: Quantifier | f in VariableOnce and f in ConditionAside
 <!-- statement-scenario-4-term-quantifier:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a quantifier that:
-> - is a quantifier whose variable has a further condition
-> - is a quantifier with no fact for its variable beside another thing
+> There is a quantifier such that all of these hold:
+> - the variable of the quantifier has a further condition
+> - the quantifier has no fact for its variable beside another thing
 <!-- statement-scenario-4-term-quantifier:end -->
 
 ```alloy scenario
@@ -546,14 +532,12 @@ some f: Quantifier | f in VariableWithCondition and f in NothingToAttach
 ### @term fit
 
 <!-- statement-term-fit:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> quantifier_1 fits a noun phrase exactly when all of these hold:
-> - quantifier_1 is not a quantifier whose reading says the variable twice
-> - quantifier_1 is not a quantifier with no fact for its variable beside another thing
-> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
-> - quantifier_1 is not a quantifier whose condition is not about its variable
-> - quantifier_1 is not a quantifier with several conditions, one of which begins with a time phrase
+> A [quantifier](#term-quantifier) fits a noun phrase exactly when all of these hold:
+> - the reading of the quantifier does not say the variable twice
+> - the quantifier has a fact for its variable beside another thing
+> - the quantifier does not both say that no variable differs from another and hold a condition
+> - the condition of the quantifier is about its variable
+> - the quantifier does not have several conditions, one of which begins with a time phrase
 <!-- statement-term-fit:end -->
 
 A quantifier fits a noun phrase, such as "sits in no unit", unless that short form would mislead. A noun phrase stands for one thing in one place, so the reading must say the variable only once. The phrase also needs another thing in the sentence to hang from, and its condition must be about the variable itself. "No" with "another" rules it out, since "no other" hints at what the logic does not say. So does a time phrase that leads one of several conditions, since it seems to cover them all.
@@ -583,18 +567,18 @@ fact case_wordings { no PhrasePerKind & AsItStands and JoinedWithOr + OneCoordin
 
 ```readings
 noun Definition: [definition]
-GuardedByKind: {1} is a definition whose alternatives each begin with the kind of the subject | {1} is not a definition whose alternatives each begin with the kind of the subject
+GuardedByKind: the alternatives of {1} each begin with the kind of the subject | the alternatives of {1} do not each begin with the kind of the subject
 PhrasePerKind: [verbalizer](#term-verbalizer) says {1} as a list with a noun phrase for each kind, such as "a spec that cites no axiom" | [verbalizer](#term-verbalizer) does not say {1} as a list with a noun phrase for each kind, such as "a spec that cites no axiom"
-SameKindTwice: {1} is a definition with two alternatives for one kind | {1} is not a definition with two alternatives for one kind
+SameKindTwice: {1} has two alternatives for one kind | {1} does not have two alternatives for one kind
 JoinedWithOr: [verbalizer](#term-verbalizer) says {1} as one noun phrase for that kind, with the alternatives joined by or | [verbalizer](#term-verbalizer) does not say {1} as one noun phrase for that kind, with the alternatives joined by or
-OrInsideKind: {1} is a definition with an or inside one kind | {1} is not a definition with an or inside one kind
+OrInsideKind: {1} has an or inside one kind | {1} has no or inside one kind
 OneCoordination: [verbalizer](#term-verbalizer) says {1} as one run of clauses joined by commas and or | [verbalizer](#term-verbalizer) does not say {1} as one run of clauses joined by commas and or
-OneKind: {1} is a definition whose alternatives are of one kind | {1} is not a definition whose alternatives are of one kind
+OneKind: the alternatives of {1} are of one kind | the alternatives of {1} are not of one kind
 OneSentenceKind: [verbalizer](#term-verbalizer) says {1} as one sentence | [verbalizer](#term-verbalizer) does not say {1} as one sentence
-NoKindFirst: {1} is a definition with an alternative that does not begin with its kind | {1} is not a definition with an alternative that does not begin with its kind
-AmbiguousAnd: {1} is a definition with a run of and beside another alternative of its kind | {1} is not a definition with a run of and beside another alternative of its kind
-NotAboutSubject: {1} is a definition with an alternative that says something about another unit | {1} is not a definition with an alternative that says something about another unit
-KindsShareAMember: {1} is a definition with two kinds that can share a member | {1} is not a definition with two kinds that can share a member
+NoKindFirst: {1} has an alternative that does not begin with its kind | {1} has no alternative that does not begin with its kind
+AmbiguousAnd: {1} has a run of and beside another alternative of its kind | {1} has no run of and beside another alternative of its kind
+NotAboutSubject: {1} has an alternative that says something about another unit | {1} has no alternative that says something about another unit
+KindsShareAMember: {1} has two kinds that can share a member | {1} does not have two kinds that can share a member
 AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternatives as they stand | [verbalizer](#term-verbalizer) does not say {1} as a list of the alternatives as they stand
 ```
 
@@ -602,8 +586,8 @@ AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternative
 > It must be possible that:
 >
 > There is a definition that:
-> - is a definition with two alternatives for one kind
-> - is a definition with a run of and beside another alternative of its kind
+> - has two alternatives for one kind
+> - has a run of and beside another alternative of its kind
 <!-- statement-scenario-1-term-definition-passage:end -->
 
 ```alloy scenario
@@ -613,9 +597,9 @@ some f: Definition | f in SameKindTwice and f in AmbiguousAnd
 <!-- statement-scenario-2-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition that:
-> - is a definition whose alternatives are of one kind
-> - is a definition with an alternative that says something about another unit
+> There is a definition such that all of these hold:
+> - the alternatives of the definition are of one kind
+> - the definition has an alternative that says something about another unit
 <!-- statement-scenario-2-term-definition-passage:end -->
 
 ```alloy scenario
@@ -625,9 +609,7 @@ some f: Definition | f in OneKind and f in NotAboutSubject
 <!-- statement-scenario-3-term-definition-passage:begin — generated by `canon generate`; edits are overwritten -->
 > It must be possible that:
 >
-> There is a definition that:
-> - is a definition with an or inside one kind
-> - is a definition with an alternative that does not begin with its kind
+> There is a definition that has an or inside one kind and has an alternative that does not begin with its kind.
 <!-- statement-scenario-3-term-definition-passage:end -->
 
 ```alloy scenario
@@ -637,13 +619,11 @@ some f: Definition | f in OrInsideKind and f in NoKindFirst
 ### @term by-kind
 
 <!-- statement-term-by-kind:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> definition_1 can be said kind by kind exactly when all of these hold:
-> - definition_1 is not a definition with an alternative that does not begin with its kind
-> - definition_1 is not a definition with a run of and beside another alternative of its kind
-> - definition_1 is not a definition with an alternative that says something about another unit
-> - definition_1 is not a definition with two kinds that can share a member
+> A [definition](#term-definition-passage) can be said kind by kind exactly when all of these hold:
+> - the definition has no alternative that does not begin with its kind
+> - the definition has no run of and beside another alternative of its kind
+> - the definition has no alternative that says something about another unit
+> - the definition does not have two kinds that can share a member
 <!-- statement-term-by-kind:end -->
 
 The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. No run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins. And no two of its kinds may share a member, because a reader can take "one of these" as exactly one.
@@ -2674,13 +2654,11 @@ This follows because the statement sits in a Markdown document, and a definition
 #### @spec a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind
 
 <!-- statement-spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
+> When all of these hold:
+> - the alternatives of a [definition](#term-definition-passage) each begin with the kind of the subject
+> - the definition can be said [kind by kind](#term-by-kind)
 >
-> when all of these hold:
-> - definition_1 is a definition whose alternatives each begin with the kind of the subject
-> - definition_1 can be said [kind by kind](#term-by-kind)
->
-> then [verbalizer](#term-verbalizer) says definition_1 as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
+> then [verbalizer](#term-verbalizer) says the definition as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
 <!-- statement-spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind:end -->
 
 A definition by cases reads best as a short list with one noun phrase per kind, such as "a spec that cites no axiom". A reader takes that in faster than a sentence about a unit that is a spec. The verbalizer writes it this way when each alternative begins with its kind and the verbalizer can say the definition kind by kind.
@@ -2714,9 +2692,7 @@ A thing is kept exactly when the thing is a cleanup that has run.
 #### @spec the-alternatives-of-one-kind-are-put-together-with-or
 
 <!-- statement-spec-the-alternatives-of-one-kind-are-put-together-with-or:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition with two alternatives for one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says definition_1 as one noun phrase for that kind, with the alternatives joined by or.
+> When a [definition](#term-definition-passage) has two alternatives for one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one noun phrase for that kind, with the alternatives joined by or.
 <!-- statement-spec-the-alternatives-of-one-kind-are-put-together-with-or:end -->
 
 When the verbalizer says a definition kind by kind, two alternatives for the same kind are just two ways to be that kind. So they share one noun phrase for the kind, joined by "or".
@@ -2728,9 +2704,7 @@ all f: Definition | (f in SameKindTwice and byKind[f]) implies f in JoinedWithOr
 #### @spec the-options-of-an-or-inside-a-kind-are-one-coordination
 
 <!-- statement-spec-the-options-of-an-or-inside-a-kind-are-one-coordination:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition with an or inside one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says definition_1 as one run of clauses joined by commas and or.
+> When a [definition](#term-definition-passage) has an or inside one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one run of clauses joined by commas and or.
 <!-- statement-spec-the-options-of-an-or-inside-a-kind-are-one-coordination:end -->
 
 In a definition that the verbalizer can say kind by kind, one kind can offer a choice through an "or". The verbalizer then says its options as one flat run, like "names, names or is", joined by commas and "or". A flat run reads at once, where nested choices would not.
@@ -2742,9 +2716,7 @@ all f: Definition | (f in OrInsideKind and byKind[f]) implies f in OneCoordinati
 #### @spec a-definition-with-one-kind-is-one-sentence
 
 <!-- statement-spec-a-definition-with-one-kind-is-one-sentence:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition whose alternatives are of one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says definition_1 as one sentence.
+> When the alternatives of a [definition](#term-definition-passage) are of one kind and the definition can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one sentence.
 <!-- statement-spec-a-definition-with-one-kind-is-one-sentence:end -->
 
 A list of one line is no list. So when the verbalizer can say a definition kind by kind but all its alternatives share one kind, it says the definition as one sentence.
@@ -2756,9 +2728,7 @@ all f: Definition | (f in OneKind and byKind[f]) implies f in OneSentenceKind
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind
 
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition with an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+> When a [definition](#term-definition-passage) has an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind:end -->
 
 A phrase for a kind has to start with the kind. Forced into that shape, an alternative that opens with something else would lose part of what it says. So when any alternative does not begin with its kind, the verbalizer lists the alternatives as they stand.
@@ -2770,9 +2740,7 @@ all f: Definition | f in NoKindFirst implies f in AsItStands
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways
 
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition with a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+> When a [definition](#term-definition-passage) has a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways:end -->
 
 Merged into one phrase for their kind, a run of "and" next to another alternative of that kind could join to the wrong one. The reader should not have to guess which. So when a definition has such a run, the verbalizer lists the alternatives as they stand.
@@ -2784,9 +2752,7 @@ all f: Definition | f in AmbiguousAnd implies f in AsItStands
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject
 
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition with an alternative that says something about another unit, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+> When a [definition](#term-definition-passage) has an alternative that says something about another unit, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject:end -->
 
 A phrase for a kind describes the subject. An alternative that says something about another unit would come out as if it were about the subject. So when a definition has such an alternative, the verbalizer lists the alternatives as they stand.
@@ -2798,9 +2764,7 @@ all f: Definition | f in NotAboutSubject implies f in AsItStands
 #### @spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member
 
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member:begin — generated by `canon generate`; edits are overwritten -->
-> For every [definition_1](#term-definition-passage):
->
-> when definition_1 is a definition with two kinds that can share a member, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+> When a [definition](#term-definition-passage) has two kinds that can share a member, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member:end -->
 
 A definition said kind by kind reads "is one of these", and a reader can take that as exactly one. Where the kinds share no member, as signatures that extend one signature do, nothing is of two kinds, and both readings say the same. Where two kinds can share a member, a thing of both kinds that meets both alternatives would seem left out. So the verbalizer lists the alternatives as they stand, below "at least one of these holds".
@@ -2866,9 +2830,7 @@ This follows because a word with no unit to lead to is only a word.
 #### @spec a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase
 
 <!-- statement-spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when quantifier_1 is a quantifier whose variable the sentence says once and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 as a noun phrase in the place of the variable, such as "sits in no unit".
+> When the sentence says the variable of a [quantifier](#term-quantifier) once and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier as a noun phrase in the place of the variable, such as "sits in no unit".
 <!-- statement-spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase:end -->
 
 When a quantifier fits a noun phrase and the sentence mentions its variable once, the variable needs no name. The quantifier folds into a noun phrase where the variable stood, like "sits in no unit". Spelled out with a numbered name, the same takes twice the words.
@@ -2905,9 +2867,7 @@ A cleanup is on an owner that pulse has disposed.
 #### @spec a-noun-phrase-can-be-the-subject-of-a-sentence
 
 <!-- statement-spec-a-noun-phrase-can-be-the-subject-of-a-sentence:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when quantifier_1 is a quantifier whose variable is the subject of the sentence and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 with the noun phrase as the subject, such as "a tag names unit_1".
+> When the variable of a [quantifier](#term-quantifier) is the subject of the sentence and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier with the noun phrase as the subject, such as "a tag names unit_1".
 <!-- statement-spec-a-noun-phrase-can-be-the-subject-of-a-sentence:end -->
 
 Often the variable of a quantifier is what the sentence is about. When the quantifier fits a noun phrase, the verbalizer then opens the sentence with that phrase as its subject, as in "a tag names unit_1".
@@ -2919,9 +2879,7 @@ all f: Quantifier | (f in VariableSubject and fits[f]) implies f in AsSubjectPhr
 #### @spec what-else-is-true-of-the-variable-is-a-relative-clause
 
 <!-- statement-spec-what-else-is-true-of-the-variable-is-a-relative-clause:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when quantifier_1 is a quantifier whose variable has a further condition and [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says quantifier_1 with a relative clause, such as "a unit that is a spec".
+> When the variable of a [quantifier](#term-quantifier) has a further condition and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier with a relative clause, such as "a unit that is a spec".
 <!-- statement-spec-what-else-is-true-of-the-variable-is-a-relative-clause:end -->
 
 When a quantifier fits a noun phrase, a further condition on its variable is part of the phrase that names it. So it rides along as a relative clause, as in "a unit that is a spec".
@@ -2985,9 +2943,7 @@ This follows because a test that checks a bug that sits in a unit reads from lef
 #### @spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full
 
 <!-- statement-spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when quantifier_1 is a quantifier whose reading says the variable twice, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full:end -->
 
 A noun phrase stands in one place only. If the sentence mentions the variable twice, two phrases would hide that they are one thing. So the verbalizer spells the quantifier out in full, with a numbered name that both places share.
@@ -2999,18 +2955,14 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 #### @spec a-quantifier-with-nothing-to-attach-to-is-said-in-full
 
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when all of these hold:
-> - quantifier_1 is a quantifier with no fact for its variable beside another thing
+> When all of these hold:
+> - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
 > - at least one of these holds:
->   - quantifier_1 is not a quantifier whose variable is the subject of the sentence
->   - all of these hold:
->     - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
->     - quantifier_1 is a quantifier under "no"
->   - quantifier_1 is a quantifier under "no" with a condition that says "no"
+>   - the variable of the quantifier is not the subject of the sentence
+>   - the quantifier has more than three conditions, or conditions longer than a line and is under "no"
+>   - the quantifier is under "no" with a condition that says "no"
 >
-> then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
 A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or when the conditions under "no" are many or long. Nor can it when a condition under "no" says "no".
@@ -3022,18 +2974,16 @@ all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or (f in
 #### @spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
 
 <!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when all of these hold:
-> - quantifier_1 is a quantifier with no fact for its variable beside another thing
-> - quantifier_1 is a quantifier whose variable is the subject of the sentence
-> - quantifier_1 is a quantifier with three conditions or fewer that fit a line
-> - quantifier_1 is not a quantifier under "no" with a condition that says "no"
-> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+> When all of these hold:
+> - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+> - the variable of the quantifier is the subject of the sentence
+> - the quantifier has three conditions or fewer that fit a line
+> - the quantifier is not under "no" with a condition that says "no"
+> - the quantifier does not both say that no variable differs from another and hold a condition
 >
 > then the following holds:
 >
-> [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
+> [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
 <!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:end -->
 
 "A unit is a spec" reads as a rule about every unit, and "some unit is a spec" has nothing to hang from. So the verbalizer lets `there is` give the phrase a place, with the conditions as one relative clause: `there is a list that has an item with a comma`. Under "no", one condition reads best as `no unit is a spec`, and several keep `there is no` so that "no" covers each. A condition that says "no" itself stays in full, because `no claim takes no lane` is a double negative.
@@ -3074,18 +3024,16 @@ No cleanup has run.
 #### @spec many-conditions-about-a-variable-alone-are-bullets-after-there-is-that
 
 <!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when all of these hold:
-> - quantifier_1 is a quantifier with no fact for its variable beside another thing
-> - quantifier_1 is a quantifier whose variable is the subject of the sentence
-> - quantifier_1 is a quantifier with more than three conditions, or with conditions longer than a line
-> - quantifier_1 is not a quantifier under "no"
-> - quantifier_1 is not a quantifier that says no variable differs from another and holds a condition
+> When all of these hold:
+> - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
+> - the variable of the quantifier is the subject of the sentence
+> - the quantifier has more than three conditions, or conditions longer than a line
+> - the quantifier is not under "no"
+> - the quantifier does not both say that no variable differs from another and hold a condition
 >
 > then the following holds:
 >
-> [verbalizer](#term-verbalizer) says quantifier_1 as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
+> [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
 <!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:end -->
 
 Conditions too many or too long for one sentence still share their subject. So the sentence opens with `there is a quantifier that:`, and each condition follows as a bullet that goes on from "that". The numbered name and the repeated subject go. Under "no", such bullets could read as each one denied on its own, so "no" keeps the full form.
@@ -3097,9 +3045,7 @@ all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f in Long
 #### @spec no-with-another-is-said-in-full
 
 <!-- statement-spec-no-with-another-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when quantifier_1 is a quantifier that says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
 <!-- statement-spec-no-with-another-is-said-in-full:end -->
 
 The short way to say that no unit but this one sits in it would be "no other unit sits in it". But "no other" hints that this unit itself does, which the logic does not say. So the verbalizer spells the quantifier out in full, with a numbered name.
@@ -3111,13 +3057,11 @@ all f: Quantifier | f in NoWithAnother implies f in InFull
 #### @spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full
 
 <!-- statement-spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
+> When the following holds:
 >
-> when the following holds:
+> a [quantifier](#term-quantifier) has several conditions, one of which begins with a time phrase
 >
-> quantifier_1 is a quantifier with several conditions, one of which begins with a time phrase
->
-> then [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
 <!-- statement-spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full:end -->
 
 A time phrase inside a noun phrase seems to cover every condition in that phrase. When it belongs to only one of several conditions, that reading is wrong. So the verbalizer spells the quantifier out in full, which keeps the time phrase on its own condition.
@@ -3129,9 +3073,7 @@ all f: Quantifier | f in TimedCondition implies f in InFull
 #### @spec a-condition-that-is-not-about-the-variable-is-said-in-full
 
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> For every [quantifier_1](#term-quantifier):
->
-> when quantifier_1 is a quantifier whose condition is not about its variable, [verbalizer](#term-verbalizer) says quantifier_1 in full, with "there is" and the numbered name.
+> When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:end -->
 
 Whatever sits inside a noun phrase reads as being about the variable. A condition about something else would land in the wrong place. So the verbalizer spells the quantifier out in full, with a numbered name.
