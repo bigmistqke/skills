@@ -588,7 +588,9 @@ some f: Quantifier | f in VariableWithCondition and f in NothingToAttach
 > - the quantifier does not have several conditions, one of which begins with a time phrase
 <!-- statement-term-fit:end -->
 
-A quantifier fits a noun phrase, such as "sits in no unit", unless that short form would mislead. A noun phrase stands for one thing in one place, so the reading must say the variable only once. The phrase also needs another thing in the sentence to hang from, and its condition must be about the variable itself. "No" with "another" rules it out, since "no other" hints at what the logic does not say. So does a time phrase that leads one of several conditions, since it seems to cover them all.
+A noun phrase such as `c is on no owner` is the shortest way to say a quantifier. In five cases that short form misleads, and the [verbalizer](#term-verbalizer) says the quantifier in full. A reading that says the variable twice would need two phrases for one thing. A phrase with nothing named beside it, as in `a cleanup has run`, reads as a rule about every cleanup. A condition about something else would read as more about the variable.
+
+`No other cleanup is on o` hints that c is on o, which the logic does not say. And in `at the next moment, c is on an owner that p is the parent of`, the time phrase seems to cover the parent too.
 
 ```alloy
 pred fits[f: Quantifier] { f not in VariableTwice and f not in NothingToAttach and f not in NoWithAnother and f not in ConditionAside and f not in TimedCondition }
@@ -676,9 +678,11 @@ some f: Definition | f in OrInsideKind and f in NoKindFirst
 > - an option of one kind that holds a comma
 <!-- statement-term-by-kind:end -->
 
-The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. No run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins. No two of its kinds may share a member, because a reader can take "one of these" as exactly one.
+A definition by cases reads best as one noun phrase per kind, as in `a spec that cites no axiom and cites no spec`. That shape is safe only when each alternative turns into `a <kind> that …` without changing what it says. The phrase opens with the kind, so each alternative must open with its kind. It describes the subject, so each alternative must speak of the subject, not of another unit.
 
-And no option of a kind may hold a comma, which would blur where the options of that kind end.
+Three more cases would read two ways. A run of "and" beside another alternative of its kind, merged with "or", leaves the reader to guess the grouping. Kinds that share a member make "one of these" sound like exactly one. And an option of a kind that holds a comma blurs where the options of that kind end.
+
+The verbalizer can say a definition kind by kind when it has none of these five faults.
 
 ```alloy
 pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject and d not in KindsShareAMember and d not in CommaInOption }
@@ -847,7 +851,11 @@ some f: Series | f in SecondSideFirst
 > - the list has no clause about a pair of variables
 <!-- statement-term-sentenceable:end -->
 
-A list goes in a sentence only when a reader can take it in at once. That means at most three items, each a single clause, and the whole on one line. A comma inside an item is fine in a pair, but in a list of three it blurs where the items end. A time phrase or a relative clause before the last clause would seem to cover the rest, so it keeps the list out too. So do a time phrase right above the list, and the "and" inside a clause about a pair.
+A short list reads more easily as one sentence than as bullets under `All of these hold:`. `c has run, code has registered c and pulse has disposed o` takes one line where bullets take four. A sentence works only while the reader can see where each clause ends.
+
+So a list goes in a sentence only with at most three items, each a single clause, on one line. A comma inside an item is harmless in a pair, but among three items it reads as one more separator. A time phrase or a relative clause before the last clause has no visible end in running prose. Read as a sentence, `At the next moment, c has run and d has run` seems to put d at the next moment too. So such a list stays out.
+
+Two more things keep a list out of a sentence. A time phrase right above the list could seem to cover its first clause alone. And a clause about a pair, `c and d are different`, holds an "and" of its own that would read as one more join.
 
 ```alloy
 pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast and f not in RelativeBeforeLast and f not in BelowTime and f not in PairInList }
@@ -962,7 +970,7 @@ This follows because a pass sees only the IR the passes before it left. Run in t
 > when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
 <!-- statement-spec-a-negation-moves-inward-before-noun-phrases-are-said:end -->
 
-A noun phrase with "no" comes from a quantifier "no". A negated quantifier "some" becomes one only once its negation moves inward. So a reader gets "no cleanup has run", and not a negation set apart above the quantifier.
+`not (some x: Owner | x in c.on and x in Disposed)` should read `the cleanup is on no owner that pulse has disposed`. The noun-phrase pass makes "no owner" only from a quantifier "no". Moving the negation inward is what turns "not some" into "no". In the other order the words become `the cleanup is not on an owner that pulse has disposed`, which a reader can take as some disposed owner the cleanup is not on.
 
 ```alloy
 all a: NegationInward, b: NounPhrases | a->b in ahead
@@ -992,7 +1000,7 @@ all a: ConditionsApart, b: NounPhrases | a->b in ahead
 > when pass_1 says two things of a kind as one and another and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
 <!-- statement-spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said:end -->
 
-"A unit and another unit" says two things of one kind that differ, each with what holds of it. Said first as noun phrases one inside the other, they would lose the pair. The difference between them would stay a clause of its own.
+`some o1, o2: Owner | o1 != o2 and o1 in c.on and o2 in c.on` reads `c is on an owner and is on another owner`. "Another" carries the difference, so the reader meets no numbered names and no clause `owner_1 and owner_2 are different`. The pairing pass reads the quantifier of both variables whole, with its `!=`. So it runs while that quantifier still stands, before the noun-phrase pass folds either variable into a phrase.
 
 ```alloy
 all a: AnotherOfAKind, b: NounPhrases | a->b in ahead
@@ -1008,7 +1016,7 @@ all a: AnotherOfAKind, b: NounPhrases | a->b in ahead
 > - pass_2 says a quantifier of its variable alone as "there is a … that"
 <!-- statement-spec-noun-phrases-are-said-before-there-is-a-that:end -->
 
-A noun phrase hangs the variable from something the sentence already names, and reads better than a sentence of its own. The form with "that" is for a variable with nothing to hang from, so it takes what the noun phrases leave.
+`some d: Cleanup | o in d.on` could read `a cleanup is on o` or `there is a cleanup that is on o`. The first hangs the cleanup from o, which the sentence already names, and needs no `there is`. `There is a … that` serves a variable with nothing to hang from, as in `there is a cleanup that has run`. So the noun phrases go first, and `there is a … that` takes the quantifiers they leave.
 
 ```alloy
 all a: NounPhrases, b: ThereIsAThat | a->b in ahead
@@ -1024,7 +1032,7 @@ all a: NounPhrases, b: ThereIsAThat | a->b in ahead
 > - pass_2 makes nested quantifiers of "for every" one
 <!-- statement-spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one:end -->
 
-"The cleanup is on owner_1 and is on no other owner" comes from a "for every" over the members of the set. It sits right inside the "for every" that names the cleanup, and once the two become one, the pass cannot find it.
+`all d: Cleanup | d.on = o` reads `for every cleanup: the cleanup is on o and is on no other owner`. Lowered, `d.on = o` becomes a "for every" over owners, right inside the "for every" over cleanups. If the two merge first, the `x and no other` pass no longer finds its shape. The reader then gets `for every cleanup and every owner: the cleanup is on the owner exactly when the owner and o are the same`.
 
 ```alloy
 all a: XAndNoOther, b: ForEveryTogether | a->b in ahead
@@ -1040,7 +1048,7 @@ all a: XAndNoOther, b: ForEveryTogether | a->b in ahead
 > - pass_2 puts a time phrase in front of the words it covers
 <!-- statement-spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front:end -->
 
-"b now or later, and until then, a" holds a time phrase of its own. A time phrase in front of it would read as one moment with it. So the pass that puts one there must see the sentence the `until` became.
+If the time phrase goes in front first, `eventually (c in Registered until c in Ran)` prints `Now or later, c has run now or later, and until then, code has registered c`. The two phrases run together and read as one moment. The time-phrase pass puts a phrase in front only of words that hold no time phrase of their own. So it must see the sentence the `until` becomes, `b now or later, and until then, a`. It then sets that sentence apart below "Now or later:".
 
 ```alloy
 all a: UntilInASentence, b: TimePhraseInFront | a->b in ahead
@@ -1054,7 +1062,7 @@ all a: UntilInASentence, b: TimePhraseInFront | a->b in ahead
 > when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.
 <!-- statement-spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence:end -->
 
-"c has run and at the next moment, pulse has disposed o" puts a clause at the next moment beside another. That clause is one line only once its time phrase stands in front of it, so the clauses can become one sentence only after.
+`c in Ran and after o in Disposed` reads best as one sentence: `c has run and at the next moment, pulse has disposed o`. A clause at the next moment fits in such a sentence only once its time phrase stands in front of it. Until then it is a block, `at the next moment:` with the clause below it. If the clauses became a sentence first, this list would stay three lines of bullets under `All of these hold:`.
 
 ```alloy
 all a: TimePhraseInFront, b: ClausesInASentence | a->b in ahead
@@ -1068,7 +1076,7 @@ all a: TimePhraseInFront, b: ClausesInASentence | a->b in ahead
 > when pass_1 says a few clauses as one sentence and pass_2 says a rule on one line, pass_1 runs before pass_2.
 <!-- statement-spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line:end -->
 
-A rule goes on one line only when each side is one line. A side of several clauses is one line only once those clauses are a sentence.
+A rule goes on one line only when each side is one line. A side of several clauses is one line only once those clauses are a sentence. In the other order, `(c in Ran and c in Registered) implies o in Disposed` breaks before `then pulse has disposed o`. In this order it reads `When c has run and code has registered c, pulse has disposed o`.
 
 ```alloy
 all a: ClausesInASentence, b: RuleOnOneLine | a->b in ahead
@@ -1084,7 +1092,7 @@ all a: ClausesInASentence, b: RuleOnOneLine | a->b in ahead
 > - pass_2 says the subject and the verb that negative clauses share once, before "none of these"
 <!-- statement-spec-clauses-become-a-sentence-before-their-shared-words-are-said-once:end -->
 
-A list of a few clauses reads best as a sentence, and "none of these" only shortens the bullets of a list that stays bullets. So the clauses that can become a sentence do so first, and only the lists left as bullets say their shared words once.
+"None of these" shortens a long run of bullets that each repeat `the cleanup has no`. Two or three such clauses already read well as one sentence: `the cleanup has no label, has no flag and has no pin`. If "none of these" ran first, it would claim that list too and print a heading over three one-word bullets. So short lists become sentences first, and "none of these" shortens only the lists left as bullets.
 
 ```alloy
 all a: ClausesInASentence, b: NoneOfThese | a->b in ahead
@@ -1098,7 +1106,7 @@ all a: ClausesInASentence, b: NoneOfThese | a->b in ahead
 > when pass_1 says a few clauses as one sentence and pass_2 says the second side of a rule before its first side, pass_1 runs before pass_2.
 <!-- statement-spec-clauses-become-a-sentence-before-a-second-side-goes-first:end -->
 
-A rule says its second side first only where its first side stays bullets. A first side of a few short clauses becomes a sentence, and the rule then fits a line. So the pass that puts the second side first must see the sentence those clauses became.
+A rule says its second side first only where its first side stays bullets. A first side of two or three short clauses becomes a sentence instead, and the rule fits one line. If the claim went first earlier, `(c in Ran and c in Registered) implies o in Disposed` would print `Pulse has disposed o when all of these hold:` over two bullets. In this order it reads `When c has run and code has registered c, pulse has disposed o`.
 
 ```alloy
 all a: ClausesInASentence, b: ClaimFirst | a->b in ahead
@@ -1114,7 +1122,7 @@ all a: ClausesInASentence, b: ClaimFirst | a->b in ahead
 > - pass_2 says the second side of a rule before its first side
 <!-- statement-spec-a-rule-is-said-whenever-before-a-second-side-goes-first:end -->
 
-Under "from now on, whenever", a rule keeps its first side first: "whenever" takes the place of its "when". So the pass that puts a second side first must see which rules "whenever" took.
+Under `always`, a rule reads `From now on, whenever …, then …`: "whenever" takes the place of its "when". If the claim went first earlier, it would take that rule before "whenever" could. The statement would then open with "From now on:" on a line of its own, then `c has a label when all of these hold:`. So the pass that puts a claim first must see which rules "whenever" took, and leave them alone.
 
 ```alloy
 all a: FromNowOnWhenever, b: ClaimFirst | a->b in ahead
@@ -2060,7 +2068,7 @@ This follows because the analyzer does not read either as a formula, so neither 
 > then [verbalizer](#term-verbalizer) says the list on one line, as "when" the first side, the second side.
 <!-- statement-spec-a-rule-of-two-clauses-is-said-on-one-line:end -->
 
-A short rule reads best as one sentence: "when this, that". So when each side of a rule is a single clause, the verbalizer puts the rule on one line. This holds only when the first side does not open with a time phrase.
+A short rule reads best as one sentence. Laid out with a line per side, `all c: Cleanup | c in Ran implies c in Registered` breaks before `then code has registered the cleanup`. On one line it reads `When a cleanup has run, code has registered the cleanup`. A first side that opens with a time phrase stays off one line. In `when at the next moment, c has run, d has run`, the phrase seems to cover d too.
 
 ```alloy
 all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine
@@ -2795,7 +2803,7 @@ This follows because the statement sits in a Markdown document, and a definition
 > then [verbalizer](#term-verbalizer) says the definition as a list with a noun phrase for each kind, such as "a spec that cites no axiom".
 <!-- statement-spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind:end -->
 
-A definition by cases reads best as a short list with one noun phrase per kind, such as "a spec that cites no axiom". A reader takes that in faster than a sentence about a unit that is a spec. The verbalizer writes it this way when each alternative begins with its kind and the verbalizer can say the definition kind by kind.
+As it stands, a definition by cases repeats its subject in every case: `unit_1 is a spec`, `unit_1 cites no unit that is an axiom`, nested under `all of these hold`. The verbalizer instead names each kind once, as the head of a noun phrase: `a spec that cites no axiom and cites no spec`. The list then has one line per kind, and the reader sees at once what each kind must do. This applies when the verbalizer can say the definition [kind by kind](#term-by-kind).
 
 ```alloy
 all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKind
@@ -2829,7 +2837,7 @@ A thing is kept exactly when the thing is a cleanup that has run.
 > When a [definition](#term-definition-passage) has two alternatives for one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one noun phrase for that kind, with the alternatives joined by or.
 <!-- statement-spec-the-alternatives-of-one-kind-are-put-together-with-or:end -->
 
-When the verbalizer says a definition kind by kind, two alternatives for the same kind are just two ways to be that kind. So they share one noun phrase for the kind, joined by "or".
+A canon often gives one kind two cases, as term-unfounded does: an exception without a spec, and an exception without a fact. Listed apart, two lines would begin "an exception that", as if the kind came twice. The verbalizer merges them into one phrase joined by "or": `an exception that cites no spec or cites no fact`. Each kind then keeps exactly one line in the list.
 
 ```alloy
 all f: Definition | (f in SameKindTwice and byKind[f]) implies f in JoinedWithOr
@@ -2841,7 +2849,7 @@ all f: Definition | (f in SameKindTwice and byKind[f]) implies f in JoinedWithOr
 > When a [definition](#term-definition-passage) has an or inside one kind and can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one run of clauses joined by commas and or.
 <!-- statement-spec-the-options-of-an-or-inside-a-kind-are-one-coordination:end -->
 
-In a definition that the verbalizer can say kind by kind, one kind can offer a choice through an "or". The verbalizer then says its options as one flat run, like "names, names or is", joined by commas and "or". A flat run reads at once, where nested choices would not.
+A kind can hold its own choice, as in `a bug, and it names no issue or names an unknown issue or is not tested`. Said as it stands, that choice nests a second `at least one of these holds` under the kind. The verbalizer flattens it into one run after "that": `a bug that names no issue, names an issue that tracker does not know or is not tested`. Commas and a single "or" carry the run, so it reads in one pass.
 
 ```alloy
 all f: Definition | (f in OrInsideKind and byKind[f]) implies f in OneCoordination
@@ -2853,7 +2861,7 @@ all f: Definition | (f in OrInsideKind and byKind[f]) implies f in OneCoordinati
 > When the alternatives of a [definition](#term-definition-passage) are of one kind and the definition can be said [kind by kind](#term-by-kind), [verbalizer](#term-verbalizer) says the definition as one sentence.
 <!-- statement-spec-a-definition-with-one-kind-is-one-sentence:end -->
 
-A list of one line is no list. So when the verbalizer can say a definition kind by kind but all its alternatives share one kind, it says the definition as one sentence.
+When every alternative has the same kind, the list would read `unit_1 is one of these:` over a single bullet. That promises a choice the definition does not offer. So the verbalizer says it as one sentence: `unit_1 is unfounded exactly when unit_1 is a spec that cites no unit`.
 
 ```alloy
 all f: Definition | (f in OneKind and byKind[f]) implies f in OneSentenceKind
@@ -2865,7 +2873,7 @@ all f: Definition | (f in OneKind and byKind[f]) implies f in OneSentenceKind
 > When a [definition](#term-definition-passage) has an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind:end -->
 
-A phrase for a kind has to start with the kind. Forced into that shape, an alternative that opens with something else would lose part of what it says. So when any alternative does not begin with its kind, the verbalizer lists the alternatives as they stand.
+The phrase for a kind needs a kind to head it: `a spec that …`. An alternative such as `the unit is not an axiom` names no kind, so no phrase can start with one. Forcing it into the list would drop a case or invent a kind. So when any alternative does not open with its kind, the verbalizer keeps every alternative as it stands, under `at least one of these holds`.
 
 ```alloy
 all f: Definition | f in NoKindFirst implies f in AsItStands
@@ -2877,7 +2885,9 @@ all f: Definition | f in NoKindFirst implies f in AsItStands
 > When a [definition](#term-definition-passage) has a run of "and" beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways:end -->
 
-Merged into one phrase for their kind, a run of "and" next to another alternative of that kind could join to the wrong one. The reader should not have to guess which. So when a definition has such a run, the verbalizer lists the alternatives as they stand.
+Two cases of one kind merge with "or", and that breaks when one case is itself a run of "and". Then `A spec that is not tested and is not paired or cites no unit` can group the "or" two ways. It can join the last clause, or the whole run. The two groupings define different units, and nothing in the words picks one.
+
+So the verbalizer lists the alternatives as they stand, each on its own bullet. A run of "and" that is alone in its kind stays a phrase, since no "or" meets it.
 
 ```alloy
 all f: Definition | f in AmbiguousAnd implies f in AsItStands
@@ -2889,7 +2899,7 @@ all f: Definition | f in AmbiguousAnd implies f in AsItStands
 > When a [definition](#term-definition-passage) has an alternative that says something about another unit, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject:end -->
 
-A phrase for a kind describes the subject. An alternative that says something about another unit would come out as if it were about the subject. So when a definition has such an alternative, the verbalizer lists the alternatives as they stand.
+Each line of a definition by kinds reads `a bug that …`, so every clause after "that" must be about the bug. Term-hidden has a case `project has a tracker and the unit names no issue`. Put after "a bug that", "has a tracker" would read as a claim about the bug, not the project. So when any alternative says something of another thing, the verbalizer keeps the alternatives as they stand, each with its own subject.
 
 ```alloy
 all f: Definition | f in NotAboutSubject implies f in AsItStands
@@ -2901,7 +2911,7 @@ all f: Definition | f in NotAboutSubject implies f in AsItStands
 > When a [definition](#term-definition-passage) has two kinds that can share a member, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
 <!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member:end -->
 
-A definition said kind by kind reads "is one of these", and a reader can take that as exactly one. Where the kinds share no member, as signatures that extend one signature do, nothing is of two kinds, and both readings say the same. Where two kinds can share a member, a thing of both kinds that meets both alternatives would seem left out. So the verbalizer lists the alternatives as they stand, below "at least one of these holds".
+`The unit is one of these: a spec that is tested; a bug that is paired`, and a reader can take that as exactly one line. When specs and bugs share no member, as signatures that extend one signature, nothing meets two lines and both readings agree. When a unit can be a spec and a bug at once, a tested, paired one meets both lines. A reader taking "exactly one" would then wrongly leave it out. So the verbalizer lists the alternatives as they stand, under `at least one of these holds`.
 
 ```alloy
 all f: Definition | f in KindsShareAMember implies f in AsItStands
@@ -2989,7 +2999,7 @@ This follows because a word with no unit to lead to is only a word.
 > When the sentence says the variable of a [quantifier](#term-quantifier) once and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier as a noun phrase in the place of the variable, such as "sits in no unit".
 <!-- statement-spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase:end -->
 
-When a quantifier fits a noun phrase and the sentence mentions its variable once, the variable needs no name. The quantifier folds into a noun phrase where the variable stood, like "sits in no unit". Spelled out with a numbered name, the same takes twice the words.
+Spelled out in full, `some o: Owner | o in c.on` reads `there is an owner such that c is on the owner`. The reader meets the owner twice and must match the two mentions. When the sentence names the variable once and the quantifier [fits](#term-fit) a noun phrase, the [verbalizer](#term-verbalizer) puts the phrase where the variable stood: `c is on an owner`. Under "no" it reads `c is on no owner`.
 
 ```alloy
 all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase
@@ -3028,7 +3038,7 @@ For every cleanup and every text_1:
 > When the variable of a [quantifier](#term-quantifier) is the subject of the sentence and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier with the noun phrase as the subject, such as "a tag names unit_1".
 <!-- statement-spec-a-noun-phrase-can-be-the-subject-of-a-sentence:end -->
 
-Often the variable of a quantifier is what the sentence is about. When the quantifier fits a noun phrase, the verbalizer then opens the sentence with that phrase as its subject, as in "a tag names unit_1".
+In `some d: Cleanup | o in d.on`, the cleanup is what the sentence is about. Spelled out, it reads `there is a cleanup such that the cleanup is on o`. When the quantifier fits a noun phrase, the phrase opens the sentence as its subject instead: `a cleanup is on o`, or `no cleanup is on o`. The o after the verb gives the phrase something to hang from.
 
 ```alloy
 all f: Quantifier | (f in VariableSubject and fits[f]) implies f in AsSubjectPhrase
@@ -3040,7 +3050,7 @@ all f: Quantifier | (f in VariableSubject and fits[f]) implies f in AsSubjectPhr
 > When the variable of a [quantifier](#term-quantifier) has a further condition and the quantifier [fits](#term-fit) a noun phrase, [verbalizer](#term-verbalizer) says the quantifier with a relative clause, such as "a unit that is a spec".
 <!-- statement-spec-what-else-is-true-of-the-variable-is-a-relative-clause:end -->
 
-When a quantifier fits a noun phrase, a further condition on its variable is part of the phrase that names it. So it rides along as a relative clause, as in "a unit that is a spec".
+`some o: Owner | o in c.on and o in Disposed` says two things of one owner. In full it reads `there is an owner such that c is on the owner and pulse has disposed the owner`. When the quantifier fits a noun phrase, the second condition joins the phrase as a relative clause: `c is on an owner that pulse has disposed`. The reader meets one owner, once.
 
 ```alloy
 all f: Quantifier | (f in VariableWithCondition and fits[f]) implies f in RelativeClause
@@ -3104,7 +3114,7 @@ This follows because a test that checks a bug that sits in a unit reads from lef
 > When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full:end -->
 
-A noun phrase stands in one place only. If the sentence mentions the variable twice, two phrases would hide that they are one thing. So the verbalizer spells the quantifier out in full, with a numbered name that both places share.
+`some o: Owner | o in o.parent` says that one owner is its own parent. As noun phrases it would read `an owner is the parent of an owner`, which a reader takes as two owners. So the verbalizer says it in full, and both places share one name: `there is an owner such that the owner is the parent of the owner`.
 
 ```alloy
 all f: Quantifier | f in VariableTwice implies f in InFull
@@ -3123,7 +3133,9 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
-A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or when the conditions under "no" are many or long. Nor can it when a condition under "no" says "no".
+A noun phrase alone in its sentence misleads: `a cleanup has run` reads as a rule about every cleanup. `There is a … that` repairs most such cases, as the next spec says. Where it cannot, the verbalizer says the quantifier in full. It cannot when the variable is not the subject of each condition: `some o: Owner | o in Disposed` reads `there is an owner such that pulse has disposed the owner`.
+
+Under "no" it cannot either when a condition says "no" itself. So `no d: Cleanup | d not in Labelled` reads `there is no cleanup such that the cleanup has no label`, not `no cleanup has no label`. Many or long conditions under "no" stay under `such that all of these hold`. After `there is no cleanup that:`, each bullet could read as denied on its own.
 
 ```alloy
 all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or (f in LongConditions and f in UnderNo) or f in NoUnderNo)) implies f in InFull
@@ -3144,7 +3156,9 @@ all f: Quantifier | (f in NothingToAttach and (f not in VariableSubject or (f in
 > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec".
 <!-- statement-spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that:end -->
 
-"A unit is a spec" reads as a rule about every unit, and "some unit is a spec" has nothing to hang from. So the verbalizer lets `there is` give the phrase a place, with the conditions as one relative clause: `there is a list that has an item with a comma`. Under "no", one condition reads best as `no unit is a spec`, and several keep `there is no` so that "no" covers each. A condition that says "no" itself stays in full, because `no claim takes no lane` is a double negative.
+`some d: Cleanup | d in Ran` cannot be a bare noun phrase, since `a cleanup has run` reads as a rule about every cleanup. In full it reads `there is a cleanup such that the cleanup has run`, which names the cleanup twice. So the verbalizer lets `there is` give the phrase a place, and the conditions follow as one relative clause: `there is a cleanup that has run and has a label`.
+
+Under "no", one condition reads `no cleanup has run`. Several keep `there is no cleanup that has run and has a label`, so that "no" covers each. A condition that says "no" itself stays in full, since `no cleanup has no label` is a double negative.
 
 ```alloy
 all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in LongConditions and f not in NoUnderNo and f not in NoWithAnother) implies f in ThereIsThat
@@ -3194,7 +3208,7 @@ No cleanup has run.
 > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
 <!-- statement-spec-many-conditions-about-a-variable-alone-are-bullets-after-there-is-that:end -->
 
-Conditions too many or too long for one sentence still share their subject. So the sentence opens with `there is a quantifier that:`, and each condition follows as a bullet that goes on from "that". The numbered name and the repeated subject go. Under "no", such bullets could read as each one denied on its own, so "no" keeps the full form.
+Four conditions on one cleanup are too many for one relative clause. In full they read `there is a cleanup such that all of these hold:`, with "the cleanup" opening each bullet. Instead the verbalizer writes `there is a cleanup that:`, and each bullet goes on from "that": "has run", "has a label", "has a flag", "has a pin". Under "no", such bullets could each read as denied on its own, so "no" keeps the full form.
 
 ```alloy
 all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f in LongConditions and f not in UnderNo and f not in NoWithAnother) implies f in ThereIsThatList
@@ -3206,7 +3220,7 @@ all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f in Long
 > When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-no-with-another-is-said-in-full:end -->
 
-The short way to say that no unit but this one sits in it would be "no other unit sits in it". But "no other" hints that this unit itself does, which the logic does not say. So the verbalizer spells the quantifier out in full, with a numbered name.
+`some d: Cleanup | d != c and o in d.on` reads `a cleanup other than c is on o`. Under "no", the short form would be `no other cleanup is on o`. That hints that c is on o, which the formula does not say. So the verbalizer says it in full, with the difference from c as a condition of its own.
 
 ```alloy
 all f: Quantifier | f in NoWithAnother implies f in InFull
@@ -3222,7 +3236,7 @@ all f: Quantifier | f in NoWithAnother implies f in InFull
 > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full:end -->
 
-A time phrase inside a noun phrase seems to cover every condition in that phrase. When it belongs to only one of several conditions, that reading is wrong. So the verbalizer spells the quantifier out in full, which keeps the time phrase on its own condition.
+In `some o: Owner | o in c.on' and p in o.parent`, only the first condition holds at the next moment. As a noun phrase it would read `at the next moment, c is on an owner that p is the parent of`. There the time phrase seems to cover the parent too. So the verbalizer says it in full, and the time phrase stays on its own bullet. With one condition the phrase is safe: `at the next moment, c is on an owner`.
 
 ```alloy
 all f: Quantifier | f in TimedCondition implies f in InFull
@@ -3295,7 +3309,7 @@ all f: Quantifier | (f in ConditionAside and (f in UnderNo or f not in RestFits)
 > When a [list](#term-series) can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list in a sentence.
 <!-- statement-spec-three-clauses-or-fewer-are-said-in-a-sentence:end -->
 
-A short list reads more easily in a sentence than as bullets. So the verbalizer puts every list that can go in a sentence into one.
+Bullets cost a heading line and a line for each clause. Without this rule, `the cleanup is on owner_1 and has run` would take three lines: `all of these hold:` over two bullets. So the verbalizer puts every list that can go in a [sentence](#term-sentenceable) into one.
 
 ```alloy
 all f: Series | sentenceable[f] implies f in AsSentence
@@ -3333,7 +3347,7 @@ For every cleanup, every owner_1 and every owner_2:
 > When a [list](#term-series) is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-longer-list-or-a-list-with-a-comma-is-bullets:end -->
 
-A sentence loses the reader when it carries many conditions, commas inside items, or items longer than a clause. Bullets give each item its own line. So any run of "and" or "or" that cannot go in a sentence goes in bullets.
+A sentence loses the reader when it carries many clauses, a comma inside an item, or an item longer than a clause. Bullets give each item a line of its own, so the reader sees where each one ends. So any run of "and" or "or" that cannot go in a [sentence](#term-sentenceable) goes in bullets, under `All of these hold:` or `At least one of these holds:`.
 
 ```alloy
 all f: Series | (f in Items and not sentenceable[f]) implies f in AsBullets
@@ -3345,7 +3359,7 @@ all f: Series | (f in Items and not sentenceable[f]) implies f in AsBullets
 > When a [list](#term-series) has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-of-more-than-three-clauses-is-bullets:end -->
 
-Four conditions in one sentence lose the reader. So a list of more than three clauses is always bullets.
+As a sentence, this list reads `c has run, code has registered c, pulse has disposed o and the dispose of o has been stopped`. The reader has to count commas to find each condition. As bullets, each condition has a line of its own under `All of these hold:`. So a list of more than three clauses is always bullets.
 
 ```alloy
 all f: Series | f in Many implies f in AsBullets
@@ -3359,7 +3373,7 @@ all f: Series | f in Many implies f in AsBullets
 > - the list has more than two clauses
 <!-- statement-spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets:end -->
 
-A comma inside an item makes a list of three read as a list of more. So once a list has such a comma and more than two clauses, it is bullets.
+In a sentence of three items, commas separate the items. A comma inside an item then looks like one more separator. `c has run, pulse has disposed p and at the next moment, pulse has disposed o` seems to list four things. So such a list is bullets. A pair joins with "and" alone, so it keeps its sentence: `c has run and at the next moment, pulse has disposed o`.
 
 ```alloy
 all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets
@@ -3371,7 +3385,7 @@ all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets
 > When a [list](#term-series) is longer than a line when it is put in a sentence, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-too-long-for-a-line-is-bullets:end -->
 
-A sentence that runs past a line is hard to take in at once. So a list that would make such a sentence is bullets, no matter how few its clauses.
+A sentence that runs past a line is hard to take in at once, even with few clauses. `The dispose of o has been stopped, the dispose of p has been stopped and d is on an owner that pulse has disposed` runs to 113 characters. That passes the limit of 110, so the [verbalizer](#term-verbalizer) says it as three bullets. With `code has registered d` as its last clause, the sentence fits and stays one line.
 
 ```alloy
 all f: Series | f in TooLong implies f in AsBullets
@@ -3383,7 +3397,7 @@ all f: Series | f in TooLong implies f in AsBullets
 > When a [list](#term-series) has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets:end -->
 
-A time phrase early in a sentence seems to cover every clause after it. In the formula it covers only its own clause. So a list with a time phrase before its last clause is bullets, where each clause stands alone.
+A time phrase early in a sentence seems to cover every clause after it. So `At the next moment, c has run and d has run` reads as if d runs at the next moment too. The formula puts only c there. So such a list is bullets, and each clause stands on a line of its own. At the end of a list the phrase has nothing after it to cover. `c has run and at the next moment, pulse has disposed o` stays a sentence.
 
 ```alloy
 all f: Series | f in TimeBeforeLast implies f in AsBullets
@@ -3395,7 +3409,7 @@ all f: Series | f in TimeBeforeLast implies f in AsBullets
 > When a [list](#term-series) has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets:end -->
 
-In running prose a relative clause has no visible end, so it seems to swallow the clauses after it. "An owner that pulse has disposed and code has registered c" reads as one long description of the owner. In the formula, the relative clause ends with its own item. So when a clause before the last has a relative clause, the [verbalizer](#term-verbalizer) puts the list in bullets. The line break then marks where that clause stops.
+In running prose a relative clause has no visible end, so it seems to swallow the clauses after it. So `c is on no owner that pulse has disposed and code has registered c` reads as one description of the owner. In the formula the relative clause ends with its own item. So the [verbalizer](#term-verbalizer) puts such a list in bullets, and the line break marks where that clause stops. A relative clause in the last clause swallows nothing, so its list can stay a sentence.
 
 ```alloy
 all f: Series | f in RelativeBeforeLast implies f in AsBullets
@@ -3425,7 +3439,7 @@ all f: Series | f in BelowTime implies f in AsBullets
 > When a [list](#term-series) has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
 <!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:end -->
 
-A sentence can carry a list only while each item is a single clause. An item that is more than one clause, such as one with its own quantifier or its own list, would blur into its neighbours. So one such item is enough: the [verbalizer](#term-verbalizer) says the whole list as bullets.
+An item with its own quantifier or its own list has no visible end in a sentence. So `For every cleanup, the cleanup has run and code has registered c` leaves open what "for every cleanup" covers. In bullets, the quantifier and its clause sit in one bullet, and the next bullet starts clear of it. So one such item is enough: the [verbalizer](#term-verbalizer) says the whole list as bullets.
 
 ```alloy
 all f: Series | f in NotClause implies f in AsBullets
@@ -3443,7 +3457,7 @@ all f: Series | f in NotClause implies f in AsBullets
 
 Derives from: [`spec-words-said-once-for-several-clauses-hold-no-noun-phrase`](#spec-words-said-once-for-several-clauses-hold-no-noun-phrase)
 
-Bullets that each start with "the definition has no" hide what differs between them behind what they share. Some lists hold only negative clauses about one subject, and every clause goes on from the same verb with a noun phrase of its own. There the verbalizer says the subject and the verb once, with "none of these" after them. The bullets then hold only the noun phrases: "the definition has none of these:", then "an alternative that does not begin with its kind". It cuts the shared words before the first word of a noun phrase, so they hold no noun phrase.
+Four bullets that each begin `the cleanup has no` hide what differs between them behind what they share. When each clause denies something of one subject through the same verb, the verbalizer says the subject and the verb once. The line `The cleanup has none of these:` then leads bullets that hold only what differs: "a label", "a flag", "a pin", "a mark". The shared words stop before the first word of a noun phrase. A noun phrase above the bullets would claim something of the subject that no single clause claims.
 
 ```alloy
 all f: Series | (f in SharedNegatives and f in AsBullets) implies f in SaysNoneOfThese
@@ -3489,7 +3503,9 @@ For every cleanup:
 > when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
 <!-- statement-spec-an-and-inside-an-or-is-kept-apart:end -->
 
-Read aloud, "a and b or c" has two meanings, and a statement must have one. So when one alternative in a list holds an "and", the [verbalizer](#term-verbalizer) sets the list out as bullets. Their grouping leaves only one reading.
+`c has run or code has registered c and pulse has disposed o` has two meanings. Either c has run, or both other clauses hold. Or pulse has disposed o, and one of the first two holds as well. A statement must have one meaning.
+
+So when one alternative holds an "and", the [verbalizer](#term-verbalizer) gives each alternative its own bullet under `At least one of these holds:`. The "and" then stays inside its bullet.
 
 ```alloy
 all f: Series | f in AndInOr implies f in KeepsAndApart
@@ -3532,7 +3548,7 @@ all f: Series | f in PairInList implies f in AsBullets
 > - the list is a rule whose second side begins with a time phrase
 <!-- statement-spec-a-rule-keeps-its-then-before-a-time-phrase:end -->
 
-A short rule can stumble on a time phrase. Without "then", it puts two commas in a row: "when this, now or later, that". With it, the rule reads cleanly. So the [verbalizer](#term-verbalizer) keeps the "then" when both sides are single clauses and only the second opens with a time phrase.
+Without "then", a short rule whose second side opens with a time phrase prints `When c has run, at the next moment, pulse has disposed o`. The phrase sits between two commas, and could belong to either side. With "then" it plainly opens the second side: `When c has run, then at the next moment, pulse has disposed o`. So the [verbalizer](#term-verbalizer) keeps "then" when both sides are single clauses and only the second opens with a time phrase.
 
 ```alloy
 all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen
@@ -3547,7 +3563,7 @@ all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) im
 > - the list is not a rule whose second side begins with a time phrase
 <!-- statement-spec-a-rule-drops-its-then-before-anything-else:end -->
 
-When both sides of a rule are single clauses, the comma in "when this, that" already shows where the second side starts. A "then" after every "when" would add words and nothing else. So the [verbalizer](#term-verbalizer) leaves it out, unless a time phrase opens either side.
+In `When c has run, code has registered c`, the comma already shows where the second side starts. `When c has run, then code has registered c` adds a word to every rule and tells the reader nothing new. So the [verbalizer](#term-verbalizer) leaves "then" out of a one-line rule. A time phrase at the start of either side needs more than a comma, so those rules keep a "then".
 
 ```alloy
 all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) implies f in DropsThen
@@ -3559,7 +3575,7 @@ all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond
 > When a [list](#term-series) is a rule whose first side begins with a time phrase, [verbalizer](#term-verbalizer) says the list with "then" at the start of the second side, on a line of its own.
 <!-- statement-spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own:end -->
 
-A time phrase at the head of a rule might seem to cover the second side too. On one line the reader would have to guess. So the second side starts on a line of its own with "then", which shows where the time phrase stops.
+On one line, `When at the next moment, c has run, code has registered c` leaves the reach of the time phrase to a guess. It could cover "c has run" alone, or the registering too. So the second side starts on a line of its own with "then", below the first side: `then code has registered c`. The line break and the "then" show where the time phrase stops.
 
 ```alloy
 all f: Series | f in TimeFirst implies f in ThenOwnLine
@@ -3576,7 +3592,7 @@ all f: Series | f in TimeFirst implies f in ThenOwnLine
 > then verbalizer says the list with "then" at the start of the second side, on a line of its own.
 <!-- statement-spec-a-rule-with-a-list-for-a-side-puts-its-then-on-a-line-of-its-own:end -->
 
-A rule with a side longer than one clause cannot fit on a line. So its second side starts on a line of its own, and "then" tells the reader where it begins. A rule said with its second side first needs no "then": nothing follows its bullets.
+A rule with a side longer than one clause cannot fit on a line. After a run of bullets, an unmarked second side would look like one more bullet. So the second side starts on a line of its own with "then": `then at the next moment, pulse has disposed p`. A rule said with its second side first needs no "then", because its bullets end the statement.
 
 ```alloy
 all f: Series | (f in Rule and f not in OneLineRule and f not in SecondSideFirst) implies f in ThenOwnLine
@@ -3594,9 +3610,9 @@ all f: Series | (f in Rule and f not in OneLineRule and f not in SecondSideFirst
 
 Derives from: [`spec-a-claim-before-when-holds-where-the-bullets-after-it-hold`](#spec-a-claim-before-when-holds-where-the-bullets-after-it-hold)
 
-A rule whose first side is bullets and whose second side is one line says its second side first. Then come "when", the line that opens the bullets, and the bullets. The reader meets the claim before the conditions it rests on. The bullets end the statement, so no "then" has to show where they stop.
+A rule with bulleted conditions makes the reader go through every bullet before learning what it claims. Said the other way round, the claim comes first: `A cleanup has a label when all of these hold:`, then the bullets. The bullets end the statement, so no "then" line has to show where they stop.
 
-A time phrase, a relative clause, a comma or a "when" in the second side could reach over the "when" after it. An "otherwise" speaks of what the first side does not hold of. Under "from now on, whenever", "whenever" has taken the place of "when". So those rules keep their first side first.
+This works only when the claim is one plain line. A time phrase, a relative clause, a comma or a "when" in the claim could reach over the "when" after it. In `c is on an owner that pulse has disposed when …`, the "when" could belong to "disposed". An "otherwise" speaks of what the first side does not hold of, so such a rule keeps its first side first too. So does a rule said `from now on, whenever`, where "whenever" has taken the place of "when".
 
 ```alloy
 all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise and f not in Whenever) implies f in SecondSideFirst
