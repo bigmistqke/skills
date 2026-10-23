@@ -547,7 +547,7 @@ export class Parser {
     for (const [head, rest] of splits(intro, ' exactly when ')) {
       const heads = this.clauses(head, scope);
       if (heads.length === 0) continue;
-      const of = /^(.+) is one of these$/.exec(rest);
+      const of = new RegExp(`^(.+) is ${INTRO.oneOf}$`).exec(rest);
       const bodies: Sentence[] = [];
       if (of !== null && doc.kind === 'list') {
         let all: Sentence[][] = [[]];

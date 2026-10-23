@@ -437,7 +437,7 @@ export class Printer {
       cases.push(own`${kind} that ${coordinate(says.says, says.how)}`);
     }
     if (cases.length === 1) return own`${head} exactly when ${subject} is ${cases[0] as string}`;
-    return { kind: 'list', intro: own`${head} exactly when ${subject} is one of these`, items: cases };
+    return { kind: 'list', intro: own`${head} exactly when ${subject} is ${fixed(INTRO.oneOf)}`, items: cases };
   }
 
   private defined(s: Extract<Sentence, { t: 'define' }>): Doc {
@@ -450,8 +450,9 @@ export class Printer {
     else if (empty) sentence = head;
     else {
       const body = s.body.t === 'iff' ? ({ kind: 'list', intro: fixed(INTRO.both), items: [this.sentence(s.body.l), this.sentence(s.body.r)] } as Doc) : this.sentence(s.body);
-      // A body that is a rule or a "for every" is set apart: after "exactly when", its own words would run on.
-      if (s.body.t === 'rule' || (s.body.t === 'quant' && s.body.q === 'all')) sentence = this.apart(own`${head} exactly when ${fixed(INTRO.apart)}`, body);
+      // A body that is a rule, a "for every" or a series is set apart: after "exactly when", its own words would run on,
+      // and a series could end before its last clause and leave that clause outside the definition.
+      if (s.body.t === 'rule' || (s.body.t === 'quant' && s.body.q === 'all') || (typeof body === 'string' && series(body))) sentence = this.apart(own`${head} exactly when ${fixed(INTRO.apart)}`, body);
       else if (typeof body === 'string') sentence = own`${head} exactly when ${body}`;
       else if (isList(body)) sentence = { ...body, intro: own`${head} exactly when ${body.intro}` };
       else sentence = this.apart(own`${head} exactly when ${fixed(INTRO.apart)}`, body);

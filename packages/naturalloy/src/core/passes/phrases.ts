@@ -7,6 +7,7 @@
  */
 import type { Clause, NounPhrase, Sentence, Term, Var } from '../ir.ts';
 import { type Context, everywhere, type Pass } from '../pass.ts';
+import { Vocabulary } from '../vocabulary.ts';
 import { mentions } from '../walk.ts';
 import { seen, timed } from '../words.ts';
 
@@ -182,6 +183,12 @@ export const nounPhrases: Pass = {
   }
 };
 
+/** The kind an alternative of a definition begins with: the set of its first clause's reading, or the signature of its "is a". */
+function kindOf(alternative: Sentence): string | undefined {
+  const guard = alternative.t === 'and' ? alternative.items[0] : undefined;
+  return guard?.t === 'isA' ? guard.type : guard?.t === 'reading' ? guard.key : undefined;
+}
+
 /**
  * A definition by kinds: its body is an "or" of alternatives, or one, that each begin by saying what kind of thing the
  * parameter is, and go on with clauses about it. The printer says each kind as a noun phrase: "unit_1 is unfounded
@@ -200,7 +207,12 @@ export const definitionByKinds = everywhere('definition-by-kinds', 'spec-a-defin
     return rest.every(about);
   };
   const alternatives = s.body.t === 'or' ? s.body.items : [s.body];
-  return alternatives.every(fits) ? { ...s, form: 'by-kinds' } : undefined;
+  if (!alternatives.every(fits)) return undefined;
+  // A reader may take "is one of these" as exactly one. Over kinds that share no member, that is what it says.
+  const kinds = [...new Set(alternatives.map(kindOf))];
+  const vocabulary = new Vocabulary(context.readings);
+  if (kinds.some(k => k === undefined) || kinds.some((a, i) => kinds.slice(i + 1).some(b => vocabulary.overlap(a as string, b as string)))) return undefined;
+  return { ...s, form: 'by-kinds' };
 });
 
 /**

@@ -25,6 +25,7 @@ gone: {1} is gone | {1} is not gone
 owners: {2} owns {1} | {2} does not own {1}
 m/Gone: {1} is gone in m | {1} is not gone in m
 q: {1} is quiet for {2} | {1} is not quiet for {2}
+kept: {1} is kept | {1} is not kept
 `;
 export const VOCABULARY = `
 sig Owner { parent: lone Owner }
@@ -257,5 +258,11 @@ export const SWEEP: { what: string; formula: string }[] = [
     'always all c: Cleanup | c in Ran'
   ].map(formula => ({ what: '`always` around "for every"', formula })),
   // `some` over several things, of one type and of two.
-  ...['some c: Cleanup, o: Owner | o in c.on and o in Disposed', 'some disj c, d: Cleanup | c in Ran and d not in Ran', 'some c: Cleanup, o, p: Owner | o in c.on and p not in c.on'].map(formula => ({ what: '`some` over several things', formula }))
+  ...['some c: Cleanup, o: Owner | o in c.on and o in Disposed', 'some disj c, d: Cleanup | c in Ran and d not in Ran', 'some c: Cleanup, o, p: Owner | o in c.on and p not in c.on'].map(formula => ({ what: '`some` over several things', formula })),
+  // A quantifier about its variable alone, with nothing else to hang from: "there is a cleanup that has run".
+  ...['some d: Cleanup | d in Ran', 'no d: Cleanup | d in Ran'].map(formula => ({ what: 'a quantifier about its variable alone', formula })),
+  // Two things of one kind that differ, each with a condition of its own: "is on an owner and is on another owner".
+  ...['all c: Cleanup | some disj o, p: Owner | o in c.on and p in c.on', 'all c: Cleanup | some o, p: Owner | o != p and o in c.on and p in Disposed'].map(formula => ({ what: 'two things of a kind', formula })),
+  // A definition whose alternatives each begin with a kind: of kinds that share no member, of one kind, and with a clause not about its subject.
+  ...['pred kept[x: univ] { (x in Owner and gone[x]) or (x in Cleanup and x in Ran) }', 'pred kept[x: univ] { x in Cleanup and x in Ran }', 'pred kept[x: univ] { (x in Owner and gone[x]) or (x in Cleanup and x in Ran and x not in Registered) }'].map(formula => ({ what: 'a definition by kinds', formula }))
 ];

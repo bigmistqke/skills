@@ -1,6 +1,12 @@
 /** The order of the passes: each runs after the passes whose shapes it reads, as the canon says. */
 import { describe, expect, it } from 'vitest';
+import { context, lower, lowerDefinition } from '../../src/core/index.ts';
+import type { Sentence } from '../../src/core/ir.ts';
+import type { Context } from '../../src/core/pass.ts';
 import { PASSES } from '../../src/core/passes/index.ts';
+import { parts } from '../../src/core/walk.ts';
+import { isDefinition, parseReadings, withDefinitions } from '../../src/index.ts';
+import { READINGS, SWEEP, VOCABULARY } from '../canon/sweep.ts';
 
 /** Where a pass stands in the pipeline. */
 const at = (name: string): number => {
@@ -58,4 +64,59 @@ describe('the order of the passes', () => {
   it('makes clauses a sentence before a rule goes on one line', () => {
     expect(at('clauses-in-a-sentence')).toBeLessThan(at('rule-on-one-line'));
   });
+});
+
+const readings = withDefinitions(parseReadings(READINGS), VOCABULARY);
+
+/** The sentences of the IR. A node a pass rebuilds, or rebuilds below, is a new object, so one still there is unchanged. */
+const sentences = (s: Sentence): Set<Sentence> => new Set([...parts(s)].flatMap(part => ('sentence' in part ? [part.sentence] : [])));
+
+/**
+ * Over the sweep, each part whose words a pass weighed, and left as it was, that a later pass then changed: the pass
+ * that weighed it, the pass that changed it, and the formula.
+ */
+function weighedThenChanged(): { weighed: string; changed: string; formula: string }[] {
+  const base = context(readings);
+  const found: { weighed: string; changed: string; formula: string }[] = [];
+  for (const { formula } of SWEEP) {
+    let at: Sentence;
+    try {
+      at = isDefinition(formula) ? lowerDefinition(formula, readings) : lower(formula, readings);
+    } catch {
+      continue;
+    }
+    let held: { pass: string; part: Sentence }[] = [];
+    for (const pass of PASSES) {
+      if (!('run' in pass)) continue;
+      const before = sentences(at);
+      const weighed = new Set<Sentence>();
+      const weigh = (s: Sentence): void => void (before.has(s) && weighed.add(s));
+      const watched: Context = { ...base, words: s => (weigh(s), base.words(s)), opening: s => (weigh(s), base.opening(s)) };
+      at = pass.run(at, watched);
+      const after = sentences(at);
+      for (const { pass: by } of held.filter(h => !after.has(h.part))) found.push({ weighed: by, changed: pass.name, formula });
+      held = [...held.filter(h => after.has(h.part)), ...[...weighed].filter(part => after.has(part)).map(part => ({ pass: pass.name, part }))];
+    }
+  }
+  return found;
+}
+
+/** Where the bug below has a time phrase weigh a part before a later pass changes it. */
+const TIME_PHRASE_WEIGHS_EARLY = (v: { weighed: string; changed: string }): boolean =>
+  v.weighed === 'time-phrase-in-front' && (v.changed === 'rule-on-one-line' || v.changed === 'clauses-in-a-sentence');
+
+describe('the words a pass weighs', () => {
+  /**
+   * @canon spec-a-pass-weighs-only-words-that-no-later-pass-changes
+   */
+  it('are the words the part ends with, over the sweep, but for the bug below', () => {
+    expect(weighedThenChanged().filter(v => !TIME_PHRASE_WEIGHS_EARLY(v))).toEqual([]);
+  }, 600_000);
+
+  /**
+   * @canon bug-a-time-phrase-weighs-a-part-that-a-later-pass-changes
+   */
+  it.fails('are the words the part ends with, below a time phrase too', () => {
+    expect(weighedThenChanged()).toEqual([]);
+  }, 600_000);
 });

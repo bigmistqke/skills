@@ -11,7 +11,9 @@ export const INTRO = {
   both: 'both or neither of these hold',
   exactlyOne: 'exactly one of these holds',
   untrue: 'it is not the case that',
-  apart: 'the following holds'
+  apart: 'the following holds',
+  /** After "is", before the kinds of a definition said kind by kind: "unit_1 is one of these". */
+  oneOf: 'one of these'
 } as const;
 
 /** The time phrase of each temporal operator of one formula. */

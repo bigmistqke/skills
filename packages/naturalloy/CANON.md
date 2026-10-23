@@ -32,6 +32,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   > - definition_1 is not a definition with an alternative that does not begin with its kind
   > - definition_1 is not a definition with a run of and beside another alternative of its kind
   > - definition_1 is not a definition with an alternative that says something about another unit
+  > - definition_1 is not a definition with two kinds that can share a member
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 - [`@term sentenceable`](#term-sentenceable) —
@@ -55,6 +56,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
 - [`@fact the-analyzer-shifts-by-the-lowest-bits-of-the-amount`](#fact-the-analyzer-shifts-by-the-lowest-bits-of-the-amount) — The analyzer shifts by the number in the lowest bits of the amount: as many bits as it takes to count to the bit width.
 - [`@axiom a-formula-is-said-without-loss`](#axiom-a-formula-is-said-without-loss) — The verbalizer says a formula only in words that translate it without loss, and refuses a formula that it cannot say that way.
   - [`@spec a-statement-is-said-through-passes-that-each-keep-its-meaning`](#spec-a-statement-is-said-through-passes-that-each-keep-its-meaning) — The verbalizer lowers a formula to the IR in the plainest words its readings give. It makes each choice of words in a [pass](#term-pass) of the [pipeline](#term-pipeline). A pass of the IR changes no meaning. The analyzer asks that of every change it makes to the sweep.
+    - [`@spec every-pass-changes-the-words-of-a-formula-of-the-sweep`](#spec-every-pass-changes-the-words-of-a-formula-of-the-sweep) — Every [pass](#term-pass) changes the words of at least one formula of the sweep.
     - [`@spec a-pass-runs-after-the-passes-whose-shapes-it-reads`](#spec-a-pass-runs-after-the-passes-whose-shapes-it-reads) — Where one pass makes or removes a shape that another reads, the [pipeline](#term-pipeline) runs them in the order the shape needs.
       - [`@spec a-negation-moves-inward-before-noun-phrases-are-said`](#spec-a-negation-moves-inward-before-noun-phrases-are-said) — For every [pass_1](#term-pass) and every pass_2: when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
       - [`@spec two-things-of-a-kind-are-paired-before-noun-phrases-are-said`](#spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says two things of a kind as one and another and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.
@@ -84,6 +86,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
         > then pass_1 runs before pass_2.
       - [`@spec a-time-phrase-goes-in-front-before-clauses-become-a-sentence`](#spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence) — For every [pass_1](#term-pass) and every pass_2: when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.
       - [`@spec clauses-become-a-sentence-before-a-rule-goes-on-one-line`](#spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line) — For every [pass_1](#term-pass) and every pass_2: when pass_1 says a few clauses as one sentence and pass_2 says a rule on one line, pass_1 runs before pass_2.
+    - [`@spec a-pass-weighs-only-words-that-no-later-pass-changes`](#spec-a-pass-weighs-only-words-that-no-later-pass-changes) — The words a [pass](#term-pass) weighs to choose how to say a part are the words that part ends with: no pass after it changes them.
+      - [`@bug a-time-phrase-weighs-a-part-that-a-later-pass-changes`](#bug-a-time-phrase-weighs-a-part-that-a-later-pass-changes) — The verbalizer weighs whether a time phrase goes in front before it lays out the rule or the list the phrase covers. So a time phrase can stay above a rule that ends on one line.
   - [`@spec a-formula-is-said-in-full`](#spec-a-formula-is-said-in-full) — The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
   - [`@spec a-formula-is-said-the-same-way-every-time`](#spec-a-formula-is-said-the-same-way-every-time) — The verbalizer says a formula in the same words every time.
   - [`@spec saying-a-formula-ends`](#spec-saying-a-formula-ends) — The verbalizer ends on every formula, with words or with a refusal.
@@ -297,6 +301,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter`](#spec-a-definition-says-what-it-names-exactly-when-its-body-holds-for-every-parameter) — The verbalizer says a [definition](#term-definition-passage) as "for every" parameter, then the name, "exactly when", and the body.
   - [`@spec a-definition-that-marks-its-variables-disj-is-said-with-them-different`](#spec-a-definition-that-marks-its-variables-disj-is-said-with-them-different) — The verbalizer says a definition that marks its variables `disj` with the condition that they are different. A call of it said by its body gets the same condition.
   - [`@spec a-definition-with-a-body-of-one-clause-is-said-on-one-line`](#spec-a-definition-with-a-body-of-one-clause-is-said-on-one-line) — The verbalizer says a definition whose body is one clause on one line after the "for every".
+  - [`@spec a-definition-whose-body-is-a-series-sets-it-apart`](#spec-a-definition-whose-body-is-a-series-sets-it-apart) — The verbalizer sets apart the body of a [definition](#term-definition-passage) that is a series, below "exactly when the following holds".
   - [`@spec a-definition-says-each-parameter-with-the-noun-of-its-type`](#spec-a-definition-says-each-parameter-with-the-noun-of-its-type) — The verbalizer says each parameter of a definition with the noun of its type.
   - [`@spec a-definition-is-said-in-markdown-the-way-a-formula-is`](#spec-a-definition-is-said-in-markdown-the-way-a-formula-is) — In the Markdown layout, the verbalizer says a definition with a blank line between its paragraphs.
   - [`@spec a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind`](#spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind) —
@@ -313,6 +318,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an alternative that does not begin with its kind, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with a run of and beside another alternative of its kind, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with an alternative that says something about another unit, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member`](#spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member) — For every [definition_1](#term-definition-passage): when definition_1 is a definition with two kinds that can share a member, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
   - [`@spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown`](#spec-a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown) — In the Markdown layout, the verbalizer links a word whose reading a unit holds to that unit.
   - [`@spec a-word-that-names-a-term-is-plain-in-the-text-layout`](#spec-a-word-that-names-a-term-is-plain-in-the-text-layout) — In the text layout, the verbalizer says a word whose reading a unit holds in plain words.
   - [`@spec only-the-first-mention-of-a-term-links`](#spec-only-the-first-mention-of-a-term-links) — In a [linked formula](#term-linked-formula), the verbalizer links only the first mention of a term, in reading order.
@@ -389,6 +395,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets`](#spec-a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets) — The verbalizer says a list as bullets when a clause in it has two names for a subject: "o and p are the same".
     - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — For every [list](#term-series): when the list has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
+  - [`@spec words-said-once-for-several-clauses-hold-no-noun-phrase`](#spec-words-said-once-for-several-clauses-hold-no-noun-phrase) — Where the verbalizer says once the words that several clauses share, those words hold no noun phrase. They are the subject, and at most the "is" or "is not" after it.
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
   - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
   - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) —
@@ -430,7 +437,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-sentence-joins-its-clauses-with-and-or-with-or-never-both`](#spec-a-sentence-joins-its-clauses-with-and-or-with-or-never-both) — A sentence joins its clauses with "and" or with "or", and never with both. A list shows how such clauses group.
   - [`@spec exactly-when-goes-both-ways-and-when-goes-one`](#spec-exactly-when-goes-both-ways-and-when-goes-one) — "x exactly when y" says that each holds where the other does. "When x, y" says that y holds wherever x does, and nothing of the moments without x.
   - [`@spec another-differs-from-the-thing-of-its-kind-named-last`](#spec-another-differs-from-the-thing-of-its-kind-named-last) — "Another unit" and "no other unit" differ from the unit the words named last before them. That unit is in the same clause, in the clause before it, or where a quantifier introduced it.
+  - [`@spec one-of-these-names-one-of-kinds-that-share-no-member`](#spec-one-of-these-names-one-of-kinds-that-share-no-member) — "x is one of these:" says that x is what one of the phrases below it names. The phrases name kinds that share no member, so x is never two of them.
   - [`@spec each-statement-reads-back-to-its-meaning`](#spec-each-statement-reads-back-to-its-meaning) — Read by these rules, the words of each statement have one meaning, and it is the meaning of what the verbalizer said.
+  - [`@spec each-fixed-word-of-the-printer-reads-back-to-its-meaning`](#spec-each-fixed-word-of-the-printer-reads-back-to-its-meaning) — Each fixed word of the printer stands in a statement that reads back to its one meaning. These are the intros of its lists, its time phrases, the parts of `until` and `since`, and the words of rules and of comparisons.
 <!-- toc:end -->
 
 ## Terms
@@ -572,7 +581,7 @@ fits: {1} [fits] a noun phrase | {1} does not [fit] a noun phrase
 ```alloy vocabulary
 sig Definition {}
 sig GuardedByKind, PhrasePerKind, SameKindTwice, JoinedWithOr, OrInsideKind, OneCoordination in Definition {}
-sig OneKind, OneSentenceKind, NoKindFirst, AmbiguousAnd, NotAboutSubject, AsItStands in Definition {}
+sig OneKind, OneSentenceKind, NoKindFirst, AmbiguousAnd, NotAboutSubject, KindsShareAMember, AsItStands in Definition {}
 fact case_wordings { no PhrasePerKind & AsItStands and JoinedWithOr + OneCoordination + OneSentenceKind in PhrasePerKind and no GuardedByKind & NoKindFirst }
 ```
 
@@ -589,6 +598,7 @@ OneSentenceKind: [verbalizer](#term-verbalizer) says {1} as one sentence | [verb
 NoKindFirst: {1} is a definition with an alternative that does not begin with its kind | {1} is not a definition with an alternative that does not begin with its kind
 AmbiguousAnd: {1} is a definition with a run of and beside another alternative of its kind | {1} is not a definition with a run of and beside another alternative of its kind
 NotAboutSubject: {1} is a definition with an alternative that says something about another unit | {1} is not a definition with an alternative that says something about another unit
+KindsShareAMember: {1} is a definition with two kinds that can share a member | {1} is not a definition with two kinds that can share a member
 AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternatives as they stand | [verbalizer](#term-verbalizer) does not say {1} as a list of the alternatives as they stand
 ```
 
@@ -637,12 +647,13 @@ some f: Definition | f in OrInsideKind and f in NoKindFirst
 > - definition_1 is not a definition with an alternative that does not begin with its kind
 > - definition_1 is not a definition with a run of and beside another alternative of its kind
 > - definition_1 is not a definition with an alternative that says something about another unit
+> - definition_1 is not a definition with two kinds that can share a member
 <!-- statement-term-by-kind:end -->
 
-The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. And no run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins.
+The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. No run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins. And no two of its kinds may share a member, because a reader can take "one of these" as exactly one.
 
 ```alloy
-pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject }
+pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject and d not in KindsShareAMember }
 ```
 
 ```readings
@@ -879,6 +890,12 @@ This follows because a reader learns from the words what the formula claims. Wor
 
 This follows because a choice of words made in one place can be checked in one place. The literal reading is lossless by construction, and each pass after it keeps what the reading means. So the words keep it too.
 
+##### @spec every-pass-changes-the-words-of-a-formula-of-the-sweep
+
+> Every [pass](#term-pass) changes the words of at least one formula of the sweep.
+
+This follows because the sweep is where a pass is checked. The analyzer asks whether each change to the IR of the sweep keeps its meaning, and the parser reads the words back. A pass that changes no formula of the sweep is checked by neither, only by the examples of its own tests. For a pass that only chooses a layout, which changes no meaning, the reading back is the whole check. Until the sweep gained formulas for them, three passes changed none of its words.
+
 ##### @spec a-pass-runs-after-the-passes-whose-shapes-it-reads
 
 > Where one pass makes or removes a shape that another reads, the [pipeline](#term-pipeline) runs them in the order the shape needs.
@@ -995,6 +1012,20 @@ A rule goes on one line only when each side is one line. A side of several claus
 all a: ClausesInASentence, b: RuleOnOneLine | a->b in ahead
 ```
 
+##### @spec a-pass-weighs-only-words-that-no-later-pass-changes
+
+> The words a [pass](#term-pass) weighs to choose how to say a part are the words that part ends with: no pass after it changes them.
+
+This follows because a pass that weighs words decides from them, as a layout decides from them whether a part fits on a line. If a later pass changes those words, the choice rests on words the reader never sees, and it is right only by luck. Each order spec above names one such dependence. This spec says what they all serve, so that a test can find a dependence no spec names. Over the sweep, the test takes each part a pass weighed and left as it was, and asks whether a later pass changed it.
+
+###### @bug a-time-phrase-weighs-a-part-that-a-later-pass-changes
+
+> The verbalizer weighs whether a time phrase goes in front before it lays out the rule or the list the phrase covers. So a time phrase can stay above a rule that ends on one line.
+
+Over the sweep this happens in 15 formulas. In 12 of them a rule ends on one line below "from now on:", where the time phrase could stand in front. The words lose nothing, but they are not the words the layout specs choose. No order of the three passes fixes it: the time phrase weighs what the other two make, and they must run after it. Settling the layout of each part before the part that holds it weighs it would.
+
+Issue: #76
+
 #### @spec a-formula-is-said-in-full
 
 > The verbalizer says every part of a [formula](#term-formula), and leaves none unsaid.
@@ -1050,7 +1081,7 @@ This follows because the old form put a plural verb before a single noun, and "s
 This follows because for every x, for every y, a formula holds exactly when for every x and every y it holds. The second "for every" on a line of its own adds a level of indent and nothing else.
 
 <!-- pass-for-every-together:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `for-every-together` is pass 5 of 16 in the pipeline. It changes 187 of the 1737 formulas of the sweep.
+The pass `for-every-together` is pass 5 of 16 in the pipeline. It changes 187 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1087,7 +1118,7 @@ This follows because a name such as unit_1 tells the reader the kind of the vari
 This follows because "the unit" can then point at one thing only. A number that tells nothing apart is one more thing to read. A variable that a count says first keeps its number: "the values of the owner" would read as the values of one owner.
 
 <!-- pass-lone-numbers-dropped:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `lone-numbers-dropped` is pass 16 of 16 in the pipeline. It changes 1419 of the 1737 formulas of the sweep.
+The pass `lone-numbers-dropped` is pass 16 of 16 in the pipeline. It changes 1424 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1271,7 +1302,7 @@ This follows because the table gives each word a positive and a negative reading
 This follows because the negative reading of each clause says the negation in the words of the table. Moving the `not` inward reaches those clauses without changing what the formula claims.
 
 <!-- pass-negation-inward:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `negation-inward` is pass 1 of 16 in the pipeline. It changes 115 of the 1737 formulas of the sweep.
+The pass `negation-inward` is pass 1 of 16 in the pipeline. It changes 115 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1320,7 +1351,7 @@ This follows because a rule fails exactly when its condition holds and its conse
 This follows because an equivalence fails exactly when one side holds and the other does not.
 
 <!-- pass-exactly-one:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `exactly-one` is pass 2 of 16 in the pipeline. It changes 30 of the 1737 formulas of the sweep.
+The pass `exactly-one` is pass 2 of 16 in the pipeline. It changes 30 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1575,7 +1606,7 @@ This follows because a set equals `y` when `y` is in it and nothing else is. The
 This follows because a set equals `x` when `x` is in it and nothing else is, and the two halves say just that. "No other" alone hints that `x` is in the set, which [`spec-no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) guards against. Here the first half says it, so the hint is true. A plain clause keeps "no other" at the level of the claim. Inside a noun phrase, as in "an owner that no other owner is the parent of", it would cover less.
 
 <!-- pass-x-and-no-other:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `x-and-no-other` is pass 4 of 16 in the pipeline. It changes 22 of the 1737 formulas of the sweep.
+The pass `x-and-no-other` is pass 4 of 16 in the pipeline. It changes 22 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1875,7 +1906,7 @@ all f: Series | (f in OneLineRule and f not in TimeFirst) implies f in OneLine
 ```
 
 <!-- pass-rule-on-one-line:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `rule-on-one-line` is pass 14 of 16 in the pipeline. It changes 261 of the 1737 formulas of the sweep.
+The pass `rule-on-one-line` is pass 14 of 16 in the pipeline. It changes 261 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -1906,7 +1937,7 @@ For every cleanup:
 This follows because "exactly when" says that each side holds when the other does, which is what `iff` claims.
 
 <!-- pass-exactly-when:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `exactly-when` is pass 13 of 16 in the pipeline. It changes 40 of the 1737 formulas of the sweep.
+The pass `exactly-when` is pass 13 of 16 in the pipeline. It changes 40 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2004,7 +2035,7 @@ This follows because always holds from the present on, the present included. "At
 This follows because a rule that holds at every moment is what "whenever" means in plain English. "From now on" keeps the start at the present, as `always` alone does. So the words still leave the moments before it out.
 
 <!-- pass-always-inside-for-every:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `always-inside-for-every` is pass 3 of 16 in the pipeline. It changes 7 of the 1737 formulas of the sweep.
+The pass `always-inside-for-every` is pass 3 of 16 in the pipeline. It changes 7 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2028,7 +2059,7 @@ For every cleanup:
 <!-- pass-always-inside-for-every:end -->
 
 <!-- pass-from-now-on-whenever:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `from-now-on-whenever` is pass 15 of 16 in the pipeline. It changes 8 of the 1737 formulas of the sweep.
+The pass `from-now-on-whenever` is pass 15 of 16 in the pipeline. It changes 8 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2087,7 +2118,7 @@ This follows because the semicolon says that the first side holds now and the se
 This follows because two time phrases in a row, such as "from now on, at the next moment", read as one moment. A reader could also take a second "at the next moment" later in the words as the moment of the first.
 
 <!-- pass-time-phrase-in-front:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `time-phrase-in-front` is pass 11 of 16 in the pipeline. It changes 346 of the 1737 formulas of the sweep.
+The pass `time-phrase-in-front` is pass 11 of 16 in the pipeline. It changes 346 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2154,7 +2185,7 @@ This follows because since is until turned to the past.
 This follows because a plain clause holds no time phrase, comma or relative clause. So "now or later" can only cover `b`, and "then" can only be a moment of `b` counted from now. "Until then" stops before that moment, as until does, and readers of every size took it that way.
 
 <!-- pass-until-in-a-sentence:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `until-in-a-sentence` is pass 10 of 16 in the pipeline. It changes 40 of the 1737 formulas of the sweep.
+The pass `until-in-a-sentence` is pass 10 of 16 in the pipeline. It changes 40 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2577,6 +2608,12 @@ This follows because `disj` before the variables of a predicate adds that condit
 
 This follows because a short definition is clearest as one sentence.
 
+#### @spec a-definition-whose-body-is-a-series-sets-it-apart
+
+> The verbalizer sets apart the body of a [definition](#term-definition-passage) that is a series, below "exactly when the following holds".
+
+This follows because a series after "exactly when" could end before its last clause and leave that clause outside the definition. "x is quiet exactly when x has run, and at the next moment, x has stopped" reads two ways. The verbalizer sets apart a side of a rule that holds a series for the same reason. The sweep found three such definitions once its reading back took in definitions too.
+
 #### @spec a-definition-says-each-parameter-with-the-noun-of-its-type
 
 > The verbalizer says each parameter of a definition with the noun of its type.
@@ -2608,7 +2645,27 @@ all f: Definition | (f in GuardedByKind and byKind[f]) implies f in PhrasePerKin
 ```
 
 <!-- pass-definition-by-kinds:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `definition-by-kinds` is pass 8 of 16 in the pipeline. It changes 0 of the 1737 formulas of the sweep.
+The pass `definition-by-kinds` is pass 8 of 16 in the pipeline. It changes 2 of the 1744 formulas of the sweep.
+
+The shortest of them, as written in Alloy:
+
+```text
+pred kept[x: univ] { x in Cleanup and x in Ran }
+```
+
+Without the pass:
+
+```text
+For every thing:
+  the thing is kept exactly when the thing is a cleanup and has run.
+```
+
+With it:
+
+```text
+For every thing:
+  the thing is kept exactly when the thing is a cleanup that has run.
+```
 <!-- pass-definition-by-kinds:end -->
 
 #### @spec the-alternatives-of-one-kind-are-put-together-with-or
@@ -2695,6 +2752,20 @@ A phrase for a kind describes the subject. An alternative that says something ab
 all f: Definition | f in NotAboutSubject implies f in AsItStands
 ```
 
+#### @spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member
+
+<!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member:begin — generated by `canon generate`; edits are overwritten -->
+> For every [definition_1](#term-definition-passage):
+>
+> when definition_1 is a definition with two kinds that can share a member, [verbalizer](#term-verbalizer) says definition_1 as a list of the alternatives as they stand.
+<!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member:end -->
+
+A definition said kind by kind reads "is one of these", and a reader can take that as exactly one. Where the kinds share no member, as signatures that extend one signature do, nothing is of two kinds, and both readings say the same. Where two kinds can share a member, a thing of both kinds that meets both alternatives would seem left out. So the verbalizer lists the alternatives as they stand, below "at least one of these holds".
+
+```alloy
+all f: Definition | f in KindsShareAMember implies f in AsItStands
+```
+
 #### @spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown
 
 > In the Markdown layout, the verbalizer links a word whose reading a unit holds to that unit.
@@ -2764,7 +2835,7 @@ all f: Quantifier | (f in VariableOnce and fits[f]) implies f in AsNounPhrase
 ```
 
 <!-- pass-noun-phrases:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `noun-phrases` is pass 7 of 16 in the pipeline. It changes 150 of the 1737 formulas of the sweep.
+The pass `noun-phrases` is pass 7 of 16 in the pipeline. It changes 150 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -2829,7 +2900,31 @@ This follows because "that is not an axiom, a spec or a fact" is shorter and eas
 This follows because "another unit" says what the logic compares, without a name to follow.
 
 <!-- pass-another-of-a-kind:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `another-of-a-kind` is pass 6 of 16 in the pipeline. It changes 0 of the 1737 formulas of the sweep.
+The pass `another-of-a-kind` is pass 6 of 16 in the pipeline. It changes 1 of the 1744 formulas of the sweep.
+
+The shortest of them, as written in Alloy:
+
+```text
+all c: Cleanup | some disj o, p: Owner | o in c.on and p in c.on
+```
+
+Without the pass:
+
+```text
+For every cleanup:
+  for some owner_1 and some owner_2:
+    all of these hold:
+      - owner_1 and owner_2 are different
+      - the cleanup is on owner_1
+      - the cleanup is on owner_2
+```
+
+With it:
+
+```text
+For every cleanup:
+  the cleanup is on an owner and is on another owner.
+```
 <!-- pass-another-of-a-kind:end -->
 
 #### @spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it
@@ -2905,7 +3000,25 @@ all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f not in 
 ```
 
 <!-- pass-there-is-a-that:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `there-is-a-that` is pass 9 of 16 in the pipeline. It changes 0 of the 1737 formulas of the sweep.
+The pass `there-is-a-that` is pass 9 of 16 in the pipeline. It changes 2 of the 1744 formulas of the sweep.
+
+The shortest of them, as written in Alloy:
+
+```text
+no d: Cleanup | d in Ran
+```
+
+Without the pass:
+
+```text
+There is no cleanup such that the cleanup has run.
+```
+
+With it:
+
+```text
+No cleanup has run.
+```
 
 - Readers: A strict judge (Opus) found 46 of 46 changed statements lossless; two haiku readers judged 16 situations each and got all of them right.
 - Readers: For the bullets after "that:", two haiku readers and one sonnet reader judged 7 situations each and got all of them right, including one list meeting some conditions and another the rest.
@@ -2999,7 +3112,7 @@ all f: Series | sentenceable[f] implies f in AsSentence
 ```
 
 <!-- pass-clauses-in-a-sentence:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
-The pass `clauses-in-a-sentence` is pass 12 of 16 in the pipeline. It changes 385 of the 1737 formulas of the sweep.
+The pass `clauses-in-a-sentence` is pass 12 of 16 in the pipeline. It changes 386 of the 1744 formulas of the sweep.
 
 The shortest of them, as written in Alloy:
 
@@ -3145,6 +3258,14 @@ Read aloud, "a and b or c" has two meanings, and a statement must have one. So w
 ```alloy
 all f: Series | f in AndInOr implies f in KeepsAndApart
 ```
+
+#### @spec words-said-once-for-several-clauses-hold-no-noun-phrase
+
+> Where the verbalizer says once the words that several clauses share, those words hold no noun phrase. They are the subject, and at most the "is" or "is not" after it.
+
+Derives from: [`spec-the-first-noun-phrase-of-a-clause-covers-the-next`](#spec-the-first-noun-phrase-of-a-clause-covers-the-next)
+
+This follows because a noun phrase covers the noun phrases after it in its clause. Said once, "is a definition with" would put "a definition" ahead of every phrase below it. It would then say that the thing is a definition, which no clause on its own said. Each form that says shared words once stops before the first noun phrase. That holds for [a subject said once](#spec-a-subject-is-said-once-when-clauses-begin-with-it), for the "is not" of [several negations](#spec-several-negations-of-a-variable-are-one-negation), and for the "is" before [the kinds of a definition](#spec-a-definition-by-cases-is-said-as-a-noun-phrase-for-each-kind).
 
 #### @spec a-subject-is-said-once-when-clauses-begin-with-it
 
@@ -3338,8 +3459,20 @@ This follows because a reader takes "when" as a rule and "exactly when" as both 
 
 This follows because a reader looks back for what "other" points at, as for "the". A subject that a series leaves out is not in the words, so it is not what a reader finds.
 
+#### @spec one-of-these-names-one-of-kinds-that-share-no-member
+
+> "x is one of these:" says that x is what one of the phrases below it names. The phrases name kinds that share no member, so x is never two of them.
+
+This follows because "one of these" leaves open whether x may be more than one of them. Kinds that share no member settle it: "one" and "at least one" then say the same, so a reader is right either way.
+
 #### @spec each-statement-reads-back-to-its-meaning
 
 > Read by these rules, the words of each statement have one meaning, and it is the meaning of what the verbalizer said.
 
-This follows because the rules are only of use if they settle each statement one way. A parser reads the words of the sweep back by the rules. It finds one reading for each statement, and that reading means what the printed IR means.
+This follows because the rules are only of use if they settle each statement one way. A parser reads the words of the sweep back by the rules, the words of its definitions too. It finds one reading for each statement, and that reading means what the printed IR means.
+
+#### @spec each-fixed-word-of-the-printer-reads-back-to-its-meaning
+
+> Each fixed word of the printer stands in a statement that reads back to its one meaning. These are the intros of its lists, its time phrases, the parts of `until` and `since`, and the words of rules and of comparisons.
+
+This follows because the sweep reads back only what its formulas happen to reach. The parser reads a fixed word that no statement holds by a rule that nothing checks. Each fixed word has a statement of its own here, so the test reads back a word the printer gains from the start.
