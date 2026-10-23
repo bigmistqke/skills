@@ -157,6 +157,8 @@ describe('the words', () => {
     // A time phrase in the second side, or an "otherwise", keeps the first side first.
     expect(say(`(${conditions}) implies after p in Disposed`).split('\n')[0]).toBe('When all of these hold:');
     expect(say(`(${conditions}) implies p in Disposed else p in Stopped`).split('\n')[0]).toBe('When all of these hold:');
+    // So does a rule that "from now on, whenever" has taken.
+    expect(say(`always ((${conditions}) implies p in Disposed)`).split('\n')[0]).toBe('From now on, whenever all of these hold:');
   });
 
   /**
@@ -1238,6 +1240,13 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
+   * @canon spec-a-list-right-below-a-time-phrase-is-bullets
+   */
+  it('are a list right below a time phrase, however short', () => {
+    expect(say('after (c in Ran and c in Registered)', READINGS)).toBe('At the next moment, all of these hold:\n  - c has run\n  - code has registered c');
+  });
+
+  /**
    * @canon spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets
    */
   it('are a list when an item is more than one clause', () => {
@@ -1351,7 +1360,7 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
-   * @canon spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
+   * @canon spec-a-list-with-a-clause-about-a-pair-of-variables-is-bullets
    */
   it('say a pair of variables as it is, and not as a subject', () => {
     expect(said('all v: Unit | (u != v and u in Spec) implies v in Spec')).toContain('unit_2 is a spec when all of these hold:\n    - unit_1 and unit_2 are different\n    - unit_1 is a spec');

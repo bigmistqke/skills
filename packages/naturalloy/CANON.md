@@ -42,6 +42,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   > - the list fits a line when it is put in a sentence
   > - the list has no clause before its last that begins with a time phrase
   > - the list has no clause before its last with a relative clause in it
+  > - the list does not stand right below a time phrase
+  > - the list has no clause about a pair of variables
 - [`@term line`](#term-line) — A line is one line of a table of readings, which gives a word of the logic its sentences.
 - [`@term pass`](#term-pass) — A pass is one named change to how the verbalizer says a statement. A pass of the IR changes the sentence a formula was lowered to. A pass of the printer changes the words the printer lays it out in.
 - [`@term pipeline`](#term-pipeline) — The pipeline is the passes in the order they run: each sees the IR the one before it left.
@@ -340,7 +342,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another`](#spec-a-variable-that-must-differ-from-another-of-its-kind-is-said-as-another) — The verbalizer says a variable that must differ from another of its kind as "another" before the noun, when the [quantifier](#term-quantifier) fits a noun phrase.
   - [`@spec a-variable-that-must-differ-from-one-value-is-said-as-other-than-it`](#spec-a-variable-that-must-differ-from-one-value-is-said-as-other-than-it) — When the [quantifier](#term-quantifier) fits a noun phrase, the verbalizer says a variable that must differ from one value as its noun "other than" the value. The value is a variable or a string, as in "a text other than "a"". It says a variable that must differ from several values in full.
   - [`@spec variables-of-different-kinds-nest-as-phrases`](#spec-variables-of-different-kinds-nest-as-phrases) — The verbalizer says variables of different kinds as nested phrases, when the quantifier fits a noun phrase.
-  - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+  - [`@spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full`](#spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full) — When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec a-quantifier-with-nothing-to-attach-to-is-said-in-full`](#spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full) —
     > When all of these hold:
     > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
@@ -349,7 +351,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     >   - the quantifier has more than three conditions, or conditions longer than a line and is under "no"
     >   - the quantifier is under "no" with a condition that says "no"
     >
-    > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+    > then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that`](#spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that) —
     > When all of these hold:
     > - a [quantifier](#term-quantifier) has no fact for its variable beside another thing
@@ -372,9 +374,9 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > then the following holds:
     >
     > [verbalizer](#term-verbalizer) says the quantifier as "there is" with its noun and "that", and its conditions as bullets below it without their subject.
-  - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
-  - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — When the following holds: a [quantifier](#term-quantifier) has several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
-  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+  - [`@spec no-with-another-is-said-in-full`](#spec-no-with-another-is-said-in-full) — When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
+  - [`@spec a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full`](#spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full) — When the following holds: a [quantifier](#term-quantifier) has several conditions, one of which begins with a time phrase then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
+  - [`@spec a-condition-that-is-not-about-the-variable-is-said-in-full`](#spec-a-condition-that-is-not-about-the-variable-is-said-in-full) — When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
   - [`@spec three-clauses-or-fewer-are-said-in-a-sentence`](#spec-three-clauses-or-fewer-are-said-in-a-sentence) — When a [list](#term-series) can be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list in a sentence.
   - [`@spec a-longer-list-or-a-list-with-a-comma-is-bullets`](#spec-a-longer-list-or-a-list-with-a-comma-is-bullets) — When a [list](#term-series) is a run of clauses joined by and or by or and cannot be put in a [sentence](#term-sentenceable), [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-of-more-than-three-clauses-is-bullets`](#spec-a-list-of-more-than-three-clauses-is-bullets) — When a [list](#term-series) has more than three clauses, [verbalizer](#term-verbalizer) says the list as bullets.
@@ -386,7 +388,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     - [`@spec a-list-with-a-time-phrase-before-its-last-clause-is-bullets`](#spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets) — When a [list](#term-series) has a clause before its last that begins with a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-relative-clause-before-its-last-clause-is-bullets`](#spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets) — When a [list](#term-series) has a clause before its last with a relative clause in it, [verbalizer](#term-verbalizer) says the list as bullets.
     - [`@spec a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets`](#spec-a-list-with-a-clause-that-holds-its-own-and-or-or-is-bullets) — The verbalizer says a list as bullets when a clause in it has two names for a subject: "o and p are the same".
-    - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — When a [list](#term-series) has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
+    - [`@spec a-list-right-below-a-time-phrase-is-bullets`](#spec-a-list-right-below-a-time-phrase-is-bullets) — When a [list](#term-series) stands right below a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
+  - [`@spec an-item-that-is-more-than-a-clause-makes-the-list-bullets`](#spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets) — When a [list](#term-series) has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
   - [`@spec negative-clauses-that-share-their-words-are-said-once-before-none-of-these`](#spec-negative-clauses-that-share-their-words-are-said-once-before-none-of-these) —
     > When all of these hold:
     > - a [list](#term-series) is a run of negative clauses about one subject that share their verb, each before a noun phrase of its own
@@ -396,7 +399,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec an-and-inside-an-or-is-kept-apart`](#spec-an-and-inside-an-or-is-kept-apart) — For every [list_1](#term-series): when list_1 is a list of alternatives where one alternative holds an and, [verbalizer](#term-verbalizer) says list_1 as bullets that cannot be read two ways.
   - [`@spec words-said-once-for-several-clauses-hold-no-noun-phrase`](#spec-words-said-once-for-several-clauses-hold-no-noun-phrase) — Where the verbalizer says once the words that several clauses share, those words hold no noun phrase. They are the subject, and at most the verb after it.
   - [`@spec a-subject-is-said-once-when-clauses-begin-with-it`](#spec-a-subject-is-said-once-when-clauses-begin-with-it) — In a list said as a sentence, the verbalizer says once a subject that its clauses begin with.
-  - [`@spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject`](#spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject) — In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
+  - [`@spec a-list-with-a-clause-about-a-pair-of-variables-is-bullets`](#spec-a-list-with-a-clause-about-a-pair-of-variables-is-bullets) — When a [list](#term-series) has a clause about a pair of variables, [verbalizer](#term-verbalizer) says the list as bullets.
   - [`@spec a-rule-keeps-its-then-before-a-time-phrase`](#spec-a-rule-keeps-its-then-before-a-time-phrase) —
     > [Verbalizer](#term-verbalizer) says a [list](#term-series) with "then" before the time phrase when all of these hold:
     > - the list is a rule whose two sides are each one clause
@@ -420,6 +423,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
     > - the list is a rule whose first side is a run of clauses said as bullets
     > - the list is a rule whose second side is one line with no time phrase, relative clause, comma or "when"
     > - the list is not a rule with an "otherwise"
+    > - the list is not a rule at every later moment, said "from now on, whenever"
   - [`@spec a-rule-that-is-a-side-of-a-rule-is-set-apart`](#spec-a-rule-that-is-a-side-of-a-rule-is-set-apart) — The verbalizer sets a rule that is a side of another rule apart, below "the following holds".
   - [`@spec a-first-side-that-holds-a-time-phrase-is-set-apart`](#spec-a-first-side-that-holds-a-time-phrase-is-set-apart) — The verbalizer sets the first side of a rule apart, below "when the following holds", when the side holds a time phrase.
   - [`@spec a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side`](#spec-a-side-that-holds-a-comma-is-set-apart-where-no-then-marks-the-second-side) — When a rule would stand on one line with no "then", the verbalizer sets apart a side with a comma of its own. When both sides hold one, it sets the second side apart.
@@ -495,7 +499,7 @@ NothingToAttach: {1} has no fact for its variable beside another thing | {1} has
 NoWithAnother: {1} says no variable differs from another and holds a condition | {1} does not both say that no variable differs from another and hold a condition
 ConditionAside: the condition of {1} is not about its variable | the condition of {1} is about its variable
 TimedCondition: {1} has several conditions, one of which begins with a time phrase | {1} does not have several conditions, one of which begins with a time phrase
-InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and the numbered name | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and the numbered name
+InFull: [verbalizer](#term-verbalizer) says {1} in full, with "there is" and a name for its variable | [verbalizer](#term-verbalizer) does not say {1} in full, with "there is" and a name for its variable
 ThereIsThat: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec" | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and a relative clause, such as "there is a unit that is a spec", or under "no" with one condition, such as "no unit is a spec"
 ThereIsThatList: [verbalizer](#term-verbalizer) says {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject | [verbalizer](#term-verbalizer) does not say {1} as "there is" with its noun and "that", and its conditions as bullets below it without their subject
 UnderNo: {1} is under "no" | {1} is not under "no"
@@ -670,7 +674,7 @@ byKind: {1} can be said [kind by kind] | {1} cannot be said [kind by kind]
 
 > A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 
-A list becomes a sentence only if six things hold:
+A list becomes a sentence only if eight things hold:
 
 - It has three clauses or fewer.
 - Every item is one clause.
@@ -678,6 +682,8 @@ A list becomes a sentence only if six things hold:
 - The sentence fits a line.
 - No clause before the last begins with a time phrase.
 - No clause before the last holds a relative clause.
+- It does not stand right below a time phrase.
+- No clause is about a pair of variables.
 
 Any other list becomes bullets.
 
@@ -686,8 +692,8 @@ sig Series {}
 sig Items, Rule, Few, Many, MoreThanTwo, NotClause, CommaItem, TooLong, AndInOr, TimeBeforeLast, RelativeBeforeLast in Series {}
 sig AsSentence, AsBullets, KeepsAndApart, SharedSubject, PairInList, SharedNegatives, SaysNoneOfThese in Series {}
 sig OneLineRule, TimeFirst, TimeSecond, OneLine, KeepsThen, DropsThen, ThenOwnLine in Series {}
-sig ListFirstSide, PlainSecondSide, Otherwise, SecondSideFirst in Series {}
-fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + TimeBeforeLast + RelativeBeforeLast + SharedSubject + PairInList) in Items and (OneLineRule + TimeFirst + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule and SharedNegatives in Items and SaysNoneOfThese in AsBullets and (ListFirstSide + PlainSecondSide + Otherwise + SecondSideFirst) in Rule and no ListFirstSide & OneLineRule and no SecondSideFirst & (OneLine + ThenOwnLine) }
+sig ListFirstSide, PlainSecondSide, Otherwise, SecondSideFirst, Whenever, BelowTime in Series {}
+fact series_wordings { no Items & Rule and Items = Few + Many and no Few & Many and Many in MoreThanTwo and AndInOr in NotClause and no AsSentence & AsBullets and KeepsAndApart in AsBullets and (Few + Many + NotClause + CommaItem + TooLong + TimeBeforeLast + RelativeBeforeLast + SharedSubject + PairInList) in Items and (OneLineRule + TimeFirst + TimeSecond) in Rule and no KeepsThen & DropsThen and no OneLine & ThenOwnLine and (KeepsThen + DropsThen) in OneLine and ThenOwnLine in Rule and SharedNegatives in Items and SaysNoneOfThese in AsBullets and (ListFirstSide + PlainSecondSide + Otherwise + SecondSideFirst + Whenever) in Rule and BelowTime in Items and no ListFirstSide & OneLineRule and no SecondSideFirst & (OneLine + ThenOwnLine) }
 ```
 
 ```readings
@@ -721,6 +727,8 @@ ListFirstSide: {1} is a rule whose first side is a run of clauses said as bullet
 PlainSecondSide: {1} is a rule whose second side is one line with no time phrase, relative clause, comma or "when" | {1} is not a rule whose second side is one line with no time phrase, relative clause, comma or "when"
 Otherwise: {1} is a rule with an "otherwise" | {1} is not a rule with an "otherwise"
 SecondSideFirst: [verbalizer](#term-verbalizer) says the second side of {1} before its first side | [verbalizer](#term-verbalizer) does not say the second side of {1} before its first side
+Whenever: {1} is a rule at every later moment, said "from now on, whenever" | {1} is not a rule at every later moment, said "from now on, whenever"
+BelowTime: {1} stands right below a time phrase | {1} does not stand right below a time phrase
 ```
 
 <!-- statement-scenario-1-term-series:begin — generated by `canon generate`; edits are overwritten -->
@@ -813,12 +821,14 @@ some f: Series | f in SecondSideFirst
 > - the list fits a line when it is put in a sentence
 > - the list has no clause before its last that begins with a time phrase
 > - the list has no clause before its last with a relative clause in it
+> - the list does not stand right below a time phrase
+> - the list has no clause about a pair of variables
 <!-- statement-term-sentenceable:end -->
 
-A list goes in a sentence only when a reader can take it in at once. That means at most three items, each a single clause, and the whole on one line. A comma inside an item is fine in a pair, but in a list of three it blurs where the items end. A time phrase or a relative clause before the last clause would seem to cover the rest, so it keeps the list out too.
+A list goes in a sentence only when a reader can take it in at once. That means at most three items, each a single clause, and the whole on one line. A comma inside an item is fine in a pair, but in a list of three it blurs where the items end. A time phrase or a relative clause before the last clause would seem to cover the rest, so it keeps the list out too. So do a time phrase right above the list, and the "and" inside a clause about a pair.
 
 ```alloy
-pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast and f not in RelativeBeforeLast }
+pred sentenceable[f: Series] { f in Few and f not in NotClause and (f not in CommaItem or f not in MoreThanTwo) and f not in TooLong and f not in TimeBeforeLast and f not in RelativeBeforeLast and f not in BelowTime and f not in PairInList }
 ```
 
 ```readings
@@ -3050,7 +3060,7 @@ This follows because a test that checks a bug that sits in a unit reads from lef
 #### @spec a-quantifier-whose-variable-would-be-said-twice-is-said-in-full
 
 <!-- statement-spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+> When the reading of a [quantifier](#term-quantifier) says the variable twice, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full:end -->
 
 A noun phrase stands in one place only. If the sentence mentions the variable twice, two phrases would hide that they are one thing. So the verbalizer spells the quantifier out in full, with a numbered name that both places share.
@@ -3069,7 +3079,7 @@ all f: Quantifier | f in VariableTwice implies f in InFull
 >   - the quantifier has more than three conditions, or conditions longer than a line and is under "no"
 >   - the quantifier is under "no" with a condition that says "no"
 >
-> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full:end -->
 
 A noun phrase needs another thing in the sentence to hang from. When the sentence says only a fact about the variable, as in "some unit is a spec", the next spec gives the phrase a place. Where it cannot, the verbalizer spells the quantifier out in full, with a numbered name. It cannot when the variable is not the subject of every condition, or when the conditions under "no" are many or long. Nor can it when a condition under "no" says "no".
@@ -3152,7 +3162,7 @@ all f: Quantifier | (f in NothingToAttach and f in VariableSubject and f in Long
 #### @spec no-with-another-is-said-in-full
 
 <!-- statement-spec-no-with-another-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+> When a [quantifier](#term-quantifier) says no variable differs from another and holds a condition, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-no-with-another-is-said-in-full:end -->
 
 The short way to say that no unit but this one sits in it would be "no other unit sits in it". But "no other" hints that this unit itself does, which the logic does not say. So the verbalizer spells the quantifier out in full, with a numbered name.
@@ -3168,7 +3178,7 @@ all f: Quantifier | f in NoWithAnother implies f in InFull
 >
 > a [quantifier](#term-quantifier) has several conditions, one of which begins with a time phrase
 >
-> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+> then [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-quantifier-with-a-time-phrase-in-one-of-several-conditions-is-said-in-full:end -->
 
 A time phrase inside a noun phrase seems to cover every condition in that phrase. When it belongs to only one of several conditions, that reading is wrong. So the verbalizer spells the quantifier out in full, which keeps the time phrase on its own condition.
@@ -3180,7 +3190,7 @@ all f: Quantifier | f in TimedCondition implies f in InFull
 #### @spec a-condition-that-is-not-about-the-variable-is-said-in-full
 
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:begin — generated by `canon generate`; edits are overwritten -->
-> When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and the numbered name.
+> When the condition of a [quantifier](#term-quantifier) is not about its variable, [verbalizer](#term-verbalizer) says the quantifier in full, with "there is" and a name for its variable.
 <!-- statement-spec-a-condition-that-is-not-about-the-variable-is-said-in-full:end -->
 
 Whatever sits inside a noun phrase reads as being about the variable. A condition about something else would land in the wrong place. So the verbalizer spells the quantifier out in full, with a numbered name.
@@ -3307,7 +3317,19 @@ all f: Series | f in RelativeBeforeLast implies f in AsBullets
 
 This follows because the "and" of that subject reads like the "and" of the list. In "c has run, o and p are the same and d has run", a reader cannot tell where each clause ends.
 
-##### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets
+##### @spec a-list-right-below-a-time-phrase-is-bullets
+
+<!-- statement-spec-a-list-right-below-a-time-phrase-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> When a [list](#term-series) stands right below a time phrase, [verbalizer](#term-verbalizer) says the list as bullets.
+<!-- statement-spec-a-list-right-below-a-time-phrase-is-bullets:end -->
+
+In "at the next moment, c has run and code has registered c", the time phrase can seem to cover "c has run" alone. The registering would then hold now. Bullets below the phrase put both clauses under it, where the formula puts them. So a list right below a time phrase is bullets, even a short one.
+
+```alloy
+all f: Series | f in BelowTime implies f in AsBullets
+```
+
+#### @spec an-item-that-is-more-than-a-clause-makes-the-list-bullets
 
 <!-- statement-spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets:begin — generated by `canon generate`; edits are overwritten -->
 > When a [list](#term-series) has an item that is more than one clause, [verbalizer](#term-verbalizer) says the list as bullets.
@@ -3399,11 +3421,17 @@ Each form that says shared words once stops before the first noun phrase. That h
 
 This follows because "unit_1 is a spec and sits in no unit" says it once, and repeating it adds nothing.
 
-#### @spec a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
+#### @spec a-list-with-a-clause-about-a-pair-of-variables-is-bullets
 
-> In a list said as a sentence, the verbalizer says a clause about a pair of variables as it is, not as a shared subject.
+<!-- statement-spec-a-list-with-a-clause-about-a-pair-of-variables-is-bullets:begin — generated by `canon generate`; edits are overwritten -->
+> When a [list](#term-series) has a clause about a pair of variables, [verbalizer](#term-verbalizer) says the list as bullets.
+<!-- statement-spec-a-list-with-a-clause-about-a-pair-of-variables-is-bullets:end -->
 
-This follows because "unit_1 and unit_2 are different" is about both, and cannot be the subject of another clause.
+A clause about a pair of variables holds an "and" of its own: "unit_1 and unit_2 are different". In a sentence beside other clauses, that "and" reads as one more join. "Unit_1 and unit_2 are different and unit_1 is a spec" could also share "unit_1" as the subject of the last clause. So a list that holds such a clause is bullets, and the pair keeps a line of its own.
+
+```alloy
+all f: Series | f in PairInList implies f in AsBullets
+```
 
 #### @spec a-rule-keeps-its-then-before-a-time-phrase
 
@@ -3471,16 +3499,17 @@ all f: Series | (f in Rule and f not in OneLineRule and f not in SecondSideFirst
 > - the list is a rule whose first side is a run of clauses said as bullets
 > - the list is a rule whose second side is one line with no time phrase, relative clause, comma or "when"
 > - the list is not a rule with an "otherwise"
+> - the list is not a rule at every later moment, said "from now on, whenever"
 <!-- statement-spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first:end -->
 
 Derives from: [`spec-a-claim-before-when-holds-where-the-bullets-after-it-hold`](#spec-a-claim-before-when-holds-where-the-bullets-after-it-hold)
 
 A rule whose first side is bullets and whose second side is one line says its second side first. Then come "when", the line that opens the bullets, and the bullets. The reader meets the claim before the conditions it rests on. The bullets end the statement, so no "then" has to show where they stop.
 
-A time phrase, a relative clause, a comma or a "when" in the second side could reach over the "when" after it. An "otherwise" speaks of what the first side does not hold of. So those rules keep their first side first.
+A time phrase, a relative clause, a comma or a "when" in the second side could reach over the "when" after it. An "otherwise" speaks of what the first side does not hold of. Under "from now on, whenever", "whenever" has taken the place of "when". So those rules keep their first side first.
 
 ```alloy
-all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise) implies f in SecondSideFirst
+all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise and f not in Whenever) implies f in SecondSideFirst
 ```
 
 <!-- pass-claim-first:begin — generated by `node test/core/wordings.ts --write`; edits are overwritten -->
