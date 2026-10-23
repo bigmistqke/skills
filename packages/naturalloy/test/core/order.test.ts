@@ -45,6 +45,20 @@ describe('the order of the passes', () => {
   });
 
   /**
+   * @canon spec-clauses-become-a-sentence-before-a-second-side-goes-first
+   */
+  it('says clauses as a sentence before it says the second side of a rule first', () => {
+    expect(at('clauses-in-a-sentence')).toBeLessThan(at('claim-first'));
+  });
+
+  /**
+   * @canon spec-a-rule-is-said-whenever-before-a-second-side-goes-first
+   */
+  it('says a rule "whenever" before it says the second side of a rule first', () => {
+    expect(at('from-now-on-whenever')).toBeLessThan(at('claim-first'));
+  });
+
+  /**
    * @canon spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front
    */
   it('says until in a sentence before a time phrase goes in front', () => {

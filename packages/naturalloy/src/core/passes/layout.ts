@@ -87,6 +87,31 @@ export const ruleOnOneLine = everywhere('rule-on-one-line', 'spec-a-rule-of-two-
 });
 
 /**
+ * A rule whose first side is bullets and whose second side is one line, said second side first: "pulse has disposed p
+ * when all of these hold:", then the bullets. Not where the second side holds a time phrase, a relative clause, a comma
+ * or a "when" of its own, any of which could reach over the "when" after it; not with an "otherwise"; and not where
+ * "whenever" has taken the rule's "when".
+ */
+export const claimFirst: Pass = {
+  name: 'claim-first',
+  spec: 'spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first',
+  run(top, context) {
+    const walk = (s: Sentence, whenever: boolean): Sentence => {
+      const inner = children(s, child => walk(child, s.t === 'moment' && s.form === 'whenever'));
+      if (whenever || inner.t !== 'rule' || inner.form !== undefined || inner.otherwise !== undefined) return inner;
+      // Bullets, or a sentence with a comma, which a rule says as its bullets.
+      if (inner.when.t !== 'and' && inner.when.t !== 'or') return inner;
+      const sentence = line(inner.when, context);
+      if (inner.when.form !== undefined && !(inner.when.form === 'sentence' && sentence !== undefined && holdsComma(sentence))) return inner;
+      const then = line(inner.then, context);
+      if (then === undefined || holdsTime(then) || holdsRelative(then) || holdsComma(then) || series(then) || seen(then).includes(' when ')) return inner;
+      return { ...inner, form: 'claim-first' };
+    };
+    return walk(top, false);
+  }
+};
+
+/**
  * "a exactly when b", where the first side is a plain clause, whose end the words show; and "a at the next moment
  * exactly when b now". Not as a side of a rule, a time phrase or a definition, where "exactly when" could take the
  * whole sentence for a side: there it is "both or neither".

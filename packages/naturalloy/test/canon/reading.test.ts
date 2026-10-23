@@ -67,6 +67,17 @@ describe('the rules of reading', () => {
   });
 
   /**
+   * @canon spec-a-claim-before-when-holds-where-the-bullets-after-it-hold
+   */
+  it('reads a claim before "when" and its bullets as the rule, and "a cleanup" in the claim as every cleanup', () => {
+    for (const formula of ['(c in Ran and c in Registered and o in Disposed and o in Stopped) implies p in Disposed', 'all d: Cleanup | (d in Ran and o in Disposed and o in Stopped and o in d.on) implies d in Registered']) {
+      const back = readsBack(formula, readings, ['c', 'o', 'p']);
+      expect(back.words).toMatch(/ when all of these hold:\n/);
+      expect(back.meanings).toEqual([back.meant]);
+    }
+  });
+
+  /**
    * @canon spec-now-is-the-moment-a-statement-is-read-at
    */
   it('reads "now" below a time phrase at each moment the phrase picks', () => {

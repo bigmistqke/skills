@@ -549,6 +549,15 @@ export class Parser {
   /** The intro of a list or a block, with what it opens. */
   private intro(intro: string, doc: Exclude<Doc, string | { kind: 'rule' }>, scope: Scope): Sentence[] {
     const out: Sentence[] = [];
+    // "pulse has disposed p when all of these hold:": a rule said with its second side first, and "a cleanup" in that
+    // side, where "the cleanup" follows, for every cleanup.
+    if (doc.kind === 'list')
+      for (const [claim, rest] of splits(intro, ` ${RULE.when} `)) {
+        for (const when of this.intro(rest, doc, scope)) for (const then of this.sentence(claim, scope)) out.push({ t: 'rule', when, then });
+        for (const every of this.every([claim], [{ ...doc, intro: rest }], scope))
+          for (const when of this.intro(rest, doc, every.inner))
+            for (const then of this.sentence(every.docs[0] as string, every.inner)) out.push({ t: 'quant', q: 'all', vars: [every.v], body: { t: 'rule', when, then } });
+      }
     // "a unit is unfounded exactly when at least one of these holds:", for every unit.
     if (intro.includes(' exactly when '))
       for (const every of this.every([intro], [doc.kind === 'list' ? { ...doc, intro: '' } : doc.body], scope, true))
