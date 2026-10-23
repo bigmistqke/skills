@@ -1646,6 +1646,9 @@ Usage:
   ${COMMAND} show <unit> …         print each unit's own text, the units it sits in up to its root,
                                    the units its "Derives from:" line names, the units that sit in
                                    it, the units that derive from it, and the tests that check it
+  ${COMMAND} show <unit> … [--statement] [--body]
+                                   print only those parts of each unit: its statement as it
+                                   reads, or the rest of its own text as written
   ${COMMAND} find <word> … [--kind <kind>]
                                    list the units whose id or own text holds every word, in any
                                    case, each with where it starts, its id and its statement
@@ -2105,12 +2108,39 @@ const listed = (title: string, lines: string[]): string =>
 /** A generated region's marker, which says nothing of the unit. */
 const MARKER_LINE = /^<!--\s*[\w-]+:(begin|end)\b.*-->\s*$/;
 
+/** The parts of a unit `show` can print alone: the two the checker fixes the place of. */
+interface Parts {
+  statement: boolean;
+  body: boolean;
+}
+
+/**
+ * A unit's own text split at its statement: the statement as it reads, its
+ * lines without the quote marks and each link as its words, and the body
+ * after it as written. Generated regions' markers say nothing of the unit.
+ */
+function partsOf(own: string): { statement?: string; body?: string } {
+  const lines = own.split('\n').filter(line => !MARKER_LINE.test(line));
+  const first = lines.findIndex(line => line.startsWith('>'));
+  const quote: string[] = [];
+  let after = 0;
+  if (first !== -1) {
+    for (after = first; after < lines.length && lines[after]!.startsWith('>'); after++) {
+      quote.push(lines[after]!.replace(/^>[ \t]?/, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').trimEnd());
+    }
+  }
+  while (quote.at(-1) === '') quote.pop();
+  const body = lines.slice(after).join('\n').trim();
+  return { statement: quote.length > 0 ? quote.join('\n') : undefined, body: body === '' ? undefined : body };
+}
+
 /**
  * Print each unit a name names, with what it follows from, what follows from
- * it and the tests that check it. A name that names no unit is reported after
- * the others are printed, and the run exits with code 2.
+ * it and the tests that check it; with parts named, only those parts. A name
+ * that names no unit is reported after the others are printed, and the run
+ * exits with code 2.
  */
-function show(names: string[]): void {
+function show(names: string[], parts?: Parts): void {
   const { units, testsPer, testsAt, links } = analyse(false);
   const keyOf = (unit: Unit): string => `${unit.doc}#${unit.id}`;
   const byStart = (a: Unit, b: Unit): number => DOCS.indexOf(a.doc) - DOCS.indexOf(b.doc) || a.start - b.start;
@@ -2124,12 +2154,21 @@ function show(names: string[]): void {
     }
     const key = keyOf(unit);
     const out = [`${unit.doc}:${unit.line}  ${unit.id}`];
+    const src = unit.own !== undefined ? readFileSync(join(ROOT, unit.doc), 'utf8') : '';
+    const body = src.indexOf('\n', unit.start) + 1;
+    const own = unit.own !== undefined ? src.slice(body, body + unit.own.length) : undefined;
 
-    if (unit.own !== undefined) {
-      const src = readFileSync(join(ROOT, unit.doc), 'utf8');
-      const body = src.indexOf('\n', unit.start) + 1;
+    if (parts !== undefined) {
+      const { statement, body: rest } = partsOf(own ?? '');
+      const said = [parts.statement ? statement : undefined, parts.body ? rest : undefined].filter(part => part !== undefined);
+      out.push('', ...(said.length > 0 ? said.join('\n\n') : 'none').split('\n'));
+      printed.push(out.join('\n'));
+      continue;
+    }
+
+    if (own !== undefined) {
       const text = src
-        .slice(unit.start, body + unit.own.length)
+        .slice(unit.start, body + own.length)
         .split('\n')
         .filter(line => !MARKER_LINE.test(line))
         .join('\n')
@@ -2297,6 +2336,8 @@ async function main(argv: string[]): Promise<void> {
         show: { type: 'string', multiple: true },
         svg: { type: 'boolean' },
         kind: { type: 'string' },
+        statement: { type: 'boolean' },
+        body: { type: 'boolean' },
         'dry-run': { type: 'boolean' },
         help: { type: 'boolean', short: 'h' }
       }
@@ -2342,7 +2383,8 @@ async function main(argv: string[]): Promise<void> {
       console.error(`canon: ${command} takes ${command === 'show' ? 'a unit' : 'a word'} or more\n\n${HELP}`);
       process.exit(2);
     }
-    if (command === 'show') show(namesOf(rest));
+    const asked = values.statement === true || values.body === true;
+    if (command === 'show') show(namesOf(rest), asked ? { statement: values.statement === true, body: values.body === true } : undefined);
     else find(rest, typeof values.kind === 'string' ? values.kind : undefined);
     return;
   }

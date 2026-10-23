@@ -54,6 +54,7 @@ pnpm canon tree --gaps        # only the branches that lead to an untested claim
 pnpm canon tree --suspect 3   # specs with no nested specs and three or more tests
 pnpm canon tree spec-a-stem   # one unit and what sits in it
 pnpm canon show spec-a-stem   # a unit, what it follows from, what follows from it, and its tests
+pnpm canon show spec-a-stem --statement   # only its statement, as it reads; --body for the rest of its own text
 pnpm canon find word word     # the units whose id or own text holds every word
 pnpm canon find word --kind spec   # the same, for one kind of unit
 pnpm canon lint               # language checks on the prose of the documents

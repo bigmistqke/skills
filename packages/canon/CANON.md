@@ -544,7 +544,7 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec a-source-the-checker-cannot-parse-fails-the-run`](#spec-a-source-the-checker-cannot-parse-fails-the-run) — When a suite or a source does not parse as TypeScript, the checker names the file, and the run exits with code 2.
   - [`@spec a-check-with-no-runner-says-it-reads-no-test`](#spec-a-check-with-no-runner-says-it-reads-no-test) — When the project has no runner, the report of `check` says that it reads no tests.
 - [`@axiom the-document-holds-the-canon-the-commands-handle-it`](#axiom-the-document-holds-the-canon-the-commands-handle-it) — The documents hold what the canon says. The commands of the checker read it and change it by its units, so that no one handles a document by its text.
-  - [`@spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it`](#spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it) — `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it.
+  - [`@spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it`](#spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it) — `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it. A part named on the command line changes this.
     - [`@spec show-prints-the-own-text-of-a-unit-with-where-it-starts`](#spec-show-prints-the-own-text-of-a-unit-with-where-it-starts) — `show` prints the heading and the [own text](#term-own-text) of a unit, after the document and the line where the unit starts.
     - [`@spec show-lists-the-units-a-unit-sits-in-up-to-its-root`](#spec-show-lists-the-units-a-unit-sits-in-up-to-its-root) — `show` lists the unit that a unit sits in, the unit that one sits in, and so on up to a unit that sits in none.
     - [`@spec show-lists-the-units-a-unit-derives-from-on-its-derives-from-line`](#spec-show-lists-the-units-a-unit-derives-from-on-its-derives-from-line) — `show` lists the units that the "Derives from:" line of a unit names.
@@ -553,6 +553,10 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec show-lists-the-tests-that-check-a-unit`](#spec-show-lists-the-tests-that-check-a-unit) — `show` lists each test that checks a unit, by its file, its line and its title.
     - [`@spec show-reads-an-id-as-the-heading-or-the-tree-writes-it`](#spec-show-reads-an-id-as-the-heading-or-the-tree-writes-it) — `show` reads a unit as its id, as its kind and stem after an `@`, or in words as the tree writes it.
     - [`@spec show-of-a-name-that-names-no-unit-fails-the-run`](#spec-show-of-a-name-that-names-no-unit-fails-the-run) — When a name on the command line of `show` names no unit, the checker says so, and the run exits with code 2.
+  - [`@spec show-with-a-part-prints-only-that-part-of-each-unit`](#spec-show-with-a-part-prints-only-that-part-of-each-unit) — When the command line of `show` names parts of a unit, `show` prints where each unit starts and the id of the unit. Below that, it prints only the parts named: the statement, or the body.
+    - [`@spec show-with-statement-prints-the-statement-as-it-reads`](#spec-show-with-statement-prints-the-statement-as-it-reads) — `show --statement` prints the statement of a unit without the marks of its quote, and each link as its words.
+    - [`@spec show-with-body-prints-the-own-text-after-the-statement`](#spec-show-with-body-prints-the-own-text-after-the-statement) — `show --body` prints the [own text](#term-own-text) of a unit after its statement, as the document writes it.
+    - [`@spec show-of-a-part-a-unit-lacks-says-none`](#spec-show-of-a-part-a-unit-lacks-says-none) — When a unit has no part of those named, `show` prints `none` under its id.
   - [`@spec find-lists-the-units-whose-text-holds-every-word-it-is-given`](#spec-find-lists-the-units-whose-text-holds-every-word-it-is-given) — `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement.
     - [`@spec find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case`](#spec-find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case) — A unit matches a word when its id or its own text holds the word, in capitals or not.
     - [`@spec find-lists-a-unit-only-when-it-holds-every-word`](#spec-find-lists-a-unit-only-when-it-holds-every-word) — `find` leaves out a unit that holds some of the words on its command line and not every one.
@@ -4207,7 +4211,7 @@ A reader who searches a document for a heading gets the text of a unit. The read
 
 ### @spec show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it
 
-> `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it.
+> `show` prints each unit on its command line, with what the unit follows from, what follows from it, and the tests that check it. A part named on the command line changes this.
 
 This follows because a reader needs each of these to change a unit, and the documents hold each in a different place.
 
@@ -4258,6 +4262,32 @@ This follows because a reader copies the name of a unit from where it saw the na
 > When a name on the command line of `show` names no unit, the checker says so, and the run exits with code 2.
 
 This follows because a reader who asked for a unit must not take silence for an empty unit.
+
+### @spec show-with-a-part-prints-only-that-part-of-each-unit
+
+> When the command line of `show` names parts of a unit, `show` prints where each unit starts and the id of the unit. Below that, it prints only the parts named: the statement, or the body.
+
+Derives from: [`spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it`](#spec-show-prints-a-unit-with-what-it-follows-from-what-follows-from-it-and-what-tests-it)
+
+This follows because a reader who wants one part of a unit would otherwise cut it out of the text of the document. Cutting it out by hand handles the document by its text, which the commands are there to spare. The checker fixes the heading and the statement of a unit and leaves the rest open. So the parts it can name are the statement and the body.
+
+#### @spec show-with-statement-prints-the-statement-as-it-reads
+
+> `show --statement` prints the statement of a unit without the marks of its quote, and each link as its words.
+
+This follows because a reader asks for the statement to read what the unit claims. The marks of the quote and the targets of the links are for the document, and stand between the reader and the words.
+
+#### @spec show-with-body-prints-the-own-text-after-the-statement
+
+> `show --body` prints the [own text](#term-own-text) of a unit after its statement, as the document writes it.
+
+This follows because the checker gives the body no structure, so it prints the body as it stands. What the body holds is up to the author and the plugins: a reason, an intent, fenced blocks.
+
+#### @spec show-of-a-part-a-unit-lacks-says-none
+
+> When a unit has no part of those named, `show` prints `none` under its id.
+
+This follows because a reader who asked for a part must not take silence for an empty one.
 
 ### @spec find-lists-the-units-whose-text-holds-every-word-it-is-given
 

@@ -167,6 +167,64 @@ describe('show', () => {
   });
 });
 
+describe('show with a part', () => {
+  const PARTS = canon(`
+### @spec a-claim-with-blocks
+
+> A claim with blocks holds on every [target](#term-target),
+> and says so.
+
+Prose about the claim.
+
+\`\`\`json
+{ "target": "browser" }
+\`\`\`
+
+\`\`\`yaml
+target: browser
+\`\`\`
+
+#### @spec a-plain-claim
+
+> A plain claim holds.
+
+## Terms
+
+### @term target
+
+> A target is where a program runs.
+`);
+  const lines = generated(PARTS).split('\n');
+  const header = (heading: string, id: string) => `CANON.md:${lines.indexOf(heading) + 1}  ${id}`;
+  const show = (...args: string[]) => run(scratch(PARTS, ''), 'show', ...args);
+
+  /**
+   * @canon spec-show-with-statement-prints-the-statement-as-it-reads
+   */
+  it('prints the statement without its quote marks, each link as its words', () => {
+    const { stdout, status } = show('spec-a-claim-with-blocks', '--statement');
+    expect(status).toBe(0);
+    expect(stdout).toBe(`${header('### @spec a-claim-with-blocks', 'spec-a-claim-with-blocks')}\n\nA claim with blocks holds on every target,\nand says so.\n`);
+  });
+
+  /**
+   * @canon spec-show-with-body-prints-the-own-text-after-the-statement
+   */
+  it('prints the own text after the statement, as written, and no unit around it', () => {
+    const { stdout } = show('spec-a-claim-with-blocks', '--body');
+    expect(stdout).toBe(`${header('### @spec a-claim-with-blocks', 'spec-a-claim-with-blocks')}\n\nProse about the claim.\n\n\`\`\`json\n{ "target": "browser" }\n\`\`\`\n\n\`\`\`yaml\ntarget: browser\n\`\`\`\n`);
+  });
+
+  /**
+   * @canon spec-show-of-a-part-a-unit-lacks-says-none
+   */
+  it('prints none under a unit that has no part of those named', () => {
+    const { stdout, status } = show('spec-a-plain-claim', '--body');
+    expect(status).toBe(0);
+    expect(stdout).toBe(`${header('#### @spec a-plain-claim', 'spec-a-plain-claim')}\n\nnone\n`);
+  });
+});
+
 describe('find', () => {
   const find = (...args: string[]) => run(scratch(DOCUMENT, TESTS), 'find', ...args).stdout.trim().split('\n').filter(Boolean);
 
