@@ -29,6 +29,7 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   > - a run of "and" beside another alternative of its kind
   > - an alternative that says something about another unit
   > - two kinds that can share a member
+  > - an option of one kind that holds a comma
 - [`@term linked-formula`](#term-linked-formula) — A linked formula is a formula that has a word whose reading a unit holds, and the statement may link that word.
 - [`@term series`](#term-series) — A series is a run of clauses, or a rule of two sides. The verbalizer says it as a sentence, as bullets or on one line.
 - [`@term sentenceable`](#term-sentenceable) —
@@ -321,6 +322,8 @@ How naturalloy says an Alloy formula in English, and why. It is the canon of the
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways`](#spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways) — When a [definition](#term-definition-passage) has a run of "and" beside another alternative of its kind, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject) — When a [definition](#term-definition-passage) has an alternative that says something about another unit, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
   - [`@spec a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member`](#spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member) — When a [definition](#term-definition-passage) has two kinds that can share a member, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+  - [`@spec a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma`](#spec-a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma) — When a [definition](#term-definition-passage) has an option of one kind that holds a comma, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+    - [`@bug a-kind-of-two-options-with-a-comma-is-said-as-one-run`](#bug-a-kind-of-two-options-with-a-comma-is-said-as-one-run) — Where a kind has exactly two options and one holds a comma, the verbalizer says them as one run after "that", which reads two ways.
   - [`@spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown`](#spec-a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown) — In the Markdown layout, the verbalizer links a word whose reading a unit holds to that unit.
   - [`@spec a-word-that-names-a-term-is-plain-in-the-text-layout`](#spec-a-word-that-names-a-term-is-plain-in-the-text-layout) — In the text layout, the verbalizer says a word whose reading a unit holds in plain words.
   - [`@spec only-the-first-mention-of-a-term-links`](#spec-only-the-first-mention-of-a-term-links) — In a [linked formula](#term-linked-formula), the verbalizer links only the first mention of a term, in reading order.
@@ -580,7 +583,7 @@ fits: {1} [fits] a noun phrase | {1} does not [fit] a noun phrase
 ```alloy vocabulary
 sig Definition {}
 sig GuardedByKind, PhrasePerKind, SameKindTwice, JoinedWithOr, OrInsideKind, OneCoordination in Definition {}
-sig OneKind, OneSentenceKind, NoKindFirst, AmbiguousAnd, NotAboutSubject, KindsShareAMember, AsItStands in Definition {}
+sig OneKind, OneSentenceKind, NoKindFirst, AmbiguousAnd, NotAboutSubject, KindsShareAMember, CommaInOption, AsItStands in Definition {}
 fact case_wordings { no PhrasePerKind & AsItStands and JoinedWithOr + OneCoordination + OneSentenceKind in PhrasePerKind and no GuardedByKind & NoKindFirst }
 ```
 
@@ -598,6 +601,7 @@ NoKindFirst: {1} has an alternative that does not begin with its kind | {1} has 
 AmbiguousAnd: {1} has a run of "and" beside another alternative of its kind | {1} has no run of "and" beside another alternative of its kind
 NotAboutSubject: {1} has an alternative that says something about another unit | {1} has no alternative that says something about another unit
 KindsShareAMember: {1} has two kinds that can share a member | {1} does not have two kinds that can share a member
+CommaInOption: {1} has an option of one kind that holds a comma | {1} has no option of one kind that holds a comma
 AsItStands: [verbalizer](#term-verbalizer) says {1} as a list of the alternatives as they stand | [verbalizer](#term-verbalizer) does not say {1} as a list of the alternatives as they stand
 ```
 
@@ -643,12 +647,15 @@ some f: Definition | f in OrInsideKind and f in NoKindFirst
 > - a run of "and" beside another alternative of its kind
 > - an alternative that says something about another unit
 > - two kinds that can share a member
+> - an option of one kind that holds a comma
 <!-- statement-term-by-kind:end -->
 
-The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. No run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins. And no two of its kinds may share a member, because a reader can take "one of these" as exactly one.
+The verbalizer can say a definition kind by kind when each alternative turns cleanly into a phrase for its kind. Every alternative must open with its kind, because the phrase starts with the kind. Every alternative must be about the subject, because the phrase describes the subject. No run of "and" may stand beside another alternative of the same kind, where a reader could not tell which one it joins. No two of its kinds may share a member, because a reader can take "one of these" as exactly one.
+
+And no option of a kind may hold a comma, which would blur where the options of that kind end.
 
 ```alloy
-pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject and d not in KindsShareAMember }
+pred byKind[d: Definition] { d not in NoKindFirst and d not in AmbiguousAnd and d not in NotAboutSubject and d not in KindsShareAMember and d not in CommaInOption }
 ```
 
 ```readings
@@ -2850,6 +2857,28 @@ A definition said kind by kind reads "is one of these", and a reader can take th
 ```alloy
 all f: Definition | f in KindsShareAMember implies f in AsItStands
 ```
+
+#### @spec a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma
+
+<!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma:begin — generated by `canon generate`; edits are overwritten -->
+> When a [definition](#term-definition-passage) has an option of one kind that holds a comma, [verbalizer](#term-verbalizer) says the definition as a list of the alternatives as they stand.
+<!-- statement-spec-a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma:end -->
+
+Said kind by kind, the options of one kind run after "that", joined by commas and one "or". An option that holds a comma of its own breaks that run. Take "a bug that cites a unit that is not an axiom, a spec or a bug or is not tested". Does "or is not tested" belong to the bug, or to the unit it cites? The reader cannot tell.
+
+So the verbalizer says such a definition as it stands, each alternative on its own bullet.
+
+```alloy
+all f: Definition | f in CommaInOption implies f in AsItStands
+```
+
+##### @bug a-kind-of-two-options-with-a-comma-is-said-as-one-run
+
+> Where a kind has exactly two options and one holds a comma, the verbalizer says them as one run after "that", which reads two ways.
+
+The printer says the definition as it stands only when such a kind has more than two options. The read-back check finds one meaning, because the parser does not model where the second "or" attaches.
+
+Issue: #85
 
 #### @spec a-word-that-names-a-term-links-to-the-unit-that-holds-its-reading-in-markdown
 

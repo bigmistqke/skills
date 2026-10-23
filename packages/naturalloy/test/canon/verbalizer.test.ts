@@ -871,6 +871,26 @@ describe('a definition by cases', () => {
   });
 
   /**
+   * @canon spec-a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma
+   */
+  it('is said as it stands when an option of a kind holds a comma and the kind has more than two options', () => {
+    const cites = 'some v: Unit | u->v in Cite.rel and v not in Axiom and v not in Spec and v not in Bug';
+    expect(define(`(u in Bug and ((${cites}) or u not in Tested or u not in Spec)) or (u in Spec and u not in Tested)`).split('\n')[0]).toBe(
+      'unit_1 is unfounded exactly when at least one of these holds:'
+    );
+  });
+
+  /**
+   * @canon bug-a-kind-of-two-options-with-a-comma-is-said-as-one-run
+   */
+  it.fails('is said as it stands when an option of a kind holds a comma and the kind has two options', () => {
+    const cites = 'some v: Unit | u->v in Cite.rel and v not in Axiom and v not in Spec and v not in Bug';
+    expect(define(`(u in Bug and ((${cites}) or u not in Tested)) or (u in Spec and u not in Tested)`).split('\n')[0]).toBe(
+      'unit_1 is unfounded exactly when at least one of these holds:'
+    );
+  });
+
+  /**
    * @canon spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member
    */
   it('is said as it stands when two of its kinds can share a member', () => {
