@@ -23,4 +23,6 @@ export const PASSES: readonly Pass[] = [
   exactlyWhen,
   ruleOnOneLine,
   fromNowOnWhenever,
-  { name: 'lone-numbers-dropped', spec: 'spec-a-variable-alone-of-its-noun-is-named-the-noun', print: { dropLoneNumbers: true } }];
+  { name: 'lone-numbers-dropped', spec: 'spec-a-variable-alone-of-its-noun-is-named-the-noun', print: { dropLoneNumbers: true } },
+  { name: 'a-noun-for-every', spec: 'spec-a-for-every-over-the-noun-alone-is-said-as-a-noun-where-the-words-first-name-it', print: { aNounForEvery: true } }
+];

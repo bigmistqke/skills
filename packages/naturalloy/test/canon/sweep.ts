@@ -257,6 +257,19 @@ export const SWEEP: { what: string; formula: string }[] = [
     'always all c: Registered | c in Ran implies c.on in Disposed',
     'always all c: Cleanup | c in Ran'
   ].map(formula => ({ what: '`always` around "for every"', formula })),
+  // "for every" over one thing of a kind: said as "a" and the noun where a rule's first side or a definition's subject
+  // first names it, and kept where the words name it once or the rule has an "otherwise".
+  ...[
+    'all c: Cleanup | c in Ran implies c in Registered',
+    'all o: Owner | (o in Disposed and some c: Cleanup | o in c.on) implies o not in Stopped',
+    'all c: Cleanup | (c in Registered and c in Ran and some c.on and c.home in Disposed) implies c.home in Stopped',
+    'all c: Cleanup | c in Ran implies after c in Registered',
+    '(all c: Cleanup | c in Ran implies c in Registered) and (all o: Owner | o in Disposed implies o not in Stopped)',
+    'all c: Cleanup | c in Ran implies o in Disposed',
+    'all c: Cleanup | c in Ran implies c in Registered else c.home in Stopped',
+    'pred gone[o: Owner] { o in Disposed }',
+    'pred gone[o: Owner] { o in Disposed and o not in Stopped }'
+  ].map(formula => ({ what: '"for every" over one thing of a kind', formula })),
   // `some` over several things, of one type and of two.
   ...['some c: Cleanup, o: Owner | o in c.on and o in Disposed', 'some disj c, d: Cleanup | c in Ran and d not in Ran', 'some c: Cleanup, o, p: Owner | o in c.on and p not in c.on'].map(formula => ({ what: '`some` over several things', formula })),
   // A quantifier about its variable alone, with nothing else to hang from: "there is a cleanup that has run".
