@@ -157,6 +157,15 @@ describe('the words', () => {
     // A time phrase in the second side, or an "otherwise", keeps the first side first.
     expect(say(`(${conditions}) implies after p in Disposed`).split('\n')[0]).toBe('When all of these hold:');
     expect(say(`(${conditions}) implies p in Disposed else p in Stopped`).split('\n')[0]).toBe('When all of these hold:');
+    // So does a rule that "from now on, whenever" has taken.
+    expect(say(`always ((${conditions}) implies p in Disposed)`).split('\n')[0]).toBe('From now on, whenever all of these hold:');
+  });
+
+  /**
+   * @canon spec-a-quantifier-about-its-variable-alone-is-said-with-there-is-and-that
+   */
+  it('says "there is a … that" for a variable beside only another noun phrase', () => {
+    expect(say('some c: Cleanup, o: Owner | o in c.on and o in Disposed')).toBe('There is a cleanup that is on an owner that pulse has disposed.');
   });
 
   /**
@@ -485,11 +494,12 @@ describe('a predicate with no reading of its own', () => {
    */
   it('gives a quantified variable a numbered name when its name is already in use', () => {
     const readings = defined('pred has_pending { some c: Cleanup | c in Registered and c not in Ran }');
-    expect(say('some c: Cleanup | has_pending and c in Ran', readings)).toBe(
+    expect(say('all c: Cleanup | has_pending and c in Ran', readings)).toBe(
       [
-        'There is a cleanup_1 such that all of these hold:',
-        '  - there is a cleanup_2 such that code has registered cleanup_2 and cleanup_2 has not run',
-        '  - cleanup_1 has run'
+        'For every cleanup_1:',
+        '  all of these hold:',
+        '    - there is a cleanup_2 such that code has registered cleanup_2 and cleanup_2 has not run',
+        '    - cleanup_1 has run'
       ].join('\n')
     );
   });
@@ -871,6 +881,26 @@ describe('a definition by cases', () => {
   });
 
   /**
+   * @canon spec-a-definition-by-cases-is-said-as-it-stands-when-an-option-of-a-kind-holds-a-comma
+   */
+  it('is said as it stands when an option of a kind holds a comma and the kind has more than two options', () => {
+    const cites = 'some v: Unit | u->v in Cite.rel and v not in Axiom and v not in Spec and v not in Bug';
+    expect(define(`(u in Bug and ((${cites}) or u not in Tested or u not in Spec)) or (u in Spec and u not in Tested)`).split('\n')[0]).toBe(
+      'unit_1 is unfounded exactly when at least one of these holds:'
+    );
+  });
+
+  /**
+   * @canon bug-a-kind-of-two-options-with-a-comma-is-said-as-one-run
+   */
+  it.fails('is said as it stands when an option of a kind holds a comma and the kind has two options', () => {
+    const cites = 'some v: Unit | u->v in Cite.rel and v not in Axiom and v not in Spec and v not in Bug';
+    expect(define(`(u in Bug and ((${cites}) or u not in Tested)) or (u in Spec and u not in Tested)`).split('\n')[0]).toBe(
+      'unit_1 is unfounded exactly when at least one of these holds:'
+    );
+  });
+
+  /**
    * @canon spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member
    */
   it('is said as it stands when two of its kinds can share a member', () => {
@@ -1070,7 +1100,6 @@ describe('a quantifier said as a noun phrase', () => {
    * @canon spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full
    * @canon spec-a-quantifier-with-nothing-to-attach-to-is-said-in-full
    * @canon spec-no-with-another-is-said-in-full
-   * @canon spec-a-condition-that-is-not-about-the-variable-is-said-in-full
    */
   it('is said in full when it does not fit', () => {
     // no fact for the variable beside another thing, and the variable not the subject of every condition
@@ -1079,8 +1108,20 @@ describe('a quantifier said as a noun phrase', () => {
     expect(said('some v: Unit | u->v in Twice.rel')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and in unit_2.');
     // "no" with "another" says something else than "another"
     expect(said('no v: Unit | v != u and v->u in Sit.rel')).toBe('there is no unit_2 such that all of these hold:\n    - unit_2 and unit_1 are different\n    - unit_2 sits in unit_1');
-    // a condition that is not about the variable
-    expect(said('some v: Unit | u->v in Sit.rel and u in Spec')).toBe('there is a unit_2 such that unit_1 sits in unit_2 and is a spec.');
+  });
+
+  /**
+   * @canon spec-a-condition-that-is-not-about-the-variable-is-said-apart
+   */
+  it('says a condition that is not about the variable beside the quantifier, outside it', () => {
+    expect(said('some v: Unit | u->v in Sit.rel and u in Spec')).toBe('unit_1 sits in a unit and is a spec.');
+  });
+
+  /**
+   * @canon spec-a-condition-under-no-that-is-not-about-the-variable-is-said-in-full
+   */
+  it('keeps the quantifier in full under "no" when a condition is not about its variable', () => {
+    expect(said('no v: Unit | u->v in Sit.rel and u in Spec')).toBe('there is no unit_2 such that unit_1 sits in unit_2 and is a spec.');
   });
 });
 
@@ -1218,6 +1259,13 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
+   * @canon spec-a-list-right-below-a-time-phrase-is-bullets
+   */
+  it('are a list right below a time phrase, however short', () => {
+    expect(say('after (c in Ran and c in Registered)', READINGS)).toBe('At the next moment, all of these hold:\n  - c has run\n  - code has registered c');
+  });
+
+  /**
    * @canon spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets
    */
   it('are a list when an item is more than one clause', () => {
@@ -1331,7 +1379,7 @@ describe('the items of a list said in a sentence', () => {
   });
 
   /**
-   * @canon spec-a-pair-of-variables-is-said-as-it-is-and-not-as-a-subject
+   * @canon spec-a-list-with-a-clause-about-a-pair-of-variables-is-bullets
    */
   it('say a pair of variables as it is, and not as a subject', () => {
     expect(said('all v: Unit | (u != v and u in Spec) implies v in Spec')).toContain('unit_2 is a spec when all of these hold:\n    - unit_1 and unit_2 are different\n    - unit_1 is a spec');

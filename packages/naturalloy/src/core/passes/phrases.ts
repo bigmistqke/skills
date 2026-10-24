@@ -99,14 +99,27 @@ function part(s: Sentence): Part | undefined {
   return undefined;
 }
 
-/** The variables, free names and strings a clause speaks of besides `v`, inside its noun phrases too. */
+/**
+ * The variables, free names and strings a clause names besides `v`, inside its noun phrases too. The variable of a noun
+ * phrase is no such thing: beside only "an owner that pulse has disposed", "a cleanup is on" it reads as every cleanup.
+ */
 function others(c: Clause, v: Var): number {
   const found = new Set<string>();
+  const phrased = new Set<string>();
+  const bound = (n: unknown): void => {
+    if (Array.isArray(n)) n.forEach(bound);
+    else if (n !== null && typeof n === 'object') {
+      const o = n as Record<string, unknown>;
+      if (o.t === 'np') phrased.add((o.v as Var).id);
+      Object.values(o).forEach(bound);
+    }
+  };
+  bound(c);
   const walk = (n: unknown): void => {
     if (Array.isArray(n)) n.forEach(walk);
     else if (n !== null && typeof n === 'object') {
       const o = n as Record<string, unknown>;
-      if (o.t === 'var' && (o.v as Var).id !== v.id) found.add(`var ${(o.v as Var).id}`);
+      if (o.t === 'var' && (o.v as Var).id !== v.id && !phrased.has((o.v as Var).id)) found.add(`var ${(o.v as Var).id}`);
       else if (o.t === 'free') found.add(`free ${o.name as string}`);
       else if (o.t === 'string') found.add(`string ${o.value as string}`);
       for (const [key, value] of Object.entries(o)) if (key !== 'v') walk(value);
@@ -167,7 +180,8 @@ export function absorbed(q: 'some' | 'no', v: Var, body: Sentence, context: Cont
 
 export const nounPhrases: Pass = {
   ...everywhere('noun-phrases', 'spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase', (s, context) => {
-  if (s.t !== 'quant' || (s.q !== 'some' && s.q !== 'no')) return undefined;
+  // A quantifier an earlier pass has given a form keeps it.
+  if (s.t !== 'quant' || (s.q !== 'some' && s.q !== 'no') || s.form !== undefined) return undefined;
   // Variables of different kinds are said one inside the other: the last innermost, under "some", then the first.
   const [first, ...later] = s.vars as [Var, ...Var[]];
   let body: Sentence = s.body;

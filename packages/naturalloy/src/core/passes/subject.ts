@@ -95,3 +95,20 @@ export const xAndNoOther: Pass = {
     rejected: ['"no other" inside a noun phrase, as in "an owner that no other owner is the parent of": it covers less than the claim.', 'a field of at most one value: its reading already says it, "owner_1 is the home of the cleanup".']
   }
 };
+
+/**
+ * The conditions of a quantifier under "some" that do not name its variable, said beside the quantifier, outside it,
+ * where the rest then reads as a noun phrase: "c is on an owner and d has run" for "there is an owner such that c is
+ * on the owner and d has run". Under "no" they stay inside: outside, they would come back as an "or".
+ */
+export const conditionsApart = everywhere('conditions-apart', 'spec-a-condition-that-is-not-about-the-variable-is-said-apart', (s, context) => {
+  if (s.t !== 'quant' || s.q !== 'some' || s.form !== undefined || s.body.t !== 'and' || s.vars.length !== 1) return undefined;
+  const v = s.vars[0] as Var;
+  const about = s.body.items.filter(item => mentions(item, v));
+  const apart = s.body.items.filter(item => !mentions(item, v));
+  if (about.length === 0 || apart.length === 0) return undefined;
+  const body: Sentence = about.length === 1 ? (about[0] as Sentence) : { ...s.body, items: about };
+  // Only where what stays inside reads as a noun phrase: otherwise the words gain a level and lose nothing.
+  if (absorbed('some', v, body, context) === undefined) return undefined;
+  return { t: 'and', items: [{ ...s, body }, ...apart] };
+});
