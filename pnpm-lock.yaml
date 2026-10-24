@@ -57,6 +57,9 @@ importers:
       '@bigmistqke/parse-alloy':
         specifier: workspace:*
         version: link:../parse-alloy
+      '@bigmistqke/run-alloy':
+        specifier: workspace:*
+        version: link:../run-alloy
     devDependencies:
       '@bigmistqke/canon':
         specifier: workspace:*
@@ -163,6 +166,9 @@ importers:
         specifier: workspace:*
         version: link:../parse-alloy
     devDependencies:
+      '@bigmistqke/run-alloy':
+        specifier: workspace:*
+        version: link:../run-alloy
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.5
@@ -181,6 +187,9 @@ importers:
       '@bigmistqke/canon-plugin-retext':
         specifier: workspace:*
         version: link:../canon-plugin-retext
+      '@bigmistqke/run-alloy':
+        specifier: workspace:*
+        version: link:../run-alloy
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.5

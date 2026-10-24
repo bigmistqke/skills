@@ -5,7 +5,7 @@
  * analyzer counts the processes that each run starts.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -89,19 +89,6 @@ describe('a search asked again', () => {
   });
 
   /**
-   * @canon spec-a-search-with-another-analyzer-jar-is-asked-again
-   */
-  it('is asked of the analyzer again when the content of its jar changed, at the same path', async () => {
-    const dir = scratch();
-    const analyzer = fakeAnalyzer(join(dir, 'bin'));
-    const options = { java: analyzer.java, jar: analyzer.jar, cache: join(dir, 'cache') };
-    await checkAlloy(doc(), options);
-    writeFileSync(analyzer.jar, 'the analyzer, version two, which is longer');
-    await checkAlloy(doc(), options);
-    expect(analyzer.calls()).toHaveLength(4);
-  });
-
-  /**
    * @canon spec-a-search-with-other-options-is-asked-again
    */
   it('is asked of the analyzer again when it asks with other options: the world of a shown scenario', async () => {
@@ -112,22 +99,6 @@ describe('a search asked again', () => {
     await checkAlloy(doc(), { ...options, show: [SCENARIO] });
     // Only the search of the shown scenario asks with other options; the other one keeps its answer.
     expect(analyzer.calls()).toHaveLength(3);
-  });
-
-  /**
-   * @canon spec-a-search-on-another-major-version-of-java-is-asked-again
-   */
-  it('is asked of the analyzer again on another major version of Java, and not on another Java of the same one', async () => {
-    const dir = scratch();
-    const java21 = fakeAnalyzer(join(dir, 'bin'), { major: 21 });
-    const other21 = fakeAnalyzer(join(dir, 'bin'), { major: 21, name: 'other-java' });
-    const java17 = fakeAnalyzer(join(dir, 'bin'), { major: 17, name: 'java17' });
-    const cache = join(dir, 'cache');
-    await checkAlloy(doc(), { java: java21.java, jar: java21.jar, cache });
-    await checkAlloy(doc(), { java: other21.java, jar: other21.jar, cache });
-    expect(other21.calls()).toHaveLength(0);
-    await checkAlloy(doc(), { java: java17.java, jar: java17.jar, cache });
-    expect(java17.calls()).toHaveLength(2);
   });
 
   /**
@@ -144,21 +115,6 @@ describe('a search asked again', () => {
     expect('worlds' in second && second.worlds.map(w => w.trace)).toEqual([INSTANCE]);
   });
 
-  /**
-   * @canon spec-an-analyzer-that-did-not-answer-keeps-no-answer
-   */
-  it('is asked of the analyzer again after the analyzer failed on it', async () => {
-    const dir = scratch();
-    const cache = join(dir, 'cache');
-    const failing = fakeAnalyzer(join(dir, 'failing'), { fail: true });
-    const failed = await checkAlloy(doc(), { java: failing.java, jar: failing.jar, cache });
-    expect(failed).toMatchObject({ ok: false, error: expect.stringContaining('OutOfMemoryError') });
-    expect(existsSync(cache) ? readdirSync(cache) : []).toEqual([]);
-    // The same jar and the same major version of Java: only the failure is different.
-    const working = fakeAnalyzer(join(dir, 'failing'), { name: 'working-java' });
-    await checkAlloy(doc(), { java: working.java, jar: working.jar, cache });
-    expect(working.calls()).toHaveLength(2);
-  });
 });
 
 describe('a kept answer', () => {
@@ -169,7 +125,7 @@ describe('a kept answer', () => {
   };
 
   /**
-   * @canon spec-a-kept-answer-unused-for-thirty-days-is-removed
+   * @canon spec-logic-sweeps-the-kept-answers-after-each-run
    */
   it('is removed by the next run once no run used it for thirty days', async () => {
     const dir = scratch();
@@ -184,21 +140,6 @@ describe('a kept answer', () => {
     for (const name of old) expect(now).not.toContain(name);
   });
 
-  /**
-   * @canon spec-a-kept-answer-that-a-run-uses-is-kept-for-thirty-more-days
-   */
-  it('that a run uses counts as used then, and stays', async () => {
-    const dir = scratch();
-    const analyzer = fakeAnalyzer(join(dir, 'bin'));
-    const options = { java: analyzer.java, jar: analyzer.jar, cache: join(dir, 'cache') };
-    await checkAlloy(doc(), options);
-    age(options.cache);
-    await checkAlloy(doc(), options);
-    expect(analyzer.calls()).toHaveLength(2);
-    const kept = readdirSync(options.cache);
-    expect(kept).toHaveLength(2);
-    for (const name of kept) expect(Date.now() - statSync(join(options.cache, name)).mtimeMs).toBeLessThan(60_000);
-  });
 });
 
 /** A project of the document whose frontmatter adds `settings` to its suite, with the stand-in as its analyzer; `generate` has run over it. */
@@ -210,7 +151,7 @@ function project(extra = '') {
   writeFileSync(join(dir, 'CANON.md'), NAMES_PLUGIN.replace('\n---\n', `\n${settings}---\n`) + doc());
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir });
   const logic = (env: Record<string, string> = {}) => {
-    const { CANON_ALLOY_CACHE: _, ...rest } = process.env;
+    const { CANON_ALLOY_CACHE: _, CANON_ALLOY_CACHE_DIR: __, ...rest } = process.env;
     const run = spawnSync(process.execPath, [CLI, 'alloy:logic'], { cwd: dir, encoding: 'utf8', env: { ...rest, CANON_JAVA: analyzer.java, CANON_ALLOY_JAR: analyzer.jar, ...env } });
     return { out: run.stdout, err: run.stderr, code: run.status };
   };
@@ -232,23 +173,25 @@ describe('the kept answers of a project', () => {
   /**
    * @canon spec-the-cache-setting-names-the-folder-of-the-kept-answers
    */
-  it('are kept in the folder that logic.alloy.cache names', () => {
+  it('are kept in the folder that logic.alloy.cache names, also when CANON_ALLOY_CACHE_DIR names another', () => {
     const { dir, logic } = project('logic: {alloy: {cache: kept/answers}}\n');
-    expect(logic()).toMatchObject({ code: 0 });
+    expect(logic({ CANON_ALLOY_CACHE_DIR: join(dir, 'shared') })).toMatchObject({ code: 0 });
+    expect(existsSync(join(dir, 'shared'))).toBe(false);
     expect(readdirSync(join(dir, 'kept', 'answers'))).toHaveLength(2);
     expect(existsSync(join(dir, '.cache'))).toBe(false);
   });
 
+
   /**
-   * @canon spec-canon-alloy-cache-0-keeps-no-answer-and-reads-none
+   * @canon spec-canon-alloy-cache-dir-holds-the-answers-of-a-project-that-sets-no-folder
    */
-  it('are neither kept nor read when CANON_ALLOY_CACHE is 0', () => {
+  it('are kept in the folder that CANON_ALLOY_CACHE_DIR names when the project sets none', () => {
     const { dir, analyzer, logic } = project();
-    expect(logic()).toMatchObject({ code: 0 });
-    expect(logic({ CANON_ALLOY_CACHE: '0' })).toMatchObject({ code: 0 });
-    expect(analyzer.calls()).toHaveLength(4);
-    rmSync(join(dir, '.cache'), { recursive: true });
-    expect(logic({ CANON_ALLOY_CACHE: '0' })).toMatchObject({ code: 0 });
+    const shared = join(dir, 'shared');
+    expect(logic({ CANON_ALLOY_CACHE_DIR: shared })).toMatchObject({ code: 0 });
+    expect(readdirSync(shared)).toHaveLength(2);
     expect(existsSync(join(dir, '.cache'))).toBe(false);
+    expect(logic({ CANON_ALLOY_CACHE_DIR: shared })).toMatchObject({ code: 0 });
+    expect(analyzer.calls()).toHaveLength(2);
   });
 });

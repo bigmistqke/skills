@@ -5,6 +5,7 @@
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
+import { cacheFolder } from '@bigmistqke/run-alloy';
 import { alloyProgram, checkAlloy, predicateName, type AlloyOptions } from './alloy.ts';
 import { contextOf } from '@bigmistqke/canon/extends';
 import { checkIntents, printIntents, readStdin, writeIntent } from './intent.ts';
@@ -208,8 +209,8 @@ export const plugin: Plugin = {
         {
           jar: alloy?.jar === undefined ? undefined : resolve(root, alloy.jar),
           java: alloy?.java === undefined ? undefined : resolve(root, alloy.java),
-          // [Why the answers are kept](../CANON.md#spec-a-search-whose-program-and-analyzer-are-unchanged-keeps-its-earlier-answer), and [why under the project](../CANON.md#spec-answers-are-kept-under-the-project-by-default).
-          cache: process.env.CANON_ALLOY_CACHE === '0' ? undefined : resolve(root, alloy?.cache ?? '.cache/canon-alloy')
+          // [Where the answers are kept](../CANON.md#spec-logic-keeps-its-answers-where-its-project-says).
+          cache: cacheFolder({ set: alloy?.cache === undefined ? undefined : resolve(root, alloy.cache), fallback: resolve(root, '.cache/canon-alloy') })
         },
         (options.show as string[] | undefined) ?? []
       );

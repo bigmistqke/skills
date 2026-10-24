@@ -169,7 +169,8 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command with --show', (
     // A Java that runs the analyzer and then takes away the text of every instance it wrote.
     writeFileSync(java, `#!/bin/sh\n"${process.env.CANON_JAVA ?? 'java'}" "$@"\ncode=$?\nfor a in "$@"; do case "$a" in */out) rm -f "$a"/*-solution-0.txt;; esac; done\nexit $code\n`);
     chmodSync(java, 0o755);
-    const { out, code } = logic(RIPE, true, ['--show', 'scenario-1-axiom-a-pear-is-sweet'], { CANON_JAVA: java });
+    // No kept answer: one that holds the world would be given without this Java.
+    const { out, code } = logic(RIPE, true, ['--show', 'scenario-1-axiom-a-pear-is-sweet'], { CANON_JAVA: java, CANON_ALLOY_CACHE: '0' });
     expect(out).toContain('CANON.md: 2 units, 1 scenario');
     expect(out).toContain('the world of scenario-1-axiom-a-pear-is-sweet: the analyzer wrote none');
     expect(code).toBe(0);
