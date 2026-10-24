@@ -218,6 +218,11 @@ describe('alloy:intent --write', () => {
     expect(runs[0]?.code).toBe(0);
     expect(runs[0]?.out).toContain('spec-a-leaf  wrote its intent');
     expect(runs[1]?.out).toContain(`spec-a-leaf\n\n${NEW}\n`);
+    // A command earlier in a pipeline can be slow to write, and the prose checks touch standard input as they load.
+    const both = `---\nplugins: ["@bigmistqke/canon-plugin-alloy", "@bigmistqke/canon-plugin-retext"]\n---\n${DOC}`;
+    const slow = projectOf(both, { args: ['alloy:intent', 'spec-a-leaf', '--write'], input: NEW, slowly: true }).runs[0];
+    expect(slow?.err).toBe('');
+    expect(slow?.code).toBe(0);
   });
 
   /**
