@@ -413,6 +413,7 @@ How the Alloy plugin of the canon checker behaves now, and why. It is the canon 
     - [`@spec intent-of-a-unit-with-no-intent-says-none`](#spec-intent-of-a-unit-with-no-intent-says-none) — When a unit with a formula has no [intent](#term-intent), `alloy:intent` prints `none` under its line.
     - [`@spec intent-of-a-unit-that-holds-no-formula-is-refused`](#spec-intent-of-a-unit-that-holds-no-formula-is-refused) — When the command line of `alloy:intent` names a unit that holds no formula, the plugin says so and changes nothing. The run exits with code 2.
     - [`@spec intent-of-a-name-that-names-no-unit-is-refused`](#spec-intent-of-a-name-that-names-no-unit-is-refused) — When the command line of `alloy:intent` holds a name of no unit of the plugin's documents, the plugin says so. The run exits with code 2.
+    - [`@spec intent-reads-the-ids-of-a-dash-from-standard-input`](#spec-intent-reads-the-ids-of-a-dash-from-standard-input) — `alloy:intent -` prints the [intent](#term-intent) of each unit whose id a line of standard input holds. A blank line names no unit.
   - [`@spec intent-with-write-replaces-the-intent-of-its-unit`](#spec-intent-with-write-replaces-the-intent-of-its-unit) — `alloy:intent <unit> --write` reads a new intent from standard input, and puts it in place of the [intent](#term-intent) of the unit in its document.
     - [`@spec write-puts-the-text-from-standard-input-in-place-of-the-intent`](#spec-write-puts-the-text-from-standard-input-in-place-of-the-intent) — After `alloy:intent <unit> --write`, the intent of the unit is the text that standard input gave, without the blank lines around it.
     - [`@spec write-gives-a-unit-with-no-intent-one-after-its-statement-and-its-derivation-line`](#spec-write-gives-a-unit-with-no-intent-one-after-its-statement-and-its-derivation-line) — When the unit has no intent, `alloy:intent --write` puts the text after its statement and its "Derives from:" line, before its first fenced block.
@@ -2232,6 +2233,14 @@ This follows because only a unit with a formula has an intent. A unit without on
 > When the command line of `alloy:intent` holds a name of no unit of the plugin's documents, the plugin says so. The run exits with code 2.
 
 This follows because a reader who asked for a unit must not take silence for an empty intent.
+
+##### @spec intent-reads-the-ids-of-a-dash-from-standard-input
+
+> `alloy:intent -` prints the [intent](#term-intent) of each unit whose id a line of standard input holds. A blank line names no unit.
+
+Derives from: [`spec-a-dash-stands-for-the-names-on-standard-input`](../canon/CANON.md#spec-a-dash-stands-for-the-names-on-standard-input)
+
+This follows because a session reads the intents of the units that another command lists, such as `find --ids`. Only a read takes the names this way, since a write takes its new intent from standard input.
 
 #### @spec intent-with-write-replaces-the-intent-of-its-unit
 

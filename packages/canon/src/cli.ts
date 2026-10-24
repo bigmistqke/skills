@@ -346,12 +346,14 @@ function tocOf(src: string): string {
  * then reads as covering the rest. It is a smell rather than a finding: a spec
  * can honestly carry several tests of ONE claim, enumerated per input or
  * attacked from several angles, and nested specs there would restate their
- * parent. So this reports and never gates.
+ * parent. So this reports and never gates. With `ids`, the id of each suspect
+ * is pushed onto it, in the order listed.
  */
 function suspectsOf(
   file: string,
   testsPer: Map<string, number>,
-  least: number
+  least: number,
+  ids?: string[]
 ): string {
   const rel = relative(ROOT, file);
   const src = readFileSync(file, 'utf8');
@@ -379,6 +381,7 @@ function suspectsOf(
     }))
     .filter(r => r.n >= least)
     .sort((a, b) => b.n - a.n);
+  ids?.push(...rows.map(r => r.id));
 
   const head = `${rel} — specs with no nested specs carrying ${least}+ tests`;
   if (rows.length === 0) return `${head}\n\nnone`;
@@ -485,7 +488,8 @@ function clip(said: string, indent: number): string {
  * that difference is worth seeing rather than flattening away.
  *
  * With `from`, the tree is that unit and what sits in it, with no terms, facts
- * or conflicts.
+ * or conflicts. With `ids`, the id of each unit drawn is pushed onto it, in the
+ * order drawn.
  */
 function treeOf(
   file: string,
@@ -493,7 +497,8 @@ function treeOf(
   gapsOnly: boolean,
   verbose: boolean,
   links: Map<string, Array<{ target: string; derives: boolean }>> = new Map(),
-  from?: string
+  from?: string,
+  ids?: string[]
 ): string {
   const rel = relative(ROOT, file);
   const src = readFileSync(file, 'utf8');
@@ -606,6 +611,7 @@ function treeOf(
       const kind = kindOf(row.id) ?? 'spec-';
       const hue = HUE[kind];
       const [tag, ...said] = row.label.split(' ');
+      ids?.push(row.id);
       out.push(
         `${paint('90', prefix + stem)}${paint(DIM[kind], tag)} ` +
           `${paint(hue, said.join(' '))}${mark}`
@@ -642,6 +648,7 @@ function treeOf(
         if (list.some(l => l.target === target && (!derivesOnly || l.derives))) users++;
       }
       const [tag, ...word] = prose(unit.id ?? '').split(' ');
+      ids?.push(unit.id ?? '');
       out.push(
         `${paint(DIM[kind], tag)} ${paint(HUE[kind], word.join(' '))}` +
           (users > 0 ? paint('90', `  ${users}`) : paint('31', '  — unused'))
@@ -667,6 +674,7 @@ function treeOf(
     if (loose.length > 0) out.push('');
     for (const unit of loose) {
       const [tag, ...word] = prose(unit.id ?? '').split(' ');
+      ids?.push(unit.id ?? '');
       out.push(`${paint(DIM[kind], tag)} ${paint(HUE[kind], word.join(' '))}`);
       if (unit.statement) {
         const sill = ' '.repeat(tag.length + 1);
@@ -681,6 +689,7 @@ function treeOf(
     if (!keep(root)) continue;
     const rootKind = kindOf(root.id ?? '') ?? 'axiom-';
     const [rootTag, ...rootLabel] = prose(root.id ?? '').split(' ');
+    ids?.push(root.id ?? '');
     out.push('');
     out.push(
       // A root is an axiom or a fact when the document is sound, but a
@@ -1641,17 +1650,20 @@ Usage:
                                    "tracker" in the scope, also ask it about each bug's
                                    issue; --offline skips that and needs no network
   ${COMMAND} generate              rewrite the generated regions
-  ${COMMAND} tree [unit] [options] print the derivation tree with test counts; with a unit,
-                                   only that unit and what sits in it
+  ${COMMAND} tree [unit …] [options]
+                                   print the derivation tree with test counts; with units,
+                                   only the tree from each, in the order named
   ${COMMAND} show <unit> …         print each unit's own text, the units it sits in up to its root,
                                    the units its "Derives from:" line names, the units that sit in
                                    it, the units that derive from it, and the tests that check it
   ${COMMAND} show <unit> … [--statement] [--body]
                                    print only those parts of each unit: its statement as it
                                    reads, or the rest of its own text as written
-  ${COMMAND} find <word> … [--kind <kind>]
+  ${COMMAND} find [word …] [--kind <kind>]… [--in <part>]
                                    list the units whose id or own text holds every word, in any
-                                   case, each with where it starts, its id and its statement
+                                   case, each with where it starts, its id and its statement; with
+                                   no word, every unit the filters let through. Exit 0 when a unit
+                                   is listed, 1 when none is, 2 on bad usage, as grep does
   ${COMMAND} log [range]           list commits that change the implementation without naming a unit;
                                    the range defaults to the commits not yet pushed
   ${COMMAND} rename <id> <stem> [--dry-run]
@@ -1664,6 +1676,24 @@ Options for tree:
   --gaps          only the branches leading to a claim no test pins
   -v, --verbose   what each unit claims, under its stem
   --suspect [n]   specs with no nested specs carrying n or more tests (default 4)
+
+Options for find:
+  --kind <kind>   only units of the kind: axiom, fact, spec, exception, bug, conflict,
+                  thread or term; repeat it for several kinds
+  --in <part>     where a word must stand: id, statement (as show --statement prints
+                  it), body (as show --body prints it), or all, the id or the own text
+                  (the default)
+
+In a pipeline:
+  --ids           find, show and tree print the id of each unit they would print, one
+                  on each line, and nothing else; tree prints each id once
+  -               in place of the units of show, tree and alloy:intent (without --write):
+                  the names on standard input, one on each line, in any form show reads;
+                  a blank line names none, and no name at all prints nothing
+
+  ${COMMAND} find ConditionApart --ids | ${COMMAND} show - --statement
+  ${COMMAND} find --kind fact --ids | wc -l
+  comm -12 <(${COMMAND} tree --gaps --ids | sort) <(${COMMAND} find flush --ids | sort)
 
 Commands of plugins:
 A plugin adds each command of its own under the name of its package: the package
@@ -1683,7 +1713,7 @@ and generate runs under those commands, and no prefixed name asks for it.
                                    document's readings (repeat for more scenarios)
   ${COMMAND} alloy:intent <unit> … print the intent of each unit with a formula: the prose between its
                                    statement and its first fenced block, under where the unit starts
-                                   and its id
+                                   and its id; - reads the ids from standard input
   ${COMMAND} alloy:intent <unit> --write
                                    put the text on standard input in place of the unit's intent; refuse
                                    (exit 2) text with a fence, a heading, a quote, a comment or a
@@ -1733,7 +1763,8 @@ Tree connectors:
 Stems are shown as prose: @spec A write lands at once is the unit
 spec-a-write-lands-at-once. Lower the words and hyphenate to get the id back.
 show and tree take a unit in any of these forms: spec-a-stem, "@spec a-stem",
-@spec a-stem, "@spec A stem", and CANON.md#spec-a-stem as check reports it.
+@spec a-stem, "@spec A stem", and CANON.md#spec-a-stem as check reports it. A
+line of standard input after - is one name in any of these forms, quotes left out.
 
 --suspect is a heuristic and deliberately not part of check. A spec carrying
 many tests and no nested specs is usually saying several things with no way to
@@ -1742,7 +1773,7 @@ enumerated per input, and nested specs there would only restate their parent.
 
 Exit codes:
   0  success
-  1  check found something
+  1  check found something, or find listed no unit
   2  bad usage`;
 
 /**
@@ -2056,23 +2087,33 @@ function tree(options: {
   gaps: boolean;
   verbose: boolean;
   suspect: number | undefined;
-  from: string | undefined;
+  /** The names of the units to draw the trees from; undefined for the whole canon. */
+  from: string[] | undefined;
+  /** Print the id of each unit drawn, once, and nothing else. */
+  ids: boolean;
 }): void {
   const { units, testsPer, links } = analyse(false);
+  const drawn: string[] = [];
+  const collect = options.ids ? drawn : undefined;
+  const print = (text: string): void => {
+    if (!options.ids) console.log(text);
+  };
   if (options.from !== undefined) {
-    const unit = unitNamed(units, options.from);
-    console.log(treeOf(join(ROOT, unit.doc), testsPer, options.gaps, options.verbose, links, unit.id));
-    return;
+    // Every name is looked up before any tree is drawn, so a name of no unit stops the run with nothing printed.
+    const roots = options.from.map(name => unitNamed(units, name));
+    for (const unit of roots) print(treeOf(join(ROOT, unit.doc), testsPer, options.gaps, options.verbose, links, unit.id, collect));
+  } else {
+    for (const doc of DOCS) {
+      const file = join(ROOT, doc);
+      if (!existsSync(file)) continue;
+      print(
+        options.suspect !== undefined
+          ? suspectsOf(file, testsPer, options.suspect, collect)
+          : treeOf(file, testsPer, options.gaps, options.verbose, links, undefined, collect)
+      );
+    }
   }
-  for (const doc of DOCS) {
-    const file = join(ROOT, doc);
-    if (!existsSync(file)) continue;
-    console.log(
-      options.suspect !== undefined
-        ? suspectsOf(file, testsPer, options.suspect)
-        : treeOf(file, testsPer, options.gaps, options.verbose, links)
-    );
-  }
+  for (const id of new Set(drawn)) console.log(id);
 }
 
 /**
@@ -2086,6 +2127,35 @@ function namesOf(args: string[]): string[] {
     names.push(/^@[a-z]+$/.test(arg) && i + 1 < args.length ? `${arg} ${args[++i]}` : arg);
   }
   return names;
+}
+
+/**
+ * The names on a command line, with `-` in place of the names on standard
+ * input: one on each line, a line of blank space naming none. Standard input
+ * is read once, however many times `-` stands on the line.
+ *
+ * @canon spec-a-dash-stands-for-the-names-on-standard-input
+ */
+async function namesFrom(args: string[]): Promise<string[]> {
+  const names = namesOf(args);
+  if (!names.includes('-')) return names;
+  // Read as a stream, not with readFileSync(0): a pipe that a Node process
+  // writes to, or that a plugin touched as it loaded, can be non-blocking, and
+  // a synchronous read of it fails with EAGAIN before the writer has written.
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+  const stdin = Buffer.concat(chunks)
+    .toString('utf8')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line !== '');
+  let read = false;
+  return names.flatMap(name => {
+    if (name !== '-') return [name];
+    if (read) return [];
+    read = true;
+    return stdin;
+  });
 }
 
 /**
@@ -2155,13 +2225,36 @@ function partsOf(own: string): { statement?: string; body?: string } {
   return { statement: quote.length > 0 ? quote.join('\n') : undefined, body: body === '' ? undefined : body };
 }
 
+/** The text of each document, read once for the run. */
+const SOURCES_READ = new Map<string, string>();
+const sourceOf = (doc: string): string => {
+  let src = SOURCES_READ.get(doc);
+  if (src === undefined) {
+    src = readFileSync(join(ROOT, doc), 'utf8');
+    SOURCES_READ.set(doc, src);
+  }
+  return src;
+};
+
+/**
+ * The own text of a unit as the document writes it, fenced blocks included,
+ * and the offset in its document where that text starts; undefined for a unit
+ * of a table, which has no own text.
+ */
+function ownOf(unit: Unit): { src: string; body: number; own: string } | undefined {
+  if (unit.own === undefined) return undefined;
+  const src = sourceOf(unit.doc);
+  const body = src.indexOf('\n', unit.start) + 1;
+  return { src, body, own: src.slice(body, body + unit.own.length) };
+}
+
 /**
  * Print each unit a name names, with what it follows from, what follows from
- * it and the tests that check it; with parts named, only those parts. A name
- * that names no unit is reported after the others are printed, and the run
- * exits with code 2.
+ * it and the tests that check it; with parts named, only those parts; with
+ * `ids`, only its id. A name that names no unit is reported after the others
+ * are printed, and the run exits with code 2.
  */
-function show(names: string[], parts?: Parts): void {
+function show(names: string[], parts?: Parts, ids = false): void {
   const { units, testsPer, testsAt, links } = analyse(false);
   const keyOf = (unit: Unit): string => `${unit.doc}#${unit.id}`;
   const byStart = (a: Unit, b: Unit): number => DOCS.indexOf(a.doc) - DOCS.indexOf(b.doc) || a.start - b.start;
@@ -2173,11 +2266,13 @@ function show(names: string[], parts?: Parts): void {
       unknown.push(name);
       continue;
     }
+    if (ids) {
+      console.log(unit.id);
+      continue;
+    }
     const key = keyOf(unit);
     const out = [`${unit.doc}:${unit.line}  ${unit.id}`];
-    const src = unit.own !== undefined ? readFileSync(join(ROOT, unit.doc), 'utf8') : '';
-    const body = src.indexOf('\n', unit.start) + 1;
-    const own = unit.own !== undefined ? src.slice(body, body + unit.own.length) : undefined;
+    const { src, body, own } = ownOf(unit) ?? { src: '', body: 0, own: undefined };
 
     if (parts !== undefined) {
       const { statement, body: rest } = partsOf(own ?? '');
@@ -2239,34 +2334,63 @@ function show(names: string[], parts?: Parts): void {
   if (unknown.length > 0) process.exit(2);
 }
 
+/** The parts of a unit `find --in` can look in. */
+const FIND_PARTS = ['id', 'statement', 'body', 'all'] as const;
+type FindPart = (typeof FIND_PARTS)[number];
+
 /**
  * Print a line for each unit whose id or own text holds every word, in any
- * case, in the order of the documents; with `kind`, only the units of it.
+ * case, in the order of the documents; with `kinds`, only the units of those
+ * kinds; with a part other than `all`, the words are looked for in that part
+ * alone; with `ids`, each line is the id alone. Returns grep's exit code: 0
+ * when a unit is listed, 1 when none is, 2 when the command line cannot be read.
+ *
+ * @canon spec-find-exits-with-the-codes-of-grep
  */
-function find(words: string[], kind: string | undefined): void {
-  let only: Kind | undefined;
-  if (kind !== undefined) {
+function find(words: string[], kinds: string[], part: string, ids: boolean): number {
+  const only: Kind[] = [];
+  for (const kind of kinds) {
     const prefix = `${kind.replace(/^@/, '').replace(/-$/, '')}-`;
-    only = PREFIXES.find(p => p === prefix);
-    if (only === undefined) {
+    const known = PREFIXES.find(p => p === prefix);
+    if (known === undefined) {
       console.error(`canon: --kind takes one of ${PREFIXES.map(noun).join(', ')}, not "${kind}"`);
-      process.exit(2);
+      return 2;
     }
+    only.push(known);
+  }
+  if (!(FIND_PARTS as readonly string[]).includes(part)) {
+    console.error(`canon: --in takes one of ${FIND_PARTS.join(', ')}, not "${part}"`);
+    return 2;
   }
   const { units } = analyse(false);
   const lowered = words.map(word => word.toLowerCase());
+  // The statement and the body are what `show --statement` and `show --body` print.
+  const textOf = (unit: Unit): string => {
+    const own = ownOf(unit)?.own ?? '';
+    switch (part as FindPart) {
+      case 'id':
+        return unit.id;
+      case 'statement':
+        return partsOf(own).statement ?? '';
+      case 'body':
+        return partsOf(own).body ?? '';
+      case 'all':
+        return `${unit.id}\n${own}`;
+    }
+  };
   const found = [...units.values()]
-    .filter(unit => only === undefined || unit.kind === only)
+    .filter(unit => only.length === 0 || only.includes(unit.kind))
     .filter(unit => {
-      const text = `${unit.id}\n${unit.own ?? ''}`.toLowerCase();
+      const text = textOf(unit).toLowerCase();
       return lowered.every(word => text.includes(word));
     })
     .sort((a, b) => DOCS.indexOf(a.doc) - DOCS.indexOf(b.doc) || a.start - b.start);
   if (found.length === 0) {
-    console.error(`canon: no unit holds ${words.map(word => `"${word}"`).join(' and ')}`);
-    return;
+    console.error(words.length > 0 ? `canon: no unit holds ${words.map(word => `"${word}"`).join(' and ')}` : 'canon: no unit passes the filters');
+    return 1;
   }
-  for (const unit of found) console.log(unitLine(unit));
+  for (const unit of found) console.log(ids ? unit.id : unitLine(unit));
+  return 0;
 }
 
 /**
@@ -2374,7 +2498,9 @@ async function main(argv: string[]): Promise<void> {
         review: { type: 'string', multiple: true },
         show: { type: 'string', multiple: true },
         svg: { type: 'boolean' },
-        kind: { type: 'string' },
+        kind: { type: 'string', multiple: true },
+        in: { type: 'string' },
+        ids: { type: 'boolean' },
         statement: { type: 'boolean' },
         body: { type: 'boolean' },
         'dry-run': { type: 'boolean' },
@@ -2418,21 +2544,26 @@ async function main(argv: string[]): Promise<void> {
     process.exitCode = await rename(rest[0] as string, rest[1] as string, values['dry-run'] === true);
     return;
   }
-  if (command === 'show' || command === 'find') {
+  const ids = values.ids === true;
+  if (command === 'show') {
     if (rest.length === 0) {
-      console.error(`canon: ${command} takes ${command === 'show' ? 'a unit' : 'a word'} or more\n\n${HELP}`);
+      console.error(`canon: show takes a unit or more\n\n${HELP}`);
       process.exit(2);
     }
     const asked = values.statement === true || values.body === true;
-    if (command === 'show') show(namesOf(rest), asked ? { statement: values.statement === true, body: values.body === true } : undefined);
-    else find(rest, typeof values.kind === 'string' ? values.kind : undefined);
+    show(await namesFrom(rest), asked ? { statement: values.statement === true, body: values.body === true } : undefined, ids);
     return;
   }
-  const from = command === 'tree' ? namesOf(rest) : [];
-  if (rest.length > 0 && from.length !== 1) {
+  if (command === 'find') {
+    process.exitCode = find(rest, (values.kind as string[] | undefined) ?? [], typeof values.in === 'string' ? values.in : 'all', ids);
+    return;
+  }
+  if (command !== 'tree' && rest.length > 0) {
     console.error(`canon: unexpected argument "${rest[0]}"\n\n${HELP}`);
     process.exit(2);
   }
+  // With no name, tree draws the whole canon; with names, even none read from `-`, only the trees from them.
+  const from = command === 'tree' && rest.length > 0 ? await namesFrom(rest) : undefined;
 
   switch (command) {
     case 'check':
@@ -2448,15 +2579,16 @@ async function main(argv: string[]): Promise<void> {
         console.error('canon: --suspect takes a whole number');
         process.exit(2);
       }
-      if (suspect !== undefined && from[0] !== undefined) {
+      if (suspect !== undefined && from !== undefined) {
         console.error('canon: tree takes a unit or --suspect, not both');
         process.exit(2);
       }
       tree({
         gaps: values.gaps === true,
         verbose: values.verbose === true,
-        from: from[0],
-        suspect
+        from,
+        suspect,
+        ids
       });
       return;
     }

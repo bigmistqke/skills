@@ -516,11 +516,38 @@ How the canon checker behaves now, and why. It is the canon of the package `@big
     - [`@spec show-with-statement-prints-the-statement-as-it-reads`](#spec-show-with-statement-prints-the-statement-as-it-reads) — `show --statement` prints the statement of a unit without the marks of its quote, and each link as its words.
     - [`@spec show-with-body-prints-the-own-text-after-the-statement`](#spec-show-with-body-prints-the-own-text-after-the-statement) — `show --body` prints the [own text](#term-own-text) of a unit after its statement, as the document writes it.
     - [`@spec show-of-a-part-a-unit-lacks-says-none`](#spec-show-of-a-part-a-unit-lacks-says-none) — When a unit has no part of those named, `show` prints `none` under its id.
-  - [`@spec find-lists-the-units-whose-text-holds-every-word-it-is-given`](#spec-find-lists-the-units-whose-text-holds-every-word-it-is-given) — `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement.
+  - [`@spec find-lists-the-units-whose-text-holds-every-word-it-is-given`](#spec-find-lists-the-units-whose-text-holds-every-word-it-is-given) — `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement. A filter on the command line changes which units it lists.
     - [`@spec find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case`](#spec-find-matches-a-word-in-the-id-or-the-own-text-whatever-its-case) — A unit matches a word when its id or its own text holds the word, in capitals or not.
     - [`@spec find-lists-a-unit-only-when-it-holds-every-word`](#spec-find-lists-a-unit-only-when-it-holds-every-word) — `find` leaves out a unit that holds some of the words on its command line and not every one.
     - [`@spec find-with-a-kind-lists-only-units-of-that-kind`](#spec-find-with-a-kind-lists-only-units-of-that-kind) — When the command line of `find` names a kind, it lists only the units of that kind.
+    - [`@spec find-with-several-kinds-lists-the-units-of-each-of-them`](#spec-find-with-several-kinds-lists-the-units-of-each-of-them) — When the command line of `find` names several kinds, it lists the units of each of those kinds, and no unit of another kind.
+    - [`@spec find-with-a-part-matches-a-word-only-in-that-part`](#spec-find-with-a-part-matches-a-word-only-in-that-part) — When the command line of `find` names a part of a unit with `--in`, a unit matches a word only when that part holds the word. The parts are `id`, `statement`, `body` and `all`.
+      - [`@spec find-in-id-matches-a-word-in-the-id-alone`](#spec-find-in-id-matches-a-word-in-the-id-alone) — `find --in id` matches a word only when the id of the unit holds it.
+      - [`@spec find-in-statement-matches-a-word-in-the-statement-as-show-prints-it`](#spec-find-in-statement-matches-a-word-in-the-statement-as-show-prints-it) — `find --in statement` matches a word only when the statement of the unit holds it, as `show --statement` prints the statement.
+      - [`@spec find-in-body-matches-a-word-in-the-body-as-show-prints-it`](#spec-find-in-body-matches-a-word-in-the-body-as-show-prints-it) — `find --in body` matches a word only when the body of the unit holds it, as `show --body` prints the body.
+      - [`@spec find-in-all-matches-a-word-as-find-does-without-a-part`](#spec-find-in-all-matches-a-word-as-find-does-without-a-part) — `find --in all` matches a word when the id or the own text of the unit holds it, as `find` does without `--in`.
+    - [`@spec find-with-no-words-lists-every-unit-its-filters-let-through`](#spec-find-with-no-words-lists-every-unit-its-filters-let-through) — When the command line of `find` holds no word, `find` lists every unit that its filters let through.
+    - [`@spec find-exits-with-the-codes-of-grep`](#spec-find-exits-with-the-codes-of-grep) — `find` exits with code 0 when it lists a unit, and with code 1 when it lists none. It exits with code 2 when it cannot read its command line.
+      - [`@spec find-that-lists-a-unit-exits-with-code-0`](#spec-find-that-lists-a-unit-exits-with-code-0) — When `find` lists a unit, the run exits with code 0.
+      - [`@spec find-that-lists-no-unit-exits-with-code-1`](#spec-find-that-lists-no-unit-exits-with-code-1) — When no unit matches, `find` prints nothing on standard output, and the run exits with code 1.
+      - [`@spec find-with-a-kind-it-does-not-know-exits-with-code-2`](#spec-find-with-a-kind-it-does-not-know-exits-with-code-2) — When the command line of `find` names a kind that is no kind of unit, `find` says so, and the run exits with code 2.
+      - [`@spec find-with-a-part-it-does-not-know-exits-with-code-2`](#spec-find-with-a-part-it-does-not-know-exits-with-code-2) — When `--in` names no part of a unit that `find` knows, `find` says so, and the run exits with code 2.
   - [`@spec tree-of-a-unit-draws-the-tree-from-that-unit-down`](#spec-tree-of-a-unit-draws-the-tree-from-that-unit-down) — When the command line of `tree` names a unit, it draws that unit and the units that sit in it, and nothing else.
+  - [`@spec tree-of-several-units-draws-the-tree-from-each-in-turn`](#spec-tree-of-several-units-draws-the-tree-from-each-in-turn) — When the command line of `tree` names several units, it draws the tree from each of them, in the order of the names.
+  - [`@spec the-output-of-a-reading-command-can-feed-another-command`](#spec-the-output-of-a-reading-command-can-feed-another-command) — The reading commands join in a shell pipeline. `find`, `show` and `tree` print ids alone with `--ids`. A command that takes units reads their names from standard input for `-`.
+    - [`@spec ids-prints-one-id-on-each-line-and-nothing-else`](#spec-ids-prints-one-id-on-each-line-and-nothing-else) — With `--ids`, a reading command prints the id of each unit it would print, one on each line. It prints nothing else: no heading, no statement and no blank line.
+      - [`@spec find-with-ids-prints-the-id-of-each-unit-it-lists`](#spec-find-with-ids-prints-the-id-of-each-unit-it-lists) — `find --ids` prints the id of each unit that `find` lists, in the same order.
+      - [`@spec show-with-ids-prints-the-id-of-each-unit-it-names`](#spec-show-with-ids-prints-the-id-of-each-unit-it-names) — `show --ids` prints the id of each unit that its command line names, in the order of the names.
+      - [`@spec tree-with-ids-prints-the-id-of-each-unit-of-the-whole-tree`](#spec-tree-with-ids-prints-the-id-of-each-unit-of-the-whole-tree) — `tree --ids` with no unit prints the id of each unit that `tree` draws, once, in the order `tree` draws them.
+      - [`@spec tree-of-a-unit-with-ids-prints-the-ids-of-that-unit-and-what-sits-in-it`](#spec-tree-of-a-unit-with-ids-prints-the-ids-of-that-unit-and-what-sits-in-it) — `tree <unit> --ids` prints the id of the unit and of each unit that `tree <unit>` draws under it.
+      - [`@spec tree-with-gaps-and-ids-prints-the-ids-on-the-branches-to-a-gap`](#spec-tree-with-gaps-and-ids-prints-the-ids-on-the-branches-to-a-gap) — `tree --gaps --ids` prints the id of each unit that `tree --gaps` draws: the units on a branch that leads to a claim that no test checks.
+      - [`@spec tree-with-suspect-and-ids-prints-the-id-of-each-suspect`](#spec-tree-with-suspect-and-ids-prints-the-id-of-each-suspect) — `tree --suspect --ids` prints the id of each spec that `tree --suspect` lists.
+    - [`@spec a-dash-stands-for-the-names-on-standard-input`](#spec-a-dash-stands-for-the-names-on-standard-input) — Where a command takes the names of units, the name `-` stands for the names that standard input holds, one on each line.
+      - [`@spec show-reads-the-names-of-a-dash-from-standard-input`](#spec-show-reads-the-names-of-a-dash-from-standard-input) — `show -` prints each unit that a line of standard input names, as `show` prints a unit named on its command line.
+      - [`@spec tree-reads-the-names-of-a-dash-from-standard-input`](#spec-tree-reads-the-names-of-a-dash-from-standard-input) — `tree -` draws the tree from each unit that a line of standard input names.
+      - [`@spec a-line-of-standard-input-names-a-unit-in-any-form-show-reads`](#spec-a-line-of-standard-input-names-a-unit-in-any-form-show-reads) — A line of standard input names a unit in any form that `show` reads on its command line. That is its id, its kind and stem after an `@`, or its words as the tree writes them.
+      - [`@spec a-blank-line-of-standard-input-names-no-unit`](#spec-a-blank-line-of-standard-input-names-no-unit) — A line of standard input that holds only blank space names no unit.
+      - [`@spec a-dash-with-no-names-on-standard-input-prints-nothing`](#spec-a-dash-with-no-names-on-standard-input-prints-nothing) — When standard input holds no name, a command whose only name is `-` prints nothing, and the run exits with code 0. `tree -` then draws no tree.
 - [`@axiom renaming-a-unit-asks-only-for-its-new-stem`](#axiom-renaming-a-unit-asks-only-for-its-new-stem) — Renaming a unit costs the author the choice of its new stem, and nothing else.
   - [`@spec rename-gives-a-unit-a-new-stem-and-keeps-its-kind`](#spec-rename-gives-a-unit-a-new-stem-and-keeps-its-kind) — `rename <id> <stem>` writes the heading of the unit with the id as its own kind and the new stem.
   - [`@spec rename-moves-every-name-of-the-unit-to-the-new-id`](#spec-rename-moves-every-name-of-the-unit-to-the-new-id) — After `rename`, each tag, pointer, link in a comment, code span and generated region of the project that named the old id names the new id.
@@ -4226,7 +4253,7 @@ This follows because a reader who asked for a part must not take silence for an 
 
 ### @spec find-lists-the-units-whose-text-holds-every-word-it-is-given
 
-> `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement.
+> `find` prints a line for each unit whose id or own text holds every word on its command line. The line holds the document and the line where the unit starts, its id and its statement. A filter on the command line changes which units it lists.
 
 This follows because a reader often knows what a unit is about and not its id. The line gives the id to ask `show` for.
 
@@ -4248,11 +4275,179 @@ This follows because a reader narrows a search by adding a word.
 
 This follows because a reader who looks for a claim to change does not want the terms that use the same words.
 
+#### @spec find-with-several-kinds-lists-the-units-of-each-of-them
+
+> When the command line of `find` names several kinds, it lists the units of each of those kinds, and no unit of another kind.
+
+This follows because a reader who looks for the claims about a topic wants its specs and its exceptions together. One search lists them in the order of the documents.
+
+#### @spec find-with-a-part-matches-a-word-only-in-that-part
+
+> When the command line of `find` names a part of a unit with `--in`, a unit matches a word only when that part holds the word. The parts are `id`, `statement`, `body` and `all`.
+
+Derives from: [`spec-show-with-a-part-prints-only-that-part-of-each-unit`](#spec-show-with-a-part-prints-only-that-part-of-each-unit)
+
+This follows because a word in the reason of a unit says less about the unit than the same word in its claim. The statement and the body are the parts that `show` prints alone, so `find` and `show` agree on where each part starts and ends.
+
+##### @spec find-in-id-matches-a-word-in-the-id-alone
+
+> `find --in id` matches a word only when the id of the unit holds it.
+
+This follows because a reader who remembers some words of a stem looks for them among the ids. The texts that use the same words are in the way.
+
+##### @spec find-in-statement-matches-a-word-in-the-statement-as-show-prints-it
+
+> `find --in statement` matches a word only when the statement of the unit holds it, as `show --statement` prints the statement.
+
+This follows because the statement is what the unit claims. A reader who looks for the units that claim something searches the statements.
+
+##### @spec find-in-body-matches-a-word-in-the-body-as-show-prints-it
+
+> `find --in body` matches a word only when the body of the unit holds it, as `show --body` prints the body.
+
+This follows because the body holds the reason of a unit and its blocks, such as a formula. A reader who looks for a word of a formula searches the bodies.
+
+##### @spec find-in-all-matches-a-word-as-find-does-without-a-part
+
+> `find --in all` matches a word when the id or the own text of the unit holds it, as `find` does without `--in`.
+
+This follows because a script that builds a command line names a part each time, even when the part is the whole unit.
+
+#### @spec find-with-no-words-lists-every-unit-its-filters-let-through
+
+> When the command line of `find` holds no word, `find` lists every unit that its filters let through.
+
+This follows because a unit holds every word of a list with no words in it. So `find --kind fact` lists the facts of the canon.
+
+#### @spec find-exits-with-the-codes-of-grep
+
+> `find` exits with code 0 when it lists a unit, and with code 1 when it lists none. It exits with code 2 when it cannot read its command line.
+
+This follows because a script asks `find` whether the canon holds a unit, as it asks `grep` whether a file holds a line. With the codes of `grep`, the script reads the answer of `find` as it reads the answer of `grep`.
+
+##### @spec find-that-lists-a-unit-exits-with-code-0
+
+> When `find` lists a unit, the run exits with code 0.
+
+This follows because code 0 is how `grep` says that a line matched.
+
+##### @spec find-that-lists-no-unit-exits-with-code-1
+
+> When no unit matches, `find` prints nothing on standard output, and the run exits with code 1.
+
+This follows because a script must not take a search that found nothing for one that found something. Code 1 is how `grep` says that no line matched.
+
+##### @spec find-with-a-kind-it-does-not-know-exits-with-code-2
+
+> When the command line of `find` names a kind that is no kind of unit, `find` says so, and the run exits with code 2.
+
+This follows because a search for a kind that does not exist finds nothing, and the reader must not take that for an answer.
+
+##### @spec find-with-a-part-it-does-not-know-exits-with-code-2
+
+> When `--in` names no part of a unit that `find` knows, `find` says so, and the run exits with code 2.
+
+This follows because a search in a part that does not exist finds nothing, and the reader must not take that for an answer.
+
 ### @spec tree-of-a-unit-draws-the-tree-from-that-unit-down
 
 > When the command line of `tree` names a unit, it draws that unit and the units that sit in it, and nothing else.
 
 This follows because the tree of a whole document is too long to read for one part of it. A reader who knows the part names its root.
+
+### @spec tree-of-several-units-draws-the-tree-from-each-in-turn
+
+> When the command line of `tree` names several units, it draws the tree from each of them, in the order of the names.
+
+Derives from: [`spec-tree-of-a-unit-draws-the-tree-from-that-unit-down`](#spec-tree-of-a-unit-draws-the-tree-from-that-unit-down)
+
+This follows because `tree -` reads its units from another command, and that command can list more than one.
+
+### @spec the-output-of-a-reading-command-can-feed-another-command
+
+> The reading commands join in a shell pipeline. `find`, `show` and `tree` print ids alone with `--ids`. A command that takes units reads their names from standard input for `-`.
+
+This follows because a reader who works by units chains questions about them. One example is the specs that hold a word, read one part at a time. A pipeline answers such a question through the commands, without a search of the text of the documents. Tools such as `xargs`, `sort`, `comm` and `wc -l` then work on units.
+
+#### @spec ids-prints-one-id-on-each-line-and-nothing-else
+
+> With `--ids`, a reading command prints the id of each unit it would print, one on each line. It prints nothing else: no heading, no statement and no blank line.
+
+This follows because a line is what a pipeline counts and passes on. A tool that reads the output takes each line for one unit, and any other line is a unit that does not exist.
+
+##### @spec find-with-ids-prints-the-id-of-each-unit-it-lists
+
+> `find --ids` prints the id of each unit that `find` lists, in the same order.
+
+This follows because the id is the one part of the line that another command reads.
+
+##### @spec show-with-ids-prints-the-id-of-each-unit-it-names
+
+> `show --ids` prints the id of each unit that its command line names, in the order of the names.
+
+This follows because a unit can be named in several forms, and the id is the form that every command reads.
+
+##### @spec tree-with-ids-prints-the-id-of-each-unit-of-the-whole-tree
+
+> `tree --ids` with no unit prints the id of each unit that `tree` draws, once, in the order `tree` draws them.
+
+This follows because the whole tree holds every unit of the documents. Its ids are the list that other lists of units are compared with.
+
+##### @spec tree-of-a-unit-with-ids-prints-the-ids-of-that-unit-and-what-sits-in-it
+
+> `tree <unit> --ids` prints the id of the unit and of each unit that `tree <unit>` draws under it.
+
+This follows because the units that sit in a unit are the claims that a change to it can break. A reader passes them on to `show` to read them.
+
+##### @spec tree-with-gaps-and-ids-prints-the-ids-on-the-branches-to-a-gap
+
+> `tree --gaps --ids` prints the id of each unit that `tree --gaps` draws: the units on a branch that leads to a claim that no test checks.
+
+This follows because the claims that no test checks are the work that remains, and a reader counts them or passes them on.
+
+##### @spec tree-with-suspect-and-ids-prints-the-id-of-each-suspect
+
+> `tree --suspect --ids` prints the id of each spec that `tree --suspect` lists.
+
+This follows because a reader reads each suspect before deciding on it, and `show` takes the ids.
+
+#### @spec a-dash-stands-for-the-names-on-standard-input
+
+> Where a command takes the names of units, the name `-` stands for the names that standard input holds, one on each line.
+
+This follows because a command that reads its units on standard input joins a pipeline without `xargs`. That tool splits a name at its spaces, and `@spec A stem` is one name.
+
+##### @spec show-reads-the-names-of-a-dash-from-standard-input
+
+> `show -` prints each unit that a line of standard input names, as `show` prints a unit named on its command line.
+
+This follows because `show` is how a reader reads the units that another command lists.
+
+##### @spec tree-reads-the-names-of-a-dash-from-standard-input
+
+> `tree -` draws the tree from each unit that a line of standard input names.
+
+This follows because `tree` is how a reader sees what sits in the units that another command lists.
+
+##### @spec a-line-of-standard-input-names-a-unit-in-any-form-show-reads
+
+> A line of standard input names a unit in any form that `show` reads on its command line. That is its id, its kind and stem after an `@`, or its words as the tree writes them.
+
+Derives from: [`spec-show-reads-an-id-as-the-heading-or-the-tree-writes-it`](#spec-show-reads-an-id-as-the-heading-or-the-tree-writes-it)
+
+This follows because each line is one name, so a name with spaces in it needs no quotes.
+
+##### @spec a-blank-line-of-standard-input-names-no-unit
+
+> A line of standard input that holds only blank space names no unit.
+
+This follows because a list that a person or a tool writes can end with a blank line, or hold one between its names.
+
+##### @spec a-dash-with-no-names-on-standard-input-prints-nothing
+
+> When standard input holds no name, a command whose only name is `-` prints nothing, and the run exits with code 0. `tree -` then draws no tree.
+
+This follows because an empty list holds no name of a unit. A pipeline whose first command found nothing must not fail later on, or print the whole canon.
 
 ## @axiom renaming-a-unit-asks-only-for-its-new-stem
 

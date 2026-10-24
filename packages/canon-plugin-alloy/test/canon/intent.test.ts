@@ -81,8 +81,28 @@ no n: Node | n not in Done
 This follows because it is plain.
 `;
 
+/** A command line with its standard input; `slowly`, the input comes through a pipe from a Node process that writes it after a pause. */
+interface Command {
+  args: string[];
+  input?: string;
+  slowly?: boolean;
+}
+
+/**
+ * Run the checker with `args` in `dir`, at the end of a shell pipeline whose
+ * first command is a Node process that writes `input` only after a pause, as
+ * another run of the checker does. Node makes its pipes non-blocking, which a
+ * reader of standard input has to bear.
+ */
+function pipedSlowly(dir: string, input: string, args: string[]) {
+  const quote = (word: string): string => `'${word.replace(/'/g, `'\\''`)}'`;
+  const writer = `const out = process.stdout; setTimeout(() => out.write(${JSON.stringify(input)}), 1500)`;
+  const script = `${quote(process.execPath)} -e ${quote(writer)} | ${[process.execPath, CLI, ...args].map(quote).join(' ')}`;
+  return spawnSync('sh', ['-c', script], { cwd: dir, encoding: 'utf8' });
+}
+
 /** A project of the document, whose statements `generate` writes; it runs the command lines in turn, each with its standard input. */
-function projectOf(document: string, ...commands: { args: string[]; input?: string }[]) {
+function projectOf(document: string, ...commands: Command[]) {
   const dir = mkdtempSync(join(tmpdir(), 'canon-intent-'));
   DIRS.push(dir);
   mkdirSync(join(dir, 'test', 'canon'), { recursive: true });
@@ -91,15 +111,15 @@ function projectOf(document: string, ...commands: { args: string[]; input?: stri
   writeFileSync(join(dir, 'CANON.md'), named(document));
   spawnSync(process.execPath, [CLI, 'generate'], { cwd: dir, encoding: 'utf8' });
   const before = readFileSync(join(dir, 'CANON.md'), 'utf8');
-  const runs = commands.map(({ args, input }) => {
-    const run = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8', input: input ?? '' });
+  const runs = commands.map(({ args, input, slowly }) => {
+    const run = slowly ? pipedSlowly(dir, input ?? '', args) : spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8', input: input ?? '' });
     return { out: run.stdout, err: run.stderr, code: run.status };
   });
   return { runs, before, after: readFileSync(join(dir, 'CANON.md'), 'utf8') };
 }
 
 /** A project of the document with every kind of unit the tests need. */
-const project = (...commands: { args: string[]; input?: string }[]) => projectOf(DOC, ...commands);
+const project = (...commands: Command[]) => projectOf(DOC, ...commands);
 
 /** The line a unit's heading is on, counted from 1. */
 const lineOf = (document: string, id: string): number => document.split('\n').indexOf(`### @spec ${id.replace(/^spec-/, '')}`) + 1;
@@ -165,6 +185,26 @@ describe('alloy:intent', () => {
     expect(runs[0]?.err).toContain('no unit "spec-no-such-leaf"');
     expect(runs[0]?.code).toBe(2);
   });
+
+  /**
+   * @canon spec-intent-reads-the-ids-of-a-dash-from-standard-input
+   */
+  it('reads the ids of - from standard input, one on each line, and no unit from a blank line', () => {
+    const { runs } = project(
+      { args: ['alloy:intent', '-'], input: '\nspec-a-leaf\n  \nspec-a-bare-leaf\n\n' },
+      { args: ['alloy:intent', 'spec-a-leaf', 'spec-a-bare-leaf'] },
+      { args: ['alloy:intent', '-'], input: '\n' }
+    );
+    expect(runs[0]?.code).toBe(0);
+    expect(runs[0]?.out).toBe(runs[1]?.out);
+    expect(runs[2]?.out).toBe('');
+    expect(runs[2]?.code).toBe(0);
+    // A command earlier in a pipeline can be slow to write, and the prose checks touch standard input as they load.
+    const both = `---\nplugins: ["@bigmistqke/canon-plugin-alloy", "@bigmistqke/canon-plugin-retext"]\n---\n${DOC}`;
+    const slow = projectOf(both, { args: ['alloy:intent', '-'], input: 'spec-a-leaf\nspec-a-bare-leaf\n', slowly: true }).runs[0];
+    expect(slow?.err).toBe('');
+    expect(slow?.out).toBe(runs[1]?.out);
+  });
 });
 
 describe('alloy:intent --write', () => {
@@ -178,6 +218,11 @@ describe('alloy:intent --write', () => {
     expect(runs[0]?.code).toBe(0);
     expect(runs[0]?.out).toContain('spec-a-leaf  wrote its intent');
     expect(runs[1]?.out).toContain(`spec-a-leaf\n\n${NEW}\n`);
+    // A command earlier in a pipeline can be slow to write, and the prose checks touch standard input as they load.
+    const both = `---\nplugins: ["@bigmistqke/canon-plugin-alloy", "@bigmistqke/canon-plugin-retext"]\n---\n${DOC}`;
+    const slow = projectOf(both, { args: ['alloy:intent', 'spec-a-leaf', '--write'], input: NEW, slowly: true }).runs[0];
+    expect(slow?.err).toBe('');
+    expect(slow?.code).toBe(0);
   });
 
   /**
