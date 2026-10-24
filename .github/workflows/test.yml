@@ -48,8 +48,9 @@ jobs:
     env:
       CANON_ALLOY_JAR: ${{ github.workspace }}/../alloy.jar
       # One folder for the analyzer's answers, of every package that runs it through run-alloy: the plugin's
-      # `alloy:logic`, its tests in temporary projects, and the tests of naturalloy and parse-alloy.
-      CANON_ALLOY_CACHE_DIR: ${{ github.workspace }}/../alloy-answers
+      # `alloy:logic`, its tests in temporary projects, and the tests of naturalloy and parse-alloy. It sits inside the
+      # workspace, as actions/cache takes no path with `..` in it; git ignores `.cache/`.
+      CANON_ALLOY_CACHE_DIR: ${{ github.workspace }}/.cache/alloy-answers
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -74,7 +75,7 @@ jobs:
       - name: Restore the analyzer's kept answers
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/../alloy-answers
+          path: ${{ github.workspace }}/.cache/alloy-answers
           key: alloy-answers-${{ matrix.package }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             alloy-answers-${{ matrix.package }}-
