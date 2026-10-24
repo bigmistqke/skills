@@ -5,6 +5,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { expect } from 'vitest';
+import { cacheFolder } from '@bigmistqke/run-alloy';
 import { checkAlloy } from './alloy.ts';
 
 export const LIFETIMES = readFileSync(new URL('../fixtures/lifetimes/CANON.md', import.meta.url), 'utf8');
@@ -30,7 +31,7 @@ export const answers = async (scenarios: [stem: string, scenario: string, keeper
   // None of the scenarios takes more than five events, and fewer steps make the analyzer prove that something cannot happen much sooner.
   const shorter = LIFETIMES.replace('for 3 but 1..8 steps', 'for 3 but 1..6 steps');
   const leave = Object.fromEntries(scenarios.map(([stem, , keeper]) => [`spec-${stem}`, [`spec-${keeper ?? stem}`]]));
-  const result = await checkAlloy(scenarios.reduce((src, [stem, scenario]) => withScenario(src, stem, scenario), shorter), { leave });
+  const result = await checkAlloy(scenarios.reduce((src, [stem, scenario]) => withScenario(src, stem, scenario), shorter), { leave, cache: cacheFolder() });
   expect(result).toMatchObject({ ok: false });
   return 'failures' in result && Object.fromEntries(result.failures.map(f => [f.unit, f.conflict]));
 };
