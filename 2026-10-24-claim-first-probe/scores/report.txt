@@ -1,0 +1,153 @@
+== Per version
+claim-first
+  control  45/45 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   115/126 equivalent (91%), 7 two-way, 0 converse, 0 malformed/empty/timeout
+old-order
+  control  44/45 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   124/126 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+
+== Per reader
+A/h1 (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   40/42 equivalent (95%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+A/h2 (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   33/42 equivalent (79%), 7 two-way, 0 converse, 0 malformed/empty/timeout
+A/s1 (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/h1 (old-order)
+  control  14/15 equivalent (93%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/h2 (old-order)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   41/42 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/s1 (old-order)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   41/42 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+
+== Misses
+--- A/h1 a139 = axiom-a-formula-can-be-held-against-the-other-formulas [target, claim-first] other
+    | All of these hold:
+    |   - checker reports the formula of a unit as lone on a signature when all of these hold:
+    |       - the unit holds a formula
+    |       - the unit is not a term
+    |       - no other formula can contradict the formula of the unit
+    |   - for every unit and every word:
+    |       when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.
+    formula: (all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)
+    answer:  (all u: Unit, s: Signature | (u in Logical and u not in Term and u in Unchallenged) implies u->s in Expose.rel) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)
+    doubt:   The first bullet's 'a unit' and 'a signature' read as universal; 'when' read as 'if' throughout.
+--- A/h1 a131 = spec-a-formula-that-no-other-formula-can-contradict-is-reported [target, claim-first] other
+    | Checker reports the formula of a unit as lone on a signature when all of these hold:
+    |   - the unit holds a formula
+    |   - the unit is not a term
+    |   - no other formula can contradict the formula of the unit
+    formula: all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)
+    answer:  all u: Unit, s: Signature | (u in Logical and u not in Term and u in Unchallenged) implies u->s in Expose.rel
+--- A/h2 a139 = axiom-a-formula-can-be-held-against-the-other-formulas [target, claim-first] other
+    | All of these hold:
+    |   - checker reports the formula of a unit as lone on a signature when all of these hold:
+    |       - the unit holds a formula
+    |       - the unit is not a term
+    |       - no other formula can contradict the formula of the unit
+    |   - for every unit and every word:
+    |       when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.
+    formula: (all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)
+    answer:  (all u: Unit, s: Signature | (u in Logical and u not in Term and u in Unchallenged) implies u->s in Expose.rel) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)
+    doubt:   The first line is read as universal over unit and signature, as in a131. The word 'when' is read as implication.
+--- A/h2 a111 = spec-a-flawed-frontmatter-is-refused [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | The checker cannot read a frontmatter when at least one of these holds:
+    |   - the frontmatter has the flaw of an entry that starts with an at sign outside quotes
+    |   - the frontmatter has the flaw of a key that neither the checker nor a plugin that the frontmatter lists defines
+    |   - the frontmatter has the flaw of a list that is not closed
+    |   - the frontmatter has the flaw of a string that is not closed
+    |   - the frontmatter has the flaw of a key that appears twice
+    |   - the frontmatter has the flaw of a path that names no document
+    |   - the frontmatter has the flaw of an extension that leads back to its own document
+    |   - the frontmatter has the flaw of a setting in a document that is not the entry document
+    formula: all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused
+    answer:  all f: Frontmatter | f in Refused iff (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray)
+    doubt:   Read as a definition (iff), since the entry describes when the checker cannot read a frontmatter.
+--- A/h2 a140 = spec-a-generated-statement-that-its-formula-would-say-again-is-current [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | For every unit:
+    |   all of these hold:
+    |     - the statement of the unit is current when all of these hold:
+    |         - the unit holds a formula
+    |         - the statement of the unit sits between the markers of a generated region
+    |         - the statement of the unit does not differ from what its formula says
+    |         - the formula of the unit can be said in words
+    |         - the statement of the unit reads back as its formula alone
+    |     - when the unit holds no formula, the statement of the unit is not current
+    formula: all u: Unit | ((u in Logical and u in Generated and u not in Differs and u not in Unsayable and u not in Misread) implies u in Current) and (u not in Logical implies u not in Current)
+    answer:  (all u: Unit | (u in Logical and u in Generated and u not in Differs and u not in Unsayable and u not in Misread) iff u in Current) and (all u: Unit | u not in Logical implies u not in Current)
+    doubt:   The first clause is read as a definition (iff).
+--- A/h2 a127 = spec-a-statement-that-a-person-wrote-is-handwritten [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | The statement of a unit is handwritten when all of these hold:
+    |   - the unit holds a formula
+    |   - the unit has a statement
+    |   - the statement of the unit does not sit between the markers of a generated region
+    |   - the formula of the unit can be said in words
+    formula: all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten
+    answer:  all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) iff u in Handwritten
+--- A/h2 a104 = spec-a-formula-that-the-readings-cannot-say-is-unsayable [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | The formula of a unit cannot be said in words when at least one of these holds:
+    |   - the formula of the unit names a word that has no reading
+    |   - the unit holds more than one formula
+    formula: all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable
+    answer:  all u: Unit | (u in Wordless or u in Twofold) iff u in Unsayable
+    doubt:   Read as a definition (iff).
+--- A/h2 a151 = spec-a-unit-with-a-formula-and-no-statement-is-unwritten [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | The statement of a unit is unwritten when all of these hold:
+    |   - the unit holds a formula
+    |   - the unit has no statement
+    |   - the formula of the unit can be said in words
+    formula: all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten
+    answer:  all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) iff u in Unwritten
+--- A/h2 a106 = spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | A word is said by a reading and declared by nothing when all of these hold:
+    |   - there is a unit_1 such that a reading in unit_1 says the word
+    |   - no unit declares the word
+    formula: all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared
+    answer:  all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) iff w in Undeclared
+    doubt:   Read as a definition (iff).
+--- A/h2 a125 = spec-a-generated-statement-that-differs-from-its-formula-is-stale [target, claim-first] TWO-WAY (one-way rule read as exactly when)
+    | The statement of a unit is stale when all of these hold:
+    |   - the unit holds a formula
+    |   - the statement of the unit sits between the markers of a generated region
+    |   - the statement of the unit differs from what its formula says
+    |   - the formula of the unit can be said in words
+    formula: all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale
+    answer:  all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) iff u in Stale
+--- A/h2 a131 = spec-a-formula-that-no-other-formula-can-contradict-is-reported [target, claim-first] other
+    | Checker reports the formula of a unit as lone on a signature when all of these hold:
+    |   - the unit holds a formula
+    |   - the unit is not a term
+    |   - no other formula can contradict the formula of the unit
+    formula: all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)
+    answer:  all u: Unit, s: Signature | (u in Logical and u not in Term and u in Unchallenged) implies u->s in Expose.rel
+    doubt:   Same report as the first clause of a139. Read as universal over unit and signature.
+--- B/h1 b149 = spec-a-word-declared-outside-a-term-is-misplaced [control, old-order] other
+    | For every unit_1 and every word:
+    |   when unit_1 declares the word and is not a term, the word is declared in a unit that is not a term.
+    formula: all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Misplaced
+    answer:  all u1: Unit, w: Word | (u1->w in Introduce.rel and u1 not in Term) implies (some u2: Unit | u2->w in Introduce.rel and u2 not in Term)
+--- B/h2 b105 = spec-an-empty-list-asks-for-no-plugin [target, old-order] other
+    | For every plugin, every document and every listing frontmatter:
+    |   when all of these hold:
+    |     - the document starts with the listing frontmatter
+    |     - the listing frontmatter holds no entry
+    |     - the command line of no run names the document
+    |   then checker does not run the plugin over the document.
+    formula: all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel
+    answer:  all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and no e: Entry | f->e in Item.rel and d not in Given) implies p->d not in Over.rel
+--- B/s1 b147 = spec-the-claims-of-an-extended-document-join-the-model [target, old-order] other
+    | For every document_1, every document_2 and every unit:
+    |   when all of these hold:
+    |     - the project lists document_1 among the documents it checks
+    |     - document_2 is context for document_1
+    |     - document_2 holds the unit
+    |     - the unit holds a formula with no keyword
+    |   then the analyzer is asked to hold the formula of the unit.
+    formula: all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held
+    answer:  all d1, d2: Document, u: Unit | (d1 in Checked and d1->d2 in Context.rel and d2->u in Hold.units and u in Logical and u in BareFormula) implies u in Held

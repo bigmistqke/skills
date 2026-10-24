@@ -1,0 +1,230 @@
+[
+ {
+  "id": "a149",
+  "alloy": "(all v_1: Unit, v_2: Word | ((v_1->v_2 in Introduce.rel) and (not (v_1 in Term))) implies (v_2 in Misplaced))"
+ },
+ {
+  "id": "a139",
+  "alloy": "((all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)) implies ((some v_2: Signature | v_1->v_2 in Expose.rel)))) and ((all v_3: Unit, v_4: Word | (v_3->v_4 in Expose.rel) implies (v_3 in Unchallenged)))"
+ },
+ {
+  "id": "a115",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in TimePhraseInFront) and (v_2 in ClausesInASentence)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a101",
+  "alloy": "(all v_1: Word | ((v_1 in Undeclared) or (v_1 in Misplaced) or (v_1 in Apart) or (v_1 in Unused)) implies (v_1 in Flagged))"
+ },
+ {
+  "id": "a122",
+  "alloy": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Utter.rel)) implies (not (v_3->v_5 in Expose.rel)))"
+ },
+ {
+  "id": "a112",
+  "alloy": "(all v_1: Series | ((v_1 in ListFirstSide) and (v_1 in PlainSecondSide) and (not (v_1 in Otherwise))) implies (v_1 in SecondSideFirst))"
+ },
+ {
+  "id": "a157",
+  "alloy": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and (lists[v_3, v_1])) implies (v_1->v_2 in Over.rel))"
+ },
+ {
+  "id": "a134",
+  "alloy": "(all v_1: Unit | (v_1 in Current) implies (not (v_1 in Rewritten)))"
+ },
+ {
+  "id": "a102",
+  "alloy": "(all v_1: Series | ((v_1 in CommaItem) and (v_1 in MoreThanTwo)) implies (v_1 in AsBullets))"
+ },
+ {
+  "id": "a111",
+  "alloy": "(all v_1: Frontmatter | ((v_1 in Misquoted) or (v_1 in Foreign) or (v_1 in Unclosed) or (v_1 in Unterminated) or (v_1 in Doubled) or (v_1 in Dangling) or (v_1 in Looping) or (v_1 in Stray)) implies (v_1 in Refused))"
+ },
+ {
+  "id": "a146",
+  "alloy": "(all v_1: Fence, v_2: Unit | ((v_1 in Languaged) and (v_1->v_2 in Within.rel)) implies (v_2->v_1 in Blocks.rel))"
+ },
+ {
+  "id": "a105",
+  "alloy": "(all v_1: Unit, v_2: Unit | ((v_1 in Contradicting) and (v_1->v_2 in Together.rel)) implies (v_2 in Named))"
+ },
+ {
+  "id": "a156",
+  "alloy": "(all v_1: Search | (v_1 in Trial) implies ((one v_2: Unit | (v_1->v_2 in Leave.rel) and (v_2 in Held) and (not (v_1->v_2 in Pose.units)) and ((all v_3: Unit | ((v_3 in Held) and (v_3 != v_2)) implies (v_1->v_3 in Pose.units))))))"
+ },
+ {
+  "id": "a126",
+  "alloy": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and (not (lists[v_3, v_1])) and (not (v_2 in Given))) implies (not (v_1->v_2 in Over.rel)))"
+ },
+ {
+  "id": "a123",
+  "alloy": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and ((no v_4: Entry | v_3->v_4 in Item.rel)) and (not (v_2 in Given))) implies (not (v_1->v_2 in Over.rel)))"
+ },
+ {
+  "id": "a110",
+  "alloy": "((all v_1: Unit | (v_1 in Faulted) implies (not (v_1 in Explained)))) and ((all v_2: Run, v_3: Command, v_4: Unit | ((v_2->v_3 in Ask.rel) and ((v_3 in GenerateCommand) or (v_3 in CheckCommand)) and (v_4 in Faulted)) implies (not (v_2 in Exits0))))"
+ },
+ {
+  "id": "a108",
+  "alloy": "(all v_1: Definition | (v_1 in NotAboutSubject) implies (v_1 in AsItStands))"
+ },
+ {
+  "id": "a140",
+  "alloy": "(all v_1: Unit | (((v_1 in Logical) and (v_1 in Generated) and (not (v_1 in Differs)) and (not (v_1 in Unsayable)) and (not (v_1 in Misread))) implies (v_1 in Current)) and ((not (v_1 in Logical)) implies (not (v_1 in Current))))"
+ },
+ {
+  "id": "a155",
+  "alloy": "(all v_1: Run, v_2: LogicCommand | ((v_1->v_2 in Ask.rel) and ((no v_3: Scenario | v_3 in Raised)) and ((no v_4: Unit | v_4 in Contradicting))) implies (v_1 in Exits0))"
+ },
+ {
+  "id": "a117",
+  "alloy": "(all v_1: Document, v_2: Unit | ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))) implies (v_2 in Reported))"
+ },
+ {
+  "id": "a136",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in UntilInASentence) and (v_2 in TimePhraseInFront)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a147",
+  "alloy": "(all v_1: Run, v_2: GenerateCommand, v_3: Unit | ((v_1->v_2 in Ask.rel) and (v_3 in Handwritten)) implies ((v_3 in Reported) and (not (v_1 in Exits0))))"
+ },
+ {
+  "id": "a143",
+  "alloy": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code2)) implies (v_1 in Exits2)) and ((((some v_3: Plugin | v_1->v_3 in Return.code1)) and ((no v_4: Plugin | v_1->v_4 in Return.code2)) and (not (stopped[v_1]))) implies (v_1 in Exits1)))"
+ },
+ {
+  "id": "a135",
+  "alloy": "(all v_1: Series | ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (not (v_1 in TimeSecond))) implies (v_1 in DropsThen))"
+ },
+ {
+  "id": "a109",
+  "alloy": "(all v_1: Unit, v_2: Unit | (v_1->v_2 in Share.rel) implies (v_1->v_2 in Together.rel))"
+ },
+ {
+  "id": "a144",
+  "alloy": "(all v_1: Run | (((some v_2: Frontmatter | (some v_3: Missing | lists[v_2, v_3]))) or ((some v_4: Document | v_4 in Unreadable)) or ((some v_5: Command | (not (available[v_5])) and (v_1->v_5 in Ask.rel))) or ((some v_6: Plugin | v_1->v_6 in Return.code2))) implies (v_1 in Exits2))"
+ },
+ {
+  "id": "a153",
+  "alloy": "(all v_1: Run, v_2: Command | ((v_1->v_2 in Ask.rel) and (not (available[v_2]))) implies (v_2 in Unknown))"
+ },
+ {
+  "id": "a103",
+  "alloy": "(all v_1: Series | ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (v_1 in TimeSecond)) implies (v_1 in KeepsThen))"
+ },
+ {
+  "id": "a121",
+  "alloy": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code1)) and ((no v_3: Plugin | v_1->v_3 in Return.code2)) and (not (stopped[v_1]))) implies (v_1 in Exits1))"
+ },
+ {
+  "id": "a107",
+  "alloy": "(all v_1: Word | ((not (v_1 in Undeclared)) and (not (v_1 in Misplaced)) and (not (v_1 in Apart)) and (not (v_1 in Unused))) implies (not (v_1 in Flagged)))"
+ },
+ {
+  "id": "a150",
+  "alloy": "(all v_1: Series | (v_1 in TooLong) implies (v_1 in AsBullets))"
+ },
+ {
+  "id": "a138",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in XAndNoOther) and (v_2 in ForEveryTogether)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a141",
+  "alloy": "(all v_1: Bug | ((some Tracker) and ((no v_4: Issue | v_1->v_4 in Name.issue))) implies (v_1 in Untracking))"
+ },
+ {
+  "id": "a127",
+  "alloy": "(all v_1: Unit | ((v_1 in Logical) and (v_1 in Stated) and (not (v_1 in Generated)) and (not (v_1 in Unsayable))) implies (v_1 in Handwritten))"
+ },
+ {
+  "id": "a133",
+  "alloy": "(all v_1: Fence | ((v_1 in Languaged) and (v_1 in NoSecondWord)) implies (v_1 in UnitBlock))"
+ },
+ {
+  "id": "a104",
+  "alloy": "(all v_1: Unit | ((v_1 in Wordless) or (v_1 in Twofold)) implies (v_1 in Unsayable))"
+ },
+ {
+  "id": "a152",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in FromNowOnWhenever) and (v_2 in ClaimFirst)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a124",
+  "alloy": "(all v_1: Document, v_2: Document, v_3: Unit | ((v_1 in Checked) and (v_1->v_2 in Context.rel) and (v_2->v_3 in Hold.units) and (v_3 in BareFormula)) implies (v_3 in Held))"
+ },
+ {
+  "id": "a114",
+  "alloy": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_3->v_5 in Voice.rel) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Introduce.rel)) implies (not (v_5 in Undeclared)))"
+ },
+ {
+  "id": "a151",
+  "alloy": "(all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Stated)) and (not (v_1 in Unsayable))) implies (v_1 in Unwritten))"
+ },
+ {
+  "id": "a154",
+  "alloy": "(all v_1: Run | (((no v_2: Plugin | (v_1->v_2 in Return.code1) or (v_1->v_2 in Return.code2))) and (not (stopped[v_1]))) implies (v_1 in Exits0))"
+ },
+ {
+  "id": "a145",
+  "alloy": "(all v_1: Run, v_2: LogicCommand | ((v_1->v_2 in Ask.rel) and (((some v_3: Scenario | v_3 in Raised)) or ((some v_4: Unit | v_4 in Contradicting)))) implies (not (v_1 in Exits0)))"
+ },
+ {
+  "id": "a113",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in NegationInward) and (v_2 in NounPhrases)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a128",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in ClaimFirst)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a148",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in NoneOfThese)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a119",
+  "alloy": "(all v_1: Scenario, v_2: Unit | ((v_1 in Raised) and (v_2->v_1 in Frees.rel)) implies (v_1->v_2 in Blame.rel))"
+ },
+ {
+  "id": "a118",
+  "alloy": "(all v_1: Unit, v_2: Unit, v_3: Word | ((v_2 != v_1) and (v_2->v_3 in Utter.rel)) implies (not (v_1->v_3 in Expose.rel)))"
+ },
+ {
+  "id": "a132",
+  "alloy": "(all v_1: Document, v_2: Unit, v_3: Word | ((not (v_1 in Worded)) and (v_1->v_2 in Hold.units)) implies (not (v_2->v_3 in Expose.rel)))"
+ },
+ {
+  "id": "a106",
+  "alloy": "(all v_1: Word | (((some v_2: Unit | v_2->v_1 in Voice.rel)) and ((no v_3: Unit | v_3->v_1 in Introduce.rel))) implies (v_1 in Undeclared))"
+ },
+ {
+  "id": "a116",
+  "alloy": "(all v_1: Unit, v_2: Signature | ((v_1 in Logical) and (not (v_1 in Term)) and (loneOn[v_1, v_2])) implies (v_1->v_2 in Expose.rel))"
+ },
+ {
+  "id": "a125",
+  "alloy": "(all v_1: Unit | ((v_1 in Logical) and (v_1 in Generated) and (v_1 in Differs) and (not (v_1 in Unsayable))) implies (v_1 in Stale))"
+ },
+ {
+  "id": "a142",
+  "alloy": "(all v_1: Search, v_2: Scenario, v_3: Unit | ((v_1 in Trial) and (v_1->v_2 in Pose.scenario) and (v_1->v_3 in Leave.rel) and ((some v_4: Unit | v_2->v_4 in Probe.rel))) implies (v_2->v_3 in Probe.rel))"
+ },
+ {
+  "id": "a120",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in NounPhrases) and (v_2 in ThereIsAThat)) implies (v_1->v_2 in ahead))"
+ },
+ {
+  "id": "a129",
+  "alloy": "(all v_1: Unit, v_2: Word | ((v_1->v_2 in Voice.rel) and ((some v_3: Unit | v_3->v_2 in Introduce.rel)) and (not (v_1->v_2 in Introduce.rel))) implies (v_2 in Apart))"
+ },
+ {
+  "id": "a130",
+  "alloy": "(all v_1: Document, v_2: Unit | ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))) implies (v_2 in Reported))"
+ },
+ {
+  "id": "a137",
+  "alloy": "(all v_1: Unit | ((not (used[v_1])) and (not (v_1 in Conflict)) and (not (v_1 in Thread))) implies (v_1 in Orphaning))"
+ },
+ {
+  "id": "a131",
+  "alloy": "(all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)) implies ((some v_2: Signature | v_1->v_2 in Expose.rel)))"
+ }
+]

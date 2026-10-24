@@ -1,0 +1,38 @@
+chunk 1/8 (canon-plugin-alloy, 11 checks, 887s)
+chunk 2/8 (naturalloy, 25 checks, 29s)
+chunk 3/8 (naturalloy, 12 checks, 14s)
+chunk 4/8 (canon, 25 checks, 74s)
+chunk 5/8 (canon, 10 checks, 44s)
+chunk 6/8 (canon-plugin-alloy, 25 checks, 1619s)
+chunk 7/8 (canon-plugin-alloy, 25 checks, 1645s)
+chunk 8/8 (canon-plugin-alloy, 25 checks, 1656s)
+chunk 1/5 (naturalloy, 18 checks, 42s)
+chunk 2/5 (canon, 18 checks, 69s)
+chunk 3/5 (canon-plugin-alloy, 6 checks, 249s)
+chunk 4/5 (canon-plugin-alloy, 25 checks, 889s)
+chunk 5/5 (canon-plugin-alloy, 25 checks, 891s)
+== Per version
+claim-first
+  control  30/30 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   84/131 equivalent (64%), 42 two-way, 0 converse, 0 malformed/empty/timeout
+old-order
+  control  30/30 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   84/84 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+
+== Per reader
+A/iffswap (claim-first)
+  target   0/47 equivalent (0%), 42 two-way, 0 converse, 0 malformed/empty/timeout
+A/ir (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+A/self (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/ir (old-order)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/self (old-order)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+
+(misses and statements: /private/tmp/claude-501/-Users-bigmistqke-Documents-GitHub-skills/3ebea1a6-1fb4-45ac-a468-2cd701db8b37/scratchpad/probe-claim-first/sanity/scores/report.txt)

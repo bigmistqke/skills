@@ -1,0 +1,24 @@
+DIFF spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest 
+--canon:
+When a search leaves one unit out,
+
+then there is exactly one unit_1 such that all of these hold:
+- the search leaves out unit_1
+- the analyzer is asked to hold the formula of unit_1
+- the search does not require unit_1 to hold
+- for every unit_2:
+
+  the search requires unit_2 to hold when all of these hold:
+  - the analyzer is asked to hold the formula of unit_2
+  - unit_2 and unit_1 are different
+--text:
+When a search leaves one unit out
+then there is exactly one unit_1 such that all of these hold:
+       - the search leaves out unit_1
+       - the analyzer is asked to hold the formula of unit_1
+       - the search does not require unit_1 to hold
+       - for every unit_2:
+           the search requires unit_2 to hold when all of these hold:
+             - the analyzer is asked to hold the formula of unit_2
+             - unit_2 and unit_1 are different
+{ ok: 41, bad: 1 }

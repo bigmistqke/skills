@@ -1,0 +1,120 @@
+changed with claimFirstRules count: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+control candidates 118
+canon spec-an-unfounded-unit-is-freelancing "When a unit is unfounded, checker reports a freelancing for the unit."
+canon spec-a-spec-cites-an-axiom-or-a-spec "For every spec_1:\n  when spec_1 cites no axiom and cites no spec, checker reports a freelancing for spec_1."
+canon spec-an-exception-cites-a-spec "When an exception cites no spec, checker reports a freelancing for the exception."
+canon spec-an-exception-cites-a-fact "When an exception cites no fact, checker reports a freelancing for the exception."
+canon spec-a-bug-cites-a-spec "When a bug cites no spec, checker reports a freelancing for the bug."
+canon spec-a-miscited-unit-is-misnested "When a unit is miscited, checker reports a misnesting for the unit."
+canon spec-an-axiom-cites-only-axioms "For every axiom_1:\n  when axiom_1 cites a unit that is not an axiom, checker reports a misnesting for axiom_1."
+canon spec-a-fact-cites-nothing "When a fact cites a unit, checker reports a misnesting for the fact."
+canon spec-an-exception-cites-only-specs-and-facts "When an exception cites a unit that is not a spec or a fact, checker reports a misnesting for the exception."
+canon spec-a-bug-cites-only-specs "When a bug cites a unit that is not a spec, checker reports a misnesting for the bug."
+canon spec-a-conflict-cites-nothing "When a conflict cites a unit, checker reports a misnesting for the conflict."
+canon spec-a-thread-cites-nothing "When a thread cites a unit, checker reports a misnesting for the thread."
+canon spec-a-term-cites-nothing "When a term cites a unit, checker reports a misnesting for the term."
+canon spec-a-unit-does-not-depend-on-itself "When a unit is circular, checker reports a cycle for the unit."
+canon spec-a-hidden-bug-is-reported "When a bug is hidden, checker reports a finding for the bug."
+canon spec-a-bug-names-an-issue "When project has a tracker and a bug names no issue, checker reports an untracking for the bug."
+canon spec-a-bug-names-an-issue-the-tracker-knows "When a bug names an issue that tracker does not know, checker reports a mistracking for the bug."
+canon spec-a-bug-names-an-open-issue "When a bug names an issue that tracker has closed, checker reports an outdated tracking for the bug."
+canon spec-a-bug-is-tested "When project has a runner and a bug is not tested, checker reports an untesting for the bug."
+canon spec-a-hidden-conflict-is-reported "When a conflict is hidden, checker reports a finding for the conflict."
+canon spec-a-conflict-names-an-issue "When project has a tracker and a conflict names no issue, checker reports an untracking for the conflict."
+canon spec-a-conflict-names-an-issue-the-tracker-knows "When a conflict names an issue that tracker does not know, checker reports a mistracking for the conflict."
+canon spec-a-conflict-names-an-open-issue "When a conflict names an issue that tracker has closed, checker reports an outdated tracking for the conflict."
+canon spec-a-conflict-names-two-units "When a conflict is not paired, checker reports an unpairing for the conflict."
+canon spec-a-misleading-test-is-reported "When a test is misleading, checker reports a finding for the test."
+canon spec-an-expected-failure-checks-a-bug-or-an-exception "When an expected failure checks no bug and checks no exception, checker reports an unexplained failure for the expected failure."
+canon spec-a-plain-test-does-not-check-a-bug "When a plain test checks a bug, checker reports an unpinning for the plain test."
+canon spec-an-unguarded-claim-is-untested "When project has a runner and a claim is unguarded, checker reports an untesting for the claim."
+canon spec-a-tag-names-a-unit "When a tag names no unit, checker reports a rotting for the tag."
+canon spec-an-adrift-test-is-reported "When a test is adrift, checker reports a finding for the test."
+canon spec-a-declared-test-carries-a-tag "When project declares a test and the test carries no tag, checker reports an uncitation for the test."
+canon spec-a-declared-test-checks-only-claims "When project declares a test and the test checks a unit that is not a claim, checker reports a misaiming for the test."
+canon spec-a-test-checks-only-leaves "When a test checks a claim that is refined, checker reports an overreach for the test."
+canon spec-a-pointer-names-a-target "When a pointer names no target, checker reports a rotting for the pointer."
+canon spec-a-unit-is-declared-once "For every unit_1:\n  when unit_1 repeats a unit, checker reports a rotting for unit_1."
+canon spec-a-heading-ends-with-its-id "When a trailer follows a unit, checker reports a misanchoring for the unit."
+canon spec-a-document-holds-an-index "When a document holds a unit and holds no index, checker reports a misindexing for the document."
+canon spec-an-index-matches-its-document "When a document holds an index that does not match the document, checker reports a misindexing for the document."
+canon spec-a-site-is-held-by-a-source "When a claim names a site that no source holds, checker reports a mislocation for the claim."
+canon spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it "For every fence and every unit:\n  when the fence names a language and lies in the own text of the unit, checker reads the fence as a block
+canon spec-a-fence-with-no-language-is-prose "When a fence names no language, checker reads the fence as a block of no unit."
+canon spec-a-block-whose-second-word-is-vocabulary-has-the-role-of-vocabulary "When the second word of a fence is vocabulary, the fence has the role of vocabulary."
+canon spec-a-block-whose-second-word-is-bounds-has-the-role-of-bounds "When the second word of a fence is bounds, the fence has the role of bounds."
+canon spec-a-block-whose-second-word-is-scenario-has-the-role-of-scenario "When the second word of a fence is scenario, the fence has the role of scenario."
+canon spec-a-block-with-no-role-word-is-the-formula-of-its-unit "When a fence names a language and has no second word that names a role, the fence has the role of the formula of its unit."
+canon spec-a-tested-claim-is-not-untested "When a claim is tested, checker reports no untesting for the claim."
+canon spec-a-claim-a-declared-test-checks-is-not-untested "When a test that project declares checks a claim, checker reports no untesting for the claim."
+canon spec-a-claim-an-undeclared-test-checks-is-not-untested "When a test that project does not declare checks a claim, checker reports no untesting for the claim."
+canon spec-a-spec-whose-bug-a-test-checks-is-not-untested "When a test checks a bug that cites a spec, checker reports no untesting for the spec."
+canon spec-a-project-with-no-runner-reports-no-untesting "For every unit:\n  when project has no runner, checker reports no untesting for the unit."
+canon spec-a-project-with-no-tracker-reports-no-untracking "For every unit:\n  when project has no tracker, checker reports no untracking for the unit."
+canon spec-a-document-with-no-plugins-list-asks-for-no-plugin "For every plugin and every document:\n  when the document starts with no listing frontmatter and the command line of no run names the docum
+canon spec-a-plugin-a-document-lists-runs-over-it "For every plugin, every document and every listing frontmatter:\n  when the document starts with the listing frontmatter and the listing fr
+canon spec-a-document-named-on-the-command-line-is-checked-whatever-its-frontmatter-says "For every run_1, every plugin and every given document:\n  when run_1 calls the plugin, checker runs the plugin over the given document."
+canon spec-a-frontmatter-with-no-plugins-key-holds-no-entry "When a frontmatter has no plugins key, the frontmatter holds no entry."
+canon spec-a-document-with-a-refused-frontmatter-is-reported "For every document and every refused frontmatter:\n  when the document starts with the refused frontmatter, checker reports that the docume
+canon spec-a-report-of-an-unreadable-frontmatter-stops-the-run "For every run:\n  when there is a document such that checker reports that the document has a frontmatter it cannot read, the run exits with
+canon spec-a-missing-plugin-is-reported "For every frontmatter and every missing plugin:\n  when the frontmatter lists the missing plugin, checker reports that the project lacks th
+canon spec-a-missing-plugin-stops-the-run "For every run, every frontmatter and every missing plugin:\n  when the frontmatter lists the missing plugin, the run exits with code 2."
+canon spec-an-unknown-command-fails-the-run "For every run and every command_1:\n  when the run asks for command_1 and command_1 is not available, checker reports command_1 as an unkno
+canon spec-a-command-that-is-not-available-is-reported-as-unknown "For every run and every command_1:\n  when the run asks for command_1 and command_1 is not available, checker reports command_1 as an unkno
+canon spec-a-command-that-is-not-available-stops-the-run "For every run and every command:\n  when the run asks for the command and the command is not available, the run exits with code 2."
+canon spec-an-available-command-is-not-reported-as-unknown "For every command_1:\n  when command_1 is available, checker does not report command_1 as an unknown command."
+canon spec-a-plugin-that-could-not-run-stops-the-run "When a run gets code 2 from a plugin, the run exits with code 2."
+canon-plugin-alloy spec-a-statement-that-does-not-read-back-to-its-formula-is-not-current "When the statement of a unit reads back as more or other than its formula, the statement of the unit is not current."
+canon-plugin-alloy spec-a-formula-with-a-word-that-has-no-reading-is-unsayable "When the formula of a unit names a word that has no reading, the formula of the unit cannot be said in words."
+canon-plugin-alloy spec-a-unit-with-two-formulas-is-unsayable "When a unit holds more than one formula, the formula of the unit cannot be said in words."
+canon-plugin-alloy spec-the-report-of-an-unsayable-formula-says-why "When the formula of a unit cannot be said in words, checker says why the formula of the unit cannot be said."
+canon-plugin-alloy spec-generate-writes-the-statement-of-a-stale-unit-again "When the statement of a unit is stale, checker writes the statement of the unit when it generates."
+canon-plugin-alloy spec-generate-leaves-a-current-statement-as-it-is "When the statement of a unit is current, checker does not write the statement of the unit when it generates."
+canon-plugin-alloy spec-generate-never-overwrites-a-handwritten-statement "When the statement of a unit is handwritten, checker does not write the statement of the unit when it generates."
+canon-plugin-alloy spec-generate-leaves-an-unsayable-unit-as-it-is "When the formula of a unit cannot be said in words, checker does not write the statement of the unit when it generates."
+canon-plugin-alloy spec-check-does-not-report-a-current-statement "When the statement of a unit is current, checker does not report the statement of the unit."
+canon-plugin-alloy spec-a-report-of-a-statement-fails-check "For every run, every check command and every unit:\n  when the run asks for the check command and checker reports the statement of the unit
+canon-plugin-alloy spec-generate-fails-on-a-handwritten-statement-and-says-so "For every run, every generate command and every unit:\n  when the run asks for the generate command and the statement of the unit is handwr
+canon-plugin-alloy spec-generate-fails-on-an-unsayable-formula-and-says-why "For every run, every generate command and every unit:\n  when the run asks for the generate command and the formula of the unit cannot be s
+canon-plugin-alloy spec-a-word-declared-outside-a-term-is-misplaced "For every unit_1 and every word:\n  when unit_1 declares the word and is not a term, the word is declared in a unit that is not a term."
+canon-plugin-alloy spec-a-flagged-word-fails-check "For every run, every check command and every word_1:\n  when the run asks for the check command and checker reports the word word_1, the ru
+canon-plugin-alloy spec-a-formula-with-no-keyword-is-a-claim-to-hold "When a unit holds a formula with no keyword, the analyzer is asked to hold the formula of the unit."
+canon-plugin-alloy spec-the-first-searches-leave-no-unit-out "When a search is asked before any scenario is known to be impossible, the search leaves no unit out."
+canon-plugin-alloy spec-a-scenario-that-cannot-happen-while-every-unit-holds-is-reported "For every scenario_1:\n  when scenario_1 is a scenario that cannot happen while every held unit holds, checker reports that scenario_1 cann
+canon-plugin-alloy spec-a-scenario-that-can-happen-is-not-reported "For every scenario_1:\n  when scenario_1 is a scenario that can happen while every held unit holds, checker does not report that scenario_1
+canon-plugin-alloy spec-the-report-of-a-scenario-names-no-other-unit "For every scenario and every unit:\n  when checker names the unit in its report of the scenario, leaving out the unit lets the scenario hap
+canon-plugin-alloy spec-units-that-cannot-all-hold-are-named "For every unit_1:\n  when unit_1 is held with units that cannot all hold, checker names unit_1 in its report of a contradiction."
+canon-plugin-alloy spec-units-that-share-a-word-are-asked-about-together "For every unit_1 and every unit_2:\n  when unit_1 shares a word with unit_2, the analyzer is asked about unit_1 together with unit_2."
+canon-plugin-alloy spec-units-that-share-no-word-are-asked-about-apart "For every unit_1 and every unit_2:\n  when the analyzer is asked about unit_1 together with unit_2, unit_1 is linked to unit_2 through shar
+canon-plugin-alloy spec-a-formula-is-reported-only-when-no-other-formula-can-contradict-it "For every unit and every word:\n  when checker reports the formula of the unit as lone on the word, no other formula can contradict the for
+canon-plugin-alloy spec-a-signature-that-a-scenario-names-keeps-a-formula-from-being-reported "For every unit_1, every unit_2 and every word:\n  when a scenario of unit_2 names the word, checker does not report the formula of unit_1 a
+canon-plugin-alloy spec-a-formula-is-not-reported-on-a-field-or-a-predicate "For every unit and every word:\n  when the word is not a signature, checker does not report the formula of the unit as lone on the word."
+canon-plugin-alloy spec-a-document-that-keeps-no-readings-has-no-formula-reported-as-lone "For every document, every unit and every word:\n  when the document keeps no readings and holds the unit, checker does not report the formu
+canon-plugin-alloy spec-a-lone-formula-fails-check "For every run, every check command, every unit and every word:\n  when the run asks for the check command and checker reports the formula o
+naturalloy spec-a-negation-moves-inward-before-noun-phrases-are-said "For every pass_1 and every pass_2:\n  when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before
+naturalloy spec-two-things-of-a-kind-are-paired-before-noun-phrases-are-said "For every pass_1 and every pass_2:\n  when pass_1 says two things of a kind as one and another and pass_2 says a quantifier as a noun phras
+naturalloy spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence "For every pass_1 and every pass_2:\n  when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one s
+naturalloy spec-clauses-become-a-sentence-before-a-rule-goes-on-one-line "For every pass_1 and every pass_2:\n  when pass_1 says a few clauses as one sentence and pass_2 says a rule on one line, pass_1 runs before
+naturalloy spec-clauses-become-a-sentence-before-a-second-side-goes-first "For every pass_1 and every pass_2:\n  when pass_1 says a few clauses as one sentence and pass_2 says the second side of a rule before its f
+naturalloy spec-the-alternatives-of-one-kind-are-put-together-with-or "When a definition has two alternatives for one kind and can be said kind by kind, verbalizer says the definition as one noun phrase for tha
+naturalloy spec-the-options-of-an-or-inside-a-kind-are-one-coordination "When a definition has an or inside one kind and can be said kind by kind, verbalizer says the definition as one run of clauses joined by co
+naturalloy spec-a-definition-with-one-kind-is-one-sentence "When the alternatives of a definition are of one kind and the definition can be said kind by kind, verbalizer says the definition as one se
+naturalloy spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-does-not-begin-with-its-kind "When a definition has an alternative that does not begin with its kind, verbalizer says the definition as a list of the alternatives as the
+naturalloy spec-a-definition-by-cases-is-said-as-it-stands-when-a-run-of-and-would-read-two-ways "When a definition has a run of \"and\" beside another alternative of its kind, verbalizer says the definition as a list of the alternatives
+naturalloy spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject "When a definition has an alternative that says something about another unit, verbalizer says the definition as a list of the alternatives a
+naturalloy spec-a-definition-by-cases-is-said-as-it-stands-when-two-of-its-kinds-can-share-a-member "When a definition has two kinds that can share a member, verbalizer says the definition as a list of the alternatives as they stand."
+naturalloy spec-a-variable-said-once-takes-the-place-of-its-quantifier-as-a-noun-phrase "When the sentence says the variable of a quantifier once and the quantifier fits a noun phrase, verbalizer says the quantifier as a noun ph
+naturalloy spec-a-noun-phrase-can-be-the-subject-of-a-sentence "When the variable of a quantifier is the subject of the sentence and the quantifier fits a noun phrase, verbalizer says the quantifier with
+naturalloy spec-what-else-is-true-of-the-variable-is-a-relative-clause "When the variable of a quantifier has a further condition and the quantifier fits a noun phrase, verbalizer says the quantifier with a rela
+naturalloy spec-a-quantifier-whose-variable-would-be-said-twice-is-said-in-full "When the reading of a quantifier says the variable twice, verbalizer says the quantifier in full, with \"there is\" and the numbered name."
+naturalloy spec-no-with-another-is-said-in-full "When a quantifier says no variable differs from another and holds a condition, verbalizer says the quantifier in full, with \"there is\" an
+naturalloy spec-a-condition-that-is-not-about-the-variable-is-said-in-full "When the condition of a quantifier is not about its variable, verbalizer says the quantifier in full, with \"there is\" and the numbered na
+naturalloy spec-three-clauses-or-fewer-are-said-in-a-sentence "When a list can be put in a sentence, verbalizer says the list in a sentence."
+naturalloy spec-a-longer-list-or-a-list-with-a-comma-is-bullets "When a list is a run of clauses joined by and or by or and cannot be put in a sentence, verbalizer says the list as bullets."
+naturalloy spec-a-list-of-more-than-three-clauses-is-bullets "When a list has more than three clauses, verbalizer says the list as bullets."
+naturalloy spec-a-list-too-long-for-a-line-is-bullets "When a list is longer than a line when it is put in a sentence, verbalizer says the list as bullets."
+naturalloy spec-a-list-with-a-time-phrase-before-its-last-clause-is-bullets "When a list has a clause before its last that begins with a time phrase, verbalizer says the list as bullets."
+naturalloy spec-a-list-with-a-relative-clause-before-its-last-clause-is-bullets "When a list has a clause before its last with a relative clause in it, verbalizer says the list as bullets."
+naturalloy spec-an-item-that-is-more-than-a-clause-makes-the-list-bullets "When a list has an item that is more than one clause, verbalizer says the list as bullets."
+naturalloy spec-an-and-inside-an-or-is-kept-apart "For every list_1:\n  when list_1 is a list of alternatives where one alternative holds an and, verbalizer says list_1 as bullets that canno
+naturalloy spec-a-rule-whose-first-side-begins-with-a-time-phrase-puts-its-then-on-a-line-of-its-own "When a list is a rule whose first side begins with a time phrase, verbalizer says the list with \"then\" at the start of the second side, o

@@ -1,0 +1,683 @@
+=== spec-a-unit-is-used
+all u: Unit | (not used[u] and u not in Conflict and u not in Thread) implies u in Orphaning
+--- claim-first
+Checker reports an orphaning for a unit when all of these hold:
+  - the unit is not used
+  - the unit is not a conflict
+  - the unit is not a thread
+--- old
+When all of these hold:
+  - a unit is not used
+  - the unit is not a conflict
+  - the unit is not a thread
+then checker reports an orphaning for the unit.
+
+=== axiom-a-check-the-project-asked-for-is-never-dropped-silently
+all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2
+--- claim-first
+A run exits with code 2 when at least one of these holds:
+  - there is a frontmatter that lists a missing plugin
+  - there is a document such that checker reports that the document has a frontmatter it cannot read
+  - the run asks for a command that is not available
+  - the run gets code 2 from a plugin
+--- old
+When at least one of these holds:
+  - there is a frontmatter that lists a missing plugin
+  - there is a document such that checker reports that the document has a frontmatter it cannot read
+  - a run asks for a command that is not available
+  - the run gets code 2 from a plugin
+then the run exits with code 2.
+
+=== spec-a-plugin-a-document-does-not-list-does-not-run-over-it
+all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel
+--- claim-first
+For every plugin, every document and every listing frontmatter:
+  checker does not run the plugin over the document when all of these hold:
+    - the document starts with the listing frontmatter
+    - the listing frontmatter does not list the plugin
+    - the command line of no run names the document
+--- old
+For every plugin, every document and every listing frontmatter:
+  when all of these hold:
+    - the document starts with the listing frontmatter
+    - the listing frontmatter does not list the plugin
+    - the command line of no run names the document
+  then checker does not run the plugin over the document.
+
+=== spec-an-empty-list-asks-for-no-plugin
+all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel
+--- claim-first
+For every plugin, every document and every listing frontmatter:
+  checker does not run the plugin over the document when all of these hold:
+    - the document starts with the listing frontmatter
+    - the listing frontmatter holds no entry
+    - the command line of no run names the document
+--- old
+For every plugin, every document and every listing frontmatter:
+  when all of these hold:
+    - the document starts with the listing frontmatter
+    - the listing frontmatter holds no entry
+    - the command line of no run names the document
+  then checker does not run the plugin over the document.
+
+=== spec-a-flawed-frontmatter-is-refused
+all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused
+--- claim-first
+The checker cannot read a frontmatter when at least one of these holds:
+  - the frontmatter has the flaw of an entry that starts with an at sign outside quotes
+  - the frontmatter has the flaw of a key that neither the checker nor a plugin that the frontmatter lists defines
+  - the frontmatter has the flaw of a list that is not closed
+  - the frontmatter has the flaw of a string that is not closed
+  - the frontmatter has the flaw of a key that appears twice
+  - the frontmatter has the flaw of a path that names no document
+  - the frontmatter has the flaw of an extension that leads back to its own document
+  - the frontmatter has the flaw of a setting in a document that is not the entry document
+--- old
+When at least one of these holds:
+  - a frontmatter has the flaw of an entry that starts with an at sign outside quotes
+  - the frontmatter has the flaw of a key that neither the checker nor a plugin that the frontmatter lists defines
+  - the frontmatter has the flaw of a list that is not closed
+  - the frontmatter has the flaw of a string that is not closed
+  - the frontmatter has the flaw of a key that appears twice
+  - the frontmatter has the flaw of a path that names no document
+  - the frontmatter has the flaw of an extension that leads back to its own document
+  - the frontmatter has the flaw of a setting in a document that is not the entry document
+then the checker cannot read the frontmatter.
+
+=== spec-a-run-exits-with-the-worst-code-of-its-plugins
+all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1)
+--- claim-first
+For every run:
+  all of these hold:
+    - when the run gets code 2 from a plugin, the run exits with code 2
+    - the run exits with code 1 when all of these hold:
+        - the run gets code 1 from a plugin
+        - the run gets code 2 from no plugin
+        - checker does not stop the run itself
+--- old
+For every run:
+  all of these hold:
+    - when the run gets code 2 from a plugin, the run exits with code 2
+    - when all of these hold:
+        - the run gets code 1 from a plugin
+        - the run gets code 2 from no plugin
+        - checker does not stop the run itself
+      then the run exits with code 1.
+
+=== spec-a-finding-fails-the-run
+all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1
+--- claim-first
+A run exits with code 1 when all of these hold:
+  - the run gets code 1 from a plugin
+  - the run gets code 2 from no plugin
+  - checker does not stop the run itself
+--- old
+When all of these hold:
+  - a run gets code 1 from a plugin
+  - the run gets code 2 from no plugin
+  - checker does not stop the run itself
+then the run exits with code 1.
+
+=== spec-a-run-with-no-finding-succeeds
+all r: Run | ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) and not stopped[r]) implies r in Exits0
+--- claim-first
+A run exits with code 0 when all of these hold:
+  - there is no plugin such that the run gets code 1 from the plugin or gets code 2 from the plugin
+  - checker does not stop the run itself
+--- old
+When all of these hold:
+  - there is no plugin such that a run gets code 1 from the plugin or gets code 2 from the plugin
+  - checker does not stop the run itself
+then the run exits with code 0.
+
+=== axiom-a-statement-says-what-its-logic-says
+all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported
+--- claim-first
+For every document and every unit:
+  checker reports the statement of the unit when all of these hold:
+    - the document keeps readings
+    - the document holds the unit
+    - the unit holds a formula
+    - the statement of the unit is not current
+--- old
+For every document and every unit:
+  when all of these hold:
+    - the document keeps readings
+    - the document holds the unit
+    - the unit holds a formula
+    - the statement of the unit is not current
+  then checker reports the statement of the unit.
+
+=== spec-a-unit-with-a-formula-and-no-statement-is-unwritten
+all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten
+--- claim-first
+The statement of a unit is unwritten when all of these hold:
+  - the unit holds a formula
+  - the unit has no statement
+  - the formula of the unit can be said in words
+--- old
+When all of these hold:
+  - a unit holds a formula
+  - the unit has no statement
+  - the formula of the unit can be said in words
+then the statement of the unit is unwritten.
+
+=== spec-a-generated-statement-that-differs-from-its-formula-is-stale
+all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale
+--- claim-first
+The statement of a unit is stale when all of these hold:
+  - the unit holds a formula
+  - the statement of the unit sits between the markers of a generated region
+  - the statement of the unit differs from what its formula says
+  - the formula of the unit can be said in words
+--- old
+When all of these hold:
+  - a unit holds a formula
+  - the statement of the unit sits between the markers of a generated region
+  - the statement of the unit differs from what its formula says
+  - the formula of the unit can be said in words
+then the statement of the unit is stale.
+
+=== spec-a-generated-statement-that-its-formula-would-say-again-is-current
+all u: Unit | ((u in Logical and u in Generated and u not in Differs and u not in Unsayable and u not in Misread) implies u in Current) and (u not in Logical implies u not in Current)
+--- claim-first
+For every unit:
+  all of these hold:
+    - the statement of the unit is current when all of these hold:
+        - the unit holds a formula
+        - the statement of the unit sits between the markers of a generated region
+        - the statement of the unit does not differ from what its formula says
+        - the formula of the unit can be said in words
+        - the statement of the unit reads back as its formula alone
+    - when the unit holds no formula, the statement of the unit is not current
+--- old
+For every unit:
+  all of these hold:
+    - when all of these hold:
+        - the unit holds a formula
+        - the statement of the unit sits between the markers of a generated region
+        - the statement of the unit does not differ from what its formula says
+        - the formula of the unit can be said in words
+        - the statement of the unit reads back as its formula alone
+      then the statement of the unit is current
+    - when the unit holds no formula, the statement of the unit is not current
+
+=== spec-a-statement-that-a-person-wrote-is-handwritten
+all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten
+--- claim-first
+The statement of a unit is handwritten when all of these hold:
+  - the unit holds a formula
+  - the unit has a statement
+  - the statement of the unit does not sit between the markers of a generated region
+  - the formula of the unit can be said in words
+--- old
+When all of these hold:
+  - a unit holds a formula
+  - the unit has a statement
+  - the statement of the unit does not sit between the markers of a generated region
+  - the formula of the unit can be said in words
+then the statement of the unit is handwritten.
+
+=== spec-a-formula-that-the-readings-cannot-say-is-unsayable
+all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable
+--- claim-first
+The formula of a unit cannot be said in words when at least one of these holds:
+  - the formula of the unit names a word that has no reading
+  - the unit holds more than one formula
+--- old
+When at least one of these holds:
+  - the formula of a unit names a word that has no reading
+  - the unit holds more than one formula
+then the formula of the unit cannot be said in words.
+
+=== spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable
+(all u: Unit | u in Faulted implies u not in Explained)
+and (all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies r not in Exits0)
+--- claim-first
+All of these hold:
+  - when the verbalizer fails on the formula of a unit with a fault of its own, checker does not say why the formula of the unit cannot be said
+  - for every run, every command_1 and every unit:
+      the run does not exit with code 0 when all of these hold:
+        - the run asks for command_1
+        - command_1 is the command `generate` or is the command `check`
+        - the verbalizer fails on the formula of the unit with a fault of its own
+--- old
+All of these hold:
+  - when the verbalizer fails on the formula of a unit with a fault of its own, checker does not say why the formula of the unit cannot be said
+  - for every run, every command_1 and every unit:
+      when all of these hold:
+        - the run asks for command_1
+        - command_1 is the command `generate` or is the command `check`
+        - the verbalizer fails on the formula of the unit with a fault of its own
+      then the run does not exit with code 0.
+
+=== spec-check-reports-a-statement-that-is-not-current
+all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported
+--- claim-first
+For every document and every unit:
+  checker reports the statement of the unit when all of these hold:
+    - the document keeps readings
+    - the document holds the unit
+    - the unit holds a formula
+    - the statement of the unit is not current
+--- old
+For every document and every unit:
+  when all of these hold:
+    - the document keeps readings
+    - the document holds the unit
+    - the unit holds a formula
+    - the statement of the unit is not current
+  then checker reports the statement of the unit.
+
+=== spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared
+all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared
+--- claim-first
+A word is said by a reading and declared by nothing when all of these hold:
+  - there is a unit_1 such that a reading in unit_1 says the word
+  - no unit declares the word
+--- old
+When all of these hold:
+  - there is a unit_1 such that a reading in unit_1 says a word
+  - no unit declares the word
+then the word is said by a reading and declared by nothing.
+
+=== spec-a-reading-apart-from-the-declaration-it-says-is-apart
+all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart
+--- claim-first
+For every unit_1 and every word:
+  the reading of the word is in another unit than its declaration when all of these hold:
+    - a reading in unit_1 says the word
+    - a unit declares the word
+    - unit_1 does not declare the word
+--- old
+For every unit_1 and every word:
+  when all of these hold:
+    - a reading in unit_1 says the word
+    - a unit declares the word
+    - unit_1 does not declare the word
+  then the reading of the word is in another unit than its declaration.
+
+=== spec-check-reports-nothing-about-a-word-that-is-in-order
+all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged
+--- claim-first
+For every word_1:
+  checker does not report the word word_1 when all of these hold:
+    - word_1 is said by no reading or is declared
+    - word_1 is not declared in a unit that is not a term
+    - the reading of word_1 is in the unit of its declaration
+    - a claim, a definition or a fact uses word_1
+--- old
+For every word_1:
+  when all of these hold:
+    - word_1 is said by no reading or is declared
+    - word_1 is not declared in a unit that is not a term
+    - the reading of word_1 is in the unit of its declaration
+    - a claim, a definition or a fact uses word_1
+  then checker does not report the word word_1.
+
+=== spec-check-reports-a-word-that-is-not-in-order
+all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w in Flagged
+--- claim-first
+For every word_1:
+  checker reports the word word_1 when at least one of these holds:
+    - word_1 is said by a reading and declared by nothing
+    - word_1 is declared in a unit that is not a term
+    - the reading of word_1 is in another unit than its declaration
+    - no claim, definition or fact uses word_1
+--- old
+For every word_1:
+  when at least one of these holds:
+    - word_1 is said by a reading and declared by nothing
+    - word_1 is declared in a unit that is not a term
+    - the reading of word_1 is in another unit than its declaration
+    - no claim, definition or fact uses word_1
+  then checker reports the word word_1.
+
+=== spec-a-word-declared-in-an-extended-document-is-declared
+all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and u->w in Voice.rel and e->v in Hold.units and v->w in Introduce.rel) implies w not in Undeclared
+--- claim-first
+For every document_1, every document_2, every unit_1, every unit_2 and every word:
+  the word is said by no reading or is declared when all of these hold:
+    - document_2 is context for document_1
+    - document_1 holds unit_1
+    - a reading in unit_1 says the word
+    - document_2 holds unit_2
+    - unit_2 declares the word
+--- old
+For every document_1, every document_2, every unit_1, every unit_2 and every word:
+  when all of these hold:
+    - document_2 is context for document_1
+    - document_1 holds unit_1
+    - a reading in unit_1 says the word
+    - document_2 holds unit_2
+    - unit_2 declares the word
+  then the word is said by no reading or is declared.
+
+=== spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest
+all s: Search | s in Trial implies (one u: Unit | s->u in Leave.rel and u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))
+--- claim-first
+When a search leaves one unit out
+then there is exactly one unit_1 such that all of these hold:
+       - the search leaves out unit_1
+       - the analyzer is asked to hold the formula of unit_1
+       - the search does not require unit_1 to hold
+       - for every unit_2:
+           the search requires unit_2 to hold when all of these hold:
+             - the analyzer is asked to hold the formula of unit_2
+             - unit_2 and unit_1 are different
+--- old
+When a search leaves one unit out
+then there is exactly one unit_1 such that all of these hold:
+       - the search leaves out unit_1
+       - the analyzer is asked to hold the formula of unit_1
+       - the search does not require unit_1 to hold
+       - for every unit_2:
+           when all of these hold:
+             - the analyzer is asked to hold the formula of unit_2
+             - unit_2 and unit_1 are different
+           then the search requires unit_2 to hold.
+
+=== spec-a-trial-leaves-out-only-the-units-the-author-asks-about
+all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel and (some v: Unit | c->v in Probe.rel)) implies c->u in Probe.rel
+--- claim-first
+For every search, every scenario and every unit_1:
+  the author asks about leaving out unit_1 for the scenario when all of these hold:
+    - the search leaves one unit out
+    - the search requires the scenario to happen
+    - the search leaves out unit_1
+    - there is a unit_2 such that the author asks about leaving out unit_2 for the scenario
+--- old
+For every search, every scenario and every unit_1:
+  when all of these hold:
+    - the search leaves one unit out
+    - the search requires the scenario to happen
+    - the search leaves out unit_1
+    - there is a unit_2 such that the author asks about leaving out unit_2 for the scenario
+  then the author asks about leaving out unit_1 for the scenario.
+
+=== spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen
+all c: Scenario, u: Unit | (c in Raised and u->c in Frees.rel) implies c->u in Blame.rel
+--- claim-first
+For every scenario and every unit:
+  checker names the unit in its report of the scenario when all of these hold:
+    - checker reports that the scenario cannot happen
+    - leaving out the unit lets the scenario happen
+--- old
+For every scenario and every unit:
+  when all of these hold:
+    - checker reports that the scenario cannot happen
+    - leaving out the unit lets the scenario happen
+  then checker names the unit in its report of the scenario.
+
+=== spec-the-report-of-a-contradiction-names-all-the-units-of-the-group
+all u: Unit, v: Unit | (u in Contradicting and u->v in Together.rel) implies v in Named
+--- claim-first
+For every unit_1 and every unit_2:
+  checker names unit_2 in its report of a contradiction when all of these hold:
+    - unit_1 is held with units that cannot all hold
+    - the analyzer is asked about unit_1 together with unit_2
+--- old
+For every unit_1 and every unit_2:
+  when all of these hold:
+    - unit_1 is held with units that cannot all hold
+    - the analyzer is asked about unit_1 together with unit_2
+  then checker names unit_2 in its report of a contradiction.
+
+=== spec-logic-succeeds-when-nothing-is-reported
+all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0
+--- claim-first
+For every run and every logic command:
+  the run exits with code 0 when all of these hold:
+    - the run asks for the logic command
+    - there is no scenario such that checker reports that the scenario cannot happen
+    - no unit is held with units that cannot all hold
+--- old
+For every run and every logic command:
+  when all of these hold:
+    - the run asks for the logic command
+    - there is no scenario such that checker reports that the scenario cannot happen
+    - no unit is held with units that cannot all hold
+  then the run exits with code 0.
+
+=== spec-a-reported-scenario-or-contradiction-fails-logic
+all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0
+--- claim-first
+For every run and every logic command:
+  the run does not exit with code 0 when all of these hold:
+    - the run asks for the logic command
+    - at least one of these holds:
+        - there is a scenario such that checker reports that the scenario cannot happen
+        - there is a unit that is held with units that cannot all hold
+--- old
+For every run and every logic command:
+  when all of these hold:
+    - the run asks for the logic command
+    - at least one of these holds:
+        - there is a scenario such that checker reports that the scenario cannot happen
+        - there is a unit that is held with units that cannot all hold
+  then the run does not exit with code 0.
+
+=== spec-the-claims-of-an-extended-document-join-the-model
+all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held
+--- claim-first
+For every document_1, every document_2 and every unit:
+  the analyzer is asked to hold the formula of the unit when all of these hold:
+    - the project lists document_1 among the documents it checks
+    - document_2 is context for document_1
+    - document_2 holds the unit
+    - the unit holds a formula with no keyword
+--- old
+For every document_1, every document_2 and every unit:
+  when all of these hold:
+    - the project lists document_1 among the documents it checks
+    - document_2 is context for document_1
+    - document_2 holds the unit
+    - the unit holds a formula with no keyword
+  then the analyzer is asked to hold the formula of the unit.
+
+=== axiom-a-formula-can-be-held-against-the-other-formulas
+(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)
+--- claim-first
+All of these hold:
+  - checker reports the formula of a unit as lone on a signature when all of these hold:
+      - the unit holds a formula
+      - the unit is not a term
+      - no other formula can contradict the formula of the unit
+  - for every unit and every word:
+      when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.
+--- old
+All of these hold:
+  - when all of these hold:
+      - a unit holds a formula
+      - the unit is not a term
+      - no other formula can contradict the formula of the unit
+    then checker reports the formula of the unit as lone on a signature
+  - for every unit and every word:
+      when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.
+
+=== spec-a-formula-that-no-other-formula-can-contradict-is-reported
+all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)
+--- claim-first
+Checker reports the formula of a unit as lone on a signature when all of these hold:
+  - the unit holds a formula
+  - the unit is not a term
+  - no other formula can contradict the formula of the unit
+--- old
+When all of these hold:
+  - a unit holds a formula
+  - the unit is not a term
+  - no other formula can contradict the formula of the unit
+then checker reports the formula of the unit as lone on a signature.
+
+=== spec-a-formula-that-is-lone-on-a-signature-is-reported
+all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) implies u->w in Expose.rel
+--- claim-first
+For every unit and every signature:
+  checker reports the formula of the unit as lone on the signature when all of these hold:
+    - the unit holds a formula
+    - the unit is not a term
+    - the formula of the unit is lone on the signature
+--- old
+For every unit and every signature:
+  when all of these hold:
+    - the unit holds a formula
+    - the unit is not a term
+    - the formula of the unit is lone on the signature
+  then checker reports the formula of the unit as lone on the signature.
+
+=== spec-a-signature-that-another-unit-names-keeps-a-formula-from-being-reported
+all u: Unit, v: Unit, w: Word | (v != u and v->w in Utter.rel) implies u->w not in Expose.rel
+--- claim-first
+For every unit_1, every unit_2 and every word:
+  checker does not report the formula of unit_1 as lone on the word when all of these hold:
+    - unit_2 and unit_1 are different
+    - a block of unit_2 names the word outside its declaration
+--- old
+For every unit_1, every unit_2 and every word:
+  when all of these hold:
+    - unit_2 and unit_1 are different
+    - a block of unit_2 names the word outside its declaration
+  then checker does not report the formula of unit_1 as lone on the word.
+
+=== spec-a-signature-that-an-extended-document-names-keeps-a-formula-from-being-reported
+all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and v->w in Utter.rel) implies u->w not in Expose.rel
+--- claim-first
+For every document_1, every document_2, every unit_1, every unit_2 and every word:
+  checker does not report the formula of unit_1 as lone on the word when all of these hold:
+    - document_2 is context for document_1
+    - document_1 holds unit_1
+    - document_2 holds unit_2
+    - a block of unit_2 names the word outside its declaration
+--- old
+For every document_1, every document_2, every unit_1, every unit_2 and every word:
+  when all of these hold:
+    - document_2 is context for document_1
+    - document_1 holds unit_1
+    - document_2 holds unit_2
+    - a block of unit_2 names the word outside its declaration
+  then checker does not report the formula of unit_1 as lone on the word.
+
+=== spec-noun-phrases-are-said-before-there-is-a-that
+all a: NounPhrases, b: ThereIsAThat | a->b in ahead
+--- claim-first
+For every pass_1 and every pass_2:
+  pass_1 runs before pass_2 when all of these hold:
+    - pass_1 says a quantifier as a noun phrase
+    - pass_2 says a quantifier of its variable alone as "there is a … that"
+--- old
+For every pass_1 and every pass_2:
+  when all of these hold:
+    - pass_1 says a quantifier as a noun phrase
+    - pass_2 says a quantifier of its variable alone as "there is a … that"
+  then pass_1 runs before pass_2.
+
+=== spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one
+all a: XAndNoOther, b: ForEveryTogether | a->b in ahead
+--- claim-first
+For every pass_1 and every pass_2:
+  pass_1 runs before pass_2 when all of these hold:
+    - pass_1 says a set equal to a variable as that variable and no other
+    - pass_2 makes nested quantifiers of "for every" one
+--- old
+For every pass_1 and every pass_2:
+  when all of these hold:
+    - pass_1 says a set equal to a variable as that variable and no other
+    - pass_2 makes nested quantifiers of "for every" one
+  then pass_1 runs before pass_2.
+
+=== spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front
+all a: UntilInASentence, b: TimePhraseInFront | a->b in ahead
+--- claim-first
+For every pass_1 and every pass_2:
+  pass_1 runs before pass_2 when all of these hold:
+    - pass_1 says until and since of two clauses as one sentence
+    - pass_2 puts a time phrase in front of the words it covers
+--- old
+For every pass_1 and every pass_2:
+  when all of these hold:
+    - pass_1 says until and since of two clauses as one sentence
+    - pass_2 puts a time phrase in front of the words it covers
+  then pass_1 runs before pass_2.
+
+=== spec-clauses-become-a-sentence-before-their-shared-words-are-said-once
+all a: ClausesInASentence, b: NoneOfThese | a->b in ahead
+--- claim-first
+For every pass_1 and every pass_2:
+  pass_1 runs before pass_2 when all of these hold:
+    - pass_1 says a few clauses as one sentence
+    - pass_2 says the subject and the verb that negative clauses share once, before "none of these"
+--- old
+For every pass_1 and every pass_2:
+  when all of these hold:
+    - pass_1 says a few clauses as one sentence
+    - pass_2 says the subject and the verb that negative clauses share once, before "none of these"
+  then pass_1 runs before pass_2.
+
+=== spec-a-rule-is-said-whenever-before-a-second-side-goes-first
+all a: FromNowOnWhenever, b: ClaimFirst | a->b in ahead
+--- claim-first
+For every pass_1 and every pass_2:
+  pass_1 runs before pass_2 when all of these hold:
+    - pass_1 says a rule at every later moment as "from now on, whenever"
+    - pass_2 says the second side of a rule before its first side
+--- old
+For every pass_1 and every pass_2:
+  when all of these hold:
+    - pass_1 says a rule at every later moment as "from now on, whenever"
+    - pass_2 says the second side of a rule before its first side
+  then pass_1 runs before pass_2.
+
+=== spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets
+all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets
+--- claim-first
+Verbalizer says a list as bullets when all of these hold:
+  - the list has an item that holds a comma
+  - the list has more than two clauses
+--- old
+When all of these hold:
+  - a list has an item that holds a comma
+  - the list has more than two clauses
+then verbalizer says the list as bullets.
+
+=== spec-a-rule-keeps-its-then-before-a-time-phrase
+all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen
+--- claim-first
+Verbalizer says a list with "then" before the time phrase when all of these hold:
+  - the list is a rule whose two sides are each one clause
+  - the list is not a rule whose first side begins with a time phrase
+  - the list is a rule whose second side begins with a time phrase
+--- old
+When all of these hold:
+  - a list is a rule whose two sides are each one clause
+  - the list is not a rule whose first side begins with a time phrase
+  - the list is a rule whose second side begins with a time phrase
+then verbalizer says the list with "then" before the time phrase.
+
+=== spec-a-rule-drops-its-then-before-anything-else
+all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) implies f in DropsThen
+--- claim-first
+Verbalizer says a list without "then" when all of these hold:
+  - the list is a rule whose two sides are each one clause
+  - the list is not a rule whose first side begins with a time phrase
+  - the list is not a rule whose second side begins with a time phrase
+--- old
+When all of these hold:
+  - a list is a rule whose two sides are each one clause
+  - the list is not a rule whose first side begins with a time phrase
+  - the list is not a rule whose second side begins with a time phrase
+then verbalizer says the list without "then".
+
+=== spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first
+all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise) implies f in SecondSideFirst
+--- claim-first
+Verbalizer says the second side of a list before its first side when all of these hold:
+  - the list is a rule whose first side is a run of clauses said as bullets
+  - the list is a rule whose second side is one line with no time phrase, relative clause, comma or "when"
+  - the list is not a rule with an "otherwise"
+--- old
+When all of these hold:
+  - a list is a rule whose first side is a run of clauses said as bullets
+  - the list is a rule whose second side is one line with no time phrase, relative clause, comma or "when"
+  - the list is not a rule with an "otherwise"
+then verbalizer says the second side of the list before its first side.
+

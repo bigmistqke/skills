@@ -1,0 +1,582 @@
+{
+ "A": {
+  "version": "claim-first",
+  "items": {
+   "a149": {
+    "id": "spec-a-word-declared-outside-a-term-is-misplaced",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "a139": {
+    "id": "axiom-a-formula-can-be-held-against-the-other-formulas",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a115": {
+    "id": "spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "a101": {
+    "id": "spec-check-reports-a-word-that-is-not-in-order",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a122": {
+    "id": "spec-a-signature-that-an-extended-document-names-keeps-a-formula-from-being-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a112": {
+    "id": "spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a157": {
+    "id": "spec-a-plugin-a-document-lists-runs-over-it",
+    "doc": "canon",
+    "role": "control"
+   },
+   "a134": {
+    "id": "spec-generate-leaves-a-current-statement-as-it-is",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "a102": {
+    "id": "spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a111": {
+    "id": "spec-a-flawed-frontmatter-is-refused",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a146": {
+    "id": "spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it",
+    "doc": "canon",
+    "role": "control"
+   },
+   "a105": {
+    "id": "spec-the-report-of-a-contradiction-names-all-the-units-of-the-group",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a156": {
+    "id": "spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a126": {
+    "id": "spec-a-plugin-a-document-does-not-list-does-not-run-over-it",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a123": {
+    "id": "spec-an-empty-list-asks-for-no-plugin",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a110": {
+    "id": "spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a108": {
+    "id": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "a140": {
+    "id": "spec-a-generated-statement-that-its-formula-would-say-again-is-current",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a155": {
+    "id": "spec-logic-succeeds-when-nothing-is-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a117": {
+    "id": "axiom-a-statement-says-what-its-logic-says",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a136": {
+    "id": "spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a147": {
+    "id": "spec-generate-fails-on-a-handwritten-statement-and-says-so",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "a143": {
+    "id": "spec-a-run-exits-with-the-worst-code-of-its-plugins",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a135": {
+    "id": "spec-a-rule-drops-its-then-before-anything-else",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a109": {
+    "id": "spec-units-that-share-a-word-are-asked-about-together",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "a144": {
+    "id": "axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a153": {
+    "id": "spec-a-command-that-is-not-available-is-reported-as-unknown",
+    "doc": "canon",
+    "role": "control"
+   },
+   "a103": {
+    "id": "spec-a-rule-keeps-its-then-before-a-time-phrase",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a121": {
+    "id": "spec-a-finding-fails-the-run",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a107": {
+    "id": "spec-check-reports-nothing-about-a-word-that-is-in-order",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a150": {
+    "id": "spec-a-list-too-long-for-a-line-is-bullets",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "a138": {
+    "id": "spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a141": {
+    "id": "spec-a-bug-names-an-issue",
+    "doc": "canon",
+    "role": "control"
+   },
+   "a127": {
+    "id": "spec-a-statement-that-a-person-wrote-is-handwritten",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a133": {
+    "id": "spec-a-block-with-no-role-word-is-the-formula-of-its-unit",
+    "doc": "canon",
+    "role": "control"
+   },
+   "a104": {
+    "id": "spec-a-formula-that-the-readings-cannot-say-is-unsayable",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a152": {
+    "id": "spec-a-rule-is-said-whenever-before-a-second-side-goes-first",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a124": {
+    "id": "spec-the-claims-of-an-extended-document-join-the-model",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a114": {
+    "id": "spec-a-word-declared-in-an-extended-document-is-declared",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a151": {
+    "id": "spec-a-unit-with-a-formula-and-no-statement-is-unwritten",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a154": {
+    "id": "spec-a-run-with-no-finding-succeeds",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a145": {
+    "id": "spec-a-reported-scenario-or-contradiction-fails-logic",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a113": {
+    "id": "spec-a-negation-moves-inward-before-noun-phrases-are-said",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "a128": {
+    "id": "spec-clauses-become-a-sentence-before-a-second-side-goes-first",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "a148": {
+    "id": "spec-clauses-become-a-sentence-before-their-shared-words-are-said-once",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a119": {
+    "id": "spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a118": {
+    "id": "spec-a-signature-that-another-unit-names-keeps-a-formula-from-being-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a132": {
+    "id": "spec-a-document-that-keeps-no-readings-has-no-formula-reported-as-lone",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "a106": {
+    "id": "spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a116": {
+    "id": "spec-a-formula-that-is-lone-on-a-signature-is-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a125": {
+    "id": "spec-a-generated-statement-that-differs-from-its-formula-is-stale",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a142": {
+    "id": "spec-a-trial-leaves-out-only-the-units-the-author-asks-about",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a120": {
+    "id": "spec-noun-phrases-are-said-before-there-is-a-that",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "a129": {
+    "id": "spec-a-reading-apart-from-the-declaration-it-says-is-apart",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a130": {
+    "id": "spec-check-reports-a-statement-that-is-not-current",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "a137": {
+    "id": "spec-a-unit-is-used",
+    "doc": "canon",
+    "role": "target"
+   },
+   "a131": {
+    "id": "spec-a-formula-that-no-other-formula-can-contradict-is-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   }
+  }
+ },
+ "B": {
+  "version": "old-order",
+  "items": {
+   "b134": {
+    "id": "spec-a-generated-statement-that-differs-from-its-formula-is-stale",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b138": {
+    "id": "spec-units-that-share-a-word-are-asked-about-together",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "b115": {
+    "id": "spec-a-statement-that-a-person-wrote-is-handwritten",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b149": {
+    "id": "spec-a-word-declared-outside-a-term-is-misplaced",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "b109": {
+    "id": "spec-a-list-too-long-for-a-line-is-bullets",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "b103": {
+    "id": "spec-generate-fails-on-a-handwritten-statement-and-says-so",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "b110": {
+    "id": "spec-a-block-with-no-role-word-is-the-formula-of-its-unit",
+    "doc": "canon",
+    "role": "control"
+   },
+   "b136": {
+    "id": "spec-a-signature-that-another-unit-names-keeps-a-formula-from-being-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b101": {
+    "id": "spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "b102": {
+    "id": "spec-a-run-with-no-finding-succeeds",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b118": {
+    "id": "spec-check-reports-nothing-about-a-word-that-is-in-order",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b146": {
+    "id": "spec-a-plugin-a-document-does-not-list-does-not-run-over-it",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b157": {
+    "id": "spec-a-rule-keeps-its-then-before-a-time-phrase",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b128": {
+    "id": "spec-a-formula-that-the-readings-cannot-say-is-unsayable",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b117": {
+    "id": "spec-a-rule-is-said-whenever-before-a-second-side-goes-first",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b121": {
+    "id": "spec-a-generated-statement-that-its-formula-would-say-again-is-current",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b116": {
+    "id": "spec-a-formula-that-is-lone-on-a-signature-is-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b123": {
+    "id": "spec-a-negation-moves-inward-before-noun-phrases-are-said",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "b106": {
+    "id": "spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b131": {
+    "id": "spec-check-reports-a-word-that-is-not-in-order",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b104": {
+    "id": "spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b148": {
+    "id": "spec-a-plugin-a-document-lists-runs-over-it",
+    "doc": "canon",
+    "role": "control"
+   },
+   "b151": {
+    "id": "spec-a-bug-names-an-issue",
+    "doc": "canon",
+    "role": "control"
+   },
+   "b150": {
+    "id": "spec-a-word-declared-in-an-extended-document-is-declared",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b113": {
+    "id": "spec-a-unit-with-a-formula-and-no-statement-is-unwritten",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b108": {
+    "id": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "b122": {
+    "id": "spec-a-formula-that-no-other-formula-can-contradict-is-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b105": {
+    "id": "spec-an-empty-list-asks-for-no-plugin",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b145": {
+    "id": "spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it",
+    "doc": "canon",
+    "role": "control"
+   },
+   "b155": {
+    "id": "spec-a-document-that-keeps-no-readings-has-no-formula-reported-as-lone",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "b137": {
+    "id": "spec-generate-leaves-a-current-statement-as-it-is",
+    "doc": "canon-plugin-alloy",
+    "role": "control"
+   },
+   "b129": {
+    "id": "spec-a-command-that-is-not-available-is-reported-as-unknown",
+    "doc": "canon",
+    "role": "control"
+   },
+   "b126": {
+    "id": "spec-a-flawed-frontmatter-is-refused",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b141": {
+    "id": "axiom-a-statement-says-what-its-logic-says",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b144": {
+    "id": "spec-noun-phrases-are-said-before-there-is-a-that",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b120": {
+    "id": "spec-a-reported-scenario-or-contradiction-fails-logic",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b124": {
+    "id": "spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b133": {
+    "id": "spec-the-report-of-a-contradiction-names-all-the-units-of-the-group",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b139": {
+    "id": "spec-a-run-exits-with-the-worst-code-of-its-plugins",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b112": {
+    "id": "spec-a-signature-that-an-extended-document-names-keeps-a-formula-from-being-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b132": {
+    "id": "axiom-a-formula-can-be-held-against-the-other-formulas",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b152": {
+    "id": "spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b107": {
+    "id": "spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b140": {
+    "id": "spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b154": {
+    "id": "axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b119": {
+    "id": "spec-a-finding-fails-the-run",
+    "doc": "canon",
+    "role": "target"
+   },
+   "b143": {
+    "id": "spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b156": {
+    "id": "spec-check-reports-a-statement-that-is-not-current",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b114": {
+    "id": "spec-a-rule-drops-its-then-before-anything-else",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b125": {
+    "id": "spec-clauses-become-a-sentence-before-a-second-side-goes-first",
+    "doc": "naturalloy",
+    "role": "control"
+   },
+   "b130": {
+    "id": "spec-a-reading-apart-from-the-declaration-it-says-is-apart",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b135": {
+    "id": "spec-logic-succeeds-when-nothing-is-reported",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b142": {
+    "id": "spec-clauses-become-a-sentence-before-their-shared-words-are-said-once",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b153": {
+    "id": "spec-a-trial-leaves-out-only-the-units-the-author-asks-about",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b111": {
+    "id": "spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets",
+    "doc": "naturalloy",
+    "role": "target"
+   },
+   "b147": {
+    "id": "spec-the-claims-of-an-extended-document-join-the-model",
+    "doc": "canon-plugin-alloy",
+    "role": "target"
+   },
+   "b127": {
+    "id": "spec-a-unit-is-used",
+    "doc": "canon",
+    "role": "target"
+   }
+  }
+ }
+}

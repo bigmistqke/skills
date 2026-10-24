@@ -1,0 +1,29 @@
+== Per version
+claim-first
+  control  45/45 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   115/126 equivalent (91%), 7 two-way, 0 converse, 0 malformed/empty/timeout
+old-order
+  control  44/45 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   124/126 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+
+== Per reader
+A/h1 (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   40/42 equivalent (95%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+A/h2 (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   33/42 equivalent (79%), 7 two-way, 0 converse, 0 malformed/empty/timeout
+A/s1 (claim-first)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/h1 (old-order)
+  control  14/15 equivalent (93%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   42/42 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/h2 (old-order)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   41/42 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+B/s1 (old-order)
+  control  15/15 equivalent (100%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+  target   41/42 equivalent (98%), 0 two-way, 0 converse, 0 malformed/empty/timeout
+
+(misses and statements: /private/tmp/claude-501/-Users-bigmistqke-Documents-GitHub-skills/3ebea1a6-1fb4-45ac-a468-2cd701db8b37/scratchpad/probe-claim-first/scores/report.txt)

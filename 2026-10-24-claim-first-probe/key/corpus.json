@@ -1,0 +1,857 @@
+[
+ {
+  "id": "spec-a-unit-is-used",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all u: Unit | (not used[u] and u not in Conflict and u not in Thread) implies u in Orphaning",
+  "irMeaning": "(all v_1: Unit | ((not (used[v_1])) and (not (v_1 in Conflict)) and (not (v_1 in Thread))) implies (v_1 in Orphaning))",
+  "claimFirst": "Checker reports an orphaning for a unit when all of these hold:\n  - the unit is not used\n  - the unit is not a conflict\n  - the unit is not a thread",
+  "oldOrder": "When all of these hold:\n  - a unit is not used\n  - the unit is not a conflict\n  - the unit is not a thread\nthen checker reports an orphaning for the unit.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | ((not (used[v_1])) and (not (v_1 in Conflict)) and (not (v_1 in Thread))) iff (v_1 in Orphaning))",
+    "converse": "(all v_1: Unit | (v_1 in Orphaning) implies ((not (used[v_1])) and (not (v_1 in Conflict)) and (not (v_1 in Thread))))"
+   }
+  ]
+ },
+ {
+  "id": "axiom-a-check-the-project-asked-for-is-never-dropped-silently",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) implies r in Exits2",
+  "irMeaning": "(all v_1: Run | (((some v_2: Frontmatter | (some v_3: Missing | lists[v_2, v_3]))) or ((some v_4: Document | v_4 in Unreadable)) or ((some v_5: Command | (not (available[v_5])) and (v_1->v_5 in Ask.rel))) or ((some v_6: Plugin | v_1->v_6 in Return.code2))) implies (v_1 in Exits2))",
+  "claimFirst": "A run exits with code 2 when at least one of these holds:\n  - there is a frontmatter that lists a missing plugin\n  - there is a document such that checker reports that the document has a frontmatter it cannot read\n  - the run asks for a command that is not available\n  - the run gets code 2 from a plugin",
+  "oldOrder": "When at least one of these holds:\n  - there is a frontmatter that lists a missing plugin\n  - there is a document such that checker reports that the document has a frontmatter it cannot read\n  - a run asks for a command that is not available\n  - the run gets code 2 from a plugin\nthen the run exits with code 2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run | (((some v_2: Frontmatter | (some v_3: Missing | lists[v_2, v_3]))) or ((some v_4: Document | v_4 in Unreadable)) or ((some v_5: Command | (not (available[v_5])) and (v_1->v_5 in Ask.rel))) or ((some v_6: Plugin | v_1->v_6 in Return.code2))) iff (v_1 in Exits2))",
+    "converse": "(all v_1: Run | (v_1 in Exits2) implies (((some v_2: Frontmatter | (some v_3: Missing | lists[v_2, v_3]))) or ((some v_4: Document | v_4 in Unreadable)) or ((some v_5: Command | (not (available[v_5])) and (v_1->v_5 in Ask.rel))) or ((some v_6: Plugin | v_1->v_6 in Return.code2))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-plugin-a-document-does-not-list-does-not-run-over-it",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) implies p->d not in Over.rel",
+  "irMeaning": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and (not (lists[v_3, v_1])) and (not (v_2 in Given))) implies (not (v_1->v_2 in Over.rel)))",
+  "claimFirst": "For every plugin, every document and every listing frontmatter:\n  checker does not run the plugin over the document when all of these hold:\n    - the document starts with the listing frontmatter\n    - the listing frontmatter does not list the plugin\n    - the command line of no run names the document",
+  "oldOrder": "For every plugin, every document and every listing frontmatter:\n  when all of these hold:\n    - the document starts with the listing frontmatter\n    - the listing frontmatter does not list the plugin\n    - the command line of no run names the document\n  then checker does not run the plugin over the document.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and (not (lists[v_3, v_1])) and (not (v_2 in Given))) iff (not (v_1->v_2 in Over.rel)))",
+    "converse": "(all v_1: Plugin, v_2: Document, v_3: Listing | (not (v_1->v_2 in Over.rel)) implies ((v_2->v_3 in Head.rel) and (not (lists[v_3, v_1])) and (not (v_2 in Given))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-an-empty-list-asks-for-no-plugin",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) implies p->d not in Over.rel",
+  "irMeaning": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and ((no v_4: Entry | v_3->v_4 in Item.rel)) and (not (v_2 in Given))) implies (not (v_1->v_2 in Over.rel)))",
+  "claimFirst": "For every plugin, every document and every listing frontmatter:\n  checker does not run the plugin over the document when all of these hold:\n    - the document starts with the listing frontmatter\n    - the listing frontmatter holds no entry\n    - the command line of no run names the document",
+  "oldOrder": "For every plugin, every document and every listing frontmatter:\n  when all of these hold:\n    - the document starts with the listing frontmatter\n    - the listing frontmatter holds no entry\n    - the command line of no run names the document\n  then checker does not run the plugin over the document.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and ((no v_4: Entry | v_3->v_4 in Item.rel)) and (not (v_2 in Given))) iff (not (v_1->v_2 in Over.rel)))",
+    "converse": "(all v_1: Plugin, v_2: Document, v_3: Listing | (not (v_1->v_2 in Over.rel)) implies ((v_2->v_3 in Head.rel) and ((no v_4: Entry | v_3->v_4 in Item.rel)) and (not (v_2 in Given))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-flawed-frontmatter-is-refused",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) implies f in Refused",
+  "irMeaning": "(all v_1: Frontmatter | ((v_1 in Misquoted) or (v_1 in Foreign) or (v_1 in Unclosed) or (v_1 in Unterminated) or (v_1 in Doubled) or (v_1 in Dangling) or (v_1 in Looping) or (v_1 in Stray)) implies (v_1 in Refused))",
+  "claimFirst": "The checker cannot read a frontmatter when at least one of these holds:\n  - the frontmatter has the flaw of an entry that starts with an at sign outside quotes\n  - the frontmatter has the flaw of a key that neither the checker nor a plugin that the frontmatter lists defines\n  - the frontmatter has the flaw of a list that is not closed\n  - the frontmatter has the flaw of a string that is not closed\n  - the frontmatter has the flaw of a key that appears twice\n  - the frontmatter has the flaw of a path that names no document\n  - the frontmatter has the flaw of an extension that leads back to its own document\n  - the frontmatter has the flaw of a setting in a document that is not the entry document",
+  "oldOrder": "When at least one of these holds:\n  - a frontmatter has the flaw of an entry that starts with an at sign outside quotes\n  - the frontmatter has the flaw of a key that neither the checker nor a plugin that the frontmatter lists defines\n  - the frontmatter has the flaw of a list that is not closed\n  - the frontmatter has the flaw of a string that is not closed\n  - the frontmatter has the flaw of a key that appears twice\n  - the frontmatter has the flaw of a path that names no document\n  - the frontmatter has the flaw of an extension that leads back to its own document\n  - the frontmatter has the flaw of a setting in a document that is not the entry document\nthen the checker cannot read the frontmatter.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Frontmatter | ((v_1 in Misquoted) or (v_1 in Foreign) or (v_1 in Unclosed) or (v_1 in Unterminated) or (v_1 in Doubled) or (v_1 in Dangling) or (v_1 in Looping) or (v_1 in Stray)) iff (v_1 in Refused))",
+    "converse": "(all v_1: Frontmatter | (v_1 in Refused) implies ((v_1 in Misquoted) or (v_1 in Foreign) or (v_1 in Unclosed) or (v_1 in Unterminated) or (v_1 in Doubled) or (v_1 in Dangling) or (v_1 in Looping) or (v_1 in Stray)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-run-exits-with-the-worst-code-of-its-plugins",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1)",
+  "irMeaning": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code2)) implies (v_1 in Exits2)) and ((((some v_3: Plugin | v_1->v_3 in Return.code1)) and ((no v_4: Plugin | v_1->v_4 in Return.code2)) and (not (stopped[v_1]))) implies (v_1 in Exits1)))",
+  "claimFirst": "For every run:\n  all of these hold:\n    - when the run gets code 2 from a plugin, the run exits with code 2\n    - the run exits with code 1 when all of these hold:\n        - the run gets code 1 from a plugin\n        - the run gets code 2 from no plugin\n        - checker does not stop the run itself",
+  "oldOrder": "For every run:\n  all of these hold:\n    - when the run gets code 2 from a plugin, the run exits with code 2\n    - when all of these hold:\n        - the run gets code 1 from a plugin\n        - the run gets code 2 from no plugin\n        - checker does not stop the run itself\n      then the run exits with code 1.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code2)) implies (v_1 in Exits2)) and ((((some v_3: Plugin | v_1->v_3 in Return.code1)) and ((no v_4: Plugin | v_1->v_4 in Return.code2)) and (not (stopped[v_1]))) iff (v_1 in Exits1)))",
+    "converse": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code2)) implies (v_1 in Exits2)) and ((v_1 in Exits1) implies (((some v_3: Plugin | v_1->v_3 in Return.code1)) and ((no v_4: Plugin | v_1->v_4 in Return.code2)) and (not (stopped[v_1])))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-finding-fails-the-run",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1",
+  "irMeaning": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code1)) and ((no v_3: Plugin | v_1->v_3 in Return.code2)) and (not (stopped[v_1]))) implies (v_1 in Exits1))",
+  "claimFirst": "A run exits with code 1 when all of these hold:\n  - the run gets code 1 from a plugin\n  - the run gets code 2 from no plugin\n  - checker does not stop the run itself",
+  "oldOrder": "When all of these hold:\n  - a run gets code 1 from a plugin\n  - the run gets code 2 from no plugin\n  - checker does not stop the run itself\nthen the run exits with code 1.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run | (((some v_2: Plugin | v_1->v_2 in Return.code1)) and ((no v_3: Plugin | v_1->v_3 in Return.code2)) and (not (stopped[v_1]))) iff (v_1 in Exits1))",
+    "converse": "(all v_1: Run | (v_1 in Exits1) implies (((some v_2: Plugin | v_1->v_2 in Return.code1)) and ((no v_3: Plugin | v_1->v_3 in Return.code2)) and (not (stopped[v_1]))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-run-with-no-finding-succeeds",
+  "doc": "canon",
+  "role": "target",
+  "formula": "all r: Run | ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) and not stopped[r]) implies r in Exits0",
+  "irMeaning": "(all v_1: Run | (((no v_2: Plugin | (v_1->v_2 in Return.code1) or (v_1->v_2 in Return.code2))) and (not (stopped[v_1]))) implies (v_1 in Exits0))",
+  "claimFirst": "A run exits with code 0 when all of these hold:\n  - there is no plugin such that the run gets code 1 from the plugin or gets code 2 from the plugin\n  - checker does not stop the run itself",
+  "oldOrder": "When all of these hold:\n  - there is no plugin such that a run gets code 1 from the plugin or gets code 2 from the plugin\n  - checker does not stop the run itself\nthen the run exits with code 0.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run | (((no v_2: Plugin | (v_1->v_2 in Return.code1) or (v_1->v_2 in Return.code2))) and (not (stopped[v_1]))) iff (v_1 in Exits0))",
+    "converse": "(all v_1: Run | (v_1 in Exits0) implies (((no v_2: Plugin | (v_1->v_2 in Return.code1) or (v_1->v_2 in Return.code2))) and (not (stopped[v_1]))))"
+   }
+  ]
+ },
+ {
+  "id": "axiom-a-statement-says-what-its-logic-says",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported",
+  "irMeaning": "(all v_1: Document, v_2: Unit | ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))) implies (v_2 in Reported))",
+  "claimFirst": "For every document and every unit:\n  checker reports the statement of the unit when all of these hold:\n    - the document keeps readings\n    - the document holds the unit\n    - the unit holds a formula\n    - the statement of the unit is not current",
+  "oldOrder": "For every document and every unit:\n  when all of these hold:\n    - the document keeps readings\n    - the document holds the unit\n    - the unit holds a formula\n    - the statement of the unit is not current\n  then checker reports the statement of the unit.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Document, v_2: Unit | ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))) iff (v_2 in Reported))",
+    "converse": "(all v_1: Document, v_2: Unit | (v_2 in Reported) implies ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-unit-with-a-formula-and-no-statement-is-unwritten",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) implies u in Unwritten",
+  "irMeaning": "(all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Stated)) and (not (v_1 in Unsayable))) implies (v_1 in Unwritten))",
+  "claimFirst": "The statement of a unit is unwritten when all of these hold:\n  - the unit holds a formula\n  - the unit has no statement\n  - the formula of the unit can be said in words",
+  "oldOrder": "When all of these hold:\n  - a unit holds a formula\n  - the unit has no statement\n  - the formula of the unit can be said in words\nthen the statement of the unit is unwritten.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Stated)) and (not (v_1 in Unsayable))) iff (v_1 in Unwritten))",
+    "converse": "(all v_1: Unit | (v_1 in Unwritten) implies ((v_1 in Logical) and (not (v_1 in Stated)) and (not (v_1 in Unsayable))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-generated-statement-that-differs-from-its-formula-is-stale",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) implies u in Stale",
+  "irMeaning": "(all v_1: Unit | ((v_1 in Logical) and (v_1 in Generated) and (v_1 in Differs) and (not (v_1 in Unsayable))) implies (v_1 in Stale))",
+  "claimFirst": "The statement of a unit is stale when all of these hold:\n  - the unit holds a formula\n  - the statement of the unit sits between the markers of a generated region\n  - the statement of the unit differs from what its formula says\n  - the formula of the unit can be said in words",
+  "oldOrder": "When all of these hold:\n  - a unit holds a formula\n  - the statement of the unit sits between the markers of a generated region\n  - the statement of the unit differs from what its formula says\n  - the formula of the unit can be said in words\nthen the statement of the unit is stale.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | ((v_1 in Logical) and (v_1 in Generated) and (v_1 in Differs) and (not (v_1 in Unsayable))) iff (v_1 in Stale))",
+    "converse": "(all v_1: Unit | (v_1 in Stale) implies ((v_1 in Logical) and (v_1 in Generated) and (v_1 in Differs) and (not (v_1 in Unsayable))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-generated-statement-that-its-formula-would-say-again-is-current",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit | ((u in Logical and u in Generated and u not in Differs and u not in Unsayable and u not in Misread) implies u in Current) and (u not in Logical implies u not in Current)",
+  "irMeaning": "(all v_1: Unit | (((v_1 in Logical) and (v_1 in Generated) and (not (v_1 in Differs)) and (not (v_1 in Unsayable)) and (not (v_1 in Misread))) implies (v_1 in Current)) and ((not (v_1 in Logical)) implies (not (v_1 in Current))))",
+  "claimFirst": "For every unit:\n  all of these hold:\n    - the statement of the unit is current when all of these hold:\n        - the unit holds a formula\n        - the statement of the unit sits between the markers of a generated region\n        - the statement of the unit does not differ from what its formula says\n        - the formula of the unit can be said in words\n        - the statement of the unit reads back as its formula alone\n    - when the unit holds no formula, the statement of the unit is not current",
+  "oldOrder": "For every unit:\n  all of these hold:\n    - when all of these hold:\n        - the unit holds a formula\n        - the statement of the unit sits between the markers of a generated region\n        - the statement of the unit does not differ from what its formula says\n        - the formula of the unit can be said in words\n        - the statement of the unit reads back as its formula alone\n      then the statement of the unit is current\n    - when the unit holds no formula, the statement of the unit is not current",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | (((v_1 in Logical) and (v_1 in Generated) and (not (v_1 in Differs)) and (not (v_1 in Unsayable)) and (not (v_1 in Misread))) iff (v_1 in Current)) and ((not (v_1 in Logical)) implies (not (v_1 in Current))))",
+    "converse": "(all v_1: Unit | ((v_1 in Current) implies ((v_1 in Logical) and (v_1 in Generated) and (not (v_1 in Differs)) and (not (v_1 in Unsayable)) and (not (v_1 in Misread)))) and ((not (v_1 in Logical)) implies (not (v_1 in Current))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-statement-that-a-person-wrote-is-handwritten",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) implies u in Handwritten",
+  "irMeaning": "(all v_1: Unit | ((v_1 in Logical) and (v_1 in Stated) and (not (v_1 in Generated)) and (not (v_1 in Unsayable))) implies (v_1 in Handwritten))",
+  "claimFirst": "The statement of a unit is handwritten when all of these hold:\n  - the unit holds a formula\n  - the unit has a statement\n  - the statement of the unit does not sit between the markers of a generated region\n  - the formula of the unit can be said in words",
+  "oldOrder": "When all of these hold:\n  - a unit holds a formula\n  - the unit has a statement\n  - the statement of the unit does not sit between the markers of a generated region\n  - the formula of the unit can be said in words\nthen the statement of the unit is handwritten.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | ((v_1 in Logical) and (v_1 in Stated) and (not (v_1 in Generated)) and (not (v_1 in Unsayable))) iff (v_1 in Handwritten))",
+    "converse": "(all v_1: Unit | (v_1 in Handwritten) implies ((v_1 in Logical) and (v_1 in Stated) and (not (v_1 in Generated)) and (not (v_1 in Unsayable))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-formula-that-the-readings-cannot-say-is-unsayable",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit | (u in Wordless or u in Twofold) implies u in Unsayable",
+  "irMeaning": "(all v_1: Unit | ((v_1 in Wordless) or (v_1 in Twofold)) implies (v_1 in Unsayable))",
+  "claimFirst": "The formula of a unit cannot be said in words when at least one of these holds:\n  - the formula of the unit names a word that has no reading\n  - the unit holds more than one formula",
+  "oldOrder": "When at least one of these holds:\n  - the formula of a unit names a word that has no reading\n  - the unit holds more than one formula\nthen the formula of the unit cannot be said in words.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | ((v_1 in Wordless) or (v_1 in Twofold)) iff (v_1 in Unsayable))",
+    "converse": "(all v_1: Unit | (v_1 in Unsayable) implies ((v_1 in Wordless) or (v_1 in Twofold)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-fault-of-the-verbalizer-fails-the-run-and-is-not-explained-as-unsayable",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "(all u: Unit | u in Faulted implies u not in Explained)\nand (all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies r not in Exits0)",
+  "irMeaning": "((all v_1: Unit | (v_1 in Faulted) implies (not (v_1 in Explained)))) and ((all v_2: Run, v_3: Command, v_4: Unit | ((v_2->v_3 in Ask.rel) and ((v_3 in GenerateCommand) or (v_3 in CheckCommand)) and (v_4 in Faulted)) implies (not (v_2 in Exits0))))",
+  "claimFirst": "All of these hold:\n  - when the verbalizer fails on the formula of a unit with a fault of its own, checker does not say why the formula of the unit cannot be said\n  - for every run, every command_1 and every unit:\n      the run does not exit with code 0 when all of these hold:\n        - the run asks for command_1\n        - command_1 is the command `generate` or is the command `check`\n        - the verbalizer fails on the formula of the unit with a fault of its own",
+  "oldOrder": "All of these hold:\n  - when the verbalizer fails on the formula of a unit with a fault of its own, checker does not say why the formula of the unit cannot be said\n  - for every run, every command_1 and every unit:\n      when all of these hold:\n        - the run asks for command_1\n        - command_1 is the command `generate` or is the command `check`\n        - the verbalizer fails on the formula of the unit with a fault of its own\n      then the run does not exit with code 0.",
+  "misreadings": [
+   {
+    "twoWay": "((all v_1: Unit | (v_1 in Faulted) implies (not (v_1 in Explained)))) and ((all v_2: Run, v_3: Command, v_4: Unit | ((v_2->v_3 in Ask.rel) and ((v_3 in GenerateCommand) or (v_3 in CheckCommand)) and (v_4 in Faulted)) iff (not (v_2 in Exits0))))",
+    "converse": "((all v_1: Unit | (v_1 in Faulted) implies (not (v_1 in Explained)))) and ((all v_2: Run, v_3: Command, v_4: Unit | (not (v_2 in Exits0)) implies ((v_2->v_3 in Ask.rel) and ((v_3 in GenerateCommand) or (v_3 in CheckCommand)) and (v_4 in Faulted))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-check-reports-a-statement-that-is-not-current",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) implies u in Reported",
+  "irMeaning": "(all v_1: Document, v_2: Unit | ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))) implies (v_2 in Reported))",
+  "claimFirst": "For every document and every unit:\n  checker reports the statement of the unit when all of these hold:\n    - the document keeps readings\n    - the document holds the unit\n    - the unit holds a formula\n    - the statement of the unit is not current",
+  "oldOrder": "For every document and every unit:\n  when all of these hold:\n    - the document keeps readings\n    - the document holds the unit\n    - the unit holds a formula\n    - the statement of the unit is not current\n  then checker reports the statement of the unit.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Document, v_2: Unit | ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))) iff (v_2 in Reported))",
+    "converse": "(all v_1: Document, v_2: Unit | (v_2 in Reported) implies ((v_1 in Worded) and (v_1->v_2 in Hold.units) and (v_2 in Logical) and (not (v_2 in Current))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-word-that-a-reading-says-and-nothing-declares-is-undeclared",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) implies w in Undeclared",
+  "irMeaning": "(all v_1: Word | (((some v_2: Unit | v_2->v_1 in Voice.rel)) and ((no v_3: Unit | v_3->v_1 in Introduce.rel))) implies (v_1 in Undeclared))",
+  "claimFirst": "A word is said by a reading and declared by nothing when all of these hold:\n  - there is a unit_1 such that a reading in unit_1 says the word\n  - no unit declares the word",
+  "oldOrder": "When all of these hold:\n  - there is a unit_1 such that a reading in unit_1 says a word\n  - no unit declares the word\nthen the word is said by a reading and declared by nothing.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Word | (((some v_2: Unit | v_2->v_1 in Voice.rel)) and ((no v_3: Unit | v_3->v_1 in Introduce.rel))) iff (v_1 in Undeclared))",
+    "converse": "(all v_1: Word | (v_1 in Undeclared) implies (((some v_2: Unit | v_2->v_1 in Voice.rel)) and ((no v_3: Unit | v_3->v_1 in Introduce.rel))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-reading-apart-from-the-declaration-it-says-is-apart",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) implies w in Apart",
+  "irMeaning": "(all v_1: Unit, v_2: Word | ((v_1->v_2 in Voice.rel) and ((some v_3: Unit | v_3->v_2 in Introduce.rel)) and (not (v_1->v_2 in Introduce.rel))) implies (v_2 in Apart))",
+  "claimFirst": "For every unit_1 and every word:\n  the reading of the word is in another unit than its declaration when all of these hold:\n    - a reading in unit_1 says the word\n    - a unit declares the word\n    - unit_1 does not declare the word",
+  "oldOrder": "For every unit_1 and every word:\n  when all of these hold:\n    - a reading in unit_1 says the word\n    - a unit declares the word\n    - unit_1 does not declare the word\n  then the reading of the word is in another unit than its declaration.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit, v_2: Word | ((v_1->v_2 in Voice.rel) and ((some v_3: Unit | v_3->v_2 in Introduce.rel)) and (not (v_1->v_2 in Introduce.rel))) iff (v_2 in Apart))",
+    "converse": "(all v_1: Unit, v_2: Word | (v_2 in Apart) implies ((v_1->v_2 in Voice.rel) and ((some v_3: Unit | v_3->v_2 in Introduce.rel)) and (not (v_1->v_2 in Introduce.rel))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-check-reports-nothing-about-a-word-that-is-in-order",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) implies w not in Flagged",
+  "irMeaning": "(all v_1: Word | ((not (v_1 in Undeclared)) and (not (v_1 in Misplaced)) and (not (v_1 in Apart)) and (not (v_1 in Unused))) implies (not (v_1 in Flagged)))",
+  "claimFirst": "For every word_1:\n  checker does not report the word word_1 when all of these hold:\n    - word_1 is said by no reading or is declared\n    - word_1 is not declared in a unit that is not a term\n    - the reading of word_1 is in the unit of its declaration\n    - a claim, a definition or a fact uses word_1",
+  "oldOrder": "For every word_1:\n  when all of these hold:\n    - word_1 is said by no reading or is declared\n    - word_1 is not declared in a unit that is not a term\n    - the reading of word_1 is in the unit of its declaration\n    - a claim, a definition or a fact uses word_1\n  then checker does not report the word word_1.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Word | ((not (v_1 in Undeclared)) and (not (v_1 in Misplaced)) and (not (v_1 in Apart)) and (not (v_1 in Unused))) iff (not (v_1 in Flagged)))",
+    "converse": "(all v_1: Word | (not (v_1 in Flagged)) implies ((not (v_1 in Undeclared)) and (not (v_1 in Misplaced)) and (not (v_1 in Apart)) and (not (v_1 in Unused))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-check-reports-a-word-that-is-not-in-order",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) implies w in Flagged",
+  "irMeaning": "(all v_1: Word | ((v_1 in Undeclared) or (v_1 in Misplaced) or (v_1 in Apart) or (v_1 in Unused)) implies (v_1 in Flagged))",
+  "claimFirst": "For every word_1:\n  checker reports the word word_1 when at least one of these holds:\n    - word_1 is said by a reading and declared by nothing\n    - word_1 is declared in a unit that is not a term\n    - the reading of word_1 is in another unit than its declaration\n    - no claim, definition or fact uses word_1",
+  "oldOrder": "For every word_1:\n  when at least one of these holds:\n    - word_1 is said by a reading and declared by nothing\n    - word_1 is declared in a unit that is not a term\n    - the reading of word_1 is in another unit than its declaration\n    - no claim, definition or fact uses word_1\n  then checker reports the word word_1.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Word | ((v_1 in Undeclared) or (v_1 in Misplaced) or (v_1 in Apart) or (v_1 in Unused)) iff (v_1 in Flagged))",
+    "converse": "(all v_1: Word | (v_1 in Flagged) implies ((v_1 in Undeclared) or (v_1 in Misplaced) or (v_1 in Apart) or (v_1 in Unused)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-word-declared-in-an-extended-document-is-declared",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and u->w in Voice.rel and e->v in Hold.units and v->w in Introduce.rel) implies w not in Undeclared",
+  "irMeaning": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_3->v_5 in Voice.rel) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Introduce.rel)) implies (not (v_5 in Undeclared)))",
+  "claimFirst": "For every document_1, every document_2, every unit_1, every unit_2 and every word:\n  the word is said by no reading or is declared when all of these hold:\n    - document_2 is context for document_1\n    - document_1 holds unit_1\n    - a reading in unit_1 says the word\n    - document_2 holds unit_2\n    - unit_2 declares the word",
+  "oldOrder": "For every document_1, every document_2, every unit_1, every unit_2 and every word:\n  when all of these hold:\n    - document_2 is context for document_1\n    - document_1 holds unit_1\n    - a reading in unit_1 says the word\n    - document_2 holds unit_2\n    - unit_2 declares the word\n  then the word is said by no reading or is declared.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_3->v_5 in Voice.rel) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Introduce.rel)) iff (not (v_5 in Undeclared)))",
+    "converse": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | (not (v_5 in Undeclared)) implies ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_3->v_5 in Voice.rel) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Introduce.rel)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-trial-leaves-out-one-held-unit-and-keeps-the-rest",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all s: Search | s in Trial implies (one u: Unit | s->u in Leave.rel and u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))",
+  "irMeaning": "(all v_1: Search | (v_1 in Trial) implies ((one v_2: Unit | (v_1->v_2 in Leave.rel) and (v_2 in Held) and (not (v_1->v_2 in Pose.units)) and ((all v_3: Unit | ((v_3 in Held) and (v_3 != v_2)) implies (v_1->v_3 in Pose.units))))))",
+  "claimFirst": "When a search leaves one unit out\nthen there is exactly one unit_1 such that all of these hold:\n       - the search leaves out unit_1\n       - the analyzer is asked to hold the formula of unit_1\n       - the search does not require unit_1 to hold\n       - for every unit_2:\n           the search requires unit_2 to hold when all of these hold:\n             - the analyzer is asked to hold the formula of unit_2\n             - unit_2 and unit_1 are different",
+  "oldOrder": "When a search leaves one unit out\nthen there is exactly one unit_1 such that all of these hold:\n       - the search leaves out unit_1\n       - the analyzer is asked to hold the formula of unit_1\n       - the search does not require unit_1 to hold\n       - for every unit_2:\n           when all of these hold:\n             - the analyzer is asked to hold the formula of unit_2\n             - unit_2 and unit_1 are different\n           then the search requires unit_2 to hold.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Search | (v_1 in Trial) implies ((one v_2: Unit | (v_1->v_2 in Leave.rel) and (v_2 in Held) and (not (v_1->v_2 in Pose.units)) and ((all v_3: Unit | ((v_3 in Held) and (v_3 != v_2)) iff (v_1->v_3 in Pose.units))))))",
+    "converse": "(all v_1: Search | (v_1 in Trial) implies ((one v_2: Unit | (v_1->v_2 in Leave.rel) and (v_2 in Held) and (not (v_1->v_2 in Pose.units)) and ((all v_3: Unit | (v_1->v_3 in Pose.units) implies ((v_3 in Held) and (v_3 != v_2)))))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-trial-leaves-out-only-the-units-the-author-asks-about",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel and (some v: Unit | c->v in Probe.rel)) implies c->u in Probe.rel",
+  "irMeaning": "(all v_1: Search, v_2: Scenario, v_3: Unit | ((v_1 in Trial) and (v_1->v_2 in Pose.scenario) and (v_1->v_3 in Leave.rel) and ((some v_4: Unit | v_2->v_4 in Probe.rel))) implies (v_2->v_3 in Probe.rel))",
+  "claimFirst": "For every search, every scenario and every unit_1:\n  the author asks about leaving out unit_1 for the scenario when all of these hold:\n    - the search leaves one unit out\n    - the search requires the scenario to happen\n    - the search leaves out unit_1\n    - there is a unit_2 such that the author asks about leaving out unit_2 for the scenario",
+  "oldOrder": "For every search, every scenario and every unit_1:\n  when all of these hold:\n    - the search leaves one unit out\n    - the search requires the scenario to happen\n    - the search leaves out unit_1\n    - there is a unit_2 such that the author asks about leaving out unit_2 for the scenario\n  then the author asks about leaving out unit_1 for the scenario.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Search, v_2: Scenario, v_3: Unit | ((v_1 in Trial) and (v_1->v_2 in Pose.scenario) and (v_1->v_3 in Leave.rel) and ((some v_4: Unit | v_2->v_4 in Probe.rel))) iff (v_2->v_3 in Probe.rel))",
+    "converse": "(all v_1: Search, v_2: Scenario, v_3: Unit | (v_2->v_3 in Probe.rel) implies ((v_1 in Trial) and (v_1->v_2 in Pose.scenario) and (v_1->v_3 in Leave.rel) and ((some v_4: Unit | v_2->v_4 in Probe.rel))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-the-report-of-a-scenario-names-each-unit-whose-removal-lets-it-happen",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all c: Scenario, u: Unit | (c in Raised and u->c in Frees.rel) implies c->u in Blame.rel",
+  "irMeaning": "(all v_1: Scenario, v_2: Unit | ((v_1 in Raised) and (v_2->v_1 in Frees.rel)) implies (v_1->v_2 in Blame.rel))",
+  "claimFirst": "For every scenario and every unit:\n  checker names the unit in its report of the scenario when all of these hold:\n    - checker reports that the scenario cannot happen\n    - leaving out the unit lets the scenario happen",
+  "oldOrder": "For every scenario and every unit:\n  when all of these hold:\n    - checker reports that the scenario cannot happen\n    - leaving out the unit lets the scenario happen\n  then checker names the unit in its report of the scenario.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Scenario, v_2: Unit | ((v_1 in Raised) and (v_2->v_1 in Frees.rel)) iff (v_1->v_2 in Blame.rel))",
+    "converse": "(all v_1: Scenario, v_2: Unit | (v_1->v_2 in Blame.rel) implies ((v_1 in Raised) and (v_2->v_1 in Frees.rel)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-the-report-of-a-contradiction-names-all-the-units-of-the-group",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit, v: Unit | (u in Contradicting and u->v in Together.rel) implies v in Named",
+  "irMeaning": "(all v_1: Unit, v_2: Unit | ((v_1 in Contradicting) and (v_1->v_2 in Together.rel)) implies (v_2 in Named))",
+  "claimFirst": "For every unit_1 and every unit_2:\n  checker names unit_2 in its report of a contradiction when all of these hold:\n    - unit_1 is held with units that cannot all hold\n    - the analyzer is asked about unit_1 together with unit_2",
+  "oldOrder": "For every unit_1 and every unit_2:\n  when all of these hold:\n    - unit_1 is held with units that cannot all hold\n    - the analyzer is asked about unit_1 together with unit_2\n  then checker names unit_2 in its report of a contradiction.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit, v_2: Unit | ((v_1 in Contradicting) and (v_1->v_2 in Together.rel)) iff (v_2 in Named))",
+    "converse": "(all v_1: Unit, v_2: Unit | (v_2 in Named) implies ((v_1 in Contradicting) and (v_1->v_2 in Together.rel)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-logic-succeeds-when-nothing-is-reported",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) implies r in Exits0",
+  "irMeaning": "(all v_1: Run, v_2: LogicCommand | ((v_1->v_2 in Ask.rel) and ((no v_3: Scenario | v_3 in Raised)) and ((no v_4: Unit | v_4 in Contradicting))) implies (v_1 in Exits0))",
+  "claimFirst": "For every run and every logic command:\n  the run exits with code 0 when all of these hold:\n    - the run asks for the logic command\n    - there is no scenario such that checker reports that the scenario cannot happen\n    - no unit is held with units that cannot all hold",
+  "oldOrder": "For every run and every logic command:\n  when all of these hold:\n    - the run asks for the logic command\n    - there is no scenario such that checker reports that the scenario cannot happen\n    - no unit is held with units that cannot all hold\n  then the run exits with code 0.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run, v_2: LogicCommand | ((v_1->v_2 in Ask.rel) and ((no v_3: Scenario | v_3 in Raised)) and ((no v_4: Unit | v_4 in Contradicting))) iff (v_1 in Exits0))",
+    "converse": "(all v_1: Run, v_2: LogicCommand | (v_1 in Exits0) implies ((v_1->v_2 in Ask.rel) and ((no v_3: Scenario | v_3 in Raised)) and ((no v_4: Unit | v_4 in Contradicting))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-reported-scenario-or-contradiction-fails-logic",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u: Unit | u in Contradicting))) implies r not in Exits0",
+  "irMeaning": "(all v_1: Run, v_2: LogicCommand | ((v_1->v_2 in Ask.rel) and (((some v_3: Scenario | v_3 in Raised)) or ((some v_4: Unit | v_4 in Contradicting)))) implies (not (v_1 in Exits0)))",
+  "claimFirst": "For every run and every logic command:\n  the run does not exit with code 0 when all of these hold:\n    - the run asks for the logic command\n    - at least one of these holds:\n        - there is a scenario such that checker reports that the scenario cannot happen\n        - there is a unit that is held with units that cannot all hold",
+  "oldOrder": "For every run and every logic command:\n  when all of these hold:\n    - the run asks for the logic command\n    - at least one of these holds:\n        - there is a scenario such that checker reports that the scenario cannot happen\n        - there is a unit that is held with units that cannot all hold\n  then the run does not exit with code 0.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run, v_2: LogicCommand | ((v_1->v_2 in Ask.rel) and (((some v_3: Scenario | v_3 in Raised)) or ((some v_4: Unit | v_4 in Contradicting)))) iff (not (v_1 in Exits0)))",
+    "converse": "(all v_1: Run, v_2: LogicCommand | (not (v_1 in Exits0)) implies ((v_1->v_2 in Ask.rel) and (((some v_3: Scenario | v_3 in Raised)) or ((some v_4: Unit | v_4 in Contradicting)))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-the-claims-of-an-extended-document-join-the-model",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) implies u in Held",
+  "irMeaning": "(all v_1: Document, v_2: Document, v_3: Unit | ((v_1 in Checked) and (v_1->v_2 in Context.rel) and (v_2->v_3 in Hold.units) and (v_3 in BareFormula)) implies (v_3 in Held))",
+  "claimFirst": "For every document_1, every document_2 and every unit:\n  the analyzer is asked to hold the formula of the unit when all of these hold:\n    - the project lists document_1 among the documents it checks\n    - document_2 is context for document_1\n    - document_2 holds the unit\n    - the unit holds a formula with no keyword",
+  "oldOrder": "For every document_1, every document_2 and every unit:\n  when all of these hold:\n    - the project lists document_1 among the documents it checks\n    - document_2 is context for document_1\n    - document_2 holds the unit\n    - the unit holds a formula with no keyword\n  then the analyzer is asked to hold the formula of the unit.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Document, v_2: Document, v_3: Unit | ((v_1 in Checked) and (v_1->v_2 in Context.rel) and (v_2->v_3 in Hold.units) and (v_3 in BareFormula)) iff (v_3 in Held))",
+    "converse": "(all v_1: Document, v_2: Document, v_3: Unit | (v_3 in Held) implies ((v_1 in Checked) and (v_1->v_2 in Context.rel) and (v_2->v_3 in Hold.units) and (v_3 in BareFormula)))"
+   }
+  ]
+ },
+ {
+  "id": "axiom-a-formula-can-be-held-against-the-other-formulas",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)",
+  "irMeaning": "((all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)) implies ((some v_2: Signature | v_1->v_2 in Expose.rel)))) and ((all v_3: Unit, v_4: Word | (v_3->v_4 in Expose.rel) implies (v_3 in Unchallenged)))",
+  "claimFirst": "All of these hold:\n  - checker reports the formula of a unit as lone on a signature when all of these hold:\n      - the unit holds a formula\n      - the unit is not a term\n      - no other formula can contradict the formula of the unit\n  - for every unit and every word:\n      when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.",
+  "oldOrder": "All of these hold:\n  - when all of these hold:\n      - a unit holds a formula\n      - the unit is not a term\n      - no other formula can contradict the formula of the unit\n    then checker reports the formula of the unit as lone on a signature\n  - for every unit and every word:\n      when checker reports the formula of the unit as lone on the word, no other formula can contradict the formula of the unit.",
+  "misreadings": [
+   {
+    "twoWay": "((all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)) iff ((some v_2: Signature | v_1->v_2 in Expose.rel)))) and ((all v_3: Unit, v_4: Word | (v_3->v_4 in Expose.rel) implies (v_3 in Unchallenged)))",
+    "converse": "((all v_1: Unit | ((some v_2: Signature | v_1->v_2 in Expose.rel)) implies ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)))) and ((all v_3: Unit, v_4: Word | (v_3->v_4 in Expose.rel) implies (v_3 in Unchallenged)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-formula-that-no-other-formula-can-contradict-is-reported",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)",
+  "irMeaning": "(all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)) implies ((some v_2: Signature | v_1->v_2 in Expose.rel)))",
+  "claimFirst": "Checker reports the formula of a unit as lone on a signature when all of these hold:\n  - the unit holds a formula\n  - the unit is not a term\n  - no other formula can contradict the formula of the unit",
+  "oldOrder": "When all of these hold:\n  - a unit holds a formula\n  - the unit is not a term\n  - no other formula can contradict the formula of the unit\nthen checker reports the formula of the unit as lone on a signature.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)) iff ((some v_2: Signature | v_1->v_2 in Expose.rel)))",
+    "converse": "(all v_1: Unit | ((some v_2: Signature | v_1->v_2 in Expose.rel)) implies ((v_1 in Logical) and (not (v_1 in Term)) and (v_1 in Unchallenged)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-formula-that-is-lone-on-a-signature-is-reported",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) implies u->w in Expose.rel",
+  "irMeaning": "(all v_1: Unit, v_2: Signature | ((v_1 in Logical) and (not (v_1 in Term)) and (loneOn[v_1, v_2])) implies (v_1->v_2 in Expose.rel))",
+  "claimFirst": "For every unit and every signature:\n  checker reports the formula of the unit as lone on the signature when all of these hold:\n    - the unit holds a formula\n    - the unit is not a term\n    - the formula of the unit is lone on the signature",
+  "oldOrder": "For every unit and every signature:\n  when all of these hold:\n    - the unit holds a formula\n    - the unit is not a term\n    - the formula of the unit is lone on the signature\n  then checker reports the formula of the unit as lone on the signature.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit, v_2: Signature | ((v_1 in Logical) and (not (v_1 in Term)) and (loneOn[v_1, v_2])) iff (v_1->v_2 in Expose.rel))",
+    "converse": "(all v_1: Unit, v_2: Signature | (v_1->v_2 in Expose.rel) implies ((v_1 in Logical) and (not (v_1 in Term)) and (loneOn[v_1, v_2])))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-signature-that-another-unit-names-keeps-a-formula-from-being-reported",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all u: Unit, v: Unit, w: Word | (v != u and v->w in Utter.rel) implies u->w not in Expose.rel",
+  "irMeaning": "(all v_1: Unit, v_2: Unit, v_3: Word | ((v_2 != v_1) and (v_2->v_3 in Utter.rel)) implies (not (v_1->v_3 in Expose.rel)))",
+  "claimFirst": "For every unit_1, every unit_2 and every word:\n  checker does not report the formula of unit_1 as lone on the word when all of these hold:\n    - unit_2 and unit_1 are different\n    - a block of unit_2 names the word outside its declaration",
+  "oldOrder": "For every unit_1, every unit_2 and every word:\n  when all of these hold:\n    - unit_2 and unit_1 are different\n    - a block of unit_2 names the word outside its declaration\n  then checker does not report the formula of unit_1 as lone on the word.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit, v_2: Unit, v_3: Word | ((v_2 != v_1) and (v_2->v_3 in Utter.rel)) iff (not (v_1->v_3 in Expose.rel)))",
+    "converse": "(all v_1: Unit, v_2: Unit, v_3: Word | (not (v_1->v_3 in Expose.rel)) implies ((v_2 != v_1) and (v_2->v_3 in Utter.rel)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-signature-that-an-extended-document-names-keeps-a-formula-from-being-reported",
+  "doc": "canon-plugin-alloy",
+  "role": "target",
+  "formula": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and v->w in Utter.rel) implies u->w not in Expose.rel",
+  "irMeaning": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Utter.rel)) implies (not (v_3->v_5 in Expose.rel)))",
+  "claimFirst": "For every document_1, every document_2, every unit_1, every unit_2 and every word:\n  checker does not report the formula of unit_1 as lone on the word when all of these hold:\n    - document_2 is context for document_1\n    - document_1 holds unit_1\n    - document_2 holds unit_2\n    - a block of unit_2 names the word outside its declaration",
+  "oldOrder": "For every document_1, every document_2, every unit_1, every unit_2 and every word:\n  when all of these hold:\n    - document_2 is context for document_1\n    - document_1 holds unit_1\n    - document_2 holds unit_2\n    - a block of unit_2 names the word outside its declaration\n  then checker does not report the formula of unit_1 as lone on the word.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Utter.rel)) iff (not (v_3->v_5 in Expose.rel)))",
+    "converse": "(all v_1: Document, v_2: Document, v_3: Unit, v_4: Unit, v_5: Word | (not (v_3->v_5 in Expose.rel)) implies ((v_1->v_2 in Context.rel) and (v_1->v_3 in Hold.units) and (v_2->v_4 in Hold.units) and (v_4->v_5 in Utter.rel)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-noun-phrases-are-said-before-there-is-a-that",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all a: NounPhrases, b: ThereIsAThat | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in NounPhrases) and (v_2 in ThereIsAThat)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  pass_1 runs before pass_2 when all of these hold:\n    - pass_1 says a quantifier as a noun phrase\n    - pass_2 says a quantifier of its variable alone as \"there is a … that\"",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when all of these hold:\n    - pass_1 says a quantifier as a noun phrase\n    - pass_2 says a quantifier of its variable alone as \"there is a … that\"\n  then pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in NounPhrases) and (v_2 in ThereIsAThat)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in NounPhrases) and (v_2 in ThereIsAThat)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-set-equal-to-a-variable-is-said-before-quantifiers-of-for-every-become-one",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all a: XAndNoOther, b: ForEveryTogether | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in XAndNoOther) and (v_2 in ForEveryTogether)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  pass_1 runs before pass_2 when all of these hold:\n    - pass_1 says a set equal to a variable as that variable and no other\n    - pass_2 makes nested quantifiers of \"for every\" one",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when all of these hold:\n    - pass_1 says a set equal to a variable as that variable and no other\n    - pass_2 makes nested quantifiers of \"for every\" one\n  then pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in XAndNoOther) and (v_2 in ForEveryTogether)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in XAndNoOther) and (v_2 in ForEveryTogether)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-until-is-said-in-a-sentence-before-a-time-phrase-goes-in-front",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all a: UntilInASentence, b: TimePhraseInFront | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in UntilInASentence) and (v_2 in TimePhraseInFront)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  pass_1 runs before pass_2 when all of these hold:\n    - pass_1 says until and since of two clauses as one sentence\n    - pass_2 puts a time phrase in front of the words it covers",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when all of these hold:\n    - pass_1 says until and since of two clauses as one sentence\n    - pass_2 puts a time phrase in front of the words it covers\n  then pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in UntilInASentence) and (v_2 in TimePhraseInFront)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in UntilInASentence) and (v_2 in TimePhraseInFront)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-clauses-become-a-sentence-before-their-shared-words-are-said-once",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all a: ClausesInASentence, b: NoneOfThese | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in NoneOfThese)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  pass_1 runs before pass_2 when all of these hold:\n    - pass_1 says a few clauses as one sentence\n    - pass_2 says the subject and the verb that negative clauses share once, before \"none of these\"",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when all of these hold:\n    - pass_1 says a few clauses as one sentence\n    - pass_2 says the subject and the verb that negative clauses share once, before \"none of these\"\n  then pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in NoneOfThese)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in ClausesInASentence) and (v_2 in NoneOfThese)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-rule-is-said-whenever-before-a-second-side-goes-first",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all a: FromNowOnWhenever, b: ClaimFirst | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in FromNowOnWhenever) and (v_2 in ClaimFirst)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  pass_1 runs before pass_2 when all of these hold:\n    - pass_1 says a rule at every later moment as \"from now on, whenever\"\n    - pass_2 says the second side of a rule before its first side",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when all of these hold:\n    - pass_1 says a rule at every later moment as \"from now on, whenever\"\n    - pass_2 says the second side of a rule before its first side\n  then pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in FromNowOnWhenever) and (v_2 in ClaimFirst)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in FromNowOnWhenever) and (v_2 in ClaimFirst)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-list-with-a-comma-in-an-item-and-more-than-two-clauses-is-bullets",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all f: Series | (f in CommaItem and f in MoreThanTwo) implies f in AsBullets",
+  "irMeaning": "(all v_1: Series | ((v_1 in CommaItem) and (v_1 in MoreThanTwo)) implies (v_1 in AsBullets))",
+  "claimFirst": "Verbalizer says a list as bullets when all of these hold:\n  - the list has an item that holds a comma\n  - the list has more than two clauses",
+  "oldOrder": "When all of these hold:\n  - a list has an item that holds a comma\n  - the list has more than two clauses\nthen verbalizer says the list as bullets.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Series | ((v_1 in CommaItem) and (v_1 in MoreThanTwo)) iff (v_1 in AsBullets))",
+    "converse": "(all v_1: Series | (v_1 in AsBullets) implies ((v_1 in CommaItem) and (v_1 in MoreThanTwo)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-rule-keeps-its-then-before-a-time-phrase",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) implies f in KeepsThen",
+  "irMeaning": "(all v_1: Series | ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (v_1 in TimeSecond)) implies (v_1 in KeepsThen))",
+  "claimFirst": "Verbalizer says a list with \"then\" before the time phrase when all of these hold:\n  - the list is a rule whose two sides are each one clause\n  - the list is not a rule whose first side begins with a time phrase\n  - the list is a rule whose second side begins with a time phrase",
+  "oldOrder": "When all of these hold:\n  - a list is a rule whose two sides are each one clause\n  - the list is not a rule whose first side begins with a time phrase\n  - the list is a rule whose second side begins with a time phrase\nthen verbalizer says the list with \"then\" before the time phrase.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Series | ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (v_1 in TimeSecond)) iff (v_1 in KeepsThen))",
+    "converse": "(all v_1: Series | (v_1 in KeepsThen) implies ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (v_1 in TimeSecond)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-rule-drops-its-then-before-anything-else",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) implies f in DropsThen",
+  "irMeaning": "(all v_1: Series | ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (not (v_1 in TimeSecond))) implies (v_1 in DropsThen))",
+  "claimFirst": "Verbalizer says a list without \"then\" when all of these hold:\n  - the list is a rule whose two sides are each one clause\n  - the list is not a rule whose first side begins with a time phrase\n  - the list is not a rule whose second side begins with a time phrase",
+  "oldOrder": "When all of these hold:\n  - a list is a rule whose two sides are each one clause\n  - the list is not a rule whose first side begins with a time phrase\n  - the list is not a rule whose second side begins with a time phrase\nthen verbalizer says the list without \"then\".",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Series | ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (not (v_1 in TimeSecond))) iff (v_1 in DropsThen))",
+    "converse": "(all v_1: Series | (v_1 in DropsThen) implies ((v_1 in OneLineRule) and (not (v_1 in TimeFirst)) and (not (v_1 in TimeSecond))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-rule-whose-first-side-is-bullets-says-its-second-side-first",
+  "doc": "naturalloy",
+  "role": "target",
+  "formula": "all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise) implies f in SecondSideFirst",
+  "irMeaning": "(all v_1: Series | ((v_1 in ListFirstSide) and (v_1 in PlainSecondSide) and (not (v_1 in Otherwise))) implies (v_1 in SecondSideFirst))",
+  "claimFirst": "Verbalizer says the second side of a list before its first side when all of these hold:\n  - the list is a rule whose first side is a run of clauses said as bullets\n  - the list is a rule whose second side is one line with no time phrase, relative clause, comma or \"when\"\n  - the list is not a rule with an \"otherwise\"",
+  "oldOrder": "When all of these hold:\n  - a list is a rule whose first side is a run of clauses said as bullets\n  - the list is a rule whose second side is one line with no time phrase, relative clause, comma or \"when\"\n  - the list is not a rule with an \"otherwise\"\nthen verbalizer says the second side of the list before its first side.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Series | ((v_1 in ListFirstSide) and (v_1 in PlainSecondSide) and (not (v_1 in Otherwise))) iff (v_1 in SecondSideFirst))",
+    "converse": "(all v_1: Series | (v_1 in SecondSideFirst) implies ((v_1 in ListFirstSide) and (v_1 in PlainSecondSide) and (not (v_1 in Otherwise))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-fenced-block-with-a-language-belongs-to-the-unit-whose-own-text-holds-it",
+  "doc": "canon",
+  "role": "control",
+  "formula": "all f: Fence, u: Unit | (f in Languaged and f->u in Within.rel) implies u->f in Blocks.rel",
+  "irMeaning": "(all v_1: Fence, v_2: Unit | ((v_1 in Languaged) and (v_1->v_2 in Within.rel)) implies (v_2->v_1 in Blocks.rel))",
+  "claimFirst": "For every fence and every unit:\n  when the fence names a language and lies in the own text of the unit, checker reads the fence as a block of the unit.",
+  "oldOrder": "For every fence and every unit:\n  when the fence names a language and lies in the own text of the unit, checker reads the fence as a block of the unit.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Fence, v_2: Unit | ((v_1 in Languaged) and (v_1->v_2 in Within.rel)) iff (v_2->v_1 in Blocks.rel))",
+    "converse": "(all v_1: Fence, v_2: Unit | (v_2->v_1 in Blocks.rel) implies ((v_1 in Languaged) and (v_1->v_2 in Within.rel)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-plugin-a-document-lists-runs-over-it",
+  "doc": "canon",
+  "role": "control",
+  "formula": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and lists[f, p]) implies p->d in Over.rel",
+  "irMeaning": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and (lists[v_3, v_1])) implies (v_1->v_2 in Over.rel))",
+  "claimFirst": "For every plugin, every document and every listing frontmatter:\n  when the document starts with the listing frontmatter and the listing frontmatter lists the plugin, checker runs the plugin over the document.",
+  "oldOrder": "For every plugin, every document and every listing frontmatter:\n  when the document starts with the listing frontmatter and the listing frontmatter lists the plugin, checker runs the plugin over the document.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Plugin, v_2: Document, v_3: Listing | ((v_2->v_3 in Head.rel) and (lists[v_3, v_1])) iff (v_1->v_2 in Over.rel))",
+    "converse": "(all v_1: Plugin, v_2: Document, v_3: Listing | (v_1->v_2 in Over.rel) implies ((v_2->v_3 in Head.rel) and (lists[v_3, v_1])))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-command-that-is-not-available-is-reported-as-unknown",
+  "doc": "canon",
+  "role": "control",
+  "formula": "all r: Run, c: Command | (r->c in Ask.rel and not available[c]) implies c in Unknown",
+  "irMeaning": "(all v_1: Run, v_2: Command | ((v_1->v_2 in Ask.rel) and (not (available[v_2]))) implies (v_2 in Unknown))",
+  "claimFirst": "For every run and every command_1:\n  when the run asks for command_1 and command_1 is not available, checker reports command_1 as an unknown command.",
+  "oldOrder": "For every run and every command_1:\n  when the run asks for command_1 and command_1 is not available, checker reports command_1 as an unknown command.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run, v_2: Command | ((v_1->v_2 in Ask.rel) and (not (available[v_2]))) iff (v_2 in Unknown))",
+    "converse": "(all v_1: Run, v_2: Command | (v_2 in Unknown) implies ((v_1->v_2 in Ask.rel) and (not (available[v_2]))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-bug-names-an-issue",
+  "doc": "canon",
+  "role": "control",
+  "formula": "all b: Bug | (some Tracker and (no i: Issue | b->i in Name.issue)) implies b in Untracking",
+  "irMeaning": "(all v_1: Bug | ((some Tracker) and ((no v_4: Issue | v_1->v_4 in Name.issue))) implies (v_1 in Untracking))",
+  "claimFirst": "When project has a tracker and a bug names no issue, checker reports an untracking for the bug.",
+  "oldOrder": "When project has a tracker and a bug names no issue, checker reports an untracking for the bug.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Bug | ((some Tracker) and ((no v_4: Issue | v_1->v_4 in Name.issue))) iff (v_1 in Untracking))",
+    "converse": "(all v_1: Bug | (v_1 in Untracking) implies ((some Tracker) and ((no v_4: Issue | v_1->v_4 in Name.issue))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-block-with-no-role-word-is-the-formula-of-its-unit",
+  "doc": "canon",
+  "role": "control",
+  "formula": "all f: Fence | (f in Languaged and f in NoSecondWord) implies f in UnitBlock",
+  "irMeaning": "(all v_1: Fence | ((v_1 in Languaged) and (v_1 in NoSecondWord)) implies (v_1 in UnitBlock))",
+  "claimFirst": "When a fence names a language and has no second word that names a role, the fence has the role of the formula of its unit.",
+  "oldOrder": "When a fence names a language and has no second word that names a role, the fence has the role of the formula of its unit.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Fence | ((v_1 in Languaged) and (v_1 in NoSecondWord)) iff (v_1 in UnitBlock))",
+    "converse": "(all v_1: Fence | (v_1 in UnitBlock) implies ((v_1 in Languaged) and (v_1 in NoSecondWord)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-generate-fails-on-a-handwritten-statement-and-says-so",
+  "doc": "canon-plugin-alloy",
+  "role": "control",
+  "formula": "all r: Run, c: GenerateCommand, u: Unit | (r->c in Ask.rel and u in Handwritten) implies (u in Reported and r not in Exits0)",
+  "irMeaning": "(all v_1: Run, v_2: GenerateCommand, v_3: Unit | ((v_1->v_2 in Ask.rel) and (v_3 in Handwritten)) implies ((v_3 in Reported) and (not (v_1 in Exits0))))",
+  "claimFirst": "For every run, every generate command and every unit:\n  when the run asks for the generate command and the statement of the unit is handwritten, checker reports the statement of the unit and the run does not exit with code 0.",
+  "oldOrder": "For every run, every generate command and every unit:\n  when the run asks for the generate command and the statement of the unit is handwritten, checker reports the statement of the unit and the run does not exit with code 0.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Run, v_2: GenerateCommand, v_3: Unit | ((v_1->v_2 in Ask.rel) and (v_3 in Handwritten)) iff ((v_3 in Reported) and (not (v_1 in Exits0))))",
+    "converse": "(all v_1: Run, v_2: GenerateCommand, v_3: Unit | ((v_3 in Reported) and (not (v_1 in Exits0))) implies ((v_1->v_2 in Ask.rel) and (v_3 in Handwritten)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-word-declared-outside-a-term-is-misplaced",
+  "doc": "canon-plugin-alloy",
+  "role": "control",
+  "formula": "all u: Unit, w: Word | (u->w in Introduce.rel and u not in Term) implies w in Misplaced",
+  "irMeaning": "(all v_1: Unit, v_2: Word | ((v_1->v_2 in Introduce.rel) and (not (v_1 in Term))) implies (v_2 in Misplaced))",
+  "claimFirst": "For every unit_1 and every word:\n  when unit_1 declares the word and is not a term, the word is declared in a unit that is not a term.",
+  "oldOrder": "For every unit_1 and every word:\n  when unit_1 declares the word and is not a term, the word is declared in a unit that is not a term.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit, v_2: Word | ((v_1->v_2 in Introduce.rel) and (not (v_1 in Term))) iff (v_2 in Misplaced))",
+    "converse": "(all v_1: Unit, v_2: Word | (v_2 in Misplaced) implies ((v_1->v_2 in Introduce.rel) and (not (v_1 in Term))))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-document-that-keeps-no-readings-has-no-formula-reported-as-lone",
+  "doc": "canon-plugin-alloy",
+  "role": "control",
+  "formula": "all d: Document, u: Unit, w: Word | (d not in Worded and d->u in Hold.units) implies u->w not in Expose.rel",
+  "irMeaning": "(all v_1: Document, v_2: Unit, v_3: Word | ((not (v_1 in Worded)) and (v_1->v_2 in Hold.units)) implies (not (v_2->v_3 in Expose.rel)))",
+  "claimFirst": "For every document, every unit and every word:\n  when the document keeps no readings and holds the unit, checker does not report the formula of the unit as lone on the word.",
+  "oldOrder": "For every document, every unit and every word:\n  when the document keeps no readings and holds the unit, checker does not report the formula of the unit as lone on the word.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Document, v_2: Unit, v_3: Word | ((not (v_1 in Worded)) and (v_1->v_2 in Hold.units)) iff (not (v_2->v_3 in Expose.rel)))",
+    "converse": "(all v_1: Document, v_2: Unit, v_3: Word | (not (v_2->v_3 in Expose.rel)) implies ((not (v_1 in Worded)) and (v_1->v_2 in Hold.units)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-generate-leaves-a-current-statement-as-it-is",
+  "doc": "canon-plugin-alloy",
+  "role": "control",
+  "formula": "all u: Unit | u in Current implies u not in Rewritten",
+  "irMeaning": "(all v_1: Unit | (v_1 in Current) implies (not (v_1 in Rewritten)))",
+  "claimFirst": "When the statement of a unit is current, checker does not write the statement of the unit when it generates.",
+  "oldOrder": "When the statement of a unit is current, checker does not write the statement of the unit when it generates.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit | (v_1 in Current) iff (not (v_1 in Rewritten)))",
+    "converse": "(all v_1: Unit | (not (v_1 in Rewritten)) implies (v_1 in Current))"
+   }
+  ]
+ },
+ {
+  "id": "spec-units-that-share-a-word-are-asked-about-together",
+  "doc": "canon-plugin-alloy",
+  "role": "control",
+  "formula": "all u: Unit, v: Unit | u->v in Share.rel implies u->v in Together.rel",
+  "irMeaning": "(all v_1: Unit, v_2: Unit | (v_1->v_2 in Share.rel) implies (v_1->v_2 in Together.rel))",
+  "claimFirst": "For every unit_1 and every unit_2:\n  when unit_1 shares a word with unit_2, the analyzer is asked about unit_1 together with unit_2.",
+  "oldOrder": "For every unit_1 and every unit_2:\n  when unit_1 shares a word with unit_2, the analyzer is asked about unit_1 together with unit_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Unit, v_2: Unit | (v_1->v_2 in Share.rel) iff (v_1->v_2 in Together.rel))",
+    "converse": "(all v_1: Unit, v_2: Unit | (v_1->v_2 in Together.rel) implies (v_1->v_2 in Share.rel))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-negation-moves-inward-before-noun-phrases-are-said",
+  "doc": "naturalloy",
+  "role": "control",
+  "formula": "all a: NegationInward, b: NounPhrases | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in NegationInward) and (v_2 in NounPhrases)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when pass_1 moves a negation inward and pass_2 says a quantifier as a noun phrase, pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in NegationInward) and (v_2 in NounPhrases)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in NegationInward) and (v_2 in NounPhrases)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-time-phrase-goes-in-front-before-clauses-become-a-sentence",
+  "doc": "naturalloy",
+  "role": "control",
+  "formula": "all a: TimePhraseInFront, b: ClausesInASentence | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in TimePhraseInFront) and (v_2 in ClausesInASentence)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when pass_1 puts a time phrase in front of the words it covers and pass_2 says a few clauses as one sentence, pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in TimePhraseInFront) and (v_2 in ClausesInASentence)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in TimePhraseInFront) and (v_2 in ClausesInASentence)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-clauses-become-a-sentence-before-a-second-side-goes-first",
+  "doc": "naturalloy",
+  "role": "control",
+  "formula": "all a: ClausesInASentence, b: ClaimFirst | a->b in ahead",
+  "irMeaning": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in ClaimFirst)) implies (v_1->v_2 in ahead))",
+  "claimFirst": "For every pass_1 and every pass_2:\n  when pass_1 says a few clauses as one sentence and pass_2 says the second side of a rule before its first side, pass_1 runs before pass_2.",
+  "oldOrder": "For every pass_1 and every pass_2:\n  when pass_1 says a few clauses as one sentence and pass_2 says the second side of a rule before its first side, pass_1 runs before pass_2.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in ClaimFirst)) iff (v_1->v_2 in ahead))",
+    "converse": "(all v_1: Pass, v_2: Pass | (v_1->v_2 in ahead) implies ((v_1 in ClausesInASentence) and (v_2 in ClaimFirst)))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-definition-by-cases-is-said-as-it-stands-when-an-alternative-is-not-about-its-subject",
+  "doc": "naturalloy",
+  "role": "control",
+  "formula": "all f: Definition | f in NotAboutSubject implies f in AsItStands",
+  "irMeaning": "(all v_1: Definition | (v_1 in NotAboutSubject) implies (v_1 in AsItStands))",
+  "claimFirst": "When a definition has an alternative that says something about another unit, verbalizer says the definition as a list of the alternatives as they stand.",
+  "oldOrder": "When a definition has an alternative that says something about another unit, verbalizer says the definition as a list of the alternatives as they stand.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Definition | (v_1 in NotAboutSubject) iff (v_1 in AsItStands))",
+    "converse": "(all v_1: Definition | (v_1 in AsItStands) implies (v_1 in NotAboutSubject))"
+   }
+  ]
+ },
+ {
+  "id": "spec-a-list-too-long-for-a-line-is-bullets",
+  "doc": "naturalloy",
+  "role": "control",
+  "formula": "all f: Series | f in TooLong implies f in AsBullets",
+  "irMeaning": "(all v_1: Series | (v_1 in TooLong) implies (v_1 in AsBullets))",
+  "claimFirst": "When a list is longer than a line when it is put in a sentence, verbalizer says the list as bullets.",
+  "oldOrder": "When a list is longer than a line when it is put in a sentence, verbalizer says the list as bullets.",
+  "misreadings": [
+   {
+    "twoWay": "(all v_1: Series | (v_1 in TooLong) iff (v_1 in AsBullets))",
+    "converse": "(all v_1: Series | (v_1 in AsBullets) implies (v_1 in TooLong))"
+   }
+  ]
+ }
+]

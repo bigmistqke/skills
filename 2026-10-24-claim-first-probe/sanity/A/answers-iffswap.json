@@ -1,0 +1,237 @@
+[
+ {
+  "id": "a139",
+  "alloy": "(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) iff (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel implies u in Unchallenged)",
+  "doubt": "implies number 1 of 2 swapped to iff"
+ },
+ {
+  "id": "a139",
+  "alloy": "(all u: Unit | (u in Logical and u not in Term and u in Unchallenged) implies (some w: Signature | u->w in Expose.rel)) and (all u: Unit, w: Word | u->w in Expose.rel iff u in Unchallenged)",
+  "doubt": "implies number 2 of 2 swapped to iff"
+ },
+ {
+  "id": "a101",
+  "alloy": "all w: Word | (w in Undeclared or w in Misplaced or w in Apart or w in Unused) iff w in Flagged",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a122",
+  "alloy": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and e->v in Hold.units and v->w in Utter.rel) iff u->w not in Expose.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a112",
+  "alloy": "all f: Series | (f in ListFirstSide and f in PlainSecondSide and f not in Otherwise) iff f in SecondSideFirst",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a102",
+  "alloy": "all f: Series | (f in CommaItem and f in MoreThanTwo) iff f in AsBullets",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a111",
+  "alloy": "all f: Frontmatter | (f in Misquoted or f in Foreign or f in Unclosed or f in Unterminated or f in Doubled or f in Dangling or f in Looping or f in Stray) iff f in Refused",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a105",
+  "alloy": "all u: Unit, v: Unit | (u in Contradicting and u->v in Together.rel) iff v in Named",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a156",
+  "alloy": "all s: Search | s in Trial iff (one u: Unit | s->u in Leave.rel and u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) implies s->v in Pose.units))",
+  "doubt": "implies number 1 of 2 swapped to iff"
+ },
+ {
+  "id": "a156",
+  "alloy": "all s: Search | s in Trial implies (one u: Unit | s->u in Leave.rel and u in Held and s->u not in Pose.units and (all v: Unit | (v in Held and v != u) iff s->v in Pose.units))",
+  "doubt": "implies number 2 of 2 swapped to iff"
+ },
+ {
+  "id": "a126",
+  "alloy": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and not lists[f, p] and d not in Given) iff p->d not in Over.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a123",
+  "alloy": "all p: Plugin, d: Document, f: Listing | (d->f in Head.rel and (no e: Entry | f->e in Item.rel) and d not in Given) iff p->d not in Over.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a110",
+  "alloy": "(all u: Unit | u in Faulted iff u not in Explained) and (all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) implies r not in Exits0)",
+  "doubt": "implies number 1 of 2 swapped to iff"
+ },
+ {
+  "id": "a110",
+  "alloy": "(all u: Unit | u in Faulted implies u not in Explained) and (all r: Run, c: Command, u: Unit | (r->c in Ask.rel and (c in GenerateCommand or c in CheckCommand) and u in Faulted) iff r not in Exits0)",
+  "doubt": "implies number 2 of 2 swapped to iff"
+ },
+ {
+  "id": "a140",
+  "alloy": "all u: Unit | ((u in Logical and u in Generated and u not in Differs and u not in Unsayable and u not in Misread) iff u in Current) and (u not in Logical implies u not in Current)",
+  "doubt": "implies number 1 of 2 swapped to iff"
+ },
+ {
+  "id": "a140",
+  "alloy": "all u: Unit | ((u in Logical and u in Generated and u not in Differs and u not in Unsayable and u not in Misread) implies u in Current) and (u not in Logical iff u not in Current)",
+  "doubt": "implies number 2 of 2 swapped to iff"
+ },
+ {
+  "id": "a155",
+  "alloy": "all r: Run, c: LogicCommand | (r->c in Ask.rel and (no x: Scenario | x in Raised) and (no u: Unit | u in Contradicting)) iff r in Exits0",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a117",
+  "alloy": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) iff u in Reported",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a136",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in UntilInASentence) and (v_2 in TimePhraseInFront)) iff (v_1->v_2 in ahead))",
+  "doubt": "no implies in the formula: the two-way misreading from the IR"
+ },
+ {
+  "id": "a143",
+  "alloy": "all r: Run | ((some p: Plugin | r->p in Return.code2) iff r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) implies r in Exits1)",
+  "doubt": "implies number 1 of 2 swapped to iff"
+ },
+ {
+  "id": "a143",
+  "alloy": "all r: Run | ((some p: Plugin | r->p in Return.code2) implies r in Exits2) and (((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) iff r in Exits1)",
+  "doubt": "implies number 2 of 2 swapped to iff"
+ },
+ {
+  "id": "a135",
+  "alloy": "all f: Series | (f in OneLineRule and f not in TimeFirst and f not in TimeSecond) iff f in DropsThen",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a144",
+  "alloy": "all r: Run | ((some f: Frontmatter, p: Missing | lists[f, p]) or (some d: Document | d in Unreadable) or (some c: Command | r->c in Ask.rel and not available[c]) or (some p: Plugin | r->p in Return.code2)) iff r in Exits2",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a103",
+  "alloy": "all f: Series | (f in OneLineRule and f not in TimeFirst and f in TimeSecond) iff f in KeepsThen",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a121",
+  "alloy": "all r: Run | ((some p: Plugin | r->p in Return.code1) and (no p: Plugin | r->p in Return.code2) and not stopped[r]) iff r in Exits1",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a107",
+  "alloy": "all w: Word | (w not in Undeclared and w not in Misplaced and w not in Apart and w not in Unused) iff w not in Flagged",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a138",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in XAndNoOther) and (v_2 in ForEveryTogether)) iff (v_1->v_2 in ahead))",
+  "doubt": "no implies in the formula: the two-way misreading from the IR"
+ },
+ {
+  "id": "a127",
+  "alloy": "all u: Unit | (u in Logical and u in Stated and u not in Generated and u not in Unsayable) iff u in Handwritten",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a104",
+  "alloy": "all u: Unit | (u in Wordless or u in Twofold) iff u in Unsayable",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a152",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in FromNowOnWhenever) and (v_2 in ClaimFirst)) iff (v_1->v_2 in ahead))",
+  "doubt": "no implies in the formula: the two-way misreading from the IR"
+ },
+ {
+  "id": "a124",
+  "alloy": "all d: Document, e: Document, u: Unit | (d in Checked and d->e in Context.rel and e->u in Hold.units and u in BareFormula) iff u in Held",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a114",
+  "alloy": "all d: Document, e: Document, u: Unit, v: Unit, w: Word | (d->e in Context.rel and d->u in Hold.units and u->w in Voice.rel and e->v in Hold.units and v->w in Introduce.rel) iff w not in Undeclared",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a151",
+  "alloy": "all u: Unit | (u in Logical and u not in Stated and u not in Unsayable) iff u in Unwritten",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a154",
+  "alloy": "all r: Run | ((no p: Plugin | r->p in Return.code1 or r->p in Return.code2) and not stopped[r]) iff r in Exits0",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a145",
+  "alloy": "all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Raised) or (some u: Unit | u in Contradicting))) iff r not in Exits0",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a148",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in ClausesInASentence) and (v_2 in NoneOfThese)) iff (v_1->v_2 in ahead))",
+  "doubt": "no implies in the formula: the two-way misreading from the IR"
+ },
+ {
+  "id": "a119",
+  "alloy": "all c: Scenario, u: Unit | (c in Raised and u->c in Frees.rel) iff c->u in Blame.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a118",
+  "alloy": "all u: Unit, v: Unit, w: Word | (v != u and v->w in Utter.rel) iff u->w not in Expose.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a106",
+  "alloy": "all w: Word | ((some u: Unit | u->w in Voice.rel) and (no u: Unit | u->w in Introduce.rel)) iff w in Undeclared",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a116",
+  "alloy": "all u: Unit, w: Signature | (u in Logical and u not in Term and loneOn[u, w]) iff u->w in Expose.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a125",
+  "alloy": "all u: Unit | (u in Logical and u in Generated and u in Differs and u not in Unsayable) iff u in Stale",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a142",
+  "alloy": "all s: Search, c: Scenario, u: Unit | (s in Trial and s->c in Pose.scenario and s->u in Leave.rel and (some v: Unit | c->v in Probe.rel)) iff c->u in Probe.rel",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a120",
+  "alloy": "(all v_1: Pass, v_2: Pass | ((v_1 in NounPhrases) and (v_2 in ThereIsAThat)) iff (v_1->v_2 in ahead))",
+  "doubt": "no implies in the formula: the two-way misreading from the IR"
+ },
+ {
+  "id": "a129",
+  "alloy": "all u: Unit, w: Word | (u->w in Voice.rel and (some v: Unit | v->w in Introduce.rel) and u->w not in Introduce.rel) iff w in Apart",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a130",
+  "alloy": "all d: Document, u: Unit | (d in Worded and d->u in Hold.units and u in Logical and u not in Current) iff u in Reported",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a137",
+  "alloy": "all u: Unit | (not used[u] and u not in Conflict and u not in Thread) iff u in Orphaning",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ },
+ {
+  "id": "a131",
+  "alloy": "all u: Unit | (u in Logical and u not in Term and u in Unchallenged) iff (some w: Signature | u->w in Expose.rel)",
+  "doubt": "implies number 1 of 1 swapped to iff"
+ }
+]
