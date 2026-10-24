@@ -120,12 +120,51 @@ function find(documents: string[], root: string, ids: string[]): Found[] | strin
   return found;
 }
 
-/** Print the intent of each unit under a line with where it starts and its id; the exit code: 0, or 2 when a unit is missing or holds no formula. */
-export function printIntents(documents: string[], root: string, ids: string[]): number {
-  if (ids.length === 0) {
+/**
+ * The ids on a command line, with `-` in place of the ids that `stdin` gives,
+ * one on each line, a line of blank space naming none. Standard input is read
+ * once, however many times `-` stands on the line.
+ *
+ * @canon spec-intent-reads-the-ids-of-a-dash-from-standard-input
+ */
+export async function idsFrom(args: string[], stdin: () => Promise<string>): Promise<string[]> {
+  if (!args.includes('-')) return args;
+  const lines = (await stdin())
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line !== '');
+  let read = false;
+  return args.flatMap(arg => {
+    if (arg !== '-') return [arg];
+    if (read) return [];
+    read = true;
+    return lines;
+  });
+}
+
+/**
+ * Standard input, read as a stream: a pipe that a Node process writes to can
+ * be non-blocking, and a synchronous read of it fails with EAGAIN before the
+ * writer has written.
+ */
+async function readStdin(): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+/**
+ * Print the intent of each unit under a line with where it starts and its id;
+ * the exit code: 0, or 2 when a unit is missing or holds no formula. A `-`
+ * among the ids stands for the ids on standard input, and when it names none,
+ * nothing is printed.
+ */
+export async function printIntents(documents: string[], root: string, args: string[], stdin: () => Promise<string> = readStdin): Promise<number> {
+  if (args.length === 0) {
     console.error('canon: alloy:intent takes the id of a unit or more');
     return 2;
   }
+  const ids = await idsFrom(args, stdin);
   const found = find(documents, root, ids);
   if (typeof found === 'string') {
     console.error(`canon: alloy:intent: ${found}`);
