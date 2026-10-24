@@ -14,6 +14,7 @@ How run-alloy runs the Alloy analyzer, and why. It is the canon of the package `
 - [`@term program`](#term-program) — A program is what the analyzer reads in one process. It is the text of a module with its commands, its path, and the files beside it that the module may open.
 - [`@term answer`](#term-answer) — An answer is what a [caller](#term-caller) makes of one process of the analyzer on a [program](#term-program). It may be the receipt, the text of an instance, or the lines that the analyzer printed.
 - [`@term kept-answer`](#term-kept-answer) — A kept answer is an [answer](#term-answer) that run-alloy wrote to a file of its own, named by a hash of what decides it.
+- [`@axiom a-caller-gets-only-the-answer-the-analyzer-gives`](#axiom-a-caller-gets-only-the-answer-the-analyzer-gives) — run-alloy gives a [caller](#term-caller) only the [answer](#term-answer) that the analyzer gives for the [program](#term-program), by whatever way run-alloy reaches it.
 - [`@axiom the-analyzer-takes-only-the-time-its-new-programs-need`](#axiom-the-analyzer-takes-only-the-time-its-new-programs-need) — A [caller](#term-caller) of the Alloy analyzer waits no longer than the machine that runs it needs to answer the [programs](#term-program) that no earlier run answered.
   - [`@spec the-analyzer-runs-no-more-processes-at-once-than-the-machine-holds`](#spec-the-analyzer-runs-no-more-processes-at-once-than-the-machine-holds) — By default, run-alloy runs no more analyzer processes at once than the machine has processors and memory for.
     - [`@spec the-analyzer-runs-no-more-processes-at-once-than-the-machine-has-processors`](#spec-the-analyzer-runs-no-more-processes-at-once-than-the-machine-has-processors) — By default, run-alloy runs no more analyzer processes at once than the machine has processors.
@@ -62,6 +63,14 @@ The Alloy plugin of the canon checker is one, and so is each test suite of this 
 
 > A kept answer is an [answer](#term-answer) that run-alloy wrote to a file of its own, named by a hash of what decides it.
 
+## @axiom a-caller-gets-only-the-answer-the-analyzer-gives
+
+> run-alloy gives a [caller](#term-caller) only the [answer](#term-answer) that the analyzer gives for the [program](#term-program), by whatever way run-alloy reaches it.
+
+A caller acts on the answer. The Alloy plugin reports a canon as clean or names a contradiction, and a test suite passes or fails. An answer the analyzer would not give is a report that misleads, and a quick one misleads as much as a slow one.
+
+So correctness comes before speed. run-alloy takes a way to answer sooner only when that way gives the analyzer's answer in every case. It never takes a way that could give another answer, whatever time that way would save.
+
 ## @axiom the-analyzer-takes-only-the-time-its-new-programs-need
 
 > A [caller](#term-caller) of the Alloy analyzer waits no longer than the machine that runs it needs to answer the [programs](#term-program) that no earlier run answered.
@@ -69,6 +78,8 @@ The Alloy plugin of the canon checker is one, and so is each test suite of this 
 A project asks the analyzer after each change. The Alloy plugin checks a canon, and a test suite checks a parser or a verbalizer. Each program starts the analyzer anew. A program over a model of a thousand lines takes about twelve seconds on its own. A check that takes minutes gets run less often, and a defect then stays in the project for longer.
 
 Most programs of a run ask what an earlier run asked already: a change to one unit or one formula changes few of them. So the time a run costs should follow what changed, and the machine should not lose time to processes that only wait for each other.
+
+The time it saves never changes an answer, as [`axiom-a-caller-gets-only-the-answer-the-analyzer-gives`](#axiom-a-caller-gets-only-the-answer-the-analyzer-gives) requires.
 
 #### @spec the-analyzer-runs-no-more-processes-at-once-than-the-machine-holds
 
@@ -114,7 +125,7 @@ This follows because the author can know a load that the machine does not show y
 
 > run-alloy gives a [program](#term-program) the [answer](#term-answer) that an earlier run kept for it, when four things are the same as for that run. They are the program, the content of the jar, the options, and the major version of Java.
 
-Derives from: [`fact-the-program-and-the-analyzer-decide-the-answer-of-a-search`](#fact-the-program-and-the-analyzer-decide-the-answer-of-a-search)
+Derives from: [`axiom-a-caller-gets-only-the-answer-the-analyzer-gives`](#axiom-a-caller-gets-only-the-answer-the-analyzer-gives), [`fact-the-program-and-the-analyzer-decide-the-answer-of-a-search`](#fact-the-program-and-the-analyzer-decide-the-answer-of-a-search)
 
 This follows because nothing outside those four decides the answer. A kept answer is then the answer that the analyzer would give again, and the caller need not wait for it.
 
