@@ -71,6 +71,28 @@ export function run(dir: string, ...args: string[]): { status: number | null; st
   return { status, stdout, stderr };
 }
 
+/** Run the checker with `args` in the project at `dir`, with `input` on its standard input: its exit code, and what it printed. */
+export function piped(dir: string, input: string, ...args: string[]): { status: number | null; stdout: string; stderr: string } {
+  const { status, stdout, stderr } = spawnSync(process.execPath, [CLI, ...args], { cwd: dir, encoding: 'utf8', input, env: { ...process.env, NO_COLOR: '1' } });
+  return { status, stdout, stderr };
+}
+
+/**
+ * Run the checker with `args` in the project at `dir`, at the end of a shell
+ * pipeline whose first command is a Node process that writes `input` only
+ * after a pause, as another run of the checker does: its exit code, and what
+ * it printed. Node makes the pipe it writes to non-blocking, which a reader of
+ * standard input has to bear.
+ */
+export function pipedSlowly(dir: string, input: string, ...args: string[]): { status: number | null; stdout: string; stderr: string } {
+  const quote = (word: string): string => `'${word.replace(/'/g, `'\\''`)}'`;
+  // Node opens its standard output, and makes the pipe non-blocking, when the script first touches it.
+  const writer = `const out = process.stdout; setTimeout(() => out.write(${JSON.stringify(input)}), 1500)`;
+  const script = `${quote(process.execPath)} -e ${quote(writer)} | ${[process.execPath, CLI, ...args].map(quote).join(' ')}`;
+  const { status, stdout, stderr } = spawnSync('sh', ['-c', script], { cwd: dir, encoding: 'utf8', env: { ...process.env, NO_COLOR: '1' } });
+  return { status, stdout, stderr };
+}
+
 /** The document as `generate` leaves it, in a project of it alone. */
 export function generated(document: string): string {
   return readFileSync(join(project(document, ''), 'CANON.md'), 'utf8');

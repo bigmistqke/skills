@@ -3,7 +3,7 @@
  * with a unit.
  */
 import { describe, expect, it } from 'vitest';
-import { canon, generated, run, scratch } from './project.ts';
+import { canon, generated, piped, pipedSlowly, run, scratch } from './project.ts';
 
 /** The tag a test cites a unit with, spelled apart so the checker does not read this file's templates as citations. */
 const TAG = ['@', 'canon'].join('');
@@ -267,5 +267,252 @@ describe('tree of a unit', () => {
     expect(stdout).not.toContain('@axiom');
     expect(stdout).not.toContain('@spec A follower');
     expect(stdout).not.toContain('@term');
+  });
+});
+
+describe('find with filters', () => {
+  const find = (...args: string[]) => run(scratch(DOCUMENT, TESTS), 'find', ...args);
+
+  /**
+   * @canon spec-find-with-several-kinds-lists-the-units-of-each-of-them
+   */
+  it('lists the units of each kind it is given, and of no other', () => {
+    expect(find('target', '--kind', 'spec', '--kind', 'term', '--ids').stdout).toBe('spec-a-parent\nspec-a-leaf\nterm-target\n');
+    expect(find('target', '--kind', 'axiom', '--kind', 'term', '--ids').stdout).toBe('term-target\n');
+  });
+
+  /**
+   * @canon spec-find-in-id-matches-a-word-in-the-id-alone
+   */
+  it('matches a word only in the id with --in id', () => {
+    expect(find('leaf', '--ids').stdout).toBe('spec-a-leaf\nspec-a-follower\n');
+    expect(find('leaf', '--in', 'id', '--ids').stdout).toBe('spec-a-leaf\n');
+  });
+
+  /**
+   * @canon spec-find-in-statement-matches-a-word-in-the-statement-as-show-prints-it
+   */
+  it('matches a word only in the statement with --in statement', () => {
+    expect(find('prose', '--ids').stdout).toBe('spec-a-leaf\n');
+    expect(find('prose', '--in', 'statement', '--ids').stdout).toBe('');
+    expect(find('later', '--in', 'statement', '--ids').stdout).toBe('spec-a-follower\n');
+  });
+
+  /**
+   * @canon spec-find-in-body-matches-a-word-in-the-body-as-show-prints-it
+   */
+  it('matches a word only in the body with --in body, fenced blocks included', () => {
+    const dir = scratch(
+      canon(`
+### @spec a-claim-with-a-block
+
+> A claim holds.
+
+Prose about the claim.
+
+\`\`\`json
+{ "target": "browser" }
+\`\`\`
+`),
+      ''
+    );
+    expect(run(dir, 'find', 'prose', '--in', 'body', '--ids').stdout).toBe('spec-a-claim-with-a-block\n');
+    expect(run(dir, 'find', 'browser', '--in', 'body', '--ids').stdout).toBe('spec-a-claim-with-a-block\n');
+    expect(run(dir, 'find', 'holds', '--in', 'body', '--ids').stdout).toBe('');
+  });
+
+  /**
+   * @canon spec-find-in-all-matches-a-word-as-find-does-without-a-part
+   */
+  it('matches a word in the id or the own text with --in all, as without --in', () => {
+    const dir = scratch(DOCUMENT, TESTS);
+    for (const words of [['leaf'], ['prose'], ['says', 'thing'], ['FOLLOWER']]) {
+      expect(run(dir, 'find', ...words, '--in', 'all').stdout).toBe(run(dir, 'find', ...words).stdout);
+    }
+  });
+
+  /**
+   * @canon spec-find-with-no-words-lists-every-unit-its-filters-let-through
+   */
+  it('lists every unit its filters let through when it is given no word', () => {
+    expect(find('--kind', 'axiom', '--kind', 'term', '--ids').stdout).toBe('axiom-a-program-means-one-thing\naxiom-another-root\nterm-target\n');
+    expect(find('--ids').stdout.split('\n').filter(Boolean)).toHaveLength(7);
+  });
+});
+
+describe('the exit code of find', () => {
+  const find = (...args: string[]) => run(scratch(DOCUMENT, TESTS), 'find', ...args);
+
+  /**
+   * @canon spec-find-that-lists-a-unit-exits-with-code-0
+   */
+  it('exits with code 0 when it lists a unit', () => {
+    expect(find('leaf').status).toBe(0);
+  });
+
+  /**
+   * @canon spec-find-that-lists-no-unit-exits-with-code-1
+   */
+  it('prints nothing on standard output and exits with code 1 when no unit matches', () => {
+    const { stdout, status } = find('nowhere', '--ids');
+    expect(stdout).toBe('');
+    expect(status).toBe(1);
+    expect(find('nowhere').status).toBe(1);
+  });
+
+  /**
+   * @canon spec-find-with-a-kind-it-does-not-know-exits-with-code-2
+   */
+  it('says so, and exits with code 2, for a kind that is no kind of unit', () => {
+    const { stderr, status } = find('leaf', '--kind', 'claim');
+    expect(status).toBe(2);
+    expect(stderr).toContain('"claim"');
+  });
+
+  /**
+   * @canon spec-find-with-a-part-it-does-not-know-exits-with-code-2
+   */
+  it('says so, and exits with code 2, for a part it does not know', () => {
+    const { stderr, status } = find('leaf', '--in', 'title');
+    expect(status).toBe(2);
+    expect(stderr).toContain('"title"');
+  });
+});
+
+describe('tree of several units', () => {
+  /**
+   * @canon spec-tree-of-several-units-draws-the-tree-from-each-in-turn
+   */
+  it('draws the tree from each unit, in the order of the names', () => {
+    const dir = scratch(DOCUMENT, TESTS);
+    const forth = run(dir, 'tree', 'spec-a-parent', 'spec-a-follower');
+    expect(forth.status).toBe(0);
+    expect(forth.stdout.indexOf('@spec A parent')).toBeLessThan(forth.stdout.indexOf('@spec A follower'));
+    expect(forth.stdout).toContain('@spec A leaf');
+    expect(forth.stdout).not.toContain('@axiom');
+    const back = run(dir, 'tree', 'spec-a-follower', 'spec-a-parent').stdout;
+    expect(back.indexOf('@spec A follower')).toBeLessThan(back.indexOf('@spec A parent'));
+  });
+});
+
+describe('--ids', () => {
+  /**
+   * @canon spec-find-with-ids-prints-the-id-of-each-unit-it-lists
+   */
+  it('prints the id of each unit find lists, one on each line, in the same order', () => {
+    const dir = scratch(DOCUMENT, TESTS);
+    const lines = run(dir, 'find', 'says', '--kind', 'spec').stdout.trim().split('\n');
+    const ids = run(dir, 'find', 'says', '--kind', 'spec', '--ids').stdout;
+    expect(ids).toBe(`${lines.map(line => line.split('  ')[1]?.split(' ')[0]).join('\n')}\n`);
+    expect(ids).toBe('spec-a-parent\nspec-a-leaf\nspec-a-sibling\nspec-a-follower\n');
+  });
+
+  /**
+   * @canon spec-show-with-ids-prints-the-id-of-each-unit-it-names
+   */
+  it('prints the id of each unit show is given, in the order of the names', () => {
+    const { stdout, status } = run(scratch(DOCUMENT, TESTS), 'show', '@spec A leaf', 'spec-a-parent', '@spec', 'a-follower', '--ids');
+    expect(status).toBe(0);
+    expect(stdout).toBe('spec-a-leaf\nspec-a-parent\nspec-a-follower\n');
+  });
+
+  /**
+   * @canon spec-tree-with-ids-prints-the-id-of-each-unit-of-the-whole-tree
+   */
+  it('prints the id of each unit of the whole tree, once, in the order the tree draws them', () => {
+    const { stdout, status } = run(scratch(DOCUMENT, TESTS), 'tree', '--ids');
+    expect(status).toBe(0);
+    expect(stdout).toBe(
+      ['term-target', 'axiom-a-program-means-one-thing', 'spec-a-parent', 'spec-a-leaf', 'spec-a-sibling', 'axiom-another-root', 'spec-a-follower', ''].join('\n')
+    );
+  });
+
+  /**
+   * @canon spec-tree-of-a-unit-with-ids-prints-the-ids-of-that-unit-and-what-sits-in-it
+   */
+  it('prints the id of the unit and of each unit tree draws under it', () => {
+    expect(run(scratch(DOCUMENT, TESTS), 'tree', 'spec-a-parent', '--ids').stdout).toBe('spec-a-parent\nspec-a-leaf\nspec-a-sibling\n');
+  });
+
+  /**
+   * @canon spec-tree-with-gaps-and-ids-prints-the-ids-on-the-branches-to-a-gap
+   */
+  it('prints the ids of the units on the branches that lead to an untested claim', () => {
+    const untested = TESTS.split('\n\n').filter(test => !test.includes('spec-a-leaf')).join('\n\n');
+    expect(run(scratch(DOCUMENT, untested), 'tree', '--gaps', '--ids').stdout).toBe('axiom-a-program-means-one-thing\nspec-a-parent\nspec-a-leaf\n');
+    expect(run(scratch(DOCUMENT, TESTS), 'tree', '--gaps', '--ids').stdout).toBe('');
+  });
+
+  /**
+   * @canon spec-tree-with-suspect-and-ids-prints-the-id-of-each-suspect
+   */
+  it('prints the id of each spec tree --suspect lists', () => {
+    expect(run(scratch(DOCUMENT, TESTS), 'tree', '--suspect', '2', '--ids').stdout).toBe('spec-a-leaf\n');
+  });
+});
+
+describe('- for the names on standard input', () => {
+  /**
+   * @canon spec-show-reads-the-names-of-a-dash-from-standard-input
+   */
+  it('prints each unit a line of standard input names, as show prints a unit on its command line', () => {
+    const dir = scratch(DOCUMENT, TESTS);
+    const { stdout, status } = piped(dir, 'spec-a-leaf\nspec-a-follower\n', 'show', '-');
+    expect(status).toBe(0);
+    expect(stdout).toBe(run(dir, 'show', 'spec-a-leaf', 'spec-a-follower').stdout);
+    expect(piped(dir, 'spec-a-leaf\n', 'show', '-', '--statement').stdout).toBe(run(dir, 'show', 'spec-a-leaf', '--statement').stdout);
+    // A command earlier in a pipeline can be slow to write, and a plugin can
+    // touch standard input as it loads, which makes a pipe non-blocking; show
+    // waits for the names all the same.
+    const touchy = scratch(`---\nplugins: ["canon-touchy"]\n---\n${DOCUMENT}`, TESTS, {
+      files: {
+        'node_modules/canon-touchy/package.json': JSON.stringify({ name: 'canon-touchy', version: '1.0.0', main: 'index.js' }),
+        'node_modules/canon-touchy/index.js': `process.stdin.isTTY;\nexports.plugin = { name: 'touchy', commands: {} };`
+      }
+    });
+    const slow = pipedSlowly(touchy, 'spec-a-leaf\nspec-a-follower\n', 'show', '-', '--ids');
+    expect(slow.stderr).toBe('');
+    expect(slow.stdout).toBe('spec-a-leaf\nspec-a-follower\n');
+  });
+
+  /**
+   * @canon spec-tree-reads-the-names-of-a-dash-from-standard-input
+   */
+  it('draws the tree from each unit a line of standard input names', () => {
+    const dir = scratch(DOCUMENT, TESTS);
+    expect(piped(dir, 'spec-a-parent\n', 'tree', '-').stdout).toBe(run(dir, 'tree', 'spec-a-parent').stdout);
+    expect(piped(dir, 'spec-a-parent\nspec-a-follower\n', 'tree', '-', '--ids').stdout).toBe('spec-a-parent\nspec-a-leaf\nspec-a-sibling\nspec-a-follower\n');
+  });
+
+  /**
+   * @canon spec-a-line-of-standard-input-names-a-unit-in-any-form-show-reads
+   */
+  it('reads a line as a unit named by its id, as a heading writes it, or in words', () => {
+    const input = 'spec-a-leaf\n@spec a-sibling\n@spec A follower\nCANON.md#spec-a-parent\n';
+    expect(piped(scratch(DOCUMENT, TESTS), input, 'show', '-', '--ids').stdout).toBe('spec-a-leaf\nspec-a-sibling\nspec-a-follower\nspec-a-parent\n');
+  });
+
+  /**
+   * @canon spec-a-blank-line-of-standard-input-names-no-unit
+   */
+  it('reads no unit from a line of blank space', () => {
+    const { stdout, stderr, status } = piped(scratch(DOCUMENT, TESTS), '\nspec-a-leaf\n   \n\t\nspec-a-sibling\n\n', 'show', '-', '--ids');
+    expect(status).toBe(0);
+    expect(stderr).toBe('');
+    expect(stdout).toBe('spec-a-leaf\nspec-a-sibling\n');
+  });
+
+  /**
+   * @canon spec-a-dash-with-no-names-on-standard-input-prints-nothing
+   */
+  it('prints nothing, and exits with code 0, when standard input names no unit', () => {
+    const dir = scratch(DOCUMENT, TESTS);
+    for (const args of [['show', '-'], ['tree', '-'], ['tree', '-', '--ids'], ['tree', '-', '--gaps']]) {
+      for (const input of ['', '\n\n']) {
+        const { stdout, status } = piped(dir, input, ...args);
+        expect(stdout).toBe('');
+        expect(status).toBe(0);
+      }
+    }
   });
 });

@@ -52,11 +52,14 @@ pnpm canon tree               # the terms, then the facts, then the derivation t
 pnpm canon tree -v            # the same, with each unit's statement
 pnpm canon tree --gaps        # only the branches that lead to an untested claim
 pnpm canon tree --suspect 3   # specs with no nested specs and three or more tests
-pnpm canon tree spec-a-stem   # one unit and what sits in it
+pnpm canon tree spec-a-stem   # one unit and what sits in it; name more units for more trees
 pnpm canon show spec-a-stem   # a unit, what it follows from, what follows from it, and its tests
 pnpm canon show spec-a-stem --statement   # only its statement, as it reads; --body for the rest of its own text
-pnpm canon find word word     # the units whose id or own text holds every word
-pnpm canon find word --kind spec   # the same, for one kind of unit
+pnpm canon find word word     # the units whose id or own text holds every word; exits 1 when none does
+pnpm canon find word --kind spec --kind exception   # the same, for these kinds of unit
+pnpm canon find word --in statement   # only where the statement holds the word: id, statement, body or all
+pnpm canon find --kind fact   # no word: every unit of the kind
+pnpm canon find word --ids | pnpm canon show - --statement   # --ids prints ids alone; - reads names from standard input
 pnpm canon retext:lint        # language checks on the prose of the documents
 pnpm canon alloy:logic        # whether the formulas of the units can all hold together
 pnpm canon alloy:intent spec-a-stem            # the intent of a unit with a formula
@@ -76,7 +79,8 @@ The examples use `pnpm canon`, the command this project declares in its scope.
 4. `retext:lint` comes from `@bigmistqke/canon-plugin-retext`, which a document names under `plugins`. It reports passive voice, wordy phrases, repeated words, wrong articles, sentences over 25 words and paragraphs over 5 sentences. Its sentence limit follows ASD-STE100, Simplified Technical English.
 5. `pele:graph` comes from `@bigmistqke/canon-plugin-pele`. It prints the derivations of the documents as a Mermaid flowchart, or with `--svg` as an SVG that Pele renders.
 6. Read a unit with `show`, and find it with `find`, not with a search of the document. A search finds the heading of a unit. It misses the units above it, the units that derive from it and the tests that check it. The commands `show` and `tree` take a unit as its id, as `@spec a-stem`, or in words as the tree writes it.
-7. The checker needs Node 22 or later.
+7. Join the reading commands in a pipeline instead of a search. With `--ids`, `find`, `show` and `tree` print one id on each line and nothing else. The commands `show`, `tree` and `alloy:intent` take `-` in place of units. It reads their names from standard input, one on each line. The command `find` exits as `grep` does: 0 when it lists a unit, 1 when it lists none, and 2 on bad usage.
+8. The checker needs Node 22 or later.
 
 ### Renaming a unit
 
