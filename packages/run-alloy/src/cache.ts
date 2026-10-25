@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { JAVA_OPTIONS } from './jobs.ts';
+import { javaOptions } from './jobs.ts';
 import { attempt, failed, type Analyzer, type Failure, type Program, type Ran } from './run.ts';
 
 /**
@@ -62,7 +62,7 @@ export function keyOf(analyzer: Analyzer, program: Program, args: readonly strin
   if (hash === undefined || major === undefined) return undefined;
   const beside = Object.entries(program.beside ?? {}).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   return createHash('sha256')
-    .update(JSON.stringify({ program: program.text, path: program.path ?? 'model.als', beside, jar: hash, options: [...JAVA_OPTIONS, ...args], form, java: major }))
+    .update(JSON.stringify({ program: program.text, path: program.path ?? 'model.als', beside, jar: hash, options: [...javaOptions(), ...args], form, java: major }))
     .digest('hex');
 }
 

@@ -20,8 +20,9 @@ How run-alloy runs the Alloy analyzer, and why. It is the canon of the package `
     - [`@spec the-analyzer-runs-no-more-processes-at-once-than-the-machine-has-processors`](#spec-the-analyzer-runs-no-more-processes-at-once-than-the-machine-has-processors) — By default, run-alloy runs no more analyzer processes at once than the machine has processors.
     - [`@spec the-analyzer-runs-no-more-processes-at-once-than-half-the-memory-holds`](#spec-the-analyzer-runs-no-more-processes-at-once-than-half-the-memory-holds) — By default, run-alloy runs no more analyzer processes at once than half of the machine's memory holds at the largest heap of each.
     - [`@spec the-analyzer-runs-at-least-one-process`](#spec-the-analyzer-runs-at-least-one-process) — run-alloy runs at least one analyzer process, whatever the machine has.
-    - [`@spec each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte`](#spec-each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte) — Each analyzer process that run-alloy starts runs with a heap of at most one gigabyte.
+    - [`@spec each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte`](#spec-each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte) — By default, each analyzer process that run-alloy starts runs with a heap of at most one gigabyte.
   - [`@spec canon-alloy-jobs-sets-how-many-processes-run-at-once`](#spec-canon-alloy-jobs-sets-how-many-processes-run-at-once) — When `CANON_ALLOY_JOBS` holds a number above zero, run-alloy runs that many analyzer processes at once, in place of the default.
+  - [`@spec canon-alloy-heap-sets-the-heap-of-each-process`](#spec-canon-alloy-heap-sets-the-heap-of-each-process) — When `CANON_ALLOY_HEAP` holds a size such as `2g` or `512m`, each analyzer process that run-alloy starts runs with a heap of at most that size.
   - [`@spec a-program-asked-of-the-same-analyzer-keeps-its-earlier-answer`](#spec-a-program-asked-of-the-same-analyzer-keeps-its-earlier-answer) — run-alloy gives a [program](#term-program) the [answer](#term-answer) that an earlier run kept for it, when four things are the same as for that run. They are the program, the content of the jar, the options, and the major version of Java.
     - [`@spec an-unchanged-program-is-answered-without-the-analyzer`](#spec-an-unchanged-program-is-answered-without-the-analyzer) — When an earlier run kept an [answer](#term-kept-answer) for a program, and none of the four things changed, run-alloy starts no analyzer process for that program.
     - [`@spec a-changed-program-is-asked-again`](#spec-a-changed-program-is-asked-again) — When the text of a program differs from that of every kept answer, run-alloy asks the analyzer about the program.
@@ -114,7 +115,7 @@ This follows because a caller that could start no process would get no answer. A
 
 ##### @spec each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte
 
-> Each analyzer process that run-alloy starts runs with a heap of at most one gigabyte.
+> By default, each analyzer process that run-alloy starts runs with a heap of at most one gigabyte.
 
 Derives from: [`fact-a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory`](#fact-a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory)
 
@@ -125,6 +126,16 @@ This follows because only a heap with a limit lets run-alloy count the processes
 > When `CANON_ALLOY_JOBS` holds a number above zero, run-alloy runs that many analyzer processes at once, in place of the default.
 
 This follows because the author can know a load that the machine does not show yet. A test runner may run several callers at once, and other programs may share the machine.
+
+#### @spec canon-alloy-heap-sets-the-heap-of-each-process
+
+> When `CANON_ALLOY_HEAP` holds a size such as `2g` or `512m`, each analyzer process that run-alloy starts runs with a heap of at most that size.
+
+Derives from: [`spec-each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte`](#spec-each-analyzer-process-takes-a-heap-of-at-most-one-gigabyte)
+
+This follows because the author can know a model that needs more memory than the default. A program that runs out of memory gets no answer, in this run or the next. A small machine may need a smaller heap, so that more processes fit.
+
+The heap stays a limit, so run-alloy still counts the processes that half of the memory holds at that size. The size is an option of Java, so a program asked with another heap is asked again.
 
 #### @spec a-program-asked-of-the-same-analyzer-keeps-its-earlier-answer
 

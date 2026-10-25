@@ -13,7 +13,7 @@ if (folder) sweep(folder);
 
 - `run(analyzer, program, args, read)` runs `java -jar alloy.jar <args> -o <out> <file>` in a temporary folder that holds the program and the files beside it, and gives what `read` makes of the ended process. A process that wrote no `receipt.json` gives `{ error }`.
 - `ask(…, { folder, form })` is `run` with a folder of kept answers. An answer is kept under a hash of the program, the files beside it, the content of the jar, the options of Java and the analyzer, `form`, and the major version of Java. A failure is never kept.
-- Each process runs with `-Xmx1g`. No more of them run at once than the machine has processors, nor than half of its memory holds at that heap. `CANON_ALLOY_JOBS` sets another number.
+- Each process runs with `-Xmx1g`, or with the heap `CANON_ALLOY_HEAP` sets, such as `2g` or `512m`. No more of them run at once than the machine has processors, nor than half of its memory holds at that heap. `CANON_ALLOY_JOBS` sets another number.
 - `cacheFolder({ set, fallback })` is the folder of kept answers: `set`, else `CANON_ALLOY_CACHE_DIR`, else `fallback`. `CANON_ALLOY_CACHE=0` gives none.
 - `sweep(folder)` removes each kept answer that no run used in 30 days.
 

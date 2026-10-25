@@ -26,7 +26,8 @@
       "passThroughEnv": [
         "CANON_ALLOY_CACHE_DIR",
         "CANON_ALLOY_CACHE",
-        "CANON_ALLOY_JOBS"
+        "CANON_ALLOY_JOBS",
+        "CANON_ALLOY_HEAP"
       ]
     },
     "@bigmistqke/canon#test": {
@@ -41,7 +42,8 @@
       "passThroughEnv": [
         "CANON_ALLOY_CACHE_DIR",
         "CANON_ALLOY_CACHE",
-        "CANON_ALLOY_JOBS"
+        "CANON_ALLOY_JOBS",
+        "CANON_ALLOY_HEAP"
       ]
     },
     "@bigmistqke/canon-plugin-alloy#test": {
@@ -62,7 +64,8 @@
       "passThroughEnv": [
         "CANON_ALLOY_CACHE_DIR",
         "CANON_ALLOY_CACHE",
-        "CANON_ALLOY_JOBS"
+        "CANON_ALLOY_JOBS",
+        "CANON_ALLOY_HEAP"
       ]
     },
     "@bigmistqke/parse-alloy#test": {
@@ -80,7 +83,8 @@
       "passThroughEnv": [
         "CANON_ALLOY_CACHE_DIR",
         "CANON_ALLOY_CACHE",
-        "CANON_ALLOY_JOBS"
+        "CANON_ALLOY_JOBS",
+        "CANON_ALLOY_HEAP"
       ]
     }
   }

@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { JAVA_OPTIONS, slot } from './jobs.ts';
+import { javaOptions, slot } from './jobs.ts';
 
 /** Where the analyzer is: the Java that runs it, and its jar. */
 export interface Analyzer {
@@ -83,7 +83,7 @@ export async function attempt<T>(analyzer: Analyzer, program: Program, args: rea
     write(file, program.text);
     const out = join(dir, 'out');
     const ended = await new Promise<{ output: string; code: number | null } | Failure>(resolve => {
-      const child = spawn(analyzer.java, [...JAVA_OPTIONS, '-jar', analyzer.jar, ...args, '-o', out, file], { cwd: dir });
+      const child = spawn(analyzer.java, [...javaOptions(), '-jar', analyzer.jar, ...args, '-o', out, file], { cwd: dir });
       let output = '';
       child.stdout.on('data', chunk => (output += chunk));
       child.stderr.on('data', chunk => (output += chunk));

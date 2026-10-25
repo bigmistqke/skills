@@ -37,9 +37,11 @@ describe('the number of analyzer processes at once', () => {
   /**
    * @canon spec-the-analyzer-runs-no-more-processes-at-once-than-half-the-memory-holds
    */
-  it('is no more than half of the memory holds at a gigabyte of heap each', () => {
+  it('is no more than half of the memory holds at the heap of each, a gigabyte or the one CANON_ALLOY_HEAP sets', () => {
     expect(jobs({}, { processors: 16, memory: 8 * GB })).toBe(4);
     expect(jobs({}, { processors: 4, memory: 16 * GB })).toBe(4);
+    expect(jobs({ CANON_ALLOY_HEAP: '2g' }, { processors: 16, memory: 8 * GB })).toBe(2);
+    expect(jobs({ CANON_ALLOY_HEAP: '512m' }, { processors: 16, memory: 8 * GB })).toBe(8);
   });
 
   /**
@@ -105,5 +107,23 @@ describe('the number of analyzer processes at once', () => {
     await runOne(analyzer, 'a');
     expect(analyzer.calls()).toHaveLength(1);
     for (const args of analyzer.calls()) expect(args).toContain('-Xmx1g');
+  });
+
+  /**
+   * @canon spec-canon-alloy-heap-sets-the-heap-of-each-process
+   */
+  it('each runs with the heap CANON_ALLOY_HEAP sets', async () => {
+    const analyzer = fakeAnalyzer(scratch());
+    const before = process.env.CANON_ALLOY_HEAP;
+    try {
+      process.env.CANON_ALLOY_HEAP = '2g';
+      await runOne(analyzer, 'a');
+      process.env.CANON_ALLOY_HEAP = '1536m';
+      await runOne(analyzer, 'b');
+    } finally {
+      if (before === undefined) delete process.env.CANON_ALLOY_HEAP;
+      else process.env.CANON_ALLOY_HEAP = before;
+    }
+    expect(analyzer.calls().map(args => args.find(a => a.startsWith('-Xmx')))).toEqual(['-Xmx2g', '-Xmx1536m']);
   });
 });
