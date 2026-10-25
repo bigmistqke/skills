@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ask, cacheFolder, sweep, type Program, type Ran } from '../../src/index.ts';
-import { fakeAnalyzer, INSTANCE } from './analyzer.ts';
+import { fakeAnalyzer, INSTANCE } from '../../src/testing.ts';
 
 const DIRS: string[] = [];
 afterEach(() => {

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { checkAlloy } from '../../src/alloy.ts';
-import { fakeAnalyzer, INSTANCE } from './analyzer.ts';
+import { fakeAnalyzer, INSTANCE } from '@bigmistqke/run-alloy/testing';
 import { CLI, install, NAMES_PLUGIN } from './cli.ts';
 
 /** The tags, spelled apart so the checker does not read this file's templates as citations. */

@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { jobs, run } from '../../src/index.ts';
-import { fakeAnalyzer } from './analyzer.ts';
+import { fakeAnalyzer } from '../../src/testing.ts';
 
 const GB = 2 ** 30;
 const DIRS: string[] = [];

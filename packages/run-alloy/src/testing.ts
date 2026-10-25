@@ -1,8 +1,9 @@
 /**
- * A stand-in for Java and the Alloy analyzer, for the tests of how `alloy:logic`
- * runs the analyzer: which searches it asks, with what, and how many at once. It
- * answers every run with an instance, writes the text of that instance, and logs
- * each call, so a test can count the processes that a run started.
+ * A stand-in for Java and the Alloy analyzer, for the tests of how a caller
+ * runs the analyzer through run-alloy: which programs it asks, with what, and
+ * how many at once. It answers every run with an instance, writes the text of
+ * that instance, and logs each call, so a test can count the processes that a
+ * caller started. Only tests import it, as `@bigmistqke/run-alloy/testing`.
  */
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,10 +24,17 @@ export interface FakeAnalyzer {
 
 /**
  * Write a stand-in into `dir`: a Java that says it is of the major version
- * `major`, and that fails every run when `fail` is set. Each run takes `ms`
- * milliseconds, so that runs that overlap can be seen.
+ * `major`, and that fails every run when `fail` is set. With `exit`, a run
+ * still writes its receipt and its instance, and then exits with that code, as
+ * the analyzer does when it could not solve a command. With `unsolved`, the
+ * receipt also leaves the run out, as the analyzer's does for a command it
+ * could not solve. Each run takes `ms` milliseconds, so that runs that overlap
+ * can be seen.
  */
-export function fakeAnalyzer(dir: string, { major = 21, fail = false, ms = 0, name = 'java' }: { major?: number; fail?: boolean; ms?: number; name?: string } = {}): FakeAnalyzer {
+export function fakeAnalyzer(
+  dir: string,
+  { major = 21, fail = false, exit = 0, unsolved = false, ms = 0, name = 'java' }: { major?: number; fail?: boolean; exit?: number; unsolved?: boolean; ms?: number; name?: string } = {}
+): FakeAnalyzer {
   mkdirSync(dir, { recursive: true });
   const log = join(dir, `${name}.log`);
   const java = join(dir, name);
@@ -53,9 +61,10 @@ const out = args[args.indexOf('-o') + 1];
 const name = /^run\\s+(\\w+)/m.exec(readFileSync(file, 'utf8'))[1];
 setTimeout(() => {
   mkdirSync(out, { recursive: true });
-  writeFileSync(join(out, 'receipt.json'), JSON.stringify({ commands: { [name]: { solution: [{}] } } }));
+  writeFileSync(join(out, 'receipt.json'), JSON.stringify({ commands: ${unsolved ? '{}' : '{ [name]: { solution: [{}] } }'} }));
   writeFileSync(join(out, name + '-solution-0.txt'), ${JSON.stringify(INSTANCE)});
   end();
+  process.exit(${exit});
 }, ${ms});`
 }
 `

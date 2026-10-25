@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { checkAlloy } from '../../src/alloy.ts';
-import { fakeAnalyzer } from './analyzer.ts';
+import { fakeAnalyzer } from '@bigmistqke/run-alloy/testing';
 
 const DIRS: string[] = [];
 afterEach(() => {
