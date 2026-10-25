@@ -315,7 +315,9 @@ It writes its own terms and claims in Alloy, as the checker does. The plugin say
     > - at least one of these holds:
     >   - there is a [scenario](#term-scenario) such that [checker](../canon/CANON.md#term-checker) reports that the scenario cannot happen
     >   - there is a [unit](../canon/CANON.md#term-unit) that is held with units that cannot all hold
-  - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — A run of `alloy:logic` exits with code 2 when the Alloy analyzer cannot run.
+  - [`@spec logic-stops-when-the-analyzer-cannot-run`](#spec-logic-stops-when-the-analyzer-cannot-run) — A run of `alloy:logic` exits with code 2 when the Alloy analyzer gives no answer to a search. It gives none when it does not start, and when it leaves a search unsolved.
+    - [`@spec logic-stops-when-the-analyzer-does-not-start`](#spec-logic-stops-when-the-analyzer-does-not-start) — A run of `alloy:logic` exits with code 2 when the Alloy analyzer does not start.
+    - [`@spec logic-stops-when-the-analyzer-leaves-a-search-unsolved`](#spec-logic-stops-when-the-analyzer-leaves-a-search-unsolved) — A run of `alloy:logic` exits with code 2 when the receipt of a search leaves out the run of that search.
   - [`@spec the-claims-of-an-extended-document-join-the-model`](#spec-the-claims-of-an-extended-document-join-the-model) —
     > For every [document_1](../canon/CANON.md#term-document), every document_2 and every [unit](../canon/CANON.md#term-unit):
     >
@@ -1766,9 +1768,23 @@ all r: Run, c: LogicCommand | (r->c in Ask.rel and ((some x: Scenario | x in Rai
 
 #### @spec logic-stops-when-the-analyzer-cannot-run
 
-> A run of `alloy:logic` exits with code 2 when the Alloy analyzer cannot run.
+> A run of `alloy:logic` exits with code 2 when the Alloy analyzer gives no answer to a search. It gives none when it does not start, and when it leaves a search unsolved.
 
 This follows because a check that did not run found nothing, and the author must not mistake that for a canon that holds together.
+
+##### @spec logic-stops-when-the-analyzer-does-not-start
+
+> A run of `alloy:logic` exits with code 2 when the Alloy analyzer does not start.
+
+This follows because an analyzer that did not start answered no search.
+
+##### @spec logic-stops-when-the-analyzer-leaves-a-search-unsolved
+
+> A run of `alloy:logic` exits with code 2 when the receipt of a search leaves out the run of that search.
+
+Derives from: [`fact-the-analyzer-exits-with-code-0-only-when-it-solved-every-command`](../run-alloy/CANON.md#fact-the-analyzer-exits-with-code-0-only-when-it-solved-every-command)
+
+This follows because the analyzer leaves out a run that it could not solve, such as one that ran out of memory. Read as a run with no instance, it would report a contradiction that the units do not have.
 
 #### @spec the-claims-of-an-extended-document-join-the-model
 

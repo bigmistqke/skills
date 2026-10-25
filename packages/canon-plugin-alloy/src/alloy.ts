@@ -221,8 +221,10 @@ interface Analyzer {
  */
 async function solveOne(model: string, command: string, { java, jar, cache }: Analyzer, keep = false): Promise<Solved | { error: string }> {
   const name = runName(command);
-  const read = ({ out }: Ran): Kept => {
+  const read = ({ out, output }: Ran): Kept | { error: string } => {
     const found = Object.fromEntries(solved(readFileSync(join(out, 'receipt.json'), 'utf8')));
+    // The analyzer leaves out a run it could not solve: that is no answer, and not a run with no instance.
+    if (!(name in found)) return { error: output.trim() || `the Alloy analyzer did not solve ${name}` }; // [Why it stops](../CANON.md#spec-logic-stops-when-the-analyzer-leaves-a-search-unsolved)
     // The text of an instance holds what the receipt leaves out: the signatures declared with `in`, and the step the trace loops back to.
     const trace = join(out, `${name}-solution-0.txt`);
     return { found, traces: keep && found[name] && existsSync(trace) ? { [name]: readFileSync(trace, 'utf8') } : {} };

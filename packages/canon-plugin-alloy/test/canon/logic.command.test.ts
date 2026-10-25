@@ -4,9 +4,10 @@
  * and CANON_JAVA when `java` is older.
  */
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fakeAnalyzer } from '@bigmistqke/run-alloy/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 import { CLI, install, named } from './cli.ts';
 
@@ -199,11 +200,27 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the logic command with --show', (
 
 describe('the logic command without the analyzer', () => {
   /**
-   * @canon spec-logic-stops-when-the-analyzer-cannot-run
+   * @canon spec-logic-stops-when-the-analyzer-does-not-start
    */
   it('stops with code 2 and says that the analyzer did not run', () => {
     const { err, code } = logic(doc(), false);
     expect(err).toContain('the Alloy analyzer did not run');
     expect(code).toBe(2);
+  });
+});
+
+describe('the logic command with an analyzer that leaves a search unsolved', () => {
+  /**
+   * @canon spec-logic-stops-when-the-analyzer-leaves-a-search-unsolved
+   */
+  it('stops with code 2, says what the analyzer printed, and keeps nothing', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'canon-unsolved-'));
+    DIRS.push(dir);
+    const analyzer = fakeAnalyzer(join(dir, 'bin'), { unsolved: true, exit: 1 });
+    const cache = join(dir, 'cache');
+    const { err, code } = logic(doc(), true, [], { CANON_JAVA: analyzer.java, CANON_ALLOY_JAR: analyzer.jar, CANON_ALLOY_CACHE_DIR: cache, CANON_ALLOY_CACHE: '1' });
+    expect(err).toContain('the Alloy analyzer did not run');
+    expect(code).toBe(2);
+    expect(existsSync(cache) ? readdirSync(cache) : []).toEqual([]);
   });
 });
