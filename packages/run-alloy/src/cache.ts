@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { JAVA_OPTIONS } from './jobs.ts';
-import { failed, run, type Analyzer, type Failure, type Program, type Ran } from './run.ts';
+import { attempt, failed, type Analyzer, type Failure, type Program, type Ran } from './run.ts';
 
 /**
  * The folder of the kept answers: none when `CANON_ALLOY_CACHE` is `0`;
@@ -138,7 +138,8 @@ export function keep<T>(folder: string, key: string, answer: T): void {
  * makes of the analyzer's process, which is then kept. `form` names what `read`
  * makes of a process, so that two callers that read the same program in two
  * ways keep two answers. A failure is never kept: it says nothing about the
- * program. With no folder, nothing is kept or read.
+ * program. Nor is the answer of a process that exited with another code than 0,
+ * which the caller still gets. With no folder, nothing is kept or read.
  *
  * @canon spec-an-unchanged-program-is-answered-without-the-analyzer
  */
@@ -148,7 +149,7 @@ export async function ask<T>(analyzer: Analyzer, program: Program, args: readonl
     const kept = readKept<T>(folder as string, key);
     if (kept !== undefined) return kept;
   }
-  const answer = await run(analyzer, program, args, read);
-  if (key !== undefined && !failed(answer)) keep(folder as string, key, answer);
+  const { answer, solved } = await attempt(analyzer, program, args, read);
+  if (key !== undefined && solved && !failed(answer)) keep(folder as string, key, answer);
   return answer;
 }

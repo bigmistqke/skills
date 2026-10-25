@@ -119,7 +119,7 @@ describe('a program asked again', () => {
   });
 
   /**
-   * @canon spec-an-analyzer-that-did-not-answer-keeps-no-answer
+   * @canon spec-a-process-that-wrote-no-receipt-keeps-no-answer
    */
   it('is asked of the analyzer again after the analyzer wrote no receipt for it', async () => {
     const dir = scratch();
@@ -134,7 +134,20 @@ describe('a program asked again', () => {
   });
 
   /**
-   * @canon spec-an-analyzer-that-did-not-answer-keeps-no-answer
+   * @canon spec-a-process-that-exited-with-another-code-than-0-keeps-no-answer
+   */
+  it('is asked of the analyzer again after a process that wrote a receipt and exited with code 1, whose reading the caller still gets', async () => {
+    const dir = scratch();
+    const folder = join(dir, 'cache');
+    const exiting = fakeAnalyzer(join(dir, 'bin'), { exit: 1 });
+    expect(await ask(exiting, PROGRAM, ARGS, instance, { folder, form: 'instance' })).toBe(INSTANCE);
+    expect(existsSync(folder) ? readdirSync(folder) : []).toEqual([]);
+    await ask(exiting, PROGRAM, ARGS, instance, { folder, form: 'instance' });
+    expect(exiting.calls()).toHaveLength(2);
+  });
+
+  /**
+   * @canon spec-a-process-the-caller-reads-as-a-failure-keeps-no-answer
    */
   it('is asked of the analyzer again after the caller read its process as a failure', async () => {
     const dir = scratch();
@@ -143,6 +156,20 @@ describe('a program asked again', () => {
     expect(await ask(analyzer, PROGRAM, ARGS, () => ({ error: 'no verdict' }), { folder, form: 'verdict' })).toEqual({ error: 'no verdict' });
     expect(existsSync(folder) ? readdirSync(folder) : []).toEqual([]);
     await ask(analyzer, PROGRAM, ARGS, () => ({ error: 'no verdict' }), { folder, form: 'verdict' });
+    expect(analyzer.calls()).toHaveLength(2);
+  });
+
+  /**
+   * @canon spec-a-process-whose-reading-throws-keeps-no-answer
+   */
+  it('is a failure with the message of the error, and is asked again, when reading its process throws', async () => {
+    const dir = scratch();
+    const analyzer = fakeAnalyzer(join(dir, 'bin'));
+    const folder = join(dir, 'cache');
+    const malformed = ({ out }: Ran): unknown => JSON.parse(readFileSync(join(out, 'some_apple-solution-0.txt'), 'utf8'));
+    expect(await ask(analyzer, PROGRAM, ARGS, malformed, { folder, form: 'json' })).toEqual({ error: expect.stringContaining('JSON') });
+    expect(existsSync(folder) ? readdirSync(folder) : []).toEqual([]);
+    await ask(analyzer, PROGRAM, ARGS, malformed, { folder, form: 'json' });
     expect(analyzer.calls()).toHaveLength(2);
   });
 });

@@ -23,10 +23,12 @@ export interface FakeAnalyzer {
 
 /**
  * Write a stand-in into `dir`: a Java that says it is of the major version
- * `major`, and that fails every run when `fail` is set. Each run takes `ms`
+ * `major`, and that fails every run when `fail` is set. With `exit`, a run
+ * still writes its receipt and its instance, and then exits with that code, as
+ * the analyzer does when it could not solve a command. Each run takes `ms`
  * milliseconds, so that runs that overlap can be seen.
  */
-export function fakeAnalyzer(dir: string, { major = 21, fail = false, ms = 0, name = 'java' }: { major?: number; fail?: boolean; ms?: number; name?: string } = {}): FakeAnalyzer {
+export function fakeAnalyzer(dir: string, { major = 21, fail = false, exit = 0, ms = 0, name = 'java' }: { major?: number; fail?: boolean; exit?: number; ms?: number; name?: string } = {}): FakeAnalyzer {
   mkdirSync(dir, { recursive: true });
   const log = join(dir, `${name}.log`);
   const java = join(dir, name);
@@ -56,6 +58,7 @@ setTimeout(() => {
   writeFileSync(join(out, 'receipt.json'), JSON.stringify({ commands: { [name]: { solution: [{}] } } }));
   writeFileSync(join(out, name + '-solution-0.txt'), ${JSON.stringify(INSTANCE)});
   end();
+  process.exit(${exit});
 }, ${ms});`
 }
 `

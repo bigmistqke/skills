@@ -6,7 +6,7 @@
  */
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { analyzerOf, cacheFolder, failed, keep, keyOf, readKept, run, sweep } from '@bigmistqke/run-alloy';
+import { analyzerOf, attempt, cacheFolder, failed, keep, keyOf, readKept, sweep } from '@bigmistqke/run-alloy';
 
 const ANALYZER = analyzerOf();
 export const JAR = ANALYZER?.jar;
@@ -19,10 +19,10 @@ const FORM = 'naturalloy verdict';
 
 const FOLDER = cacheFolder({ fallback: join(dirname(fileURLToPath(import.meta.url)), '../.cache/canon-alloy') });
 
-/** The analyzer on one module: what it prints, or what went wrong. */
-async function analyze(module: string): Promise<string> {
-  const result = await run(ANALYZER!, { text: module }, ARGS, ran => ran.output);
-  return failed(result) ? result.error : result;
+/** The analyzer on one module: what it prints, or what went wrong; and whether it exited with code 0, as it does only when it solved every check. */
+async function analyze(module: string): Promise<{ out: string; solved: boolean }> {
+  const { answer, solved } = await attempt(ANALYZER!, { text: module }, ARGS, ran => ran.output);
+  return failed(answer) ? { out: answer.error, solved: false } : { out: answer, solved };
 }
 
 /**
@@ -43,20 +43,20 @@ export async function verdicts<T>(given: T[], module: (batch: T[]) => string, si
     if (verdict === undefined) all.push(item);
     else results.push({ item, verdict });
   }
-  const answer = (item: T, verdict: string): void => {
+  const answer = (item: T, verdict: string, solved: boolean): void => {
     results.push({ item, verdict });
     const key = keys.get(item);
-    // Only a verdict is kept: what went wrong is asked again.
-    if (key !== undefined && (verdict === 'UNSAT' || verdict === 'SAT')) keep(FOLDER as string, key, verdict);
+    // Only a verdict of a process that solved every check is kept: what went wrong is asked again.
+    if (key !== undefined && solved && (verdict === 'UNSAT' || verdict === 'SAT')) keep(FOLDER as string, key, verdict);
   };
   const ask = async (batch: T[]): Promise<void> => {
-    const out = await analyze(module(batch));
+    const { out, solved } = await analyze(module(batch));
     const lines = [...out.matchAll(/^\d+\. check check_(\d+)\s.*?\s(UNSAT|SAT)\s*$/gm)];
     if (lines.length === batch.length) {
-      for (const [, i, verdict] of lines) answer(batch[Number(i)] as T, verdict as string);
+      for (const [, i, verdict] of lines) answer(batch[Number(i)] as T, verdict as string, solved);
     } else if (batch.length > 1) {
       await Promise.all(batch.map(item => ask([item])));
-    } else answer(batch[0] as T, out.trim().split('\n').slice(0, 4).join(' '));
+    } else answer(batch[0] as T, out.trim().split('\n').slice(0, 4).join(' '), solved);
   };
   const batches: T[][] = [];
   for (let i = 0; i < all.length; i += size) batches.push(all.slice(i, i + size));

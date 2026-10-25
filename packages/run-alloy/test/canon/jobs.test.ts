@@ -50,6 +50,28 @@ describe('the number of analyzer processes at once', () => {
   });
 
   /**
+   * @canon spec-the-analyzer-runs-at-least-one-process
+   */
+  it('is still one after a process whose folder could not be made', async () => {
+    const analyzer = fakeAnalyzer(scratch());
+    const before = { jobs: process.env.CANON_ALLOY_JOBS, tmp: process.env.TMPDIR };
+    process.env.CANON_ALLOY_JOBS = '1';
+    try {
+      // `tmpdir()` reads TMPDIR at each call: a folder that does not exist makes the process's own folder fail.
+      process.env.TMPDIR = join(scratch(), 'gone');
+      await expect(runOne(analyzer, 'a')).rejects.toThrow();
+      process.env.TMPDIR = before.tmp;
+      if (before.tmp === undefined) delete process.env.TMPDIR;
+      expect(await runOne(analyzer, 'b')).toBe(true);
+    } finally {
+      if (before.jobs === undefined) delete process.env.CANON_ALLOY_JOBS;
+      else process.env.CANON_ALLOY_JOBS = before.jobs;
+      if (before.tmp === undefined) delete process.env.TMPDIR;
+      else process.env.TMPDIR = before.tmp;
+    }
+  }, 10_000);
+
+  /**
    * @canon spec-canon-alloy-jobs-sets-how-many-processes-run-at-once
    */
   it('is what CANON_ALLOY_JOBS says, more or fewer than the machine holds', () => {

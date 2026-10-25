@@ -45,19 +45,39 @@ export interface Failure {
 /** Whether a result is a failure. */
 export const failed = (result: unknown): result is Failure => typeof result === 'object' && result !== null && 'error' in result;
 
+/** What `read` made of a process, or its failure; and whether the analyzer said it solved every command, by exiting with code 0. */
+export interface Attempt<T> {
+  answer: T | Failure;
+  solved: boolean;
+}
+
 /**
  * Run the analyzer on a program, with `args` before the folder it writes into
  * and the file it reads, such as `['exec', '-f', '-c', '*']`, and give what
  * `read` makes of the ended process. The process waits for a place among those
  * that run at once. A process that wrote no receipt did not answer: its output
- * is the failure, and `read` is not asked.
+ * is the failure, and `read` is not asked. A `read` that throws gives its
+ * message as the failure.
  *
  * @canon spec-an-analyzer-that-did-not-answer-keeps-no-answer
  */
 export async function run<T>(analyzer: Analyzer, program: Program, args: readonly string[], read: (ran: Ran) => T | Failure): Promise<T | Failure> {
-  const give = await slot();
-  const dir = mkdtempSync(join(tmpdir(), 'run-alloy-'));
+  return (await attempt(analyzer, program, args, read)).answer;
+}
+
+/**
+ * `run`, which also says whether the process exited with code 0: only then did
+ * the analyzer solve every command, and only then may its answer be kept.
+ *
+ * @canon spec-a-process-that-exited-with-another-code-than-0-keeps-no-answer
+ */
+export async function attempt<T>(analyzer: Analyzer, program: Program, args: readonly string[], read: (ran: Ran) => T | Failure): Promise<Attempt<T>> {
+  let give: (() => void) | undefined;
+  let dir: string | undefined;
   try {
+    // The place is taken inside the `try`, so that a folder that cannot be made still gives it back.
+    give = await slot();
+    dir = mkdtempSync(join(tmpdir(), 'run-alloy-'));
     for (const [path, text] of Object.entries(program.beside ?? {})) write(join(dir, path), text);
     const file = join(dir, program.path ?? 'model.als');
     write(file, program.text);
@@ -71,12 +91,18 @@ export async function run<T>(analyzer: Analyzer, program: Program, args: readonl
       child.on('close', code => resolve({ output, code }));
     });
     give();
-    if (failed(ended)) return ended;
-    if (!existsSync(join(out, 'receipt.json'))) return { error: ended.output.trim() || 'the Alloy analyzer wrote no receipt' };
-    return read({ ...ended, out });
+    if (failed(ended)) return { answer: ended, solved: false };
+    if (!existsSync(join(out, 'receipt.json'))) return { answer: { error: ended.output.trim() || 'the Alloy analyzer wrote no receipt' }, solved: false };
+    let answer: T | Failure;
+    try {
+      answer = read({ ...ended, out });
+    } catch (error) {
+      answer = { error: error instanceof Error ? error.message : String(error) };
+    }
+    return { answer, solved: ended.code === 0 };
   } finally {
-    give();
-    rmSync(dir, { recursive: true, force: true });
+    give?.();
+    if (dir !== undefined) rmSync(dir, { recursive: true, force: true });
   }
 }
 

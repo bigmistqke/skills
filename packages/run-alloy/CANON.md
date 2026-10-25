@@ -29,7 +29,11 @@ How run-alloy runs the Alloy analyzer, and why. It is the canon of the package `
     - [`@spec a-program-with-another-analyzer-jar-is-asked-again`](#spec-a-program-with-another-analyzer-jar-is-asked-again) — When the content of the analyzer's jar differs from the jar that gave a kept answer, run-alloy asks the analyzer about the program again.
     - [`@spec a-program-with-other-options-is-asked-again`](#spec-a-program-with-other-options-is-asked-again) — When a caller asks about a program with other options than the run that kept an answer, run-alloy asks the analyzer again. Another form of reading the answer counts as other options.
     - [`@spec a-program-on-another-major-version-of-java-is-asked-again`](#spec-a-program-on-another-major-version-of-java-is-asked-again) — When the analyzer runs on another major version of Java than the one that gave a kept answer, run-alloy asks the analyzer again.
-    - [`@spec an-analyzer-that-did-not-answer-keeps-no-answer`](#spec-an-analyzer-that-did-not-answer-keeps-no-answer) — When the analyzer writes no receipt for a program, or the caller reads its process as a failure, run-alloy keeps nothing for the program. The next run asks the analyzer again.
+    - [`@spec an-analyzer-that-did-not-answer-keeps-no-answer`](#spec-an-analyzer-that-did-not-answer-keeps-no-answer) — When a process of the analyzer gives no answer that the analyzer would give again, run-alloy keeps nothing for the program. The next run asks the analyzer again. These cases count: no receipt, an exit code other than 0, a reading that the caller calls a failure, and a reading that throws.
+      - [`@spec a-process-that-wrote-no-receipt-keeps-no-answer`](#spec-a-process-that-wrote-no-receipt-keeps-no-answer) — When the analyzer writes no receipt for a program, run-alloy keeps nothing for it, and gives the caller what the process printed as a failure.
+      - [`@spec a-process-that-exited-with-another-code-than-0-keeps-no-answer`](#spec-a-process-that-exited-with-another-code-than-0-keeps-no-answer) — When a process of the analyzer exits with a code other than 0, or a signal ends it, run-alloy keeps nothing for the program. The caller still gets what it reads of the process.
+      - [`@spec a-process-the-caller-reads-as-a-failure-keeps-no-answer`](#spec-a-process-the-caller-reads-as-a-failure-keeps-no-answer) — When the caller reads a process of the analyzer as a failure, run-alloy keeps nothing for the program, and gives the caller that failure.
+      - [`@spec a-process-whose-reading-throws-keeps-no-answer`](#spec-a-process-whose-reading-throws-keeps-no-answer) — When the caller's reading of a process throws, run-alloy keeps nothing for the program. It gives the caller the message of the error as a failure.
   - [`@spec the-folder-of-the-kept-answers-is-the-first-one-named`](#spec-the-folder-of-the-kept-answers-is-the-first-one-named) — run-alloy keeps the answers in the first folder of these that is named: the folder the project sets, the folder `CANON_ALLOY_CACHE_DIR` names, and the caller's default.
     - [`@spec a-folder-the-project-sets-holds-the-kept-answers`](#spec-a-folder-the-project-sets-holds-the-kept-answers) — When the project sets a folder for the kept answers, run-alloy keeps them in that folder, also when `CANON_ALLOY_CACHE_DIR` names another.
     - [`@spec canon-alloy-cache-dir-holds-the-kept-answers-when-the-project-sets-none`](#spec-canon-alloy-cache-dir-holds-the-kept-answers-when-the-project-sets-none) — When the project sets no folder and `CANON_ALLOY_CACHE_DIR` names one, run-alloy keeps the answers in the folder that `CANON_ALLOY_CACHE_DIR` names.
@@ -40,7 +44,8 @@ How run-alloy runs the Alloy analyzer, and why. It is the canon of the package `
     - [`@spec a-kept-answer-that-a-run-uses-is-kept-for-thirty-more-days`](#spec-a-kept-answer-that-a-run-uses-is-kept-for-thirty-more-days) — When run-alloy gives a program a [kept answer](#term-kept-answer), that answer counts as used at that time.
 - [`@fact a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory`](#fact-a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory) — A Java process whose command line gives no `-Xmx` may grow its heap to a quarter of the machine's memory.
 - [`@fact the-program-and-the-analyzer-decide-the-answer-of-a-search`](#fact-the-program-and-the-analyzer-decide-the-answer-of-a-search) — Whether the Alloy analyzer finds an instance for a run depends only on the program and on the analyzer. The analyzer is its jar, its options, and the Java that runs it.
-- [`@fact the-analyzer-writes-a-receipt-only-when-it-ran-the-commands`](#fact-the-analyzer-writes-a-receipt-only-when-it-ran-the-commands) — `java -jar alloy.jar exec` writes `receipt.json` into its output folder only when it read the module and ran its commands. When it cannot read the module, it writes none.
+- [`@fact the-analyzer-writes-a-receipt-only-when-it-solved-a-command`](#fact-the-analyzer-writes-a-receipt-only-when-it-solved-a-command) — `java -jar alloy.jar exec` writes `receipt.json` into its output folder only when it solved at least one command of the module. When it cannot read the module, or solves none of its commands, it writes none.
+- [`@fact the-analyzer-exits-with-code-0-only-when-it-solved-every-command`](#fact-the-analyzer-exits-with-code-0-only-when-it-solved-every-command) — `java -jar alloy.jar exec` exits with code 0 when it solved every command of the module, whether each one found an instance or not. When it could not solve a command, it exits with code 1, and its receipt leaves that command out.
 <!-- toc:end -->
 
 ## Terms
@@ -169,11 +174,39 @@ This follows because the analyzer runs on the Java that the caller names, and an
 
 ##### @spec an-analyzer-that-did-not-answer-keeps-no-answer
 
-> When the analyzer writes no receipt for a program, or the caller reads its process as a failure, run-alloy keeps nothing for the program. The next run asks the analyzer again.
-
-Derives from: [`fact-the-analyzer-writes-a-receipt-only-when-it-ran-the-commands`](#fact-the-analyzer-writes-a-receipt-only-when-it-ran-the-commands)
+> When a process of the analyzer gives no answer that the analyzer would give again, run-alloy keeps nothing for the program. The next run asks the analyzer again. These cases count: no receipt, an exit code other than 0, a reading that the caller calls a failure, and a reading that throws.
 
 This follows because a failure says nothing about the program. It comes from the machine or the setup, such as a missing Java or a process out of memory. The next run may not share it.
+
+###### @spec a-process-that-wrote-no-receipt-keeps-no-answer
+
+> When the analyzer writes no receipt for a program, run-alloy keeps nothing for it, and gives the caller what the process printed as a failure.
+
+Derives from: [`fact-the-analyzer-writes-a-receipt-only-when-it-solved-a-command`](#fact-the-analyzer-writes-a-receipt-only-when-it-solved-a-command)
+
+This follows because a process with no receipt solved no command of the program, so it holds no answer to keep.
+
+###### @spec a-process-that-exited-with-another-code-than-0-keeps-no-answer
+
+> When a process of the analyzer exits with a code other than 0, or a signal ends it, run-alloy keeps nothing for the program. The caller still gets what it reads of the process.
+
+Derives from: [`fact-the-analyzer-exits-with-code-0-only-when-it-solved-every-command`](#fact-the-analyzer-exits-with-code-0-only-when-it-solved-every-command)
+
+This follows because a process out of memory exits with the code of a process whose command the analyzer cannot translate. Both still write a receipt for the commands that they solved. Only the second says something about the program, and nothing in the exit tells them apart. Keeping neither costs a run of the second. Keeping both could give a failure of the machine as the answer, against [`axiom-a-caller-gets-only-the-answer-the-analyzer-gives`](#axiom-a-caller-gets-only-the-answer-the-analyzer-gives).
+
+The caller still reads such a process, because the lines of a command that the analyzer cannot translate are its answer for that program. The test suite of parse-alloy reads them.
+
+###### @spec a-process-the-caller-reads-as-a-failure-keeps-no-answer
+
+> When the caller reads a process of the analyzer as a failure, run-alloy keeps nothing for the program, and gives the caller that failure.
+
+This follows because the caller knows what an answer holds for it. A process with a receipt can still lack what the caller asked for.
+
+###### @spec a-process-whose-reading-throws-keeps-no-answer
+
+> When the caller's reading of a process throws, run-alloy keeps nothing for the program. It gives the caller the message of the error as a failure.
+
+This follows because a reading that throws made no answer. A receipt that the analyzer did not finish, such as one cut off by a full disk, makes the reading throw. A caller handles a failure already, and an error that escaped would stop it with no report.
 
 #### @spec the-folder-of-the-kept-answers-is-the-first-one-named
 
@@ -237,8 +270,16 @@ The JVM sets the largest heap from the memory of the machine, by `-XX:MaxRAMPerc
 
 A program states a model and a run within a scope, and the run has an instance or has none, whatever machine solves it. The analyzer decides it by translating the program and solving the result. The jar, its options and the Java decide that translation and that solving.
 
-## @fact the-analyzer-writes-a-receipt-only-when-it-ran-the-commands
+## @fact the-analyzer-writes-a-receipt-only-when-it-solved-a-command
 
-> `java -jar alloy.jar exec` writes `receipt.json` into its output folder only when it read the module and ran its commands. When it cannot read the module, it writes none.
+> `java -jar alloy.jar exec` writes `receipt.json` into its output folder only when it solved at least one command of the module. When it cannot read the module, or solves none of its commands, it writes none.
 
-Alloy 6.2.0 behaves this way. A module with a name it cannot find exits with code 1 and leaves no output folder. A module whose command it cannot translate, such as one with a higher-order quantifier, still gets a receipt. The analyzer ran the command, and said why it could not solve it.
+Alloy 6.2.0 behaves this way. A module with a name it cannot find, or with a syntax error, exits with code 1 and leaves no output folder. The analyzer writes the receipt anew after each command it solves. A module whose one command it cannot translate, such as one with a higher-order quantifier, leaves an empty output folder. So does a process that runs out of memory on its first command.
+
+## @fact the-analyzer-exits-with-code-0-only-when-it-solved-every-command
+
+> `java -jar alloy.jar exec` exits with code 0 when it solved every command of the module, whether each one found an instance or not. When it could not solve a command, it exits with code 1, and its receipt leaves that command out.
+
+Alloy 6.2.0 behaves this way. A run with no instance and a check with a counterexample both exit with the code `0`. For a command it cannot translate, such as one with a higher-order quantifier, the analyzer prints why and goes on to the next command. At the end it exits with the code `1`.
+
+A process out of memory stops at the command it ran out on, and exits with the code `1` too. Its receipt holds the commands it solved before, and leaves out that command and the ones after it.
