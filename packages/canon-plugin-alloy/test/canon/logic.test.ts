@@ -3,9 +3,8 @@
  * 17 or later: set CANON_ALLOY_JAR, and CANON_JAVA when `java` is older.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { cacheFolder } from '@bigmistqke/run-alloy';
 import { alloyProgram, checkAlloy, predicateName } from '../../src/alloy.ts';
-import { LIFETIMES, withScenario } from '../../src/alloy.support.ts';
+import { CACHE, LIFETIMES, withScenario } from '../../src/alloy.support.ts';
 
 describe('the program of a document', () => {
   const { program, units } = alloyProgram(LIFETIMES);
@@ -96,7 +95,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check', () => {
    * @canon spec-a-scenario-that-can-happen-is-not-reported
    */
   it('allows the scenario of the example: a failing cleanup runs while its owner is disposed, and its error reaches the nearest handler', { timeout: 600_000 }, async () => {
-    expect(await checkAlloy(LIFETIMES, { cache: cacheFolder() })).toMatchObject({ ok: true });
+    expect(await checkAlloy(LIFETIMES, { cache: CACHE })).toMatchObject({ ok: true });
   });
 
   /**
@@ -112,7 +111,7 @@ describe.skipIf(!process.env.CANON_ALLOY_JAR)('the check', () => {
 always all o: Owner | (enter[o] and o in Disposed) implies no Throwing'
 \`\`\`
 `;
-    const result = await checkAlloy(withScenario(contradicting, 'a-disposed-owner-can-be-entered', 'eventually some o: Owner | enter[o] and o in Disposed'), { cache: cacheFolder() });
+    const result = await checkAlloy(withScenario(contradicting, 'a-disposed-owner-can-be-entered', 'eventually some o: Owner | enter[o] and o in Disposed'), { cache: CACHE });
     expect(result).toMatchObject({ ok: false });
     expect('failures' in result && result.failures.map(f => f.conflict.sort())).toEqual([
       ['spec-a-disposed-owner-can-be-entered', 'spec-a-disposed-owner-cannot-be-entered']
