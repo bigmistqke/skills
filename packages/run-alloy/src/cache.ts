@@ -48,6 +48,14 @@ function jarHash(jar: string): string | undefined {
 }
 
 /**
+ * Which answers run-alloy keeps. It is part of every key, so that a change to
+ * it leaves the answers kept before unread.
+ *
+ * @canon spec-an-answer-kept-under-an-earlier-rule-is-not-read
+ */
+const RULE = 'kept only when the process exited with code 0';
+
+/**
  * The key of a program's answer: the program, with the files beside it; the
  * content of the analyzer's jar; the options of Java and of the analyzer, and
  * the form in which the caller reads the answer; and the major version of Java.
@@ -62,7 +70,7 @@ export function keyOf(analyzer: Analyzer, program: Program, args: readonly strin
   if (hash === undefined || major === undefined) return undefined;
   const beside = Object.entries(program.beside ?? {}).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   return createHash('sha256')
-    .update(JSON.stringify({ program: program.text, path: program.path ?? 'model.als', beside, jar: hash, options: [...javaOptions(), ...args], form, java: major }))
+    .update(JSON.stringify({ program: program.text, path: program.path ?? 'model.als', beside, jar: hash, options: [...javaOptions(), ...args], form, java: major, rule: RULE }))
     .digest('hex');
 }
 

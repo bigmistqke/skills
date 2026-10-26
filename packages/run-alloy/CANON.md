@@ -35,6 +35,7 @@ How run-alloy runs the Alloy analyzer, and why. It is the canon of the package `
       - [`@spec a-process-that-exited-with-another-code-than-0-keeps-no-answer`](#spec-a-process-that-exited-with-another-code-than-0-keeps-no-answer) — When a process of the analyzer exits with a code other than 0, or a signal ends it, run-alloy keeps nothing for the program. The caller still gets what it reads of the process.
       - [`@spec a-process-the-caller-reads-as-a-failure-keeps-no-answer`](#spec-a-process-the-caller-reads-as-a-failure-keeps-no-answer) — When the caller reads a process of the analyzer as a failure, run-alloy keeps nothing for the program, and gives the caller that failure.
       - [`@spec a-process-whose-reading-throws-keeps-no-answer`](#spec-a-process-whose-reading-throws-keeps-no-answer) — When the caller's reading of a process throws, run-alloy keeps nothing for the program. It gives the caller the message of the error as a failure.
+    - [`@spec an-answer-kept-under-an-earlier-rule-is-not-read`](#spec-an-answer-kept-under-an-earlier-rule-is-not-read) — When run-alloy changes which answers it keeps, it reads no answer that it kept before the change. It asks the analyzer again.
   - [`@spec the-folder-of-the-kept-answers-is-the-first-one-named`](#spec-the-folder-of-the-kept-answers-is-the-first-one-named) — run-alloy keeps the answers in the first folder of these that is named: the folder the project sets, the folder `CANON_ALLOY_CACHE_DIR` names, and the caller's default.
     - [`@spec a-folder-the-project-sets-holds-the-kept-answers`](#spec-a-folder-the-project-sets-holds-the-kept-answers) — When the project sets a folder for the kept answers, run-alloy keeps them in that folder, also when `CANON_ALLOY_CACHE_DIR` names another.
     - [`@spec canon-alloy-cache-dir-holds-the-kept-answers-when-the-project-sets-none`](#spec-canon-alloy-cache-dir-holds-the-kept-answers-when-the-project-sets-none) — When the project sets no folder and `CANON_ALLOY_CACHE_DIR` names one, run-alloy keeps the answers in the folder that `CANON_ALLOY_CACHE_DIR` names.
@@ -219,6 +220,14 @@ This follows because the caller knows what an answer holds for it. A process wit
 > When the caller's reading of a process throws, run-alloy keeps nothing for the program. It gives the caller the message of the error as a failure.
 
 This follows because a reading that throws made no answer. A receipt that the analyzer did not finish, such as one cut off by a full disk, makes the reading throw. A caller handles a failure already, and an error that escaped would stop it with no report.
+
+##### @spec an-answer-kept-under-an-earlier-rule-is-not-read
+
+> When run-alloy changes which answers it keeps, it reads no answer that it kept before the change. It asks the analyzer again.
+
+Derives from: [`axiom-a-caller-gets-only-the-answer-the-analyzer-gives`](#axiom-a-caller-gets-only-the-answer-the-analyzer-gives)
+
+This follows because an answer kept under the earlier rule may be one that the new rule refuses. Before run-alloy required the code `0`, it kept the answer of a process out of memory. A run uses such an answer at each run, so it would never age out of the folder.
 
 #### @spec the-folder-of-the-kept-answers-is-the-first-one-named
 

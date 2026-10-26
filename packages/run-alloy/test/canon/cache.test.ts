@@ -4,7 +4,8 @@
  * decides its answer asks the analyzer again. A stand-in for Java and the
  * analyzer counts the processes that each run starts.
  */
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -171,6 +172,24 @@ describe('a program asked again', () => {
     expect(existsSync(folder) ? readdirSync(folder) : []).toEqual([]);
     await ask(analyzer, PROGRAM, ARGS, malformed, { folder, form: 'json' });
     expect(analyzer.calls()).toHaveLength(2);
+  });
+
+  /**
+   * @canon spec-an-answer-kept-under-an-earlier-rule-is-not-read
+   */
+  it('is asked of the analyzer again when its answer was kept before run-alloy required the code 0', async () => {
+    const dir = scratch();
+    const analyzer = fakeAnalyzer(join(dir, 'bin'));
+    const folder = join(dir, 'cache');
+    // The key run-alloy gave a program before it kept only the answers of processes that exited with code 0.
+    const jar = createHash('sha256').update(readFileSync(analyzer.jar)).digest('hex');
+    const earlier = createHash('sha256')
+      .update(JSON.stringify({ program: PROGRAM.text, path: 'model.als', beside: [], jar, options: ['-XX:+UseSerialGC', '-Xmx1g', ...ARGS], form: 'instance', java: 21 }))
+      .digest('hex');
+    mkdirSync(folder, { recursive: true });
+    writeFileSync(join(folder, `${earlier}.json`), JSON.stringify({ answer: 'what a process out of memory left' }));
+    expect(await ask(analyzer, PROGRAM, ARGS, instance, { folder, form: 'instance' })).toBe(INSTANCE);
+    expect(analyzer.calls()).toHaveLength(1);
   });
 });
 
