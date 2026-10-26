@@ -72,7 +72,9 @@ jobs:
       # The analyzer's answers that earlier runs kept. The key is new on each run, so each run saves what it kept; a
       # run restores the latest save of its package, or else of any package, since an answer is the same whoever asks.
       # run-alloy removes an answer that no run used for 30 days, so the save stays the size of what recent runs asked.
+      # Only the suites that ask the real analyzer keep answers: the other packages neither restore nor save them.
       - name: Restore the analyzer's kept answers
+        if: contains(fromJSON('["canon-plugin-alloy", "naturalloy", "parse-alloy"]'), matrix.package)
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.cache/alloy-answers
