@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { checkAlloy } from '../../src/alloy.ts';
-import { fakeAnalyzer, INSTANCE } from '@bigmistqke/run-alloy/testing';
+import { fakeAnalyzer, forgetSweeps, INSTANCE } from '@bigmistqke/run-alloy/testing';
 import { CLI, install, NAMES_PLUGIN } from './cli.ts';
 
 /** The tags, spelled apart so the checker does not read this file's templates as citations. */
@@ -125,7 +125,7 @@ describe('a kept answer', () => {
   };
 
   /**
-   * @canon spec-logic-sweeps-the-kept-answers-after-each-run
+   * @canon spec-logic-sweeps-the-kept-answers-after-a-document-it-answered
    */
   it('is removed by the next run once no run used it for thirty days', async () => {
     const dir = scratch();
@@ -134,10 +134,27 @@ describe('a kept answer', () => {
     await checkAlloy(doc(), options);
     const old = readdirSync(options.cache);
     age(options.cache);
+    // The next run is another process, which sweeps the folder again.
+    forgetSweeps();
     await checkAlloy(doc('some a: Apple | a in Ripe'), options);
     const now = readdirSync(options.cache);
     expect(now).toHaveLength(2);
     for (const name of old) expect(now).not.toContain(name);
+  });
+
+  /**
+   * @canon spec-logic-sweeps-the-kept-answers-after-a-document-the-analyzer-did-not-answer
+   */
+  it('is removed by a run whose analyzer gave no answer', async () => {
+    const dir = scratch();
+    const working = fakeAnalyzer(join(dir, 'bin'));
+    const cache = join(dir, 'cache');
+    await checkAlloy(doc(), { java: working.java, jar: working.jar, cache });
+    age(cache);
+    forgetSweeps();
+    const failing = fakeAnalyzer(join(dir, 'bin'), { fail: true, name: 'failing-java' });
+    expect(await checkAlloy(doc('some a: Apple | a in Ripe'), { java: failing.java, jar: failing.jar, cache })).toMatchObject({ ok: false, error: expect.stringContaining('OutOfMemoryError') });
+    expect(readdirSync(cache)).toEqual([]);
   });
 
 });

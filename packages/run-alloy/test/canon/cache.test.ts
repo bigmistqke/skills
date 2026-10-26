@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ask, cacheFolder, sweep, type Program, type Ran } from '../../src/index.ts';
-import { fakeAnalyzer, INSTANCE } from '../../src/testing.ts';
+import { fakeAnalyzer, forgetSweeps, INSTANCE } from '../../src/testing.ts';
 
 const DIRS: string[] = [];
 afterEach(() => {
@@ -237,6 +237,23 @@ describe('a kept answer', () => {
     const now = readdirSync(folder);
     expect(now).toHaveLength(1);
     for (const name of old) expect(now).not.toContain(name);
+  });
+
+  /**
+   * @canon spec-a-folder-of-kept-answers-is-swept-once-in-a-process
+   */
+  it('is not removed by a second sweep of its folder in the same process', async () => {
+    const dir = scratch();
+    const analyzer = fakeAnalyzer(join(dir, 'bin'));
+    const folder = join(dir, 'cache');
+    await ask(analyzer, PROGRAM, ARGS, instance, { folder, form: 'instance' });
+    sweep(folder);
+    age(folder);
+    sweep(join(dir, '.', 'cache'));
+    expect(readdirSync(folder)).toHaveLength(1);
+    forgetSweeps();
+    sweep(folder);
+    expect(readdirSync(folder)).toHaveLength(0);
   });
 
   /**

@@ -40,9 +40,10 @@ How run-alloy runs the Alloy analyzer, and why. It is the canon of the package `
     - [`@spec canon-alloy-cache-dir-holds-the-kept-answers-when-the-project-sets-none`](#spec-canon-alloy-cache-dir-holds-the-kept-answers-when-the-project-sets-none) — When the project sets no folder and `CANON_ALLOY_CACHE_DIR` names one, run-alloy keeps the answers in the folder that `CANON_ALLOY_CACHE_DIR` names.
     - [`@spec the-callers-default-folder-holds-the-kept-answers-when-none-is-named`](#spec-the-callers-default-folder-holds-the-kept-answers-when-none-is-named) — When neither the project nor `CANON_ALLOY_CACHE_DIR` names a folder, run-alloy keeps the answers in the caller's default folder. A caller with no default keeps none.
     - [`@spec canon-alloy-cache-0-keeps-no-answer-and-reads-none`](#spec-canon-alloy-cache-0-keeps-no-answer-and-reads-none) — When `CANON_ALLOY_CACHE` is `0`, run-alloy neither reads a kept answer nor keeps one, and asks the analyzer about every program.
-  - [`@spec the-kept-answers-are-only-those-used-in-the-last-thirty-days`](#spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days) — When a caller sweeps the folder of [kept answers](#term-kept-answer), run-alloy removes each kept answer that no run has used in the last 30 days.
-    - [`@spec a-kept-answer-unused-for-thirty-days-is-removed`](#spec-a-kept-answer-unused-for-thirty-days-is-removed) — When no run has used a kept answer in the last 30 days, the next sweep removes it.
+  - [`@spec the-kept-answers-are-only-those-used-in-the-last-thirty-days`](#spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days) — The first sweep of a folder of [kept answers](#term-kept-answer) in a process removes each kept answer that no run used in the last 30 days.
+    - [`@spec a-kept-answer-unused-for-thirty-days-is-removed`](#spec-a-kept-answer-unused-for-thirty-days-is-removed) — When no run has used a kept answer in the last 30 days, the first sweep of its folder in the next process removes it.
     - [`@spec a-kept-answer-that-a-run-uses-is-kept-for-thirty-more-days`](#spec-a-kept-answer-that-a-run-uses-is-kept-for-thirty-more-days) — When run-alloy gives a program a [kept answer](#term-kept-answer), that answer counts as used at that time.
+  - [`@spec a-folder-of-kept-answers-is-swept-once-in-a-process`](#spec-a-folder-of-kept-answers-is-swept-once-in-a-process) — run-alloy sweeps a folder of [kept answers](#term-kept-answer) at most once in a Node process. A later sweep of that folder in the same process removes nothing, and reads nothing.
 - [`@fact a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory`](#fact-a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory) — A Java process whose command line gives no `-Xmx` may grow its heap to a quarter of the machine's memory.
 - [`@fact the-program-and-the-analyzer-decide-the-answer-of-a-search`](#fact-the-program-and-the-analyzer-decide-the-answer-of-a-search) — Whether the Alloy analyzer finds an instance for a run depends only on the program and on the analyzer. The analyzer is its jar, its options, and the Java that runs it.
 - [`@fact the-analyzer-writes-a-receipt-only-when-it-solved-a-command`](#fact-the-analyzer-writes-a-receipt-only-when-it-solved-a-command) — `java -jar alloy.jar exec` writes `receipt.json` into its output folder only when it solved at least one command of the module. When it cannot read the module, or solves none of its commands, it writes none.
@@ -251,7 +252,7 @@ This follows because the author may want the analyzer's own answer. The author m
 
 #### @spec the-kept-answers-are-only-those-used-in-the-last-thirty-days
 
-> When a caller sweeps the folder of [kept answers](#term-kept-answer), run-alloy removes each kept answer that no run has used in the last 30 days.
+> The first sweep of a folder of [kept answers](#term-kept-answer) in a process removes each kept answer that no run used in the last 30 days.
 
 Derives from: [`spec-a-program-asked-of-the-same-analyzer-keeps-its-earlier-answer`](#spec-a-program-asked-of-the-same-analyzer-keeps-its-earlier-answer)
 
@@ -259,7 +260,7 @@ This follows because a change to a model leaves the answers of its old programs 
 
 ##### @spec a-kept-answer-unused-for-thirty-days-is-removed
 
-> When no run has used a kept answer in the last 30 days, the next sweep removes it.
+> When no run has used a kept answer in the last 30 days, the first sweep of its folder in the next process removes it.
 
 This follows because nothing asked that program for a month, so it most likely belongs to a model that changed.
 
@@ -268,6 +269,14 @@ This follows because nothing asked that program for a month, so it most likely b
 > When run-alloy gives a program a [kept answer](#term-kept-answer), that answer counts as used at that time.
 
 This follows because a caller that still asks the program still needs that answer, no matter how long ago the analyzer gave it.
+
+#### @spec a-folder-of-kept-answers-is-swept-once-in-a-process
+
+> run-alloy sweeps a folder of [kept answers](#term-kept-answer) at most once in a Node process. A later sweep of that folder in the same process removes nothing, and reads nothing.
+
+Derives from: [`spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days`](#spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days)
+
+This follows because a sweep reads the time of each kept answer, and a shared folder holds thousands. A caller sweeps after each batch of programs, and a test suite asks many batches in one process. The answers that the first sweep left are younger than 30 days, so a later sweep in the same process would find little to remove. Such an answer waits for the next process at most.
 
 ## @fact a-java-process-may-grow-its-heap-to-a-quarter-of-the-memory
 

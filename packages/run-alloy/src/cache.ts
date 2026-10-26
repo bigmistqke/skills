@@ -69,13 +69,26 @@ export function keyOf(analyzer: Analyzer, program: Program, args: readonly strin
 /** How long a kept answer that no run uses stays: thirty days. */
 const KEPT_FOR_MS = 30 * 24 * 60 * 60 * 1000;
 
+/** The folders this process swept already, by their absolute path. */
+const swept = new Set<string>();
+
+/** Forget the folders this process swept, so that the next sweep of each reads it again. Only tests call it. */
+export function forgetSweeps(): void {
+  swept.clear();
+}
+
 /**
  * Remove each kept answer of `folder` that no run used in the time a kept
- * answer stays. A file's time of change is the last time a run used it.
+ * answer stays. A file's time of change is the last time a run used it. A
+ * folder is swept once in a process: a later sweep of it does nothing.
  *
  * @canon spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days
+ * @canon spec-a-folder-of-kept-answers-is-swept-once-in-a-process
  */
 export function sweep(folder: string, now = Date.now()): void {
+  const path = resolve(folder);
+  if (swept.has(path)) return;
+  swept.add(path);
   let names: string[];
   try {
     names = readdirSync(folder);

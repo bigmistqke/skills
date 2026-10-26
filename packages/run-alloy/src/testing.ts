@@ -8,6 +8,8 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+export { forgetSweeps } from './cache.ts';
+
 /** The text the stand-in writes as the instance of every run. */
 export const INSTANCE = 'the instance the stand-in found\n';
 

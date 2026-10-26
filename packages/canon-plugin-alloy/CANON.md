@@ -390,7 +390,9 @@ It writes its own terms and claims in Alloy, as the checker does. The plugin say
     - [`@spec a-search-whose-program-changed-is-asked-again`](#spec-a-search-whose-program-changed-is-asked-again) — When a unit of a search changes, `alloy:logic` asks the analyzer about the search again.
     - [`@spec a-search-with-other-options-is-asked-again`](#spec-a-search-with-other-options-is-asked-again) — When `--show` names a scenario whose search an earlier run answered without `--show`, `alloy:logic` asks the analyzer about that search again.
     - [`@spec a-kept-answer-of-a-shown-scenario-holds-its-world`](#spec-a-kept-answer-of-a-shown-scenario-holds-its-world) — When `--show` names a scenario, the answer kept for its search holds the world that the analyzer wrote. A later run with `--show` prints that world without the analyzer.
-    - [`@spec logic-sweeps-the-kept-answers-after-each-run`](#spec-logic-sweeps-the-kept-answers-after-each-run) — After it answers a document, `alloy:logic` removes each kept answer of its folder that no run has used in the last 30 days.
+    - [`@spec logic-sweeps-the-kept-answers-after-each-run`](#spec-logic-sweeps-the-kept-answers-after-each-run) — After it checks a document, `alloy:logic` sweeps its folder of kept answers through run-alloy, whether the analyzer answered or not. The sweep removes each kept answer that no run has used in the last 30 days.
+      - [`@spec logic-sweeps-the-kept-answers-after-a-document-it-answered`](#spec-logic-sweeps-the-kept-answers-after-a-document-it-answered) — After the analyzer answers every search of a document, `alloy:logic` removes each kept answer of its folder that no run used in 30 days.
+      - [`@spec logic-sweeps-the-kept-answers-after-a-document-the-analyzer-did-not-answer`](#spec-logic-sweeps-the-kept-answers-after-a-document-the-analyzer-did-not-answer) — When the analyzer leaves a search of a document without an answer, `alloy:logic` still removes each kept answer that no run used in 30 days.
   - [`@spec logic-keeps-its-answers-where-its-project-says`](#spec-logic-keeps-its-answers-where-its-project-says) — `alloy:logic` gives run-alloy the setting `logic.alloy.cache` as the folder that the project sets, and `.cache/canon-alloy` under the root of the project as its default.
     - [`@spec the-cache-setting-names-the-folder-of-the-kept-answers`](#spec-the-cache-setting-names-the-folder-of-the-kept-answers) — When the setting `logic.alloy.cache` names a folder, `alloy:logic` keeps its answers in that folder, from the root of the project, also when `CANON_ALLOY_CACHE_DIR` names another.
     - [`@spec canon-alloy-cache-dir-holds-the-answers-of-a-project-that-sets-no-folder`](#spec-canon-alloy-cache-dir-holds-the-answers-of-a-project-that-sets-no-folder) — When the setting `logic.alloy.cache` names no folder and `CANON_ALLOY_CACHE_DIR` names one, `alloy:logic` keeps its answers in the folder that `CANON_ALLOY_CACHE_DIR` names.
@@ -2100,9 +2102,23 @@ This follows because a world is part of the answer that `--show` asks for. Any w
 
 ##### @spec logic-sweeps-the-kept-answers-after-each-run
 
-> After it answers a document, `alloy:logic` removes each kept answer of its folder that no run has used in the last 30 days.
+> After it checks a document, `alloy:logic` sweeps its folder of kept answers through run-alloy, whether the analyzer answered or not. The sweep removes each kept answer that no run has used in the last 30 days.
 
-This follows because a change to a unit leaves the answers of the old programs of its group behind. A sweep after each run keeps the folder at the size of what recent runs asked.
+Derives from: [`spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days`](../run-alloy/CANON.md#spec-the-kept-answers-are-only-those-used-in-the-last-thirty-days)
+
+This follows because a change to a unit leaves the answers of the old programs of its group behind. A sweep after each run keeps the folder at the size of what recent runs asked. A check that fails also sweeps, since a project may fail at each run. A run over several documents sweeps once, as run-alloy sweeps a folder once in a process.
+
+###### @spec logic-sweeps-the-kept-answers-after-a-document-it-answered
+
+> After the analyzer answers every search of a document, `alloy:logic` removes each kept answer of its folder that no run used in 30 days.
+
+This follows because the answered searches are the ones a run keeps, and the old ones are what the sweep removes.
+
+###### @spec logic-sweeps-the-kept-answers-after-a-document-the-analyzer-did-not-answer
+
+> When the analyzer leaves a search of a document without an answer, `alloy:logic` still removes each kept answer that no run used in 30 days.
+
+This follows because a check that fails at each run, such as one that runs out of memory, would otherwise never sweep its folder.
 
 #### @spec logic-keeps-its-answers-where-its-project-says
 

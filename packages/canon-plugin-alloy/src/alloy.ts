@@ -263,6 +263,15 @@ async function solveAll(programs: Program[], analyzer: Analyzer, keep: Set<strin
  * that cannot happen. Each run is made by a process of its own, several at a time.
  */
 export async function checkAlloy(src: string, options: AlloyOptions = {}): Promise<AlloyResult> {
+  try {
+    return await check(src, options);
+  } finally {
+    // Whether the analyzer answered or not: [why](../CANON.md#spec-logic-sweeps-the-kept-answers-after-each-run).
+    if (options.cache !== undefined) sweep(options.cache);
+  }
+}
+
+async function check(src: string, options: AlloyOptions): Promise<AlloyResult> {
   const java = options.java ?? process.env.CANON_JAVA ?? 'java';
   const jar = options.jar ?? process.env.CANON_ALLOY_JAR;
   if (!jar) return { ok: false, error: 'no Alloy jar: pass `jar`, or set CANON_ALLOY_JAR' };
@@ -309,6 +318,5 @@ export async function checkAlloy(src: string, options: AlloyOptions = {}): Promi
       failures.push({ scenario: name, unit, conflict: (asked[index] as Program).units.filter(other => found.get(`${name}_without_${predicateName(other)}`)) });
     }
   });
-  if (analyzer.cache !== undefined) sweep(analyzer.cache); // [Why after each run](../CANON.md#spec-logic-sweeps-the-kept-answers-after-each-run)
   return failures.length === 0 ? { ok: true, units, scenarios, worlds } : { ok: false, units, scenarios, failures, worlds };
 }
